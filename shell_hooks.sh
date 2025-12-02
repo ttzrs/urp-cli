@@ -13,6 +13,11 @@
 export URP_RUNNER="${URP_RUNNER:-/app/runner.py}"
 export URP_ENABLED="${URP_ENABLED:-1}"
 
+# Load master commands if in master mode
+if [[ "$URP_MASTER" == "1" ]] && [[ -f /app/master_commands.sh ]]; then
+    source /app/master_commands.sh
+fi
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Core wrapper function
 # ═══════════════════════════════════════════════════════════════════════════════

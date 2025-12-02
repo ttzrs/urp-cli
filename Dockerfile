@@ -47,9 +47,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY *.py ./
 COPY shell_hooks.sh ./
+COPY master_commands.sh ./
 COPY entrypoint.sh ./
 
-RUN chmod +x /app/entrypoint.sh /app/shell_hooks.sh
+RUN chmod +x /app/entrypoint.sh /app/shell_hooks.sh /app/master_commands.sh
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Preload embedding model (avoids download on first use)

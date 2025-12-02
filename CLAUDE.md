@@ -170,12 +170,34 @@ The system outputs **LLM-optimized formats**, not raw JSON:
 
 ## Quick Start
 
+### Option 1: Launchers (Recommended)
+
 ```bash
-# Start the stack
+# From any project directory
+cd ~/my-project
+urp              # Worker with WRITE access
+urp-m            # Master (READ-ONLY, can spawn workers)
+
+# Multiple projects in parallel (each in own terminal)
+cd ~/api && urp
+cd ~/frontend && urp   # Both share same Memgraph
+
+# Infrastructure management
+urp-infra status       # Show all URP containers
+urp-infra stop         # Stop infrastructure
+urp-infra clean        # Remove all containers
+```
+
+### Option 2: Docker Compose (Legacy)
+
+```bash
 docker-compose up -d
 docker-compose exec urp bash
+```
 
-# Inside container - hooks are automatic
+### Inside container - hooks are automatic
+
+```bash
 git status     # Logged to graph
 npm install    # Logged to graph
 pytest         # Logged to graph
@@ -185,6 +207,59 @@ pain           # Recent errors (⊥)
 recent         # Recent commands (τ)
 vitals         # Container health (Φ)
 ```
+
+## Launchers Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      urp-network                            │
+│                                                             │
+│  ┌─────────────┐  ┌─────────────┐                          │
+│  │ urp-memgraph│  │ urp_chroma  │  ← Shared infrastructure │
+│  └──────┬──────┘  └──────┬──────┘    (one instance)        │
+│         └────────┬───────┘                                  │
+│                  │                                          │
+│    ┌─────────────┼─────────────┐                           │
+│    │             │             │                            │
+│    ▼             ▼             ▼                            │
+│ urp-api      urp-frontend   urp-master-api                 │
+│ (worker)     (worker)       (master, read-only)            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Available Launchers
+
+| Command | Access | Container Prefix | Use Case |
+|---------|--------|------------------|----------|
+| `urp` | **WRITE** | `urp-{project}` | Direct project work |
+| `urp-m` | **READ-ONLY** | `urp-master-{project}` | Analysis, spawn workers |
+| `urp-c` | WRITE | `urp-{project}` | Claude Code alias |
+| `urp-c-ro` | READ-ONLY | `urp-ro-{project}` | Safe analysis |
+| `urp-infra` | - | - | Infrastructure management |
+
+### Master-Worker Pattern (urp-m)
+
+The master has read-only access but can spawn workers with write access:
+
+```bash
+# Terminal 1: Start master
+cd ~/my-project
+urp-m
+
+# Inside master container:
+urp-spawn          # Spawn worker 1 with WRITE access
+urp-spawn 2        # Spawn worker 2
+urp-workers        # List all workers
+urp-attach 1       # Attach to worker 1
+urp-exec 1 pytest  # Run command in worker 1
+urp-kill 1         # Kill worker 1
+urp-kill-all       # Kill all workers
+```
+
+**Use cases:**
+- Master analyzes code (read-only), worker makes changes
+- Master coordinates multiple workers on different tasks
+- Safe exploration without accidental writes
 
 ## Terminal Flow Capture
 
@@ -346,6 +421,13 @@ identity
 ## Architecture
 
 ```
+# Launchers (bin/)
+bin/urp          → Worker launcher (WRITE access)
+bin/urp-m        → Master launcher (READ-ONLY + spawn workers)
+bin/urp-c        → Claude Code alias (WRITE)
+bin/urp-c-ro     → Claude Code read-only
+bin/urp-infra    → Infrastructure management (start/stop/status/clean)
+
 # Core
 cli.py           → Main CLI, graph queries
 runner.py        → Terminal wrapper + cognitive skills (wisdom, novelty, focus)
@@ -372,6 +454,7 @@ querier.py       → PRU-based queries
 
 # Shell
 shell_hooks.sh   → Bash function wrappers + memory aliases
+master_commands.sh→ Master-only commands (urp-spawn, urp-workers, etc.)
 entrypoint.sh    → Container init script
 ```
 

@@ -1,0 +1,111 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════════════════════
+# urp-m: URP Master Controller
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   urp-m              # Launch master for current directory
+#   urp-m /path/to/project  # Launch master for specific project
+#
+# The master has READ-ONLY access to the project and can:
+#   - Analyze code, run queries (pain, wisdom, focus)
+#   - Spawn worker containers with write access (urp-spawn)
+#   - Coordinate multiple workers
+#
+# Inside the master, use:
+#   urp-spawn          # Spawn a worker with write access
+#   urp-workers        # List active workers
+#   urp-kill <name>    # Kill a worker
+#
+set -e
+
+PROJECT_DIR="$(cd "${1:-.}" && pwd)"
+PROJECT_NAME="$(basename "$PROJECT_DIR" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')"
+URP_HOME="${URP_HOME:-$(dirname "$(realpath "$0")")/..}"
+DOCKER_GID="${DOCKER_GID:-$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 961)}"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+echo -e "${MAGENTA}🧠 URP MASTER${NC} - Controller Mode"
+echo -e "   Project: ${YELLOW}$PROJECT_NAME${NC}"
+echo -e "   Path:    ${CYAN}$PROJECT_DIR${NC}"
+echo -e "   Access:  ${CYAN}READ-ONLY${NC} (use urp-spawn for workers)"
+echo ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Create network if not exists
+# ─────────────────────────────────────────────────────────────────────────────
+docker network create urp-network 2>/dev/null || true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2. Start infrastructure (memgraph) if not running
+# ─────────────────────────────────────────────────────────────────────────────
+if ! docker ps --format '{{.Names}}' | grep -q '^urp-memgraph$'; then
+    if docker ps -a --format '{{.Names}}' | grep -q '^urp-memgraph$'; then
+        echo -e "${YELLOW}Starting existing Memgraph container...${NC}"
+        docker start urp-memgraph
+    else
+        echo -e "${YELLOW}Creating Memgraph container...${NC}"
+        docker run -d \
+            --name urp-memgraph \
+            --network urp-network \
+            --restart unless-stopped \
+            -v urp_memgraph_data:/var/lib/memgraph \
+            -v urp_memgraph_log:/var/log/memgraph \
+            memgraph/memgraph:latest \
+            --log-level=WARNING
+    fi
+    echo -e "${CYAN}Waiting for Memgraph...${NC}"
+    sleep 2
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 3. Build URP image if needed
+# ─────────────────────────────────────────────────────────────────────────────
+if ! docker images --format '{{.Repository}}' | grep -q '^urp-cli$'; then
+    echo -e "${YELLOW}Building URP image (first time only)...${NC}"
+    docker build -t urp-cli:latest "$URP_HOME"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 4. Check if master for this project already running
+# ─────────────────────────────────────────────────────────────────────────────
+CONTAINER_NAME="urp-master-${PROJECT_NAME}"
+if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    echo -e "${YELLOW}Attaching to existing master for ${PROJECT_NAME}...${NC}"
+    docker exec -it "$CONTAINER_NAME" bash
+    exit 0
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. Launch master container (READ-ONLY + docker socket for spawning)
+# ─────────────────────────────────────────────────────────────────────────────
+echo -e "${MAGENTA}Launching URP Master for ${PROJECT_NAME}...${NC}"
+echo ""
+
+docker run -it --rm \
+    --name "$CONTAINER_NAME" \
+    --network urp-network \
+    --group-add "$DOCKER_GID" \
+    --security-opt label:disable \
+    -e NEO4J_URI=bolt://urp-memgraph:7687 \
+    -e NEO4J_USER= \
+    -e NEO4J_PASSWORD= \
+    -e URP_ENABLED=1 \
+    -e URP_MASTER=1 \
+    -e PROJECT_NAME="$PROJECT_NAME" \
+    -e PROJECT_DIR="$PROJECT_DIR" \
+    -e CODEBASE_PATH=/codebase \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "$PROJECT_DIR:/codebase:ro" \
+    -v urp_sessions:/app/sessions \
+    -v urp_chroma:/app/chroma \
+    -w /codebase \
+    urp-cli:latest \
+    bash
