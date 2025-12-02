@@ -3,12 +3,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/joss/urp/internal/graph"
+	"github.com/joss/urp/internal/ingest"
+	"github.com/joss/urp/internal/query"
 	"github.com/joss/urp/internal/render"
 	"github.com/joss/urp/internal/runner"
 )
@@ -57,6 +60,8 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	rootCmd.AddCommand(versionCmd())
 	rootCmd.AddCommand(eventsCmd())
 	rootCmd.AddCommand(sessionCmd())
+	rootCmd.AddCommand(codeCmd())
+	rootCmd.AddCommand(gitCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -213,4 +218,238 @@ func getCwd() string {
 		return "unknown"
 	}
 	return cwd
+}
+
+func codeCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "code",
+		Short: "Code analysis commands",
+		Long:  "Parse and analyze code (D, Φ, ⊆ primitives)",
+	}
+
+	// urp code ingest <path>
+	ingestCmd := &cobra.Command{
+		Use:   "ingest <path>",
+		Short: "Parse code into graph",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			ingester := ingest.NewIngester(db)
+			stats, err := ingester.Ingest(context.Background(), args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(stats, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+
+	// urp code deps <signature>
+	var depth int
+	depsCmd := &cobra.Command{
+		Use:   "deps <signature>",
+		Short: "Find dependencies of a function (Φ forward)",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			deps, err := q.FindDeps(context.Background(), args[0], depth)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(deps, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+	depsCmd.Flags().IntVarP(&depth, "depth", "d", 3, "Max depth")
+
+	// urp code impact <signature>
+	impactCmd := &cobra.Command{
+		Use:   "impact <signature>",
+		Short: "Find impact of changing a function (Φ inverse)",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			impacts, err := q.FindImpact(context.Background(), args[0], depth)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(impacts, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+	impactCmd.Flags().IntVarP(&depth, "depth", "d", 3, "Max depth")
+
+	// urp code dead
+	deadCmd := &cobra.Command{
+		Use:   "dead",
+		Short: "Find unused code (⊥ unused)",
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			dead, err := q.FindDeadCode(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(dead, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+
+	// urp code cycles
+	cyclesCmd := &cobra.Command{
+		Use:   "cycles",
+		Short: "Find circular dependencies (⊥ conflict)",
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			cycles, err := q.FindCycles(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(cycles, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+
+	// urp code hotspots
+	var days int
+	hotspotsCmd := &cobra.Command{
+		Use:   "hotspots",
+		Short: "Find high-churn areas (τ + Φ)",
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			hotspots, err := q.FindHotspots(context.Background(), days)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(hotspots, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+	hotspotsCmd.Flags().IntVarP(&days, "days", "d", 30, "Look back N days")
+
+	// urp code stats
+	statsCmd := &cobra.Command{
+		Use:   "stats",
+		Short: "Show graph statistics",
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			stats, err := q.GetStats(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(stats, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+
+	cmd.AddCommand(ingestCmd, depsCmd, impactCmd, deadCmd, cyclesCmd, hotspotsCmd, statsCmd)
+	return cmd
+}
+
+func gitCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "git",
+		Short: "Git history commands",
+		Long:  "Load and query git history (τ primitive)",
+	}
+
+	// urp git ingest <path>
+	var maxCommits int
+	ingestCmd := &cobra.Command{
+		Use:   "ingest <path>",
+		Short: "Load git history into graph",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			loader := ingest.NewGitLoader(db, args[0])
+			stats, err := loader.LoadHistory(context.Background(), maxCommits)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(stats, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+	ingestCmd.Flags().IntVarP(&maxCommits, "max", "m", 500, "Max commits to load")
+
+	// urp git history <file>
+	var limit int
+	historyCmd := &cobra.Command{
+		Use:   "history <file>",
+		Short: "Show file change history",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+				os.Exit(1)
+			}
+
+			q := query.NewQuerier(db)
+			history, err := q.GetHistory(context.Background(), args[0], limit)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			out, _ := json.MarshalIndent(history, "", "  ")
+			fmt.Println(string(out))
+		},
+	}
+	historyCmd.Flags().IntVarP(&limit, "limit", "n", 20, "Max commits")
+
+	cmd.AddCommand(ingestCmd, historyCmd)
+	return cmd
 }
