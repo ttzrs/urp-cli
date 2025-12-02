@@ -254,6 +254,26 @@ def get_collection_stats(collection_name: str = "urp_embeddings") -> dict:
         return {"error": str(e)}
 
 
+def get_all_collections_stats() -> dict:
+    """Get stats for all URP collections."""
+    collections = ["urp_embeddings", "session_memory", "urp_knowledge"]
+    stats = {}
+    for name in collections:
+        stats[name] = get_collection_stats(name)
+    return stats
+
+
+def list_collections() -> list[str]:
+    """List all collections in ChromaDB."""
+    client = _get_chroma()
+    if client is None:
+        return []
+    try:
+        return [c.name for c in client.list_collections()]
+    except Exception:
+        return []
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Preload script (run during Docker build)
 # ─────────────────────────────────────────────────────────────────────────────
