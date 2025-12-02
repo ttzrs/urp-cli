@@ -9,6 +9,7 @@
 #   urp-infra stop      # Stop shared infrastructure
 #   urp-infra clean     # Remove all URP containers (keeps volumes)
 #   urp-infra purge     # Remove everything including volumes (DESTRUCTIVE)
+#   urp-infra lab       # Open Memgraph Lab in browser (temporary container)
 #
 set -e
 
@@ -70,6 +71,45 @@ case "${1:-status}" in
         echo -e "${CYAN}  Volumes preserved. Use 'urp-infra purge' to remove everything.${NC}"
         ;;
 
+    lab)
+        # Check if memgraph is running
+        if ! docker ps --format '{{.Names}}' | grep -q '^urp-memgraph$'; then
+            echo -e "${RED}Memgraph not running. Start with: urp-infra start${NC}"
+            exit 1
+        fi
+
+        # Check if lab already running
+        if docker ps --format '{{.Names}}' | grep -q '^urp-lab$'; then
+            PORT=$(docker port urp-lab 3000 | cut -d: -f2)
+            echo -e "${GREEN}Lab already running at http://localhost:${PORT}${NC}"
+            xdg-open "http://localhost:${PORT}" 2>/dev/null || echo "Open: http://localhost:${PORT}"
+            exit 0
+        fi
+
+        echo -e "${CYAN}Starting Memgraph Lab...${NC}"
+
+        # Run lab on same network, random host port
+        docker run -d --rm \
+            --name urp-lab \
+            --network urp-network \
+            -e QUICK_CONNECT_MG_HOST=urp-memgraph \
+            -e QUICK_CONNECT_MG_PORT=7687 \
+            -p 0:3000 \
+            memgraph/lab:latest
+
+        sleep 2
+        PORT=$(docker port urp-lab 3000 | cut -d: -f2)
+
+        echo -e "${GREEN}✓ Memgraph Lab running at http://localhost:${PORT}${NC}"
+        echo -e "${CYAN}  Connected to urp-memgraph (internal network)${NC}"
+        echo -e "${CYAN}  Close browser tab and run 'docker stop urp-lab' when done${NC}"
+
+        # Open browser
+        xdg-open "http://localhost:${PORT}" 2>/dev/null || \
+        open "http://localhost:${PORT}" 2>/dev/null || \
+        echo "Open in browser: http://localhost:${PORT}"
+        ;;
+
     purge)
         echo -e "${RED}⚠️  WARNING: This will delete ALL URP data including:${NC}"
         echo "  - All containers"
@@ -100,6 +140,7 @@ case "${1:-status}" in
         echo "  status    Show status of all URP containers and volumes (default)"
         echo "  start     Start shared infrastructure (memgraph)"
         echo "  stop      Stop shared infrastructure"
+        echo "  lab       Open Memgraph Lab in browser (temporary container)"
         echo "  clean     Remove all URP containers (keeps volumes)"
         echo "  purge     Remove everything including volumes (DESTRUCTIVE)"
         ;;

@@ -99,6 +99,9 @@ def log_to_graph(
             except Exception:
                 pass
 
+        # Get project name from environment
+        project_name = os.environ.get("PROJECT_NAME", "unknown")
+
         db.execute_query(f"""
             CREATE (e:{label_str} {{
                 command: $cmd,
@@ -110,6 +113,7 @@ def log_to_graph(
                 stderr_preview: $stderr,
                 timestamp: $ts,
                 datetime: $dt,
+                project: $project,
                 embedding: {embedding_str}
             }})
         """, {
@@ -122,6 +126,7 @@ def log_to_graph(
             "stderr": stderr_safe,
             "ts": int(time.time()),
             "dt": datetime.now().isoformat(),
+            "project": project_name,
         })
 
         # Link to session context if exists
@@ -250,14 +255,27 @@ def run_with_resources(args: list[str]) -> int:
         return run_transparent(args, capture=False)
 
 
-def query_recent_commands(limit: int = 20, errors_only: bool = False) -> list[dict]:
-    """Query recent terminal events from the graph."""
+def query_recent_commands(limit: int = 20, errors_only: bool = False, project: str = None) -> list[dict]:
+    """Query recent terminal events from the graph.
+
+    Args:
+        limit: Max number of results
+        errors_only: Only show failed commands
+        project: Filter by project name (None = all projects)
+    """
     db = get_db()
     if not db:
         return []
 
     try:
-        where_clause = "WHERE e.exit_code <> 0" if errors_only else ""
+        where_clauses = []
+        if errors_only:
+            where_clauses.append("e.exit_code <> 0")
+        if project:
+            where_clauses.append("e.project = $project")
+
+        where_clause = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+
         results = db.execute_query(f"""
             MATCH (e:TerminalEvent)
             {where_clause}
@@ -265,19 +283,24 @@ def query_recent_commands(limit: int = 20, errors_only: bool = False) -> list[di
                    e.exit_code as exit,
                    e.duration_sec as duration,
                    e.datetime as time,
-                   e.cwd as cwd
+                   e.cwd as cwd,
+                   e.project as project
             ORDER BY e.timestamp DESC
             LIMIT $limit
-        """, {"limit": limit})
+        """, {"limit": limit, "project": project})
         return [dict(r) for r in results]
     except Exception:
         return []
 
 
-def query_pain(minutes: int = 5) -> list[dict]:
+def query_pain(minutes: int = 5, project: str = None) -> list[dict]:
     """
     Find recent errors/conflicts (⊥).
     The "pain" the system experienced.
+
+    Args:
+        minutes: Look back N minutes
+        project: Filter by project name (None = all projects)
     """
     db = get_db()
     if not db:
@@ -285,16 +308,20 @@ def query_pain(minutes: int = 5) -> list[dict]:
 
     try:
         cutoff = int(time.time()) - (minutes * 60)
-        results = db.execute_query("""
+
+        project_clause = "AND e.project = $project" if project else ""
+
+        results = db.execute_query(f"""
             MATCH (e:Conflict)
-            WHERE e.timestamp > $cutoff
+            WHERE e.timestamp > $cutoff {project_clause}
             RETURN e.command as cmd,
                    e.exit_code as exit,
                    e.stderr_preview as error,
                    e.datetime as time,
-                   e.cwd as cwd
+                   e.cwd as cwd,
+                   e.project as project
             ORDER BY e.timestamp DESC
-        """, {"cutoff": cutoff})
+        """, {"cutoff": cutoff, "project": project})
         return [dict(r) for r in results]
     except Exception:
         return []
@@ -513,12 +540,17 @@ def get_accumulated_context() -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def consult_wisdom(error_msg: str, threshold: float = 0.7) -> list[dict]:
+def consult_wisdom(error_msg: str, threshold: float = 0.7, project: str = None) -> list[dict]:
     """
     Find similar past errors and their resolutions.
 
     Uses vector similarity to find semantically related errors,
     not just string matching.
+
+    Args:
+        error_msg: The error to search for
+        threshold: Similarity threshold (0.0-1.0)
+        project: Filter by project name (None = all projects for cross-learning)
     """
     db = get_db()
     if not db:
@@ -533,16 +565,18 @@ def consult_wisdom(error_msg: str, threshold: float = 0.7) -> list[dict]:
             return []
 
         # Get all past conflicts with embeddings
-        results = db.execute_query("""
+        project_clause = "AND e.project = $project" if project else ""
+        results = db.execute_query(f"""
             MATCH (e:Conflict)
-            WHERE e.embedding IS NOT NULL
+            WHERE e.embedding IS NOT NULL {project_clause}
             RETURN e.command as cmd,
                    e.stderr_preview as error,
                    e.datetime as time,
-                   e.embedding as embedding
+                   e.embedding as embedding,
+                   e.project as project
             ORDER BY e.timestamp DESC
             LIMIT 100
-        """)
+        """, {"project": project})
 
         # Calculate similarities locally
         # (Memgraph has distance functions but may not have cosine built-in)
@@ -556,6 +590,7 @@ def consult_wisdom(error_msg: str, threshold: float = 0.7) -> list[dict]:
                     'cmd': r['cmd'],
                     'error': r['error'],
                     'time': r['time'],
+                    'project': r.get('project', 'unknown'),
                     'similarity': round(sim, 3)
                 })
 
@@ -885,10 +920,14 @@ def main():
     p = subparsers.add_parser("recent", help="Show recent commands")
     p.add_argument("--limit", type=int, default=20, help="Number of commands")
     p.add_argument("--errors", action="store_true", help="Only show errors")
+    p.add_argument("--project", help="Filter by project name")
+    p.add_argument("--all", action="store_true", help="Show all projects (default)")
 
     # pain - show recent errors
     p = subparsers.add_parser("pain", help="Show recent errors")
     p.add_argument("--minutes", type=int, default=5, help="Look back N minutes")
+    p.add_argument("--project", help="Filter by project name")
+    p.add_argument("--all", action="store_true", help="Show all projects (default)")
 
     # session - start a session
     p = subparsers.add_parser("session", help="Start a new session")
@@ -898,6 +937,8 @@ def main():
     p = subparsers.add_parser("wisdom", help="Find similar past errors")
     p.add_argument("error", help="Error message to search for")
     p.add_argument("--threshold", type=float, default=0.7, help="Similarity threshold")
+    p.add_argument("--project", help="Filter by project name")
+    p.add_argument("--all", action="store_true", help="Search all projects (default)")
 
     # novelty - check code novelty
     p = subparsers.add_parser("novelty", help="Check if code is novel/unusual")
@@ -993,14 +1034,21 @@ def main():
         sys.exit(exit_code)
 
     elif args.action == "recent":
-        results = query_recent_commands(args.limit, args.errors)
+        # --project overrides --all; if neither, show all
+        project_filter = args.project if hasattr(args, 'project') and args.project else None
+        results = query_recent_commands(args.limit, args.errors, project=project_filter)
+        # Add header showing scope
+        scope = f"project:{project_filter}" if project_filter else "all projects"
+        print(f"# Recent commands ({scope})")
         print(json.dumps(results, indent=2))
 
     elif args.action == "pain":
-        results = query_pain(args.minutes)
+        project_filter = args.project if hasattr(args, 'project') and args.project else None
+        results = query_pain(args.minutes, project=project_filter)
         # Use trace renderer for causal narrative
         from brain_render import render_as_trace
-        print(render_as_trace(results, f"Errors in last {args.minutes} minutes"))
+        scope = f"project:{project_filter}" if project_filter else "all projects"
+        print(render_as_trace(results, f"Errors in last {args.minutes} minutes ({scope})"))
 
     elif args.action == "session":
         if start_session(args.name):
@@ -1010,9 +1058,12 @@ def main():
             sys.exit(1)
 
     elif args.action == "wisdom":
-        results = consult_wisdom(args.error, args.threshold)
+        project_filter = args.project if hasattr(args, 'project') and args.project else None
+        results = consult_wisdom(args.error, args.threshold, project=project_filter)
         # Use renderer for LLM-friendly output
         from brain_render import render_wisdom_result
+        scope = f"(project: {project_filter})" if project_filter else "(all projects)"
+        print(f"# Wisdom search {scope}")
         print(render_wisdom_result(results))
 
     elif args.action == "novelty":

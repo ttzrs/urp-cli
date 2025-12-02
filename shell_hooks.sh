@@ -213,9 +213,71 @@ urp-init() {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Query Scope Commands (project-local vs global)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Project-local queries (only current project)
+alias local-wisdom='python3 /app/runner.py wisdom --project "$PROJECT_NAME"'
+alias local-pain='python3 /app/runner.py pain --project "$PROJECT_NAME"'
+alias local-recent='python3 /app/runner.py recent --project "$PROJECT_NAME"'
+alias local-history='python3 /app/cli.py history --project "$PROJECT_NAME"'
+alias local-hotspots='python3 /app/cli.py hotspots --project "$PROJECT_NAME"'
+
+# Global queries (all projects - cross-project learning)
+alias global-wisdom='python3 /app/runner.py wisdom --all'
+alias global-pain='python3 /app/runner.py pain --all'
+alias global-recent='python3 /app/runner.py recent --all'
+
+# Show connection topology
+urp-topology() {
+    echo -e "\033[0;36m"
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "                    URP Network Topology                        "
+    echo "═══════════════════════════════════════════════════════════════"
+    echo -e "\033[0m"
+    echo ""
+    echo "  ┌─────────────────────────────────────────────────────────┐"
+    echo "  │                    urp-network                          │"
+    echo "  │                                                         │"
+    echo "  │   ┌─────────────┐      ┌─────────────┐                 │"
+    echo "  │   │ urp-memgraph│◄────►│  urp-chroma │                 │"
+    echo "  │   │  :7687 (db) │      │  (vectors)  │                 │"
+    echo "  │   └──────┬──────┘      └─────────────┘                 │"
+    echo "  │          │                                              │"
+    echo "  │          │ bolt://urp-memgraph:7687                     │"
+    echo "  │          │                                              │"
+
+    # List connected project containers
+    local containers=$(docker ps --filter "network=urp-network" --filter "name=urp-" --format "{{.Names}}" 2>/dev/null | grep -v memgraph | grep -v chroma | grep -v lab)
+
+    if [[ -n "$containers" ]]; then
+        for c in $containers; do
+            local is_current=""
+            if [[ "$c" == "urp-${PROJECT_NAME}" ]] || [[ "$c" == "urp-master-${PROJECT_NAME}" ]]; then
+                is_current=" ◄── YOU"
+            fi
+            printf "  │   ┌─────────────┐                                       │\n"
+            printf "  │   │ %-11s │%s                          │\n" "$c" "$is_current"
+            printf "  │   └─────────────┘                                       │\n"
+        done
+    else
+        echo "  │   (no project containers running)                       │"
+    fi
+
+    echo "  │                                                         │"
+    echo "  └─────────────────────────────────────────────────────────┘"
+    echo ""
+    echo -e "\033[0;33mProject: ${PROJECT_NAME:-unknown}\033[0m"
+    echo -e "\033[0;33mScope:   local-* (this project) | global-* (all projects)\033[0m"
+    echo ""
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Startup message
 # ═══════════════════════════════════════════════════════════════════════════════
 
 if [[ "$URP_ENABLED" == "1" ]] && [[ -f "$URP_RUNNER" ]]; then
-    echo "🧠 URP: Terminal flow capture active. Use 'urp-status' to check."
+    # Show topology on startup
+    urp-topology
+    echo -e "\033[0;32m🧠 URP active.\033[0m Commands: urp-topology, local-wisdom, global-wisdom"
 fi
