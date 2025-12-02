@@ -16,6 +16,7 @@ import (
 	"github.com/joss/urp/internal/query"
 	"github.com/joss/urp/internal/render"
 	"github.com/joss/urp/internal/runner"
+	"github.com/joss/urp/internal/runtime"
 )
 
 var (
@@ -68,6 +69,7 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	rootCmd.AddCommand(memCmd())
 	rootCmd.AddCommand(kbCmd())
 	rootCmd.AddCommand(focusCmd())
+	rootCmd.AddCommand(sysCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -959,4 +961,157 @@ func focusCmd() *cobra.Command {
 	cmd.Flags().IntVarP(&depth, "depth", "d", 1, "Expansion depth (1-3)")
 
 	return cmd
+}
+
+func sysCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "sys",
+		Short: "System/runtime commands",
+		Long:  "Container observation: vitals, topology, health (Φ energy primitives)",
+	}
+
+	// urp sys vitals
+	vitalsCmd := &cobra.Command{
+		Use:   "vitals",
+		Short: "Show container CPU/RAM metrics",
+		Long:  "Display energy metrics for running containers (Φ primitive)",
+		Run: func(cmd *cobra.Command, args []string) {
+			obs := runtime.NewObserver(db)
+
+			if obs.Runtime() == "" {
+				fmt.Println("No container runtime detected (docker/podman)")
+				return
+			}
+
+			states, err := obs.Vitals(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			if len(states) == 0 {
+				fmt.Println("No running containers")
+				return
+			}
+
+			fmt.Println("VITALS (Φ energy)")
+			fmt.Println()
+			for _, s := range states {
+				memPct := fmt.Sprintf("%.1f%%", s.MemoryPct)
+				cpuPct := fmt.Sprintf("%.1f%%", s.CPUPercent)
+				fmt.Printf("  %-20s  CPU: %6s  MEM: %6s (%s / %s)\n",
+					truncateStr(s.Name, 20),
+					cpuPct,
+					memPct,
+					formatBytes(s.MemoryBytes),
+					formatBytes(s.MemoryLimit))
+			}
+		},
+	}
+
+	// urp sys topology
+	topologyCmd := &cobra.Command{
+		Use:   "topology",
+		Short: "Show container network map",
+		Long:  "Display container network topology (⊆ inclusion)",
+		Run: func(cmd *cobra.Command, args []string) {
+			obs := runtime.NewObserver(db)
+
+			topo, err := obs.Topology(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			if topo.Error != "" {
+				fmt.Printf("Warning: %s\n\n", topo.Error)
+			}
+
+			if len(topo.Containers) == 0 {
+				fmt.Println("No containers found")
+				return
+			}
+
+			fmt.Println("TOPOLOGY (⊆ network map)")
+			fmt.Println()
+
+			// Group by network
+			byNetwork := make(map[string][]string)
+			for _, c := range topo.Containers {
+				for _, net := range c.Networks {
+					byNetwork[net] = append(byNetwork[net], c.Name)
+				}
+			}
+
+			for net, containers := range byNetwork {
+				fmt.Printf("  [%s]\n", net)
+				for _, name := range containers {
+					fmt.Printf("    └── %s\n", name)
+				}
+			}
+		},
+	}
+
+	// urp sys health
+	healthCmd := &cobra.Command{
+		Use:   "health",
+		Short: "Check container health issues",
+		Long:  "Detect container problems (⊥ orthogonal conflicts)",
+		Run: func(cmd *cobra.Command, args []string) {
+			obs := runtime.NewObserver(db)
+
+			issues, err := obs.Health(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			if len(issues) == 0 {
+				fmt.Println("HEALTH: All containers healthy")
+				return
+			}
+
+			fmt.Println("HEALTH (⊥ issues detected)")
+			fmt.Println()
+			for _, issue := range issues {
+				icon := "⚠"
+				if issue.Severity == "ERROR" || issue.Severity == "FATAL" {
+					icon = "✗"
+				}
+				fmt.Printf("  %s [%s] %s: %s\n",
+					icon, issue.Type, issue.Container, issue.Detail)
+			}
+		},
+	}
+
+	// urp sys runtime
+	runtimeCmd := &cobra.Command{
+		Use:   "runtime",
+		Short: "Show detected container runtime",
+		Run: func(cmd *cobra.Command, args []string) {
+			obs := runtime.NewObserver(db)
+			rt := obs.Runtime()
+			if rt == "" {
+				fmt.Println("No container runtime detected")
+				return
+			}
+			fmt.Printf("Runtime: %s\n", rt)
+		},
+	}
+
+	cmd.AddCommand(vitalsCmd, topologyCmd, healthCmd, runtimeCmd)
+	return cmd
+}
+
+func formatBytes(b int64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%dB", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f%cB", float64(b)/float64(div), "KMGTPE"[exp])
 }
