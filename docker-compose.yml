@@ -9,8 +9,8 @@
 #
 # Mount your codebase:
 #   CODEBASE_PATH=/path/to/repo docker-compose up -d
-
-version: '3.8'
+#
+# Note: security_opt: label:disable is set for docker socket access on SELinux systems
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -54,6 +54,12 @@ services:
     depends_on:
       memgraph:
         condition: service_started
+    # Add docker group for socket access (GID from host)
+    group_add:
+      - ${DOCKER_GID:-961}
+    # Disable SELinux label for docker socket access
+    security_opt:
+      - label:disable
     environment:
       - NEO4J_URI=bolt://memgraph:7687
       - NEO4J_USER=
@@ -78,6 +84,10 @@ services:
     depends_on:
       memgraph:
         condition: service_started
+    group_add:
+      - ${DOCKER_GID:-961}
+    security_opt:
+      - label:disable
     environment:
       - NEO4J_URI=bolt://memgraph:7687
       - NEO4J_USER=
