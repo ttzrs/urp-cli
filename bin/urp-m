@@ -24,6 +24,10 @@ PROJECT_NAME="$(basename "$PROJECT_DIR" | tr '[:upper:]' '[:lower:]' | tr -cd 'a
 URP_HOME="${URP_HOME:-$(dirname "$(realpath "$0")")/..}"
 DOCKER_GID="${DOCKER_GID:-$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 961)}"
 
+# Shared secrets file
+URP_DIR="${URP_DIR:-$HOME/.urp}"
+SECRETS_FILE="${URP_SECRETS_FILE:-$URP_DIR/secrets.env}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -61,9 +65,22 @@ if ! docker ps --format '{{.Names}}' | grep -q '^urp-memgraph$'; then
             memgraph/memgraph:latest \
             --log-level=WARNING
     fi
-    echo -e "${CYAN}Waiting for Memgraph...${NC}"
-    sleep 2
 fi
+
+# Always verify memgraph is accepting connections before launching worker
+echo -n -e "${CYAN}Waiting for Memgraph...${NC}"
+for i in {1..30}; do
+    if echo "RETURN 1;" | docker exec -i urp-memgraph mgconsole >/dev/null 2>&1; then
+        echo -e " ${GREEN}OK${NC}"
+        break
+    fi
+    echo -n "."
+    sleep 1
+    if [ $i -eq 30 ]; then
+        echo -e " ${RED}TIMEOUT${NC}"
+        echo -e "${YELLOW}Warning: Memgraph not responding. Container may start in degraded mode.${NC}"
+    fi
+done
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Build URP image if needed
@@ -89,6 +106,13 @@ fi
 echo -e "${MAGENTA}Launching URP Master for ${PROJECT_NAME}...${NC}"
 echo ""
 
+# Build secrets mount argument if file exists
+SECRETS_MOUNT=""
+if [ -f "$SECRETS_FILE" ]; then
+    SECRETS_MOUNT="-v $SECRETS_FILE:/app/secrets.env:ro"
+    echo -e "${CYAN}  Secrets: loaded from ~/.urp/secrets.env${NC}"
+fi
+
 docker run -it --rm \
     --name "$CONTAINER_NAME" \
     --network urp-network \
@@ -99,13 +123,18 @@ docker run -it --rm \
     -e NEO4J_PASSWORD= \
     -e URP_ENABLED=1 \
     -e URP_MASTER=1 \
+    -e ANTHROPIC_UPSTREAM=http://100.105.212.98:8317 \
+    -e ANTHROPIC_AUTH_TOKEN=sk-dummy \
     -e PROJECT_NAME="$PROJECT_NAME" \
     -e PROJECT_DIR="$PROJECT_DIR" \
     -e CODEBASE_PATH=/codebase \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "$HOME/.claude:/root/.claude" \
     -v "$PROJECT_DIR:/codebase:ro" \
     -v urp_sessions:/app/sessions \
     -v urp_chroma:/app/chroma \
+    -v urp_shared:/shared \
+    $SECRETS_MOUNT \
     -w /codebase \
     urp-cli:latest \
     bash

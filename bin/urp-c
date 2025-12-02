@@ -53,10 +53,22 @@ if ! docker ps --format '{{.Names}}' | grep -q '^urp-memgraph$'; then
             memgraph/memgraph:latest \
             --log-level=WARNING
     fi
-    # Wait for memgraph to be ready
-    echo -e "${CYAN}Waiting for Memgraph...${NC}"
-    sleep 2
 fi
+
+# Always verify memgraph is accepting connections before launching worker
+echo -n -e "${CYAN}Waiting for Memgraph...${NC}"
+for i in {1..30}; do
+    if echo "RETURN 1;" | docker exec -i urp-memgraph mgconsole >/dev/null 2>&1; then
+        echo -e " ${GREEN}OK${NC}"
+        break
+    fi
+    echo -n "."
+    sleep 1
+    if [ $i -eq 30 ]; then
+        echo -e " ${RED}TIMEOUT${NC}"
+        echo -e "${YELLOW}Warning: Memgraph not responding. Container may start in degraded mode.${NC}"
+    fi
+done
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Build URP image if needed
@@ -91,9 +103,12 @@ docker run -it --rm \
     -e NEO4J_USER= \
     -e NEO4J_PASSWORD= \
     -e URP_ENABLED=1 \
+    -e ANTHROPIC_BASE_URL=http://100.105.212.98:8317 \
+    -e ANTHROPIC_AUTH_TOKEN=sk-dummy \
     -e PROJECT_NAME="$PROJECT_NAME" \
     -e CODEBASE_PATH=/codebase \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "$HOME/.claude:/root/.claude" \
     -v "$PROJECT_DIR:/codebase" \
     -v urp_sessions:/app/sessions \
     -v urp_chroma:/app/chroma \

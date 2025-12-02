@@ -1,0 +1,313 @@
+{
+  "timestamp": "2025-12-02T23:28:15.455735",
+  "total": 20,
+  "passed": 20,
+  "failed": 0,
+  "duration_ms": 1.8465518951416016,
+  "suites": [
+    {
+      "suite": "critical",
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "duration_ms": 0.43272972106933594,
+      "results": [
+        {
+          "name": "go_proxy_binary_exists",
+          "passed": true,
+          "message": "Go proxy build configured",
+          "duration_ms": 0.09274482727050781,
+          "details": {
+            "has_go_install": true,
+            "has_proxy_build": true,
+            "has_proxy_copy": true
+          }
+        },
+        {
+          "name": "go_proxy_source_valid",
+          "passed": true,
+          "message": "Go proxy source valid",
+          "duration_ms": 0.06628036499023438,
+          "details": {
+            "has_http_handler": true,
+            "has_token_extraction": true,
+            "has_sqlite": true,
+            "has_upstream_forward": true,
+            "has_stats_endpoint": true,
+            "has_health_endpoint": true
+          }
+        },
+        {
+          "name": "proxy_token_extraction",
+          "passed": true,
+          "message": "Token extraction configured",
+          "duration_ms": 0.039577484130859375,
+          "details": {
+            "anthropic_usage": true,
+            "openai_format": true,
+            "cached_tokens": true
+          }
+        },
+        {
+          "name": "local_stats_schema",
+          "passed": true,
+          "message": "Schema match: 6/6 columns",
+          "duration_ms": 0.04744529724121094,
+          "details": {
+            "found_columns": [
+              "timestamp",
+              "model",
+              "input_tokens",
+              "output_tokens",
+              "duration_ms",
+              "status"
+            ],
+            "has_aggregation": true,
+            "has_groupby": true,
+            "has_orderby": true
+          }
+        },
+        {
+          "name": "immune_dangerous_patterns",
+          "passed": true,
+          "message": "Blocking 4/5 critical patterns",
+          "duration_ms": 0.14925003051757812,
+          "details": {
+            "rm_rf_root": false,
+            "force_push": true,
+            "drop_database": true,
+            "env_files": true,
+            "credentials": true
+          }
+        },
+        {
+          "name": "immune_allows_safe",
+          "passed": true,
+          "message": "Immune system patterns look valid",
+          "duration_ms": 0.03743171691894531,
+          "details": {
+            "has_forbidden_patterns": true,
+            "has_specific_rm_patterns": true,
+            "has_anchored_patterns": true,
+            "not_overly_broad": true
+          }
+        }
+      ]
+    },
+    {
+      "suite": "high",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "duration_ms": 0.5640983581542969,
+      "results": [
+        {
+          "name": "database_connection",
+          "passed": true,
+          "message": "Database layer valid",
+          "duration_ms": 0.04601478576660156,
+          "details": {
+            "has_uri_config": true,
+            "has_auth": true,
+            "has_close": true,
+            "has_execute": true,
+            "uses_neo4j_driver": true
+          }
+        },
+        {
+          "name": "pricing_db_cost",
+          "passed": true,
+          "message": "Pricing logic present: 5/5 checks",
+          "duration_ms": 0.4508495330810547,
+          "details": {
+            "has_model_pricing": true,
+            "has_input_output": true,
+            "has_cost_calc": true,
+            "has_sqlite": true,
+            "has_track_usage": true
+          }
+        },
+        {
+          "name": "proxy_stats_api",
+          "passed": true,
+          "message": "API client valid: 5/5 checks",
+          "duration_ms": 0.06723403930664062,
+          "details": {
+            "has_http_client": true,
+            "has_auth_header": true,
+            "has_usage_endpoint": true,
+            "has_error_handling": true,
+            "has_timeout": true
+          }
+        }
+      ]
+    },
+    {
+      "suite": "runner_ingestion",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "duration_ms": 0.29015541076660156,
+      "results": [
+        {
+          "name": "runner_logging",
+          "passed": true,
+          "message": "Runner logging valid",
+          "duration_ms": 0.17189979553222656,
+          "details": {
+            "has_log_function": true,
+            "has_event_creation": true,
+            "has_exit_code": true,
+            "has_timestamp": true,
+            "has_subprocess": true
+          }
+        },
+        {
+          "name": "parser_languages",
+          "passed": true,
+          "message": "Languages: Python=True, Go=True",
+          "duration_ms": 0.07653236389160156,
+          "details": {
+            "python": true,
+            "go": true,
+            "has_registry": true
+          }
+        },
+        {
+          "name": "ingester_entities",
+          "passed": true,
+          "message": "Entity extraction: 5/5 types",
+          "duration_ms": 0.04172325134277344,
+          "details": {
+            "has_file": true,
+            "has_function": true,
+            "has_class": true,
+            "has_calls": true,
+            "has_contains": true
+          }
+        }
+      ]
+    },
+    {
+      "suite": "container_config",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "duration_ms": 0.3643035888671875,
+      "results": [
+        {
+          "name": "entrypoint_proxy",
+          "passed": true,
+          "message": "Proxy startup configured",
+          "duration_ms": 0.06175041198730469,
+          "details": {
+            "has_proxy_function": true,
+            "has_proxy_command": true,
+            "has_port_8318": true,
+            "has_background": true,
+            "has_pid_tracking": true,
+            "exports_base_url": true
+          }
+        },
+        {
+          "name": "opencode_config",
+          "passed": true,
+          "message": "OpenCode config: DeepSeek=True, Router=True",
+          "duration_ms": 0.05841255187988281,
+          "details": {
+            "has_deepseek": true,
+            "has_router": true,
+            "deepseek_has_api": true,
+            "has_v3_2_special": true,
+            "has_default_model": true
+          }
+        },
+        {
+          "name": "deepseek_api_key",
+          "passed": true,
+          "message": "DeepSeek API key configured",
+          "duration_ms": 0.08463859558105469,
+          "details": {
+            "has_key": true,
+            "key_not_empty": true
+          }
+        },
+        {
+          "name": "shell_hooks_aliases",
+          "passed": true,
+          "message": "All aliases present",
+          "duration_ms": 0.080108642578125,
+          "details": {
+            "oc": true,
+            "oc-deepseek": true,
+            "oc-r1": true,
+            "oc-d3.2s": true,
+            "stats": true,
+            "stats-recent": true
+          }
+        },
+        {
+          "name": "master_oc_spawn",
+          "passed": true,
+          "message": "OpenCode spawn configured",
+          "duration_ms": 0.07939338684082031,
+          "details": {
+            "urp-spawn-oc": true,
+            "urp-spawn-oc-sonnet": true,
+            "urp-spawn-oc-codex": true,
+            "has_opencode_launch": true
+          }
+        }
+      ]
+    },
+    {
+      "suite": "integration",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "duration_ms": 0.1952648162841797,
+      "results": [
+        {
+          "name": "dockerfile_components",
+          "passed": true,
+          "message": "Components: 9/9",
+          "duration_ms": 0.0667572021484375,
+          "details": {
+            "python": true,
+            "nodejs": true,
+            "claude_code": true,
+            "opencode": true,
+            "go": true,
+            "proxy_build": true,
+            "shell_hooks": true,
+            "entrypoint": true,
+            "local_stats": true
+          }
+        },
+        {
+          "name": "launcher_local_proxy",
+          "passed": true,
+          "message": "Launcher routes through local proxy",
+          "duration_ms": 0.03170967102050781,
+          "details": {
+            "has_upstream": true,
+            "no_direct_base_url": true,
+            "has_sessions_volume": true
+          }
+        },
+        {
+          "name": "brain_cortex_embedding",
+          "passed": true,
+          "message": "Embedding pipeline: 4/4 components",
+          "duration_ms": 0.09679794311523438,
+          "details": {
+            "has_model": true,
+            "has_chroma": true,
+            "has_embedding": true,
+            "has_similarity": true
+          }
+        }
+      ]
+    }
+  ]
+}

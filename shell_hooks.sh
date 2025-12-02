@@ -18,6 +18,11 @@ if [[ "$URP_MASTER" == "1" ]] && [[ -f /app/master_commands.sh ]]; then
     source /app/master_commands.sh
 fi
 
+# Load Claude token hook for API usage tracking
+if [[ -f /app/claude_token_hook.sh ]]; then
+    source /app/claude_token_hook.sh
+fi
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Core wrapper function
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -130,13 +135,49 @@ alias knowledge-upload='python3 /app/knowledge.py upload'
 alias knowledge-list='python3 /app/knowledge.py list'
 alias knowledge-sync='python3 /app/knowledge.py sync'
 
-# Token tracking
+# Token tracking (file reads - legacy)
 alias tokens='python3 /app/token_tracker.py'
 alias tokens-status='python3 /app/token_tracker.py status'
 alias tokens-compact='python3 /app/token_tracker.py compact'
 alias tokens-stats='python3 /app/token_tracker.py stats'
 alias tokens-budget='python3 /app/token_tracker.py budget'
 alias tokens-reset='python3 /app/token_tracker.py reset'
+
+# API Token monitoring (Claude API usage with model-aware pricing)
+alias api-tokens='python3 /app/token_monitor.py'
+alias api-tokens-status='python3 /app/token_monitor.py status'
+alias api-tokens-compact='python3 /app/token_monitor.py compact'
+alias api-tokens-json='python3 /app/token_monitor.py json'
+alias api-tokens-track='python3 /app/token_monitor.py track'
+alias api-tokens-models='python3 /app/token_monitor.py models'
+alias api-tokens-cost='python3 /app/token_monitor.py cost'
+
+# Pricing database direct access
+alias pricing='python3 /app/pricing_db.py'
+alias pricing-models='python3 /app/pricing_db.py models'
+alias pricing-cost='python3 /app/pricing_db.py cost'
+
+# Local proxy statistics (this container only)
+alias stats='python3 /app/local_stats.py'
+alias stats-recent='python3 /app/local_stats.py recent'
+alias stats-json='python3 /app/local_stats.py json'
+
+# Global proxy statistics (CLIProxyAPI - ALL users)
+alias proxy-stats='python3 /app/proxy_stats.py'
+alias proxy-usage='python3 /app/proxy_stats.py status'
+alias proxy-models='python3 /app/proxy_stats.py models'
+alias proxy-compact='python3 /app/proxy_stats.py compact'
+
+# Secrets management (inside container)
+secrets-list() {
+    if [ -f /app/secrets.env ]; then
+        echo "Loaded secrets (keys only):"
+        grep -v '^#' /app/secrets.env | grep -v '^$' | cut -d'=' -f1 | sort
+    else
+        echo "No secrets file mounted"
+    fi
+}
+alias secrets='secrets-list'
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Session Memory & Knowledge (Multi-session cognitive architecture)
@@ -168,6 +209,141 @@ alias llm-tools='python3 /app/llm_tools.py'
 
 # Claude Code wrappers
 alias cw='claude-write'  # Shortcut for claude-write
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# OpenCode (via router-for.me)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+alias oc='opencode'
+alias oc-run='opencode run'
+
+# Claude models
+alias oc-sonnet='opencode --model router-for-me/claude-sonnet-4-5'
+alias oc-opus='opencode --model router-for-me/claude-opus-4-1'
+alias oc-haiku='opencode --model router-for-me/claude-haiku-4-5'
+
+# GPT models
+alias oc-gpt='opencode --model router-for-me/gpt-5-1'
+alias oc-codex='opencode --model router-for-me/gpt-5-1-codex-max'
+
+# Other models
+alias oc-gemini='opencode --model router-for-me/gemini-3-pro'
+alias oc-qwen='opencode --model router-for-me/qwen3-coder'
+
+# DeepSeek (direct API - NOT through proxy)
+alias oc-d3.2s='opencode --model deepseek/deepseek-v3-2-special'
+alias oc-deepseek='opencode --model deepseek/deepseek-chat'
+alias oc-r1='opencode --model deepseek/deepseek-reasoner'
+
+# List available models
+oc-models() {
+    echo "OpenCode Models:"
+    echo ""
+    echo "  Claude (via proxy):"
+    echo "    oc         - Claude Sonnet 4.5 (default)"
+    echo "    oc-sonnet  - Claude Sonnet 4.5"
+    echo "    oc-opus    - Claude Opus 4.1"
+    echo "    oc-haiku   - Claude Haiku 4.5 (fast)"
+    echo ""
+    echo "  OpenAI (via proxy):"
+    echo "    oc-gpt     - GPT-5.1"
+    echo "    oc-codex   - GPT-5.1 Codex Max (best for code)"
+    echo ""
+    echo "  DeepSeek (direct API):"
+    echo "    oc-d3.2s    - DeepSeek V3.2 Special (latest)"
+    echo "    oc-deepseek - DeepSeek V3"
+    echo "    oc-r1       - DeepSeek R1 (reasoning)"
+    echo ""
+    echo "  Other (via proxy):"
+    echo "    oc-gemini  - Gemini 3 Pro Preview"
+    echo "    oc-qwen    - Qwen3 Coder Plus"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Context Optimization (cc-* commands)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Status and diagnostics
+alias cc-status='python3 /app/context_manager.py status'
+alias cc-noise='python3 /app/context_manager.py detect-noise'
+alias cc-stats='python3 /app/context_manager.py stats'
+
+# Optimization actions
+alias cc-compact='python3 /app/context_manager.py compact'
+alias cc-clean='python3 /app/context_manager.py clean'
+
+# Mode control (A/B testing)
+alias cc-mode='python3 /app/context_manager.py mode'
+alias cc-none='python3 /app/context_manager.py mode none'
+alias cc-semi='python3 /app/context_manager.py mode semi'
+alias cc-auto='python3 /app/context_manager.py mode auto'
+alias cc-smart='python3 /app/context_manager.py mode hybrid'
+
+# Quality feedback (for A/B testing)
+alias cc-quality='python3 /app/context_manager.py quality'
+alias cc-error='python3 /app/context_manager.py error'
+
+# Recommendations
+alias cc-recommend='python3 /app/context_manager.py recommend'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# A/B Testing Orchestrator (ab-* commands)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Start parallel A/B test with 4 containers (none, semi, auto, hybrid)
+alias ab-start='python3 /app/ab_orchestrator.py start'
+
+# Show aggregated A/B statistics from Memgraph
+alias ab-stats='python3 /app/ab_orchestrator.py stats'
+
+# Get best mode recommendation based on collected data
+alias ab-recommend='python3 /app/ab_orchestrator.py recommend'
+
+# List recent A/B testing sessions
+alias ab-list='python3 /app/ab_orchestrator.py list'
+
+# Quick A/B test for current directory
+ab-test() {
+    local task="${1:-Evaluate optimization modes}"
+    local script="${2:-echo 'Test task'}"
+    python3 /app/ab_orchestrator.py start "$(pwd)" --task "$task" --script "$script"
+}
+
+# Initialize Memgraph schema for A/B testing
+ab-init-schema() {
+    cat /app/ab_schema.cypher | docker exec -i urp-memgraph mgconsole
+    echo "A/B testing schema initialized in Memgraph"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PCx - Performance Comparison eXperiment
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Run PCx experiment
+alias pcx='python3 /app/pcx/pcx_runner.py'
+alias pcx-simple='python3 /app/pcx/pcx_runner.py run simple'
+alias pcx-medium='python3 /app/pcx/pcx_runner.py run medium'
+alias pcx-complex='python3 /app/pcx/pcx_runner.py run complex'
+alias pcx-all='python3 /app/pcx/pcx_runner.py run all'
+
+# PCx analysis
+alias pcx-results='python3 /app/pcx/pcx_runner.py results'
+alias pcx-compare='python3 /app/pcx/pcx_runner.py compare'
+alias pcx-analyze='python3 /app/pcx/pcx_runner.py analyze'
+alias pcx-export='python3 /app/pcx/pcx_runner.py export'
+
+# Initialize PCx schema in Memgraph
+pcx-init() {
+    cat /app/pcx/pcx_schema.cypher | docker exec -i urp-memgraph mgconsole
+    echo "PCx schema initialized in Memgraph"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tutorial interactivo
+# ═══════════════════════════════════════════════════════════════════════════════
+
+alias urp-tutorial='python3 /app/tutorial/tutorial.py'
+alias urp-tutorial-md='cat /app/tutorial/TUTORIAL.md | less'
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Utility functions

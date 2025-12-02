@@ -1,0 +1,111 @@
+{
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "duration_ms": 18233.277000000002,
+  "results": [
+    {
+      "name": "test_01_launcher_files_have_correct_api_config",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 0.17642974853515625,
+      "details": {
+        "launchers_checked": [
+          "bin/urp",
+          "bin/urp-m",
+          "bin/urp-c"
+        ],
+        "errors": []
+      }
+    },
+    {
+      "name": "test_02_master_commands_have_api_config",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 0.03933906555175781,
+      "details": {}
+    },
+    {
+      "name": "test_03_master_commands_has_claude_functions",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 0.0362396240234375,
+      "details": {
+        "required": [
+          "urp-spawn-claude",
+          "urp-claude",
+          "urp-claude-file"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "name": "test_04_newworker_command_exists",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 0.026941299438476562,
+      "details": {
+        "path": ".claude/commands/newworker.md",
+        "exists": true,
+        "has_urp_spawn": true
+      }
+    },
+    {
+      "name": "test_05_infrastructure_can_start",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 37.44339942932129,
+      "details": {}
+    },
+    {
+      "name": "test_06_urp_image_exists",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 34.07621383666992,
+      "details": {}
+    },
+    {
+      "name": "test_07_spawn_worker_creates_container",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 4663.168430328369,
+      "details": {
+        "container": "urp-worker-test-mw-claude-1",
+        "running": true,
+        "env_ok": true
+      }
+    },
+    {
+      "name": "test_08_worker_has_claude_available",
+      "passed": true,
+      "message": "OK (version: 2.0.56 (Claude Code))",
+      "duration_ms": 4587.343454360962,
+      "details": {
+        "claude_found": true,
+        "version": "2.0.56 (Claude Code)"
+      }
+    },
+    {
+      "name": "test_09_exec_command_works",
+      "passed": true,
+      "message": "OK",
+      "duration_ms": 4302.397012710571,
+      "details": {}
+    },
+    {
+      "name": "test_10_multiple_workers_can_coexist",
+      "passed": true,
+      "message": "OK (3/3 running)",
+      "duration_ms": 4608.311414718628,
+      "details": {
+        "workers": [
+          "urp-worker-test-mw-claude-multi-1",
+          "urp-worker-test-mw-claude-multi-2",
+          "urp-worker-test-mw-claude-multi-3"
+        ],
+        "running": 3,
+        "can_ping": false
+      }
+    }
+  ]
+}

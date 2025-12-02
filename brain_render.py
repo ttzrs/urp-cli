@@ -165,6 +165,218 @@ def render_minimal(data: Any, label: str = "DATA") -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Mode: ULTRA-MINIMAL (Extreme Token Economy)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Best for: High-frequency operations, status checks
+# Symbols instead of words. ~90% token reduction.
+
+# Symbol mappings for ultra-minimal mode
+_SYMBOLS = {
+    # Status
+    'success': '✓',
+    'error': '✗',
+    'warning': '⚠',
+    'info': 'ℹ',
+    'pending': '◌',
+    'running': '◐',
+    'complete': '●',
+
+    # Types
+    'file': '📄',
+    'function': 'ƒ',
+    'class': '◆',
+    'module': '▣',
+    'container': '⬡',
+
+    # Actions
+    'add': '+',
+    'remove': '-',
+    'modify': '~',
+    'move': '→',
+    'call': '→',
+
+    # Severity
+    'high': '!!!',
+    'medium': '!!',
+    'low': '!',
+
+    # Time
+    'recent': '◉',
+    'old': '○',
+}
+
+
+def render_ultra_minimal(data: Any, label: str = None) -> str:
+    """
+    Extreme compression: symbols only, minimal prose.
+    Use for: status bars, quick checks, high-frequency queries.
+
+    Token savings: ~90% vs full text.
+
+    Examples:
+    - Events: "✓git ✓npm ✗pytest" instead of "git succeeded, npm succeeded, pytest failed"
+    - Files: "📄main.py ƒfoo ƒbar" instead of "File main.py contains functions foo and bar"
+    - Errors: "✗[!!!] ModuleNotFound" instead of "Error (high severity): ModuleNotFoundError"
+    """
+    if data is None:
+        return "∅"
+
+    if isinstance(data, bool):
+        return "✓" if data else "✗"
+
+    if isinstance(data, (int, float)):
+        # Compact number formatting
+        if isinstance(data, float):
+            return f"{data:.1f}"
+        if data >= 1000000:
+            return f"{data/1000000:.1f}M"
+        if data >= 1000:
+            return f"{data/1000:.1f}K"
+        return str(data)
+
+    if isinstance(data, str):
+        # Check for known status words
+        lower = data.lower()
+        if lower in _SYMBOLS:
+            return _SYMBOLS[lower]
+        # Truncate long strings
+        return data[:20] + "…" if len(data) > 20 else data
+
+    if isinstance(data, list):
+        if not data:
+            return "[]"
+
+        # Detect if it's events (has exit_code), nodes (has type), or generic
+        sample = data[0] if data else {}
+
+        if isinstance(sample, dict):
+            if 'exit_code' in sample:
+                # Events: show as status chain
+                parts = []
+                for item in data[:10]:
+                    status = "✓" if item.get('exit_code', 0) == 0 else "✗"
+                    cmd = item.get('cmd', item.get('command', '?'))
+                    # Extract base command
+                    base = cmd.split()[0] if isinstance(cmd, str) else '?'
+                    parts.append(f"{status}{base}")
+                return " ".join(parts)
+
+            elif 'type' in sample or 'labels' in sample:
+                # Nodes: show type + name
+                parts = []
+                for item in data[:10]:
+                    etype = item.get('type', 'entity')
+                    name = item.get('name', '?')
+                    symbol = _SYMBOLS.get(etype.lower(), '•')
+                    parts.append(f"{symbol}{name[:15]}")
+                return " ".join(parts)
+
+            elif 'severity' in sample or 'type' in sample:
+                # Noise patterns or issues
+                parts = []
+                for item in data[:5]:
+                    sev = _SYMBOLS.get(item.get('severity', 'low'), '!')
+                    ptype = item.get('type', '?')[:10]
+                    count = item.get('count', '')
+                    parts.append(f"{sev}{ptype}:{count}")
+                return " ".join(parts)
+
+            else:
+                # Generic dict list: key=val format
+                parts = []
+                for item in data[:5]:
+                    first_key = next(iter(item.keys()), None)
+                    if first_key:
+                        val = str(item[first_key])[:10]
+                        parts.append(val)
+                return ",".join(parts)
+
+        else:
+            # List of primitives
+            return ",".join(str(x)[:10] for x in data[:10])
+
+    if isinstance(data, dict):
+        # Detect specific dict types
+        if 'exit_code' in data:
+            # Single event
+            status = "✓" if data.get('exit_code', 0) == 0 else "✗"
+            cmd = data.get('cmd', data.get('command', '?'))
+            return f"{status}{cmd[:20]}"
+
+        if 'tokens' in data and 'items' in data:
+            # Working memory status
+            return f"◐{data.get('count', '?')}:{data.get('tokens', 0)}tok"
+
+        if 'used' in data and 'budget' in data:
+            # Token budget
+            pct = data.get('usage_pct', 0)
+            icon = "✓" if pct < 50 else ("⚠" if pct < 80 else "✗")
+            return f"{icon}{pct}%"
+
+        if 'mode' in data:
+            # Mode status
+            mode = data.get('mode', '?')[:4]
+            return f"▣{mode}"
+
+        # Generic dict: compact key=val
+        parts = []
+        for k, v in list(data.items())[:4]:
+            key = k[:6]
+            val = render_ultra_minimal(v) if isinstance(v, (dict, list)) else str(v)[:8]
+            parts.append(f"{key}={val}")
+        return " ".join(parts)
+
+    return str(data)[:30]
+
+
+def render_status_bar(context_status: dict, token_status: dict, mode: str = None) -> str:
+    """
+    Render a single-line status bar for context optimization.
+
+    Output: "[▣hyb] ◐5:1.2K ✓23% ⚠old:3"
+
+    Components:
+    - Mode indicator
+    - Working memory (count:tokens)
+    - Token budget %
+    - Top warning
+    """
+    parts = []
+
+    # Mode
+    if mode:
+        mode_short = mode[:3]
+        parts.append(f"[▣{mode_short}]")
+
+    # Working memory
+    wm = context_status.get('working_memory', {})
+    count = wm.get('count', 0)
+    tokens = wm.get('total_tokens', 0)
+    if tokens >= 1000:
+        tokens_str = f"{tokens/1000:.1f}K"
+    else:
+        tokens_str = str(tokens)
+    parts.append(f"◐{count}:{tokens_str}")
+
+    # Token budget
+    ts = token_status or {}
+    pct = ts.get('usage_pct', 0)
+    icon = "✓" if pct < 50 else ("⚠" if pct < 80 else "✗")
+    parts.append(f"{icon}{pct}%")
+
+    # Top warning from noise patterns
+    noise = context_status.get('noise_patterns', [])
+    if noise:
+        top = noise[0]
+        sev = _SYMBOLS.get(top.get('severity', 'low'), '!')
+        ptype = top.get('type', '?')[:6]
+        count = top.get('count', 0)
+        parts.append(f"{sev}{ptype}:{count}")
+
+    return " ".join(parts)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Mode: MARKDOWN (Structured Narrative)
 # ═══════════════════════════════════════════════════════════════════════════════
 # Best for: Explanations, summaries, reports

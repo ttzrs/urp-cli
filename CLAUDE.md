@@ -331,6 +331,26 @@ urp-status                       # Check URP status
 urp-off / urp-on                 # Disable/enable command logging
 
 # ─────────────────────────────────────────────────────────────────
+# CONTEXT OPTIMIZATION (Claude Code integration)
+# ─────────────────────────────────────────────────────────────────
+cc-status                        # Show context status, noise, recommendations
+cc-compact                       # Run optimization based on current mode
+cc-clean                         # Clean working memory (old/unused items)
+cc-noise                         # Detect and report noise patterns
+
+# Mode control (A/B testing - use to find optimal settings)
+cc-mode [semi|auto|hybrid]       # Get or set optimization mode
+cc-semi                          # Semi-auto: generate /compact instruction
+cc-auto                          # Aggressive: auto-clean all noise
+cc-smart                         # Hybrid: auto-clean safe, ask for uncertain
+
+# Feedback (improves mode recommendation over time)
+cc-quality 1-5                   # Record quality feedback
+cc-error                         # Record context loss error
+cc-stats                         # View A/B testing statistics
+cc-recommend                     # Get recommended mode based on metrics
+
+# ─────────────────────────────────────────────────────────────────
 # SESSION MEMORY (Your private cognitive space)
 # ─────────────────────────────────────────────────────────────────
 remember "text" --kind note      # Save to session memory

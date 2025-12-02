@@ -1,0 +1,137 @@
+{
+  "test_run_id": "20251202_233038",
+  "timestamp": "2025-12-02T23:30:38.210437",
+  "results": {
+    "passed": 18,
+    "failed": 0,
+    "total": 18
+  },
+  "events": [
+    {
+      "timestamp": "2025-12-02T23:30:38.178675",
+      "test": "EvictionScoring::age_decay",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.178696",
+      "test": "EvictionScoring::importance_weight",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.178721",
+      "test": "EvictionScoring::score_calculation",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.186311",
+      "test": "NoiseDetection::duplicate_basenames",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.186358",
+      "test": "NoiseDetection::old_items_detected",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.186373",
+      "test": "NoiseDetection::unused_items_detected",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.188813",
+      "test": "OptimizationModes::mode_aggressive",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.192536",
+      "test": "OptimizationModes::mode_hybrid",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.192669",
+      "test": "OptimizationModes::mode_semi_auto",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.193512",
+      "test": "OptimizationModes::mode_switching",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.193630",
+      "test": "MetricsCollection::mode_stats",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.193712",
+      "test": "MetricsCollection::recommend_best_mode",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.194723",
+      "test": "MetricsCollection::record_quality",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.195849",
+      "test": "MetricsCollection::record_tokens_saved",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.210221",
+      "test": "UltraMinimalRender::render_events",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.210247",
+      "test": "UltraMinimalRender::render_status_bar",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.210254",
+      "test": "UltraMinimalRender::render_token_status",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.210315",
+      "test": "UltraMinimalRender::token_savings",
+      "type": "end",
+      "message": "PASSED",
+      "duration_ms": 0
+    }
+  ]
+}

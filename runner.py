@@ -389,12 +389,43 @@ def estimate_tokens(text: str) -> int:
     return len(text) // 4
 
 
-def add_to_focus(target: str) -> dict:
-    """Add target to working memory."""
+def _calculate_eviction_score(item: dict) -> float:
+    """
+    Calculate eviction priority score.
+    Lower score = evict first.
+
+    Replaces simple FIFO with LRU + importance scoring.
+    """
+    age_sec = time.time() - item.get('added_at', 0)
+    importance = item.get('importance', 1)
+    access_count = item.get('access_count', 1)
+
+    # Normalize age (0-1, newer = higher score = keep longer)
+    # 1 hour decay
+    age_score = max(0, 1 - (age_sec / 3600))
+
+    # Normalize importance (assume 1-5 scale)
+    importance_score = min(importance, 5) / 5.0
+
+    # Normalize access count (cap at 10)
+    access_score = min(access_count, 10) / 10.0
+
+    # Weighted score: importance most important, then recency, then usage
+    return (importance_score * 0.4) + (age_score * 0.3) + (access_score * 0.3)
+
+
+def add_to_focus(target: str, importance: int = 2) -> dict:
+    """Add target to working memory with LRU+importance eviction."""
     state = load_working_memory()
 
+    # If already in focus, update access count (LRU touch)
     if target in state["focused_nodes"]:
-        return {"action": "skip", "target": target, "reason": "Already in focus"}
+        if target in state.get("context_cache", {}):
+            state["context_cache"][target]["access_count"] = \
+                state["context_cache"][target].get("access_count", 1) + 1
+            state["context_cache"][target]["last_access"] = int(time.time())
+            save_working_memory(state)
+        return {"action": "touched", "target": target, "reason": "Updated access count"}
 
     # Get context for the target
     context = focus_context(target, depth=2)
@@ -408,21 +439,45 @@ def add_to_focus(target: str) -> dict:
     evicted = []
 
     if total_tokens + tokens > MAX_CONTEXT_TOKENS:
-        # Evict oldest to make room (FIFO)
-        while state["focused_nodes"] and (total_tokens + tokens) > MAX_CONTEXT_TOKENS:
-            old = state["focused_nodes"].pop(0)
-            old_tokens = state["context_cache"].get(old, {}).get('tokens', 0)
-            total_tokens -= old_tokens
-            if old in state["context_cache"]:
-                del state["context_cache"][old]
-            evicted.append(old)
+        # Build scored list of current items
+        scored_items = []
+        for node in state["focused_nodes"]:
+            cache = state.get("context_cache", {}).get(node, {})
+            item = {
+                "name": node,
+                "tokens": cache.get("tokens", 0),
+                "added_at": cache.get("added_at", 0),
+                "importance": cache.get("importance", 1),
+                "access_count": cache.get("access_count", 1)
+            }
+            item["score"] = _calculate_eviction_score(item)
+            scored_items.append(item)
+
+        # Sort by score ascending (lowest score = evict first)
+        scored_items.sort(key=lambda x: x["score"])
+
+        # Evict lowest-scored items until we have room
+        for item in scored_items:
+            if (total_tokens + tokens) <= MAX_CONTEXT_TOKENS:
+                break
+            old = item["name"]
+            if old in state["focused_nodes"]:
+                state["focused_nodes"].remove(old)
+                old_tokens = state["context_cache"].get(old, {}).get('tokens', 0)
+                total_tokens -= old_tokens
+                if old in state["context_cache"]:
+                    del state["context_cache"][old]
+                evicted.append({"name": old, "score": round(item["score"], 3)})
 
     # Add new target
     state["focused_nodes"].append(target)
     state["context_cache"][target] = {
         "context": context,
         "tokens": tokens,
-        "added_at": int(time.time())
+        "added_at": int(time.time()),
+        "last_access": int(time.time()),
+        "importance": importance,
+        "access_count": 1
     }
 
     save_working_memory(state)
@@ -434,11 +489,13 @@ def add_to_focus(target: str) -> dict:
         "action": "added",
         "target": target,
         "tokens": tokens,
+        "importance": importance,
         "total_focused": len(state["focused_nodes"]),
         "context": context
     }
     if evicted:
-        result["evicted"] = evicted
+        result["evicted"] = [e["name"] for e in evicted]
+        result["evicted_details"] = evicted
     return result
 
 
