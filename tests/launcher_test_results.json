@@ -1,40 +1,24 @@
 {
   "total_tests": 23,
-  "total_duration_s": 2.1288604736328125,
+  "total_duration_s": 1.9826524257659912,
   "passed": 22,
   "failed": 1,
   "results": [
     {
       "test_name": "infra_status",
-      "started_at": "2025-12-02T11:21:12.142602",
-      "duration_ms": 64.90778923034668,
+      "started_at": "2025-12-02T23:28:23.141198",
+      "duration_ms": 57.76500701904297,
       "exit_code": 0,
-      "stdout_lines": 29,
+      "stdout_lines": 23,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -49,6 +33,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -61,35 +46,19 @@
     },
     {
       "test_name": "infra_help",
-      "started_at": "2025-12-02T11:21:12.284853",
-      "duration_ms": 2.67791748046875,
+      "started_at": "2025-12-02T23:28:23.283852",
+      "duration_ms": 6.067991256713867,
       "exit_code": 0,
-      "stdout_lines": 9,
+      "stdout_lines": 10,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -104,6 +73,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -116,35 +86,19 @@
     },
     {
       "test_name": "network_creation",
-      "started_at": "2025-12-02T11:21:12.363506",
-      "duration_ms": 35.968780517578125,
+      "started_at": "2025-12-02T23:28:23.361993",
+      "duration_ms": 34.71875190734863,
       "exit_code": 0,
       "stdout_lines": 2,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -159,6 +113,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -171,35 +126,19 @@
     },
     {
       "test_name": "memgraph_connectivity",
-      "started_at": "2025-12-02T11:21:12.483080",
-      "duration_ms": 20.695209503173828,
+      "started_at": "2025-12-02T23:28:23.470863",
+      "duration_ms": 17.249584197998047,
       "exit_code": 0,
-      "stdout_lines": 3,
+      "stdout_lines": 2,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -214,6 +153,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -226,35 +166,19 @@
     },
     {
       "test_name": "volume_persistence",
-      "started_at": "2025-12-02T11:21:12.586925",
-      "duration_ms": 20.537376403808594,
+      "started_at": "2025-12-02T23:28:23.560667",
+      "duration_ms": 16.9064998626709,
       "exit_code": 0,
-      "stdout_lines": 17,
+      "stdout_lines": 18,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -269,6 +193,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -278,40 +203,24 @@
       "errors": [],
       "warnings": [],
       "metrics": {
-        "volumes_found": 16
+        "volumes_found": 17
       }
     },
     {
       "test_name": "syntax_urp",
-      "started_at": "2025-12-02T11:21:12.692285",
-      "duration_ms": 2.179861068725586,
+      "started_at": "2025-12-02T23:28:23.650234",
+      "duration_ms": 2.192258834838867,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -326,6 +235,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -338,35 +248,19 @@
     },
     {
       "test_name": "syntax_urp-m",
-      "started_at": "2025-12-02T11:21:12.771594",
-      "duration_ms": 1.9969940185546875,
+      "started_at": "2025-12-02T23:28:23.727656",
+      "duration_ms": 2.5093555450439453,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -381,6 +275,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -393,35 +288,19 @@
     },
     {
       "test_name": "syntax_urp-c",
-      "started_at": "2025-12-02T11:21:12.862475",
-      "duration_ms": 1.7719268798828125,
+      "started_at": "2025-12-02T23:28:23.798378",
+      "duration_ms": 2.5877952575683594,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -436,6 +315,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -448,35 +328,19 @@
     },
     {
       "test_name": "syntax_urp-c-ro",
-      "started_at": "2025-12-02T11:21:12.941882",
-      "duration_ms": 2.8748512268066406,
+      "started_at": "2025-12-02T23:28:23.871365",
+      "duration_ms": 2.1080970764160156,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -491,6 +355,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -503,35 +368,19 @@
     },
     {
       "test_name": "urp_header",
-      "started_at": "2025-12-02T11:21:13.027715",
-      "duration_ms": 2.7005672454833984,
+      "started_at": "2025-12-02T23:28:23.943764",
+      "duration_ms": 2.7496814727783203,
       "exit_code": 0,
       "stdout_lines": 3,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -546,6 +395,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -558,35 +408,19 @@
     },
     {
       "test_name": "name_sanitization",
-      "started_at": "2025-12-02T11:21:13.110928",
-      "duration_ms": 20.958662033081055,
+      "started_at": "2025-12-02T23:28:24.020317",
+      "duration_ms": 17.25625991821289,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -601,6 +435,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -641,35 +476,19 @@
     },
     {
       "test_name": "master_commands_syntax",
-      "started_at": "2025-12-02T11:21:13.206395",
-      "duration_ms": 2.5177001953125,
+      "started_at": "2025-12-02T23:28:24.114091",
+      "duration_ms": 3.758668899536133,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -684,6 +503,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -696,35 +516,19 @@
     },
     {
       "test_name": "master_functions_defined",
-      "started_at": "2025-12-02T11:21:13.286285",
-      "duration_ms": 0.1556873321533203,
+      "started_at": "2025-12-02T23:28:24.191261",
+      "duration_ms": 0.3135204315185547,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -739,6 +543,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -761,35 +566,19 @@
     },
     {
       "test_name": "master_commands_source",
-      "started_at": "2025-12-02T11:21:13.368618",
-      "duration_ms": 3.8604736328125,
+      "started_at": "2025-12-02T23:28:24.263234",
+      "duration_ms": 3.2668113708496094,
       "exit_code": 0,
-      "stdout_lines": 16,
+      "stdout_lines": 20,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -804,6 +593,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -816,35 +606,19 @@
     },
     {
       "test_name": "dockerfile_master_commands",
-      "started_at": "2025-12-02T11:21:13.455610",
-      "duration_ms": 0.2779960632324219,
+      "started_at": "2025-12-02T23:28:24.337744",
+      "duration_ms": 0.14019012451171875,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -859,6 +633,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -874,35 +649,19 @@
     },
     {
       "test_name": "shell_hooks_master",
-      "started_at": "2025-12-02T11:21:13.537217",
-      "duration_ms": 0.13947486877441406,
+      "started_at": "2025-12-02T23:28:24.411375",
+      "duration_ms": 0.16045570373535156,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -917,6 +676,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -932,35 +692,19 @@
     },
     {
       "test_name": "claude_md_docs",
-      "started_at": "2025-12-02T11:21:13.628176",
-      "duration_ms": 0.22077560424804688,
+      "started_at": "2025-12-02T23:28:24.482750",
+      "duration_ms": 0.27179718017578125,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -975,6 +719,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -998,35 +743,19 @@
     },
     {
       "test_name": "special_chars_path",
-      "started_at": "2025-12-02T11:21:13.700846",
-      "duration_ms": 3.850221633911133,
+      "started_at": "2025-12-02T23:28:24.554494",
+      "duration_ms": 4.75001335144043,
       "exit_code": 0,
       "stdout_lines": 2,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -1041,6 +770,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -1053,35 +783,19 @@
     },
     {
       "test_name": "empty_project_name",
-      "started_at": "2025-12-02T11:21:13.785507",
-      "duration_ms": 15.369415283203125,
+      "started_at": "2025-12-02T23:28:24.629696",
+      "duration_ms": 19.556283950805664,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -1096,6 +810,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -1127,35 +842,19 @@
     },
     {
       "test_name": "docker_socket",
-      "started_at": "2025-12-02T11:21:13.884747",
-      "duration_ms": 62.915802001953125,
+      "started_at": "2025-12-02T23:28:24.724557",
+      "duration_ms": 64.59307670593262,
       "exit_code": 0,
       "stdout_lines": 2,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -1170,6 +869,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -1184,35 +884,19 @@
     },
     {
       "test_name": "container_naming",
-      "started_at": "2025-12-02T11:21:14.027642",
-      "duration_ms": 0.04696846008300781,
+      "started_at": "2025-12-02T23:28:24.861983",
+      "duration_ms": 0.028848648071289062,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -1227,6 +911,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -1262,35 +947,19 @@
     },
     {
       "test_name": "no_hardcoded_creds",
-      "started_at": "2025-12-02T11:21:14.107370",
-      "duration_ms": 0.9784698486328125,
+      "started_at": "2025-12-02T23:28:24.933342",
+      "duration_ms": 1.422882080078125,
       "exit_code": 1,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -1305,6 +974,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -1316,14 +986,114 @@
       "metrics": {
         "suspicious_found": [
           [
+            "urp-c-ro",
+            "PASSWORD=",
+            "-e NEO4J_PASSWORD= \\"
+          ],
+          [
             "urp-c",
             "PASSWORD=",
             "-e NEO4J_PASSWORD= \\"
           ],
           [
-            "urp-c-ro",
+            "urp-c",
+            "TOKEN=",
+            "-e ANTHROPIC_AUTH_TOKEN=sk-dummy \\"
+          ],
+          [
+            "urp-secrets",
+            "SECRET=",
+            "# AZURE_CLIENT_SECRET=xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# GH_TOKEN=ghp_xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# GITHUB_TOKEN=ghp_xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# GITLAB_TOKEN=xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# HF_TOKEN=hf_xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# HUGGINGFACE_TOKEN=hf_xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# SLACK_BOT_TOKEN=xoxb-xxx"
+          ],
+          [
+            "urp-secrets",
+            "TOKEN=",
+            "# DISCORD_TOKEN=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# ANTHROPIC_API_KEY=sk-ant-xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# OPENAI_API_KEY=sk-xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# GEMINI_API_KEY=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# GOOGLE_API_KEY=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# GROQ_API_KEY=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# TOGETHER_API_KEY=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# WANDB_API_KEY=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# NOTION_API_KEY=xxx"
+          ],
+          [
+            "urp-secrets",
+            "API_KEY=",
+            "# AIRTABLE_API_KEY=xxx"
+          ],
+          [
+            "urp",
             "PASSWORD=",
             "-e NEO4J_PASSWORD= \\"
+          ],
+          [
+            "urp",
+            "TOKEN=",
+            "-e ANTHROPIC_AUTH_TOKEN=sk-dummy \\"
           ],
           [
             "urp-m",
@@ -1331,44 +1101,28 @@
             "-e NEO4J_PASSWORD= \\"
           ],
           [
-            "urp",
-            "PASSWORD=",
-            "-e NEO4J_PASSWORD= \\"
+            "urp-m",
+            "TOKEN=",
+            "-e ANTHROPIC_AUTH_TOKEN=sk-dummy \\"
           ]
         ]
       }
     },
     {
       "test_name": "selinux_handling",
-      "started_at": "2025-12-02T11:21:14.186921",
-      "duration_ms": 0.5834102630615234,
+      "started_at": "2025-12-02T23:28:25.037921",
+      "duration_ms": 0.40435791015625,
       "exit_code": 0,
       "stdout_lines": 0,
       "stderr_lines": 0,
       "containers_before": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "containers_after": [
-        "urp-cli-urp-1",
-        "urp-cli-memgraph-1",
-        "devcontainer-urp-1",
-        "urp-memgraph",
-        "urp-validation-gpu",
-        "urp-validation",
-        "urp-qwen3-vl",
-        "urp-falkordb"
+        "urp-memgraph"
       ],
       "container_diff": [],
       "networks": [
-        "devcontainer_urpnet",
-        "urp-cli_default",
         "urp-network"
       ],
       "volumes": [
@@ -1383,6 +1137,7 @@
         "urp-project_mg_lib",
         "urp-project_mg_log",
         "urp-project_ollama-data",
+        "urp_chroma",
         "urp_claude_config",
         "urp_memgraph_data",
         "urp_memgraph_log",
@@ -1393,10 +1148,10 @@
       "warnings": [],
       "metrics": {
         "scripts_with_selinux": [
-          "urp-c",
           "urp-c-ro",
-          "urp-m",
-          "urp"
+          "urp-c",
+          "urp",
+          "urp-m"
         ]
       }
     }

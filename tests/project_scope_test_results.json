@@ -1,7 +1,7 @@
 {
-  "test_run_id": "20251202_124935",
-  "timestamp": "2025-12-02T12:50:09.365649",
-  "total_duration_sec": 34.33,
+  "test_run_id": "20251202_232958",
+  "timestamp": "2025-12-02T23:30:32.004096",
+  "total_duration_sec": 33.3,
   "results": {
     "passed": 16,
     "failed": 0,
@@ -17,9 +17,9 @@
   "metrics_summary": {
     "test_duration_ms": {
       "count": 2,
-      "min": 0.33593177795410156,
-      "max": 46.11968994140625,
-      "avg": 23.227810859680176
+      "min": 0.31495094299316406,
+      "max": 40.31991958618164,
+      "avg": 20.317435264587402
     }
   },
   "error_analysis": {
@@ -29,228 +29,228 @@
   },
   "events": [
     {
-      "timestamp": "2025-12-02T12:49:35.305594",
+      "timestamp": "2025-12-02T23:29:58.763791",
       "test": "ProjectTagging::event_has_project_field",
       "type": "start",
       "message": "Testing project field in events",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.305958",
+      "timestamp": "2025-12-02T23:29:58.764129",
       "test": "ProjectTagging::event_has_project_field",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.33593177795410156
+      "duration_ms": 0.31495094299316406
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306026",
+      "timestamp": "2025-12-02T23:29:58.764182",
       "test": "ProjectTagging::query_functions_support_project",
       "type": "start",
       "message": "Testing query functions",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306285",
+      "timestamp": "2025-12-02T23:29:58.764401",
       "test": "ProjectTagging::query_functions_support_project",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.2505779266357422
+      "duration_ms": 0.2110004425048828
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306367",
+      "timestamp": "2025-12-02T23:29:58.764468",
       "test": "QueryScoping::cli_has_project_args",
       "type": "start",
       "message": "Testing CLI arguments",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306603",
+      "timestamp": "2025-12-02T23:29:58.764646",
       "test": "QueryScoping::cli_has_project_args",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.22459030151367188
+      "duration_ms": 0.17213821411132812
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306639",
+      "timestamp": "2025-12-02T23:29:58.764669",
       "test": "QueryScoping::shell_hooks_aliases",
       "type": "start",
       "message": "Testing shell hook aliases",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306756",
+      "timestamp": "2025-12-02T23:29:58.764802",
       "test": "QueryScoping::shell_hooks_aliases",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.11157989501953125
+      "duration_ms": 0.1285076141357422
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306797",
+      "timestamp": "2025-12-02T23:29:58.764831",
       "test": "NetworkTopology::topology_on_startup",
       "type": "start",
       "message": "Testing startup behavior",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306878",
+      "timestamp": "2025-12-02T23:29:58.764919",
       "test": "NetworkTopology::topology_on_startup",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.07605552673339844
+      "duration_ms": 0.08368492126464844
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306890",
+      "timestamp": "2025-12-02T23:29:58.764931",
       "test": "NetworkTopology::topology_function_exists",
       "type": "start",
       "message": "Testing topology function",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306963",
+      "timestamp": "2025-12-02T23:29:58.765014",
       "test": "NetworkTopology::topology_function_exists",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.06842613220214844
+      "duration_ms": 0.07963180541992188
     },
     {
-      "timestamp": "2025-12-02T12:49:35.306994",
+      "timestamp": "2025-12-02T23:29:58.765039",
       "test": "InfraLab::lab_command_exists",
       "type": "start",
       "message": "Testing lab command",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.307043",
+      "timestamp": "2025-12-02T23:29:58.765079",
       "test": "InfraLab::lab_command_exists",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.04458427429199219
+      "duration_ms": 0.03600120544433594
     },
     {
-      "timestamp": "2025-12-02T12:49:35.307053",
+      "timestamp": "2025-12-02T23:29:58.765086",
       "test": "InfraLab::lab_internal_connection",
       "type": "start",
       "message": "Testing internal connection",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.307084",
+      "timestamp": "2025-12-02T23:29:58.765110",
       "test": "InfraLab::lab_internal_connection",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.026702880859375
+      "duration_ms": 0.0209808349609375
     },
     {
-      "timestamp": "2025-12-02T12:49:35.307112",
+      "timestamp": "2025-12-02T23:29:58.765133",
       "test": "MultiProjectIntegration::launchers_set_project_env",
       "type": "start",
       "message": "Testing launcher env vars",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.307286",
+      "timestamp": "2025-12-02T23:29:58.765255",
       "test": "MultiProjectIntegration::launchers_set_project_env",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.16880035400390625
+      "duration_ms": 0.11801719665527344
     },
     {
-      "timestamp": "2025-12-02T12:49:35.307303",
+      "timestamp": "2025-12-02T23:29:58.765263",
       "test": "MultiProjectIntegration::memgraph_no_host_ports",
       "type": "start",
       "message": "Testing port isolation",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:49:35.353435",
+      "timestamp": "2025-12-02T23:29:58.805603",
       "test": "MultiProjectIntegration::memgraph_no_host_ports",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 46.11968994140625
+      "duration_ms": 40.31991958618164
     },
     {
-      "timestamp": "2025-12-02T12:49:35.353548",
+      "timestamp": "2025-12-02T23:29:58.805693",
       "test": "ConcurrentProjects::concurrent_creation",
       "type": "start",
       "message": "Testing concurrent container creation",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:50:09.102683",
+      "timestamp": "2025-12-02T23:30:31.939467",
       "test": "ConcurrentProjects::concurrent_creation",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 33749.11618232727
+      "duration_ms": 33133.75401496887
     },
     {
-      "timestamp": "2025-12-02T12:50:09.102831",
+      "timestamp": "2025-12-02T23:30:31.939609",
       "test": "EdgeCases::empty_query_results",
       "type": "start",
       "message": "Testing empty results handling",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103203",
+      "timestamp": "2025-12-02T23:30:31.939972",
       "test": "EdgeCases::empty_query_results",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.3592967987060547
+      "duration_ms": 0.3476142883300781
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103255",
+      "timestamp": "2025-12-02T23:30:31.940035",
       "test": "EdgeCases::missing_project_env",
       "type": "start",
       "message": "Testing missing PROJECT_NAME",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103529",
+      "timestamp": "2025-12-02T23:30:31.940675",
       "test": "EdgeCases::missing_project_env",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.2644062042236328
+      "duration_ms": 0.6220340728759766
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103569",
+      "timestamp": "2025-12-02T23:30:31.940829",
       "test": "EdgeCases::special_chars_project_name",
       "type": "start",
       "message": "Testing special character handling",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103625",
+      "timestamp": "2025-12-02T23:30:31.941035",
       "test": "EdgeCases::special_chars_project_name",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.04792213439941406
+      "duration_ms": 0.1850128173828125
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103676",
+      "timestamp": "2025-12-02T23:30:31.941092",
       "test": "QueryFiltering::global_no_filter",
       "type": "start",
       "message": "Testing global query behavior",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103928",
+      "timestamp": "2025-12-02T23:30:31.941347",
       "test": "QueryFiltering::global_no_filter",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.24509429931640625
+      "duration_ms": 0.2486705780029297
     },
     {
-      "timestamp": "2025-12-02T12:50:09.103965",
+      "timestamp": "2025-12-02T23:30:31.941383",
       "test": "QueryFiltering::project_clause_exists",
       "type": "start",
       "message": "Testing project clause in queries",
       "duration_ms": 0
     },
     {
-      "timestamp": "2025-12-02T12:50:09.104234",
+      "timestamp": "2025-12-02T23:30:31.941616",
       "test": "QueryFiltering::project_clause_exists",
       "type": "end",
       "message": "PASSED",
-      "duration_ms": 0.26154518127441406
+      "duration_ms": 0.2262592315673828
     }
   ],
   "test_results": {
