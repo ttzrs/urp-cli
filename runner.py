@@ -937,6 +937,52 @@ def main():
     p.add_argument("--reset", action="store_true", help="Reset hour counter")
     p.add_argument("--compact", action="store_true", help="Compact output")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # MEMORY MANAGEMENT COMMANDS
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # remember - add to session memory
+    p = subparsers.add_parser("remember", help="Add note to session memory")
+    p.add_argument("text", help="Text to remember")
+    p.add_argument("--kind", default="note",
+                   choices=["note", "summary", "decision", "result", "observation"],
+                   help="Type of memory")
+    p.add_argument("--importance", type=int, default=2, help="Importance (1-5)")
+    p.add_argument("--tags", help="Comma-separated tags")
+
+    # recall - search session memory
+    p = subparsers.add_parser("recall", help="Search session memory")
+    p.add_argument("query", help="What to search for")
+    p.add_argument("--n", type=int, default=5, help="Max results")
+    p.add_argument("--kind", help="Filter by type")
+
+    # memories - list all session memories
+    subparsers.add_parser("memories", help="List all session memories")
+
+    # knowledge - store/query shared knowledge
+    p = subparsers.add_parser("knowledge", help="Store or query knowledge")
+    p.add_argument("action", choices=["store", "query", "list", "reject", "export"],
+                   help="Knowledge action")
+    p.add_argument("text", nargs="?", help="Text to store or query")
+    p.add_argument("--kind", default="rule", help="Knowledge type")
+    p.add_argument("--scope", default="global", choices=["session", "instance", "global"],
+                   help="Visibility scope")
+    p.add_argument("--id", help="Knowledge ID (for reject/export)")
+    p.add_argument("--reason", help="Rejection reason")
+    p.add_argument("--n", type=int, default=5, help="Max results for query")
+
+    # memstats - memory statistics
+    subparsers.add_parser("memstats", help="Show memory and knowledge statistics")
+
+    # identity - show current context/identity
+    subparsers.add_parser("identity", help="Show current session identity/context")
+
+    # should - metacognitive evaluation
+    p = subparsers.add_parser("should", help="Metacognitive evaluation")
+    p.add_argument("action", choices=["save", "promote", "reject"],
+                   help="What to evaluate")
+    p.add_argument("target", help="Text (for save) or ID (for promote/reject)")
+
     args = parser.parse_args()
 
     if args.action == "run":
@@ -1073,6 +1119,222 @@ def main():
         except ImportError:
             print("Token tracker not available", file=sys.stderr)
             sys.exit(1)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # MEMORY MANAGEMENT HANDLERS
+    # ─────────────────────────────────────────────────────────────────────────
+
+    elif args.action == "remember":
+        from llm_tools import add_session_note
+        tags = args.tags.split(",") if args.tags else None
+        result = add_session_note(args.text, kind=args.kind, importance=args.importance, tags=tags)
+        if result.get("error"):
+            print(f"Error: {result['error']}", file=sys.stderr)
+            sys.exit(1)
+        print(f"REMEMBERED [{args.kind}]: {args.text[:50]}...")
+        print(f"  ID: {result['memory_id']}")
+        print(f"  Importance: {args.importance}/5")
+
+    elif args.action == "recall":
+        from llm_tools import recall_session_memory
+        results = recall_session_memory(args.query, n_results=args.n, kind=args.kind)
+        if not results:
+            print("No memories found")
+        else:
+            print(f"RECALL: '{args.query}' ({len(results)} results)\n")
+            for r in results:
+                if r.get("error"):
+                    print(f"  Error: {r['error']}")
+                    continue
+                sim = r.get('similarity', 0)
+                print(f"  [{sim:.0%}] ({r.get('kind', '?')}) {r.get('text', '')[:60]}...")
+                print(f"       ID: {r.get('memory_id', '?')}")
+
+    elif args.action == "memories":
+        from llm_tools import list_session_memory
+        memories = list_session_memory()
+        if not memories:
+            print("No memories in current session")
+        else:
+            print(f"SESSION MEMORIES ({len(memories)} total)\n")
+            for m in memories:
+                if m.get("error"):
+                    print(f"  Error: {m['error']}")
+                    continue
+                print(f"  [{m.get('kind', '?')}] {m.get('text', '')[:50]}...")
+                print(f"       ID: {m.get('memory_id', '?')} | Importance: {m.get('importance', '?')}/5")
+
+    elif args.action == "knowledge":
+        from llm_tools import store_knowledge, query_knowledge, reject_knowledge, export_memory_to_global, list_global_knowledge
+
+        if args.action == "knowledge":
+            if args.action == "knowledge" and hasattr(args, 'action'):
+                kaction = getattr(args, 'action', None)
+                # Re-read from parsed args
+                pass
+
+        # Determine sub-action from positional 'action' arg
+        kaction = args.__dict__.get('action', 'query')
+        # Actually args.action is "knowledge", we need args' second positional
+        # Let me fix this - the action is stored in a different way
+        import sys as _sys
+        # Parse the actual knowledge action from argv
+        if len(_sys.argv) > 2:
+            kaction = _sys.argv[2]
+        else:
+            kaction = "list"
+
+        if kaction == "store":
+            if not args.text:
+                print("Error: text required for store", file=sys.stderr)
+                sys.exit(1)
+            result = store_knowledge(args.text, kind=args.kind, scope=args.scope)
+            if result.get("error"):
+                print(f"Error: {result['error']}", file=sys.stderr)
+                sys.exit(1)
+            print(f"STORED [{args.kind}] scope={args.scope}")
+            print(f"  ID: {result['knowledge_id']}")
+
+        elif kaction == "query":
+            if not args.text:
+                print("Error: query text required", file=sys.stderr)
+                sys.exit(1)
+            results = query_knowledge(args.text, n_results=args.n)
+            if not results:
+                print("No knowledge found")
+            else:
+                print(f"KNOWLEDGE: '{args.text}' ({len(results)} results)\n")
+                for r in results:
+                    if r.get("error"):
+                        print(f"  Error: {r['error']}")
+                        continue
+                    sim = r.get('similarity', 0)
+                    print(f"  [{sim:.0%}] {r.get('scope', '?')}/{r.get('kind', '?')}: {r.get('text', '')[:50]}...")
+                    print(f"       ID: {r.get('knowledge_id', '?')}")
+
+        elif kaction == "list":
+            results = list_global_knowledge(kind=args.kind if args.kind != "rule" else None)
+            if not results:
+                print("No knowledge stored")
+            else:
+                print(f"ALL KNOWLEDGE ({len(results)} entries)\n")
+                for r in results:
+                    if r.get("error"):
+                        print(f"  Error: {r['error']}")
+                        continue
+                    print(f"  [{r.get('scope', '?')}/{r.get('kind', '?')}] {r.get('text', '')[:50]}...")
+                    print(f"       ID: {r.get('knowledge_id', '?')}")
+
+        elif kaction == "reject":
+            if not args.id:
+                print("Error: --id required for reject", file=sys.stderr)
+                sys.exit(1)
+            reason = args.reason or "Not applicable"
+            result = reject_knowledge(args.id, reason)
+            if result.get("error"):
+                print(f"Error: {result['error']}", file=sys.stderr)
+                sys.exit(1)
+            print(f"REJECTED: {args.id}")
+            print(f"  Reason: {reason}")
+
+        elif kaction == "export":
+            if not args.id:
+                print("Error: --id (memory_id) required for export", file=sys.stderr)
+                sys.exit(1)
+            result = export_memory_to_global(args.id, kind=args.kind, scope=args.scope)
+            if result.get("error"):
+                print(f"Error: {result['error']}", file=sys.stderr)
+                sys.exit(1)
+            print(f"EXPORTED memory {args.id} → knowledge {result['knowledge_id']}")
+            print(f"  Scope: {args.scope} | Kind: {args.kind}")
+
+    elif args.action == "memstats":
+        from llm_tools import summarize_session_history, vector_collection_stats
+        from knowledge_store import get_knowledge_stats
+
+        print("MEMORY STATISTICS\n")
+
+        # Session memory
+        session = summarize_session_history()
+        if session.get("error"):
+            print(f"  Session: Error - {session['error']}")
+        else:
+            print(f"  Session: {session.get('session_id', '?')}")
+            print(f"    Memories: {session.get('total_memories', 0)}")
+            by_kind = session.get('by_kind', {})
+            if by_kind:
+                print(f"    By kind: {by_kind}")
+
+        # Knowledge stats
+        print()
+        kstats = get_knowledge_stats()
+        if kstats.get("error"):
+            print(f"  Knowledge: Error - {kstats['error']}")
+        else:
+            print(f"  Knowledge: {kstats.get('total_knowledge', 0)} total")
+            print(f"    By scope: {kstats.get('by_scope', {})}")
+
+        # Vector stats
+        print()
+        vstats = vector_collection_stats()
+        if vstats.get("error"):
+            print(f"  Vectors: Error - {vstats['error']}")
+        else:
+            print("  Vector collections:")
+            for name, stats in vstats.items():
+                if isinstance(stats, dict):
+                    print(f"    {name}: {stats.get('count', '?')} embeddings")
+
+    elif args.action == "identity":
+        from llm_tools import get_current_context
+        ctx = get_current_context()
+        if ctx.get("error"):
+            print(f"Error: {ctx['error']}", file=sys.stderr)
+            sys.exit(1)
+        print("IDENTITY / CONTEXT\n")
+        print(f"  Instance ID:  {ctx.get('instance_id', '?')}")
+        print(f"  Session ID:   {ctx.get('session_id', '?')}")
+        print(f"  User ID:      {ctx.get('user_id', '?')}")
+        print(f"  Scope:        {ctx.get('scope', '?')}")
+        print(f"  Signature:    {ctx.get('context_signature', '?')}")
+        print(f"  Tags:         {ctx.get('tags', [])}")
+        print(f"  Started:      {ctx.get('started_at', '?')}")
+
+    elif args.action == "should":
+        from llm_tools import should_save, should_promote, should_reject
+
+        if args.__dict__.get('action') == "should":
+            # Get the sub-action
+            import sys as _sys
+            if len(_sys.argv) > 2:
+                saction = _sys.argv[2]
+            else:
+                print("Error: specify save, promote, or reject", file=sys.stderr)
+                sys.exit(1)
+
+            target = _sys.argv[3] if len(_sys.argv) > 3 else args.target
+
+            if saction == "save":
+                result = should_save(target)
+                verdict = "✓ SAVE" if result.get("should_save") else "✗ SKIP"
+                print(f"{verdict}: {result.get('reason', '?')}")
+                if result.get("most_similar"):
+                    sim = result["most_similar"]
+                    print(f"  Most similar: {sim.get('memory_id', '?')} ({sim.get('similarity', 0):.0%})")
+
+            elif saction == "promote":
+                result = should_promote(target)
+                verdict = "✓ PROMOTE" if result.get("should_promote") else "✗ KEEP"
+                print(f"{verdict}: {result.get('reason', '?')}")
+                if result.get("should_promote"):
+                    print(f"  Suggested scope: {result.get('suggested_scope', '?')}")
+                    print(f"  Suggested kind: {result.get('suggested_kind', '?')}")
+
+            elif saction == "reject":
+                result = should_reject(target)
+                verdict = "✓ REJECT" if result.get("should_reject") else "✗ KEEP"
+                print(f"{verdict}: {result.get('reason', '?')}")
+                print(f"  Context compatible: {result.get('context_compatible', '?')}")
 
 
 if __name__ == "__main__":

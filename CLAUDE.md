@@ -254,24 +254,125 @@ urp ingest <path>                # Parse code into graph
 urp git <path>                   # Load git history
 urp-status                       # Check URP status
 urp-off / urp-on                 # Disable/enable command logging
+
+# ─────────────────────────────────────────────────────────────────
+# SESSION MEMORY (Your private cognitive space)
+# ─────────────────────────────────────────────────────────────────
+remember "text" --kind note      # Save to session memory
+recall "query"                   # Search your memories (FAST)
+memories                         # List all session memories
+
+# ─────────────────────────────────────────────────────────────────
+# SHARED KNOWLEDGE (Cross-session persistence)
+# ─────────────────────────────────────────────────────────────────
+kstore "text" --scope global     # Store knowledge for future sessions
+kquery "docker permissions"      # Search knowledge (session→instance→global)
+klist                            # List all knowledge
+kreject --id k-xxx --reason "..."# Mark knowledge as not applicable
+kexport --id m-xxx --scope global# Promote session memory to knowledge
+
+# ─────────────────────────────────────────────────────────────────
+# METACOGNITION (Self-evaluation)
+# ─────────────────────────────────────────────────────────────────
+should-save "note text"          # Should I save this? (redundancy check)
+should-promote m-xxx             # Should I promote to global?
+should-reject k-xxx              # Should I reject this knowledge?
+
+# ─────────────────────────────────────────────────────────────────
+# STATS & IDENTITY
+# ─────────────────────────────────────────────────────────────────
+memstats                         # Memory and knowledge statistics
+identity                         # Show current context/signature
+```
+
+## Multi-Session Memory Architecture
+
+You have a **layered memory system**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ SESSION MEMORY (Private)                                    │
+│ - Notes, observations, decisions for THIS session only     │
+│ - SEARCH HERE FIRST (fastest, no noise)                    │
+│ - Use: remember, recall, memories                          │
+└─────────────────────────────────────────────────────────────┘
+                           ↓ export (promote useful findings)
+┌─────────────────────────────────────────────────────────────┐
+│ SHARED KNOWLEDGE (Persistent)                               │
+│ - scope=session: your session's shared items               │
+│ - scope=instance: same container/deployment                │
+│ - scope=global: available everywhere                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Memory Protocol
+
+**Before acting on knowledge from another session:**
+1. Check context compatibility (automatic)
+2. If knowledge doesn't apply, REJECT it:
+   ```bash
+   kreject --id k-xxx --reason "Different dataset, not applicable"
+   ```
+
+**When you discover something useful:**
+1. First save to session memory:
+   ```bash
+   remember "SELinux needs label:disable for docker.sock" --kind decision --importance 4
+   ```
+2. If it's generally useful, promote it:
+   ```bash
+   should-promote m-xxx  # Check if worth promoting
+   kexport --id m-xxx --scope global --kind rule
+   ```
+
+**Before saving a note:**
+```bash
+should-save "my observation text"  # Check for redundancy
+```
+
+### Context Signature
+
+Every session has a **context signature** (e.g., `urp-cli|master|local|fedora`).
+
+Knowledge compatibility is checked against this signature:
+- Same project = compatible
+- Different OS/dataset = may need rejection
+
+Check your identity:
+```bash
+identity
 ```
 
 ## Architecture
 
 ```
-cli.py          → Main CLI, graph queries
-runner.py       → Terminal wrapper + cognitive skills (wisdom, novelty, focus)
-brain_cortex.py → Embedding model for semantic similarity
-brain_render.py → Graph → LLM-friendly output formats
+# Core
+cli.py           → Main CLI, graph queries
+runner.py        → Terminal wrapper + cognitive skills (wisdom, novelty, focus)
+database.py      → Neo4j/Memgraph driver
+
+# Memory System
+context.py       → URPContext identity model (instance/session/user)
+session_memory.py→ Private session memory (notes, summaries, decisions)
+knowledge_store.py→Shared KB with multi-level search + rejection
+llm_tools.py     → Unified API for all 23 memory operations
+metacognitive.py → Self-evaluation (should_save/promote/reject)
+
+# Brain (Embeddings)
+brain_cortex.py  → Embedding model + ChromaDB persistence
+brain_render.py  → Graph → LLM-friendly output formats
+
+# Safety & Parsing
 immune_system.py → Pre-execution safety filter (⊥)
-parser.py       → Multi-language AST (Python, Go)
-ingester.py     → Code → Graph (D, ⊆, Φ)
-git_loader.py   → Git → Graph (τ, T)
-observer.py     → Docker → Graph (Φ energy, ⊥ health)
-querier.py      → PRU-based queries
-database.py     → Neo4j/Memgraph driver
-shell_hooks.sh  → Bash function wrappers
-entrypoint.sh   → Container init script
+parser.py        → Multi-language AST (Python, Go)
+ingester.py      → Code → Graph (D, ⊆, Φ)
+git_loader.py    → Git → Graph (τ, T)
+observer.py      → Docker → Graph (Φ energy, ⊥ health)
+querier.py       → PRU-based queries
+
+# Shell
+shell_hooks.sh   → Bash function wrappers + memory aliases
+entrypoint.sh    → Container init script
 ```
 
 ## Graph Schema
@@ -282,6 +383,7 @@ entrypoint.sh   → Container init script
 - `Container`, `Network`, `LogEvent` (runtime)
 - `TerminalEvent`, `Session`, `Conflict` (terminal flow)
 - `Solution` (learned knowledge)
+- `Instance`, `Memory`, `Knowledge` (multi-session memory)
 
 **Edges:**
 - `CONTAINS`, `CALLS`, `FLOWS_TO`, `RESOLVES_TO` (code)
@@ -289,6 +391,8 @@ entrypoint.sh   → Container init script
 - `CONNECTED_TO`, `EMITTED` (runtime)
 - `EXECUTED` (session → events)
 - `CONTRIBUTED_TO`, `RESOLVES` (learning)
+- `HAS_SESSION`, `HAS_MEMORY` (instance → session → memory)
+- `CREATED`, `USED`, `REJECTED`, `EXPORTED` (session ↔ knowledge)
 
 ## Extending Languages
 

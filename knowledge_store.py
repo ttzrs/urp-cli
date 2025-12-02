@@ -549,6 +549,57 @@ def get_knowledge_stats(ctx: Optional[URPContext] = None) -> dict:
         return {"error": str(e)}
 
 
+def list_all_knowledge(
+    kind: Optional[str] = None,
+    scope: Optional[str] = None,
+    limit: int = 50,
+) -> list[dict]:
+    """
+    List all knowledge entries with optional filtering.
+
+    Args:
+        kind: Filter by type (None = all)
+        scope: Filter by scope (None = all)
+        limit: Max entries to return
+
+    Returns:
+        List of knowledge entries
+    """
+    collection = _get_knowledge_collection()
+    if collection is None:
+        return []
+
+    try:
+        where = {}
+        if kind:
+            where["kind"] = kind
+        if scope:
+            where["scope"] = scope
+
+        results = collection.get(
+            where=where if where else None,
+            limit=limit,
+            include=["documents", "metadatas"]
+        )
+
+        output = []
+        for i, kid in enumerate(results["ids"]):
+            meta = results["metadatas"][i] if results["metadatas"] else {}
+            output.append({
+                "knowledge_id": kid,
+                "text": results["documents"][i] if results["documents"] else "",
+                "kind": meta.get("kind", "unknown"),
+                "scope": meta.get("scope", "unknown"),
+                "session_id": meta.get("session_id", ""),
+                "created_at": meta.get("created_at", ""),
+            })
+
+        return output
+
+    except Exception as e:
+        return [{"error": str(e)}]
+
+
 def get_knowledge_provenance(knowledge_id: str) -> dict:
     """
     Get full provenance info for a piece of knowledge.

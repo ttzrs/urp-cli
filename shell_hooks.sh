@@ -133,6 +133,34 @@ alias tokens-stats='python3 /app/token_tracker.py stats'
 alias tokens-budget='python3 /app/token_tracker.py budget'
 alias tokens-reset='python3 /app/token_tracker.py reset'
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Session Memory & Knowledge (Multi-session cognitive architecture)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Session memory (private per session)
+alias remember='python3 /app/runner.py remember'
+alias recall='python3 /app/runner.py recall'
+alias memories='python3 /app/runner.py memories'
+
+# Shared knowledge (global KB)
+alias kstore='python3 /app/runner.py knowledge store'
+alias kquery='python3 /app/runner.py knowledge query'
+alias klist='python3 /app/runner.py knowledge list'
+alias kreject='python3 /app/runner.py knowledge reject'
+alias kexport='python3 /app/runner.py knowledge export'
+
+# Memory stats & identity
+alias memstats='python3 /app/runner.py memstats'
+alias identity='python3 /app/runner.py identity'
+
+# Metacognitive evaluation
+alias should-save='python3 /app/runner.py should save'
+alias should-promote='python3 /app/runner.py should promote'
+alias should-reject='python3 /app/runner.py should reject'
+
+# LLM Tools direct access
+alias llm-tools='python3 /app/llm_tools.py'
+
 # Claude Code wrappers
 alias cw='claude-write'  # Shortcut for claude-write
 
