@@ -72,6 +72,8 @@ services:
       - ${CODEBASE_PATH:-.}:/codebase:ro
       # Persist session data
       - urp_sessions:/app/sessions
+      # Vector DB persistence
+      - urp_chroma:/app/chroma
     working_dir: /codebase
     stdin_open: true
     tty: true
@@ -98,6 +100,7 @@ services:
       # Writable codebase
       - ${CODEBASE_PATH:-.}:/codebase
       - urp_sessions:/app/sessions
+      - urp_chroma:/app/chroma
     working_dir: /codebase
     stdin_open: true
     tty: true
@@ -131,3 +134,4 @@ volumes:
   memgraph_data:
   memgraph_log:
   urp_sessions:
+  urp_chroma:

@@ -4,6 +4,7 @@
 #
 # Provides vector embeddings for semantic similarity search.
 # Used by wisdom (find similar errors) and novelty (detect pattern breaks).
+# Persistence via ChromaDB at /app/chroma
 
 import os
 import numpy as np
@@ -11,7 +12,9 @@ from typing import Optional
 
 # Lazy load model to avoid startup cost when not needed
 _model = None
+_chroma_client = None
 _MODEL_NAME = os.getenv('URP_EMBEDDING_MODEL', 'all-MiniLM-L6-v2')
+_CHROMA_PATH = os.getenv('URP_CHROMA_PATH', '/app/chroma')
 
 
 def _get_model():
@@ -27,6 +30,42 @@ def _get_model():
             print(f"⚠️  Failed to load embedding model: {e}")
             return None
     return _model
+
+
+def _get_chroma():
+    """Lazy load ChromaDB persistent client."""
+    global _chroma_client
+    if _chroma_client is None:
+        try:
+            import chromadb
+            from chromadb.config import Settings
+            os.makedirs(_CHROMA_PATH, exist_ok=True)
+            _chroma_client = chromadb.PersistentClient(
+                path=_CHROMA_PATH,
+                settings=Settings(anonymized_telemetry=False)
+            )
+        except ImportError:
+            print("⚠️  chromadb not installed, vector persistence disabled")
+            return None
+        except Exception as e:
+            print(f"⚠️  Failed to initialize ChromaDB: {e}")
+            return None
+    return _chroma_client
+
+
+def get_collection(name: str = "urp_embeddings"):
+    """Get or create a ChromaDB collection."""
+    client = _get_chroma()
+    if client is None:
+        return None
+    try:
+        return client.get_or_create_collection(
+            name=name,
+            metadata={"hnsw:space": "cosine"}
+        )
+    except Exception as e:
+        print(f"⚠️  Failed to get collection {name}: {e}")
+        return None
 
 
 def get_embedding(text: str) -> list[float]:
@@ -47,6 +86,87 @@ def get_embedding(text: str) -> list[float]:
         text = text[:2000]
         return model.encode(text).tolist()
     except Exception:
+        return []
+
+
+def store_embedding(doc_id: str, text: str, metadata: dict = None,
+                    collection_name: str = "urp_embeddings") -> bool:
+    """
+    Store text with its embedding in ChromaDB.
+
+    Args:
+        doc_id: Unique identifier for the document
+        text: Text to embed and store
+        metadata: Optional metadata dict
+        collection_name: ChromaDB collection name
+
+    Returns:
+        True if stored successfully, False otherwise
+    """
+    collection = get_collection(collection_name)
+    if collection is None:
+        return False
+
+    embedding = get_embedding(text)
+    if not embedding:
+        return False
+
+    try:
+        collection.upsert(
+            ids=[doc_id],
+            embeddings=[embedding],
+            documents=[text],
+            metadatas=[metadata or {}]
+        )
+        return True
+    except Exception as e:
+        print(f"⚠️  Failed to store embedding: {e}")
+        return False
+
+
+def query_similar(text: str, n_results: int = 5,
+                  collection_name: str = "urp_embeddings",
+                  where: dict = None) -> list[dict]:
+    """
+    Find similar documents in ChromaDB.
+
+    Args:
+        text: Query text
+        n_results: Max number of results
+        collection_name: ChromaDB collection name
+        where: Optional metadata filter
+
+    Returns:
+        List of {id, document, metadata, distance} dicts
+    """
+    collection = get_collection(collection_name)
+    if collection is None:
+        return []
+
+    embedding = get_embedding(text)
+    if not embedding:
+        return []
+
+    try:
+        results = collection.query(
+            query_embeddings=[embedding],
+            n_results=n_results,
+            where=where,
+            include=["documents", "metadatas", "distances"]
+        )
+
+        output = []
+        for i in range(len(results["ids"][0])):
+            output.append({
+                "id": results["ids"][0][i],
+                "document": results["documents"][0][i] if results["documents"] else None,
+                "metadata": results["metadatas"][0][i] if results["metadatas"] else {},
+                "distance": results["distances"][0][i] if results["distances"] else None,
+                "similarity": 1 - results["distances"][0][i] if results["distances"] else None
+            })
+        return output
+    except Exception as e:
+        print(f"⚠️  Query failed: {e}")
         return []
 
 
@@ -95,7 +215,7 @@ def find_most_similar(query_vec: list[float],
                       candidates: list[tuple[str, list[float]]],
                       threshold: float = 0.7) -> list[tuple[str, float]]:
     """
-    Find candidates most similar to query vector.
+    Find candidates most similar to query vector (in-memory version).
 
     Args:
         query_vec: The query embedding
@@ -119,6 +239,21 @@ def find_most_similar(query_vec: list[float],
     return sorted(results, key=lambda x: x[1], reverse=True)
 
 
+def get_collection_stats(collection_name: str = "urp_embeddings") -> dict:
+    """Get stats about a collection."""
+    collection = get_collection(collection_name)
+    if collection is None:
+        return {"error": "Collection not available"}
+
+    try:
+        return {
+            "name": collection_name,
+            "count": collection.count()
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Preload script (run during Docker build)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -132,3 +267,11 @@ if __name__ == "__main__":
         print("✓ Model loaded and cached")
     else:
         print("✗ Failed to load model")
+
+    print(f"\nInitializing ChromaDB at: {_CHROMA_PATH}")
+    client = _get_chroma()
+    if client:
+        stats = get_collection_stats()
+        print(f"✓ ChromaDB ready: {stats}")
+    else:
+        print("✗ ChromaDB not available")

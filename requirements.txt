@@ -12,5 +12,9 @@ gitpython>=3.1.0
 # Optional: Docker observation
 docker>=6.0.0
 
-# numpy (torch/sentence-transformers installed separately with CUDA)
+# Embeddings
 numpy>=1.24.0
+sentence-transformers>=2.2.0
+
+# Vector persistence
+chromadb>=0.4.0
