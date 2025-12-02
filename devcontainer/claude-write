@@ -1,0 +1,44 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════════════════════
+# claude-write - Wrapper para Claude Code que garantiza escritura de archivos
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Problema: Algunos proxies OpenAI-compatible no soportan bien las herramientas
+#           Write/Edit de Claude Code, pero Bash funciona perfectamente.
+#
+# Solución: Este wrapper instruye a Claude para usar Bash+heredoc en lugar de
+#           la herramienta Write nativa.
+#
+# Uso:
+#   claude-write "Crea un scraper en Python" 10
+#   claude-write "Modifica config.json" 5
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-sk-dummy}"
+export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-http://100.105.212.98:8317}"
+export HOME="${HOME:-/home/dev}"
+
+PROMPT="$1"
+MAX_TURNS="${2:-10}"
+
+if [[ -z "$PROMPT" ]]; then
+    echo "Uso: claude-write \"<instrucción>\" [max-turns]"
+    echo ""
+    echo "Ejemplo:"
+    echo "  claude-write \"Crea un script hello.py que imprima Hola Mundo\""
+    exit 1
+fi
+
+# Instrucción especial para usar Bash en lugar de Write tool
+INSTRUCTION="REGLA OBLIGATORIA: Para crear o modificar archivos, SIEMPRE usa bash con cat y heredoc. Ejemplo:
+
+cat > archivo.py << 'ENDFILE'
+contenido del archivo
+ENDFILE
+
+NUNCA uses la herramienta Write o Edit directamente. Solo usa Bash con cat/heredoc.
+
+TAREA: $PROMPT"
+
+exec claude -p "$INSTRUCTION" --max-turns "$MAX_TURNS"

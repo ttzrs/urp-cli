@@ -1,0 +1,16 @@
+# Core
+neo4j>=5.0.0
+tree-sitter>=0.20.0
+tree-sitter-python>=0.20.0
+
+# Optional: Go support
+tree-sitter-go>=0.20.0
+
+# Optional: Git history
+gitpython>=3.1.0
+
+# Optional: Docker observation
+docker>=6.0.0
+
+# numpy (torch/sentence-transformers installed separately with CUDA)
+numpy>=1.24.0

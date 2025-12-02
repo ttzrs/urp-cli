@@ -1,0 +1,200 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════════════════════
+# URP Dev Launcher - SELinux compatible, NVIDIA enabled
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   urp-dev                         # Launch in current directory
+#   urp-dev /path/to/project        # Launch in specific directory
+#   urp-dev --upload file.md        # Upload knowledge, then launch
+#   urp-dev --upload file.md --tag api  # Upload with tag
+#   urp-dev --build                 # Force rebuild container
+#   urp-dev --ui                    # Include Memgraph Lab UI
+#   urp-dev --full                  # Include dreamer daemon
+#   urp-dev --claude                # Run claude directly
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="$SCRIPT_DIR/devcontainer/docker-compose.yml"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Parse Arguments
+# ─────────────────────────────────────────────────────────────────────────────
+
+CODEBASE_PATH=""
+UPLOAD_FILE=""
+UPLOAD_TAG=""
+BUILD=false
+PROFILES=""
+RUN_CLAUDE=false
+EXTRA_ARGS=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --upload)
+            UPLOAD_FILE="$2"
+            shift 2
+            ;;
+        --tag)
+            UPLOAD_TAG="$2"
+            shift 2
+            ;;
+        --build)
+            BUILD=true
+            shift
+            ;;
+        --ui)
+            PROFILES="$PROFILES --profile ui"
+            shift
+            ;;
+        --full)
+            PROFILES="$PROFILES --profile full"
+            shift
+            ;;
+        --claude)
+            RUN_CLAUDE=true
+            shift
+            ;;
+        --help|-h)
+            echo "URP Dev Container Launcher"
+            echo ""
+            echo "Usage: urp-dev [OPTIONS] [PATH]"
+            echo ""
+            echo "Options:"
+            echo "  --upload FILE      Upload file to shared knowledge before launch"
+            echo "  --tag TAG          Tag for uploaded knowledge"
+            echo "  --build            Force rebuild container"
+            echo "  --ui               Include Memgraph Lab UI (port 3000)"
+            echo "  --full             Include dreamer daemon"
+            echo "  --claude           Run claude CLI directly"
+            echo "  -h, --help         Show this help"
+            echo ""
+            echo "Examples:"
+            echo "  urp-dev                          # Launch in current directory"
+            echo "  urp-dev ~/projects/myapp         # Launch in specific directory"
+            echo "  urp-dev --upload docs/api.md     # Upload knowledge, then launch"
+            echo "  urp-dev --claude                 # Run claude directly"
+            exit 0
+            ;;
+        -*)
+            EXTRA_ARGS="$EXTRA_ARGS $1"
+            shift
+            ;;
+        *)
+            CODEBASE_PATH="$1"
+            shift
+            ;;
+    esac
+done
+
+# Default to current directory
+if [ -z "$CODEBASE_PATH" ]; then
+    CODEBASE_PATH="$(pwd)"
+fi
+
+# Resolve to absolute path
+CODEBASE_PATH="$(cd "$CODEBASE_PATH" && pwd)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Checks
+# ─────────────────────────────────────────────────────────────────────────────
+
+if [ ! -f "$COMPOSE_FILE" ]; then
+    echo -e "${RED}Error: docker-compose.yml not found at $COMPOSE_FILE${NC}"
+    exit 1
+fi
+
+if ! command -v docker &> /dev/null; then
+    echo -e "${RED}Error: docker not found${NC}"
+    exit 1
+fi
+
+# Check NVIDIA
+NVIDIA_AVAILABLE=false
+if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+    NVIDIA_AVAILABLE=true
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Upload Knowledge (if requested)
+# ─────────────────────────────────────────────────────────────────────────────
+
+if [ -n "$UPLOAD_FILE" ]; then
+    if [ ! -f "$UPLOAD_FILE" ]; then
+        echo -e "${RED}Error: File not found: $UPLOAD_FILE${NC}"
+        exit 1
+    fi
+
+    echo -e "${BLUE}Uploading knowledge: $UPLOAD_FILE${NC}"
+
+    # Ensure shared_knowledge volume exists
+    docker volume create urp_shared_knowledge &>/dev/null || true
+
+    # Copy file to volume
+    UPLOAD_NAME="$(basename "$UPLOAD_FILE")"
+    if [ -n "$UPLOAD_TAG" ]; then
+        UPLOAD_NAME="${UPLOAD_TAG}_$(echo "$UPLOAD_FILE" | md5sum | cut -c1-8).${UPLOAD_FILE##*.}"
+    fi
+
+    docker run --rm \
+        -v "$(dirname "$(realpath "$UPLOAD_FILE")"):/src:ro,z" \
+        -v urp_shared_knowledge:/dest:z \
+        alpine sh -c "cp /src/$(basename "$UPLOAD_FILE") /dest/$UPLOAD_NAME"
+
+    echo -e "${GREEN}Uploaded: $UPLOAD_NAME${NC}"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build (if needed)
+# ─────────────────────────────────────────────────────────────────────────────
+
+cd "$SCRIPT_DIR"
+
+if $BUILD; then
+    echo -e "${BLUE}Building container...${NC}"
+    docker compose -f "$COMPOSE_FILE" build
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Start Stack
+# ─────────────────────────────────────────────────────────────────────────────
+
+export CODEBASE_PATH
+
+echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${BLUE}  URP Dev Container${NC}"
+echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "Workspace: ${GREEN}$CODEBASE_PATH${NC}"
+if $NVIDIA_AVAILABLE; then
+    echo -e "GPU: ${GREEN}Available${NC}"
+else
+    echo -e "GPU: ${YELLOW}Not available${NC}"
+fi
+echo ""
+
+# Start memgraph if not running
+if ! docker compose -f "$COMPOSE_FILE" ps memgraph 2>/dev/null | grep -q "running"; then
+    echo -e "${YELLOW}Starting Memgraph...${NC}"
+    docker compose -f "$COMPOSE_FILE" $PROFILES up -d memgraph
+    sleep 2
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Run Container
+# ─────────────────────────────────────────────────────────────────────────────
+
+if $RUN_CLAUDE; then
+    # Run claude directly
+    exec docker compose -f "$COMPOSE_FILE" $PROFILES run --rm urp claude
+else
+    # Interactive shell
+    exec docker compose -f "$COMPOSE_FILE" $PROFILES run --rm urp
+fi
