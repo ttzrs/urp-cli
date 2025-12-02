@@ -105,8 +105,15 @@ def add_session_note(
         ctx: Optional context override
 
     Returns:
-        memory_id of the created memory
+        memory_id of the created memory, or empty string if validation fails
     """
+    # Validate text
+    if not text or not text.strip():
+        return ""  # Reject empty/whitespace-only text
+
+    # Clamp importance to valid range
+    importance = max(1, min(5, importance))
+
     if ctx is None:
         ctx = get_current_context()
 

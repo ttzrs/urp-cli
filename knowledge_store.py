@@ -80,7 +80,7 @@ def store_knowledge(
     Store a piece of knowledge in Memgraph + ChromaDB.
 
     Args:
-        text: The knowledge content
+        text: The knowledge content (must be non-empty)
         kind: Type ("error", "fix", "rule", "pattern", "plan", "insight")
         scope: Visibility ("session", "instance", "global")
         ctx: Optional context override
@@ -88,8 +88,12 @@ def store_knowledge(
         extra_meta: Additional metadata
 
     Returns:
-        knowledge_id
+        knowledge_id, or empty string if validation fails
     """
+    # Validate text
+    if not text or not text.strip():
+        return ""  # Reject empty/whitespace-only text
+
     if ctx is None:
         ctx = get_current_context()
 
@@ -356,10 +360,13 @@ def query_knowledge(
             print(f"⚠️  Query level {source} failed: {e}")
             return []
 
-    # Level 1: Current session
+    # Level 1: Current session's session-scoped knowledge
     if level in ("session", "all"):
         results = _query_level(
-            {"session_id": ctx.session_id},
+            {"$and": [
+                {"session_id": {"$eq": ctx.session_id}},
+                {"scope": {"$eq": "session"}}
+            ]},
             "session"
         )
         collected.extend(results)

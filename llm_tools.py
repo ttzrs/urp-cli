@@ -35,7 +35,7 @@ def add_session_note(
     - Important context
 
     Args:
-        text: What to remember
+        text: What to remember (must be non-empty)
         kind: Type - "note", "summary", "decision", "result", "observation"
         importance: 1-5 (1=trivial, 5=critical)
         tags: Optional categorization tags
@@ -46,9 +46,15 @@ def add_session_note(
     Example:
         add_session_note("User prefers verbose output", kind="observation", importance=3)
     """
+    # Validate text before calling
+    if not text or not text.strip():
+        return {"error": "Text cannot be empty"}
+
     from session_memory import add_session_note as _add
     try:
         mid = _add(text, kind=kind, importance=importance, tags=tags)
+        if not mid:
+            return {"error": "Failed to store note (validation failed)"}
         return {"memory_id": mid, "status": "ok"}
     except Exception as e:
         return {"error": str(e)}
@@ -172,7 +178,7 @@ def store_knowledge(
     Store knowledge that can be shared across sessions.
 
     Args:
-        text: The knowledge content
+        text: The knowledge content (must be non-empty)
         kind: Type - "error", "fix", "rule", "pattern", "plan", "insight", "fact"
         scope: Visibility level:
             - "session": Only this session
@@ -189,9 +195,15 @@ def store_knowledge(
             scope="global"
         )
     """
+    # Validate text before calling
+    if not text or not text.strip():
+        return {"error": "Text cannot be empty"}
+
     from knowledge_store import store_knowledge as _store
     try:
         kid = _store(text, kind=kind, scope=scope)
+        if not kid:
+            return {"error": "Failed to store knowledge (validation failed)"}
         return {"knowledge_id": kid, "status": "ok"}
     except Exception as e:
         return {"error": str(e)}
