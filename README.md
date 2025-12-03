@@ -7,34 +7,46 @@ Semantic knowledge graph + cognitive layer for AI coding agents.
 ## Quick Start
 
 ```bash
-# Start the stack
-docker-compose up -d
+# Build the Go binary
+cd go && go build -o urp ./cmd/urp
 
-# Enter the dev container
-docker-compose exec urp bash
+# Run URP (connects to Memgraph if available)
+./urp                     # Show status
+./urp version             # Show version
 
-# Inside container - commands are automatically logged to graph
-git status      # Logged
-npm install     # Logged
-pytest          # Logged
+# Ingest your codebase
+./urp code ingest .       # Parse code into graph
+./urp git ingest .        # Load git history
 
 # Query what happened
-pain            # Recent errors
-recent          # Recent commands
-vitals          # Container health
+./urp events errors       # Recent errors (pain)
+./urp events list         # Recent commands
+./urp sys vitals          # Container health
 ```
 
 ## Architecture
 
 ```
-Terminal ──► runner.py ────────┬──► Memgraph ──► brain_render.py ──► LLM
-                               │
-Code ──────► ingester.py ──────┤
-                               │
-Git ───────► git_loader.py ────┘
-                               │
-            brain_cortex.py ───┘
-            (embeddings)
+┌─────────────────────────────────────────────────────────────────┐
+│                         URP CLI (Go)                            │
+│                                                                 │
+│  cmd/urp/main.go ────────────────────────────────────────────┐ │
+│       │                                                       │ │
+│       ├── internal/domain/      Entity + Event types         │ │
+│       ├── internal/graph/       Memgraph driver              │ │
+│       ├── internal/runner/      Command execution + safety   │ │
+│       ├── internal/ingest/      Parser + Git loader          │ │
+│       ├── internal/query/       Graph queries                │ │
+│       ├── internal/cognitive/   Wisdom + Novelty + Learning  │ │
+│       ├── internal/memory/      Session + Knowledge + Focus  │ │
+│       └── internal/runtime/     Container observation        │ │
+│                                                               │ │
+└───────────────────────────────────────────────────────────────┘ │
+                              │                                   │
+                              ▼                                   │
+                    ┌─────────────────┐                          │
+                    │    Memgraph     │  ← Graph Database        │
+                    └─────────────────┘                          │
 ```
 
 ## The 7 PRU Primitives
@@ -42,50 +54,102 @@ Git ───────► git_loader.py ────┘
 ```
 D  (Domain)      → Entity existence: File, Function, Class
 τ  (Vector)      → Temporal sequence: Commits, commands
-Φ  (Morphism)    → Causal flow: Calls, data flow
+Φ  (Morphism)    → Causal flow: Calls, data flow, CPU/RAM
 ⊆  (Inclusion)   → Hierarchy: File→Function, Class→Method
 ⊥  (Orthogonal)  → Conflicts: Errors, dead code
 T  (Tensor)      → Context: Branch, environment
 P  (Projective)  → Viewpoint (future)
 ```
 
-## Files
+## Command Reference
 
-| File | Purpose |
-|------|---------|
-| `cli.py` | Main CLI interface |
-| `runner.py` | Command wrapper + cognitive skills |
-| `parser.py` | Multi-language AST (Python, Go) |
-| `ingester.py` | Code → Graph nodes |
-| `git_loader.py` | Git commits → Graph |
-| `observer.py` | Docker containers → Graph |
-| `querier.py` | PRU-based queries |
-| `brain_cortex.py` | Embeddings (sentence-transformers) |
-| `brain_render.py` | Graph → LLM-friendly formats |
-| `immune_system.py` | Pre-execution safety filter |
-| `dreamer.py` | Background maintenance daemon |
-| `docs_rag.py` | External documentation RAG |
-
-## Cognitive Commands
-
-| Command | Purpose |
-|---------|---------|
-| `wisdom "error"` | Find similar past errors |
-| `novelty "code"` | Check if pattern breaks conventions |
-| `focus target` | Load surgical subgraph context |
-| `learn "desc"` | Consolidate success into knowledge |
-| `surgical fn` | Read only specific function |
-
-## Working Memory
+### Code Analysis (D, Φ, ⊆)
 
 ```bash
-focus AuthService         # Add to working memory
-mem-status                # Show token usage
-unfocus AuthService       # Remove from memory
-clear-context             # Clear all
+urp code ingest <path>     # Parse code into graph
+urp code deps <sig>        # Dependencies of function
+urp code impact <sig>      # Impact of changing function
+urp code dead              # Find unused code
+urp code cycles            # Find circular dependencies
+urp code hotspots          # High churn = high risk
+urp code stats             # Graph statistics
 ```
 
-## Safety System
+### Git History (τ)
+
+```bash
+urp git ingest <path>      # Load git history
+urp git history <file>     # File change timeline
+```
+
+### Cognitive Skills
+
+```bash
+urp think wisdom <error>   # Find similar past errors
+urp think novelty <code>   # Check if pattern is unusual
+urp think learn <desc>     # Consolidate success into knowledge
+```
+
+### Session Memory
+
+```bash
+urp mem add <text>         # Remember a note
+urp mem recall <query>     # Search memories
+urp mem list               # List all memories
+urp mem stats              # Memory statistics
+urp mem clear              # Clear session memory
+```
+
+### Knowledge Base
+
+```bash
+urp kb store <text>        # Store knowledge
+urp kb query <text>        # Search knowledge
+urp kb list                # List all knowledge
+urp kb reject <id> <reason># Mark as not applicable
+urp kb promote <id>        # Promote to global scope
+urp kb stats               # Knowledge statistics
+```
+
+### Focus (Context Loading)
+
+```bash
+urp focus <target>         # Load focused context
+urp focus <target> -d 2    # With depth expansion
+```
+
+### Runtime Observation (Φ)
+
+```bash
+urp sys vitals             # Container CPU/RAM metrics
+urp sys topology           # Network map
+urp sys health             # Container health issues
+urp sys runtime            # Detected container runtime
+```
+
+### Terminal Events (τ + Φ)
+
+```bash
+urp events run <cmd>       # Execute and log command
+urp events list            # Recent commands
+urp events errors          # Recent errors
+```
+
+## Packages (Go SOLID Architecture)
+
+| Package | Responsibility |
+|---------|---------------|
+| `domain/` | Entity types (File, Function, Event) |
+| `graph/` | Database interface + Memgraph driver |
+| `runner/` | Command execution + safety filter |
+| `ingest/` | Code parser + Git loader |
+| `query/` | Graph queries (deps, impact, dead) |
+| `cognitive/` | Wisdom, novelty, learning |
+| `memory/` | Session memory + knowledge store |
+| `runtime/` | Container observation |
+| `render/` | Output formatting |
+
+## Safety System (Immune System)
 
 Deterministic pre-execution filter (not AI guessing).
 
@@ -96,38 +160,39 @@ Deterministic pre-execution filter (not AI guessing).
 | `git add .env` | Add to `.gitignore` |
 | `DROP DATABASE` | Requires user approval |
 
-## Docker Compose Profiles
+## Performance
 
-```bash
-docker-compose up -d                      # Basic: memgraph + urp
-docker-compose --profile ui up -d         # + Memgraph Lab UI
-docker-compose --profile dev up -d        # + Writable codebase
-docker-compose --profile full up -d       # + Dreamer daemon
-```
+| Metric | Python (legacy) | Go |
+|--------|-----------------|-----|
+| **Startup** | 616ms | 6ms |
+| **10x commands** | 6.9s | 0.04s |
+| **Binary** | ~50MB | 12MB |
+| **LOC** | 12,000+ | 5,229 |
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NEO4J_URI` | `bolt://memgraph:7687` | Graph database URI |
-| `URP_ENABLED` | `1` | Enable/disable command wrapping |
-| `URP_MAX_CONTEXT_TOKENS` | `4000` | Working memory budget |
-| `DREAMER_CPU_THRESHOLD` | `15` | CPU% to activate dreamer |
-| `DREAMER_PRUNE_DAYS` | `7` | Delete events older than N days |
+| `NEO4J_URI` | `bolt://localhost:7687` | Graph database URI |
+| `URP_PROJECT` | auto | Project name |
+| `URP_SESSION_ID` | auto | Session identifier |
 
-## Output Formats
+## Docker Compose (Optional)
 
-**Raw JSON (wasteful):**
-```json
-[{"id": 1, "name": "process"}, {"start": 1, "end": 2}...]
+```bash
+# Start Memgraph
+docker-compose up -d memgraph
+
+# Or use podman
+podman run -d -p 7687:7687 memgraph/memgraph
 ```
 
-**LLM-friendly:**
-```
-module 'payments/processor.py' {
-  @CALLS(Database.connect)
-  def process_payment(amount: int) { ... }
-}
+## Building
+
+```bash
+cd go
+go build -o urp ./cmd/urp
+go test ./...
 ```
 
 ## License

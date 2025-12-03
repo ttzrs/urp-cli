@@ -279,105 +279,78 @@ urp-on         # Re-enable wrapping
 urp-status     # Check status
 ```
 
-## Your Senses (Commands)
+## Your Senses (Go CLI Commands)
 
 ```bash
 # ─────────────────────────────────────────────────────────────────
+# CODE ANALYSIS (D, Φ, ⊆)
+# ─────────────────────────────────────────────────────────────────
+urp code ingest <path>           # Parse code into graph
+urp code deps <sig>              # Dependencies of function
+urp code impact <sig>            # Impact of changing function
+urp code dead                    # Find unused code
+urp code cycles                  # Find circular dependencies
+urp code hotspots                # High churn = high risk
+urp code stats                   # Graph statistics
+
+# ─────────────────────────────────────────────────────────────────
+# GIT HISTORY (τ)
+# ─────────────────────────────────────────────────────────────────
+urp git ingest <path>            # Load git history
+urp git history <file>           # File change timeline
+
+# ─────────────────────────────────────────────────────────────────
 # COGNITIVE SKILLS (Use these instinctively)
 # ─────────────────────────────────────────────────────────────────
-wisdom "error message"           # Find similar past errors + solutions
-novelty "code snippet"           # Check if pattern is unusual
-focus <target> --depth 2         # Load focused context (reduce hallucination)
-learn "description"              # Consolidate success into permanent knowledge
-
-# ─────────────────────────────────────────────────────────────────
-# PERCEPTION (Check before acting)
-# ─────────────────────────────────────────────────────────────────
-pain                             # Recent errors (⊥) - feel the pain
-pain --minutes 30                # Look back further
-vitals                           # Container CPU/RAM (Φ energy)
-topology                         # Network map
-recent                           # Recent commands (τ timeline)
-recent --errors                  # Only failures
-
-# ─────────────────────────────────────────────────────────────────
-# KNOWLEDGE GRAPH QUERIES
-# ─────────────────────────────────────────────────────────────────
-
-# Causal (Φ)
-urp impact <sig>                 # What breaks if I change this?
-urp deps <sig>                   # What does this depend on?
-
-# Temporal (τ)
-urp history <file>               # File change timeline
-urp hotspots                     # High churn = high risk
-
-# Hierarchy (⊆)
-urp contents <file>              # What's in this file?
-urp expert <pattern>             # Who knows this code?
-
-# Conflicts (⊥)
-urp dead                         # Uncalled functions
-urp circular                     # Dependency cycles
-health                           # Container health issues
-
-# ─────────────────────────────────────────────────────────────────
-# CONTROL
-# ─────────────────────────────────────────────────────────────────
-urp-init .                       # Initialize codebase
-urp ingest <path>                # Parse code into graph
-urp git <path>                   # Load git history
-urp-status                       # Check URP status
-urp-off / urp-on                 # Disable/enable command logging
-
-# ─────────────────────────────────────────────────────────────────
-# CONTEXT OPTIMIZATION (Claude Code integration)
-# ─────────────────────────────────────────────────────────────────
-cc-status                        # Show context status, noise, recommendations
-cc-compact                       # Run optimization based on current mode
-cc-clean                         # Clean working memory (old/unused items)
-cc-noise                         # Detect and report noise patterns
-
-# Mode control (A/B testing - use to find optimal settings)
-cc-mode [semi|auto|hybrid]       # Get or set optimization mode
-cc-semi                          # Semi-auto: generate /compact instruction
-cc-auto                          # Aggressive: auto-clean all noise
-cc-smart                         # Hybrid: auto-clean safe, ask for uncertain
-
-# Feedback (improves mode recommendation over time)
-cc-quality 1-5                   # Record quality feedback
-cc-error                         # Record context loss error
-cc-stats                         # View A/B testing statistics
-cc-recommend                     # Get recommended mode based on metrics
+urp think wisdom <error>         # Find similar past errors + solutions
+urp think novelty <code>         # Check if pattern is unusual
+urp think learn <desc>           # Consolidate success into knowledge
 
 # ─────────────────────────────────────────────────────────────────
 # SESSION MEMORY (Your private cognitive space)
 # ─────────────────────────────────────────────────────────────────
-remember "text" --kind note      # Save to session memory
-recall "query"                   # Search your memories (FAST)
-memories                         # List all session memories
+urp mem add <text>               # Remember a note
+urp mem recall <query>           # Search memories (FAST)
+urp mem list                     # List all session memories
+urp mem stats                    # Memory statistics
+urp mem clear                    # Clear session memory
 
 # ─────────────────────────────────────────────────────────────────
 # SHARED KNOWLEDGE (Cross-session persistence)
 # ─────────────────────────────────────────────────────────────────
-kstore "text" --scope global     # Store knowledge for future sessions
-kquery "docker permissions"      # Search knowledge (session→instance→global)
-klist                            # List all knowledge
-kreject --id k-xxx --reason "..."# Mark knowledge as not applicable
-kexport --id m-xxx --scope global# Promote session memory to knowledge
+urp kb store <text>              # Store knowledge
+urp kb query <text>              # Search knowledge (session→instance→global)
+urp kb list                      # List all knowledge
+urp kb reject <id> <reason>      # Mark as not applicable
+urp kb promote <id>              # Promote to global scope
+urp kb stats                     # Knowledge statistics
 
 # ─────────────────────────────────────────────────────────────────
-# METACOGNITION (Self-evaluation)
+# FOCUS (Context Loading)
 # ─────────────────────────────────────────────────────────────────
-should-save "note text"          # Should I save this? (redundancy check)
-should-promote m-xxx             # Should I promote to global?
-should-reject k-xxx              # Should I reject this knowledge?
+urp focus <target>               # Load focused context
+urp focus <target> -d 2          # With depth expansion
 
 # ─────────────────────────────────────────────────────────────────
-# STATS & IDENTITY
+# RUNTIME OBSERVATION (Φ)
 # ─────────────────────────────────────────────────────────────────
-memstats                         # Memory and knowledge statistics
-identity                         # Show current context/signature
+urp sys vitals                   # Container CPU/RAM metrics
+urp sys topology                 # Network map
+urp sys health                   # Container health issues
+urp sys runtime                  # Detected container runtime
+
+# ─────────────────────────────────────────────────────────────────
+# TERMINAL EVENTS (τ + Φ)
+# ─────────────────────────────────────────────────────────────────
+urp events run <cmd>             # Execute and log command
+urp events list                  # Recent commands
+urp events errors                # Recent errors
+
+# ─────────────────────────────────────────────────────────────────
+# STATUS
+# ─────────────────────────────────────────────────────────────────
+urp                              # Show status
+urp version                      # Show version
 ```
 
 ## Multi-Session Memory Architecture
@@ -406,24 +379,18 @@ You have a **layered memory system**:
 1. Check context compatibility (automatic)
 2. If knowledge doesn't apply, REJECT it:
    ```bash
-   kreject --id k-xxx --reason "Different dataset, not applicable"
+   urp kb reject k-xxx "Different dataset, not applicable"
    ```
 
 **When you discover something useful:**
 1. First save to session memory:
    ```bash
-   remember "SELinux needs label:disable for docker.sock" --kind decision --importance 4
+   urp mem add "SELinux needs label:disable for docker.sock"
    ```
 2. If it's generally useful, promote it:
    ```bash
-   should-promote m-xxx  # Check if worth promoting
-   kexport --id m-xxx --scope global --kind rule
+   urp kb promote m-xxx
    ```
-
-**Before saving a note:**
-```bash
-should-save "my observation text"  # Check for redundancy
-```
 
 ### Context Signature
 
@@ -433,50 +400,58 @@ Knowledge compatibility is checked against this signature:
 - Same project = compatible
 - Different OS/dataset = may need rejection
 
-Check your identity:
-```bash
-identity
-```
-
-## Architecture
+## Architecture (Go)
 
 ```
-# Launchers (bin/)
-bin/urp          → Worker launcher (WRITE access)
-bin/urp-m        → Master launcher (READ-ONLY + spawn workers)
-bin/urp-c        → Claude Code alias (WRITE)
-bin/urp-c-ro     → Claude Code read-only
-bin/urp-infra    → Infrastructure management (start/stop/status/clean)
-
-# Core
-cli.py           → Main CLI, graph queries
-runner.py        → Terminal wrapper + cognitive skills (wisdom, novelty, focus)
-database.py      → Neo4j/Memgraph driver
-
-# Memory System
-context.py       → URPContext identity model (instance/session/user)
-session_memory.py→ Private session memory (notes, summaries, decisions)
-knowledge_store.py→Shared KB with multi-level search + rejection
-llm_tools.py     → Unified API for all 23 memory operations
-metacognitive.py → Self-evaluation (should_save/promote/reject)
-
-# Brain (Embeddings)
-brain_cortex.py  → Embedding model + ChromaDB persistence
-brain_render.py  → Graph → LLM-friendly output formats
-
-# Safety & Parsing
-immune_system.py → Pre-execution safety filter (⊥)
-parser.py        → Multi-language AST (Python, Go)
-ingester.py      → Code → Graph (D, ⊆, Φ)
-git_loader.py    → Git → Graph (τ, T)
-observer.py      → Docker → Graph (Φ energy, ⊥ health)
-querier.py       → PRU-based queries
-
-# Shell
-shell_hooks.sh   → Bash function wrappers + memory aliases
-master_commands.sh→ Master-only commands (urp-spawn, urp-workers, etc.)
-entrypoint.sh    → Container init script
+go/
+├── cmd/urp/main.go      → CLI entry point (Cobra)
+│
+├── internal/
+│   ├── domain/          → Entity types (File, Function, Event)
+│   │   └── entities.go
+│   │
+│   ├── graph/           → Memgraph driver interface
+│   │   └── driver.go
+│   │
+│   ├── runner/          → Command execution + safety
+│   │   ├── executor.go  → Run commands, capture output
+│   │   └── safety.go    → Immune system (⊥)
+│   │
+│   ├── ingest/          → Code → Graph (D, ⊆, Φ)
+│   │   ├── parser.go    → Multi-language AST
+│   │   └── loader.go    → Git history (τ, T)
+│   │
+│   ├── query/           → PRU-based queries
+│   │   └── querier.go
+│   │
+│   ├── cognitive/       → Wisdom, Novelty, Learning
+│   │   ├── wisdom.go    → Find similar past errors
+│   │   ├── novelty.go   → Check pattern unusualness
+│   │   └── learning.go  → Consolidate success
+│   │
+│   ├── memory/          → Session + Knowledge + Focus
+│   │   ├── context.go   → Session identity
+│   │   ├── session.go   → Private memory
+│   │   ├── knowledge.go → Shared KB
+│   │   └── focus.go     → Targeted context loading
+│   │
+│   ├── runtime/         → Container observation
+│   │   └── observer.go  → Vitals, topology, health
+│   │
+│   └── render/          → Output formatting
+│       └── render.go
+│
+└── go.mod
 ```
+
+### Performance (Go vs Python)
+
+| Metric | Python | Go |
+|--------|--------|-----|
+| **Startup** | 616ms | 6ms |
+| **10x commands** | 6.9s | 0.04s |
+| **Binary** | ~50MB | 12MB |
+| **LOC** | 12,000+ | 5,229 |
 
 ## Graph Schema
 
@@ -497,27 +472,18 @@ entrypoint.sh    → Container init script
 - `HAS_SESSION`, `HAS_MEMORY` (instance → session → memory)
 - `CREATED`, `USED`, `REJECTED`, `EXPORTED` (session ↔ knowledge)
 
-## Extending Languages
+## Building
 
-Add a new parser in `parser.py`:
-
-```python
-class RustParser(LanguageParser):
-    @property
-    def extensions(self): return ('.rs',)
-    def extract_entities(self, tree, path): ...
-    def extract_calls(self, tree, path): ...
-
-_LANGUAGE_MODULES['rust'] = 'tree_sitter_rust'
-registry.register('rust', RustParser())
+```bash
+cd go
+go build -o urp ./cmd/urp
+go test ./...
 ```
 
-## Environment
+## Environment Variables
 
-```
-NEO4J_URI=bolt://memgraph:7687
-NEO4J_USER=
-NEO4J_PASSWORD=
-URP_ENABLED=1
-URP_RUNNER=/app/runner.py
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NEO4J_URI` | `bolt://localhost:7687` | Graph database URI |
+| `URP_PROJECT` | auto | Project name |
+| `URP_SESSION_ID` | auto | Session identifier |

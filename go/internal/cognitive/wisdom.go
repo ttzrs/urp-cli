@@ -7,16 +7,32 @@ import (
 	"sort"
 
 	"github.com/joss/urp/internal/graph"
+	"github.com/joss/urp/internal/vector"
 )
 
 // WisdomService finds similar past errors and solutions.
 type WisdomService struct {
-	db graph.Driver
+	db       graph.Driver
+	vectors  vector.Store
+	embedder vector.Embedder
 }
 
 // NewWisdomService creates a new wisdom service.
 func NewWisdomService(db graph.Driver) *WisdomService {
-	return &WisdomService{db: db}
+	return &WisdomService{
+		db:       db,
+		vectors:  vector.Default(),
+		embedder: vector.GetDefaultEmbedder(),
+	}
+}
+
+// NewWisdomServiceWithVectors creates a wisdom service with custom vector store.
+func NewWisdomServiceWithVectors(db graph.Driver, store vector.Store, embedder vector.Embedder) *WisdomService {
+	return &WisdomService{
+		db:       db,
+		vectors:  store,
+		embedder: embedder,
+	}
 }
 
 // Match represents a similar past error.
@@ -29,9 +45,68 @@ type Match struct {
 	Solution   string  `json:"solution,omitempty"`
 }
 
-// ConsultWisdom finds similar past errors using text similarity.
-// Without embeddings, falls back to keyword matching.
+// ConsultWisdom finds similar past errors using vector similarity.
+// Falls back to Jaccard keyword matching if vectors unavailable.
 func (w *WisdomService) ConsultWisdom(ctx context.Context, errorMsg string, threshold float64, project string) ([]Match, error) {
+	// Try vector search first
+	if w.vectors != nil && w.embedder != nil {
+		matches, err := w.vectorSearch(ctx, errorMsg, threshold, project)
+		if err == nil && len(matches) > 0 {
+			return matches, nil
+		}
+		// Fall through to Jaccard if vector search fails
+	}
+
+	return w.jaccardSearch(ctx, errorMsg, threshold, project)
+}
+
+// vectorSearch uses embedding-based similarity search.
+func (w *WisdomService) vectorSearch(ctx context.Context, errorMsg string, threshold float64, project string) ([]Match, error) {
+	// Generate embedding for query
+	queryVec, err := w.embedder.Embed(ctx, errorMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Search vector store
+	results, err := w.vectors.Search(ctx, queryVec, 10, "error")
+	if err != nil {
+		return nil, err
+	}
+
+	var matches []Match
+	for _, r := range results {
+		sim := float64(r.Score)
+		if sim < threshold {
+			continue
+		}
+
+		// Filter by project if specified
+		if project != "" {
+			if p, ok := r.Entry.Metadata["project"]; ok && p != project {
+				continue
+			}
+		}
+
+		matches = append(matches, Match{
+			Command:    r.Entry.Metadata["command"],
+			Error:      r.Entry.Text,
+			Time:       r.Entry.Metadata["time"],
+			Project:    r.Entry.Metadata["project"],
+			Similarity: math.Round(sim*1000) / 1000,
+		})
+	}
+
+	// Find solutions for matches
+	for i := range matches {
+		w.findSolution(ctx, &matches[i])
+	}
+
+	return matches, nil
+}
+
+// jaccardSearch uses keyword-based Jaccard similarity (fallback).
+func (w *WisdomService) jaccardSearch(ctx context.Context, errorMsg string, threshold float64, project string) ([]Match, error) {
 	projectClause := ""
 	params := map[string]any{
 		"error": errorMsg,
@@ -100,6 +175,30 @@ func (w *WisdomService) ConsultWisdom(ctx context.Context, errorMsg string, thre
 	}
 
 	return matches, nil
+}
+
+// IndexError stores an error in the vector database for future matching.
+func (w *WisdomService) IndexError(ctx context.Context, errorMsg, command, project string) error {
+	if w.vectors == nil || w.embedder == nil {
+		return nil // Silently skip if no vector store
+	}
+
+	vec, err := w.embedder.Embed(ctx, errorMsg)
+	if err != nil {
+		return err
+	}
+
+	entry := vector.VectorEntry{
+		Text:   errorMsg,
+		Vector: vec,
+		Kind:   "error",
+		Metadata: map[string]string{
+			"command": command,
+			"project": project,
+		},
+	}
+
+	return w.vectors.Add(ctx, entry)
 }
 
 func (w *WisdomService) findSolution(ctx context.Context, match *Match) {
