@@ -359,11 +359,12 @@ func codeCmd() *cobra.Command {
 		Long:  "Parse and analyze code (D, Φ, ⊆ primitives)",
 	}
 
-	// urp code ingest <path>
+	// urp code ingest [path]
 	ingestCmd := &cobra.Command{
-		Use:   "ingest <path>",
+		Use:   "ingest [path]",
 		Short: "Parse code into graph",
-		Args:  cobra.ExactArgs(1),
+		Long:  "Parse code into graph. If no path is provided, uses current directory.",
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCode, "ingest")
 
@@ -373,8 +374,14 @@ func codeCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
+			// Default to current directory
+			path := "."
+			if len(args) > 0 {
+				path = args[0]
+			}
+
 			ingester := ingest.NewIngester(db)
-			stats, err := ingester.Ingest(context.Background(), args[0])
+			stats, err := ingester.Ingest(context.Background(), path)
 			if err != nil {
 				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -574,12 +581,13 @@ func gitCmd() *cobra.Command {
 		Long:  "Load and query git history (τ primitive)",
 	}
 
-	// urp git ingest <path>
+	// urp git ingest [path]
 	var maxCommits int
 	ingestCmd := &cobra.Command{
-		Use:   "ingest <path>",
+		Use:   "ingest [path]",
 		Short: "Load git history into graph",
-		Args:  cobra.ExactArgs(1),
+		Long:  "Load git history into graph. If no path is provided, uses current directory.",
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryGit, "ingest")
 
@@ -589,7 +597,13 @@ func gitCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			loader := ingest.NewGitLoader(db, args[0])
+			// Default to current directory
+			path := "."
+			if len(args) > 0 {
+				path = args[0]
+			}
+
+			loader := ingest.NewGitLoader(db, path)
 			stats, err := loader.LoadHistory(context.Background(), maxCommits)
 			if err != nil {
 				auditLogger.LogError(event, err)

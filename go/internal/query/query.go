@@ -28,6 +28,7 @@ type Impact struct {
 
 // FindImpact returns functions affected by changing the target (Φ inverse).
 func (q *Querier) FindImpact(ctx context.Context, signature string, maxDepth int) ([]Impact, error) {
+	// Note: Memgraph uses size() instead of length() for path length
 	query := fmt.Sprintf(`
 		MATCH (target)
 		WHERE target.name CONTAINS $sig OR target.signature CONTAINS $sig
@@ -36,7 +37,7 @@ func (q *Querier) FindImpact(ctx context.Context, signature string, maxDepth int
 		    caller.name as name,
 		    caller.path as path,
 		    caller.signature as signature,
-		    length(path) as distance
+		    size(path) as distance
 		ORDER BY distance
 		LIMIT 50
 	`, maxDepth)
@@ -69,6 +70,7 @@ type Dependency struct {
 
 // FindDeps returns dependencies of the target (Φ forward).
 func (q *Querier) FindDeps(ctx context.Context, signature string, maxDepth int) ([]Dependency, error) {
+	// Note: Memgraph uses size() instead of length() for path length
 	query := fmt.Sprintf(`
 		MATCH (source)
 		WHERE source.name CONTAINS $sig OR source.signature CONTAINS $sig
@@ -77,7 +79,7 @@ func (q *Querier) FindDeps(ctx context.Context, signature string, maxDepth int) 
 		    dep.name as name,
 		    dep.path as path,
 		    dep.signature as signature,
-		    length(path) as distance
+		    size(path) as distance
 		ORDER BY distance
 		LIMIT 50
 	`, maxDepth)
