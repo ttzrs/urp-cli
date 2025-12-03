@@ -1,0 +1,117 @@
+#!/bin/bash
+# URP Master Container Entrypoint
+# ================================
+# 1. Setup environment
+# 2. Wait for memgraph
+# 3. Auto-ingest code + git
+# 4. Launch Claude CLI
+
+set -e
+
+# ─────────────────────────────────────────────────────────────
+# Environment Setup
+# ─────────────────────────────────────────────────────────────
+
+# Load .env if mounted
+if [[ -f /etc/urp/.env ]]; then
+    set -a
+    source /etc/urp/.env
+    set +a
+fi
+
+# Fix git "dubious ownership" for mounted workspace
+git config --global --add safe.directory /workspace 2>/dev/null || true
+
+# Generate session ID if not provided
+if [[ -z "$URP_SESSION_ID" ]]; then
+    export URP_SESSION_ID="s-$(date +%s)-$$"
+fi
+
+# Detect project name from workspace
+if [[ "$URP_PROJECT" == "unknown" ]] && [[ -d /workspace/.git ]]; then
+    URP_PROJECT=$(basename "$(git -C /workspace rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")
+    export URP_PROJECT
+fi
+
+# ─────────────────────────────────────────────────────────────
+# Wait for Memgraph
+# ─────────────────────────────────────────────────────────────
+
+if [[ -n "$NEO4J_URI" ]]; then
+    echo "⏳ Waiting for Memgraph..."
+    max_attempts=30
+    attempt=0
+
+    while ! urp 2>&1 | grep -q "connected"; do
+        attempt=$((attempt + 1))
+        if [[ $attempt -ge $max_attempts ]]; then
+            echo "⚠️  Warning: Could not connect to Memgraph after $max_attempts attempts"
+            break
+        fi
+        sleep 1
+    done
+
+    if [[ $attempt -lt $max_attempts ]]; then
+        echo "✓ Memgraph connected"
+    fi
+fi
+
+# Initialize session in graph
+urp session id 2>/dev/null || true
+
+# ─────────────────────────────────────────────────────────────
+# Auto-Ingest (Git first, then Code)
+# ─────────────────────────────────────────────────────────────
+
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " URP Master - Ingesting Project"
+echo "═══════════════════════════════════════════════════════"
+echo " Project: $URP_PROJECT"
+echo " Session: $URP_SESSION_ID"
+echo ""
+
+# Git first - establishes temporal context and file existence
+if [[ -d /workspace/.git ]]; then
+    echo "📜 Ingesting git history..."
+    if urp git ingest /workspace 2>&1; then
+        echo "✓ Git history ingested"
+    else
+        echo "⚠️  Git ingest had issues (continuing)"
+    fi
+fi
+
+# Code second - parses AST, links to existing files from git
+echo "📂 Ingesting code structure..."
+if urp code ingest /workspace 2>&1; then
+    echo "✓ Code structure ingested"
+else
+    echo "⚠️  Code ingest had issues (continuing)"
+fi
+
+# Show stats
+echo ""
+urp code stats 2>/dev/null || true
+echo ""
+
+# ─────────────────────────────────────────────────────────────
+# Launch Claude CLI
+# ─────────────────────────────────────────────────────────────
+
+echo "═══════════════════════════════════════════════════════"
+echo " Starting Claude Code"
+echo "═══════════════════════════════════════════════════════"
+echo ""
+echo "Commands available:"
+echo "  urp spawn           - Create worker for code changes"
+echo "  urp workers         - List active workers"
+echo "  urp plan show       - View current plan"
+echo "  pain                - Recent errors"
+echo "  wisdom <error>      - Find similar past errors"
+echo "  learn <desc>        - Record successful solution"
+echo ""
+echo "───────────────────────────────────────────────────────"
+echo ""
+
+# Execute command (default: claude)
+exec "$@"

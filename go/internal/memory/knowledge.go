@@ -4,6 +4,7 @@ package memory
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/joss/urp/internal/graph"
@@ -52,15 +53,15 @@ func (k *KnowledgeStore) Store(ctx context.Context, text, kind, scope string) (s
 		                sess.started_at = $now,
 		                sess.context_signature = $ctx_sig
 		MERGE (i)-[:HAS_SESSION]->(sess)
-		MERGE (kb:Knowledge {knowledge_id: $knowledge_id})
-		  ON CREATE SET kb.kind = $kind,
-		                kb.text = $text,
-		                kb.scope = $scope,
-		                kb.created_at = $now,
-		                kb.context_signature = $ctx_sig
-		  ON MATCH SET kb.text = $text,
-		               kb.scope = $scope
-		MERGE (sess)-[:CREATED {at: $now}]->(kb)
+		MERGE (k:Knowledge {knowledge_id: $knowledge_id})
+		  ON CREATE SET k.kind = $kind,
+		                k.text = $text,
+		                k.scope = $scope,
+		                k.created_at = $now,
+		                k.context_signature = $ctx_sig
+		  ON MATCH SET k.text = $text,
+		               k.scope = $scope
+		MERGE (sess)-[:CREATED {at: $now}]->(k)
 	`
 
 	err := k.db.ExecuteWrite(ctx, query, map[string]any{
@@ -86,8 +87,8 @@ func (k *KnowledgeStore) Store(ctx context.Context, text, kind, scope string) (s
 func (k *KnowledgeStore) Reject(ctx context.Context, knowledgeID, reason string) error {
 	query := `
 		MATCH (sess:Session {session_id: $session_id})
-		MATCH (kb:Knowledge {knowledge_id: $knowledge_id})
-		MERGE (sess)-[r:REJECTED]->(kb)
+		MATCH (k:Knowledge {knowledge_id: $knowledge_id})
+		MERGE (sess)-[r:REJECTED]->(k)
 		  ON CREATE SET r.at = timestamp(), r.reason = $reason
 		  ON MATCH SET r.reason = $reason
 	`
@@ -102,8 +103,8 @@ func (k *KnowledgeStore) Reject(ctx context.Context, knowledgeID, reason string)
 // GetRejected returns IDs rejected by this session.
 func (k *KnowledgeStore) GetRejected(ctx context.Context) (map[string]bool, error) {
 	query := `
-		MATCH (sess:Session {session_id: $session_id})-[:REJECTED]->(kb:Knowledge)
-		RETURN kb.knowledge_id as id
+		MATCH (sess:Session {session_id: $session_id})-[:REJECTED]->(k:Knowledge)
+		RETURN k.knowledge_id as id
 	`
 
 	records, err := k.db.Execute(ctx, query, map[string]any{
@@ -127,8 +128,8 @@ func (k *KnowledgeStore) GetRejected(ctx context.Context) (map[string]bool, erro
 func (k *KnowledgeStore) MarkUsed(ctx context.Context, knowledgeID string, similarity float64) error {
 	query := `
 		MATCH (sess:Session {session_id: $session_id})
-		MATCH (kb:Knowledge {knowledge_id: $knowledge_id})
-		MERGE (sess)-[r:USED]->(kb)
+		MATCH (k:Knowledge {knowledge_id: $knowledge_id})
+		MERGE (sess)-[r:USED]->(k)
 		  ON CREATE SET r.at = timestamp(), r.similarity = $similarity
 	`
 
@@ -234,7 +235,7 @@ func (k *KnowledgeStore) Query(ctx context.Context, queryText string, limit int,
 }
 
 func (k *KnowledgeStore) queryLevel(ctx context.Context, scope, sessionID, instanceID string, limit int) ([]KnowledgeEntry, error) {
-	whereClause := "kb.scope = $scope"
+	whereClause := "k.scope = $scope"
 	params := map[string]any{
 		"scope": scope,
 		"limit": limit,
@@ -245,21 +246,21 @@ func (k *KnowledgeStore) queryLevel(ctx context.Context, scope, sessionID, insta
 		params["session_id"] = sessionID
 	}
 	if instanceID != "" {
-		whereClause += " AND kb.instance_id = $instance_id"
+		whereClause += " AND k.instance_id = $instance_id"
 		params["instance_id"] = instanceID
 	}
 
 	query := fmt.Sprintf(`
-		MATCH (sess:Session)-[:CREATED]->(kb:Knowledge)
+		MATCH (sess:Session)-[:CREATED]->(k:Knowledge)
 		WHERE %s
-		RETURN kb.knowledge_id as knowledge_id,
-		       kb.kind as kind,
-		       kb.scope as scope,
-		       kb.text as text,
-		       kb.context_signature as context_signature,
-		       kb.created_at as created_at,
+		RETURN k.knowledge_id as knowledge_id,
+		       k.kind as kind,
+		       k.scope as scope,
+		       k.text as text,
+		       k.context_signature as context_signature,
+		       k.created_at as created_at,
 		       sess.session_id as session_id
-		ORDER BY kb.created_at DESC
+		ORDER BY k.created_at DESC
 		LIMIT $limit
 	`, whereClause)
 
@@ -315,8 +316,8 @@ func (k *KnowledgeStore) ExportMemory(ctx context.Context, memoryID, kind, scope
 	// Record export relationship
 	exportQuery := `
 		MATCH (sess:Session {session_id: $session_id})
-		MATCH (kb:Knowledge {knowledge_id: $knowledge_id})
-		MERGE (sess)-[:EXPORTED {at: timestamp()}]->(kb)
+		MATCH (k:Knowledge {knowledge_id: $knowledge_id})
+		MERGE (sess)-[:EXPORTED {at: timestamp()}]->(k)
 	`
 
 	k.db.ExecuteWrite(ctx, exportQuery, map[string]any{
@@ -330,8 +331,8 @@ func (k *KnowledgeStore) ExportMemory(ctx context.Context, memoryID, kind, scope
 // Promote changes knowledge scope to global.
 func (k *KnowledgeStore) Promote(ctx context.Context, knowledgeID string) error {
 	query := `
-		MATCH (kb:Knowledge {knowledge_id: $knowledge_id})
-		SET kb.scope = 'global', kb.promoted_at = timestamp()
+		MATCH (k:Knowledge {knowledge_id: $knowledge_id})
+		SET k.scope = 'global', k.promoted_at = timestamp()
 	`
 
 	return k.db.ExecuteWrite(ctx, query, map[string]any{
@@ -341,29 +342,39 @@ func (k *KnowledgeStore) Promote(ctx context.Context, knowledgeID string) error 
 
 // List returns all knowledge with optional filtering.
 func (k *KnowledgeStore) List(ctx context.Context, kind, scope string, limit int) ([]KnowledgeEntry, error) {
-	whereClause := "TRUE"
 	params := map[string]any{"limit": limit}
 
+	var conditions []string
 	if kind != "" {
-		whereClause += " AND kb.kind = $kind"
+		conditions = append(conditions, "k.kind = $kind")
 		params["kind"] = kind
 	}
 	if scope != "" {
-		whereClause += " AND kb.scope = $scope"
+		conditions = append(conditions, "k.scope = $scope")
 		params["scope"] = scope
 	}
 
-	query := fmt.Sprintf(`
-		MATCH (kb:Knowledge)
+	var query string
+	if len(conditions) > 0 {
+		whereClause := strings.Join(conditions, " AND ")
+		query = fmt.Sprintf(`
+		MATCH (k:Knowledge)
 		WHERE %s
-		RETURN kb.knowledge_id as knowledge_id,
-		       kb.kind as kind,
-		       kb.scope as scope,
-		       kb.text as text,
-		       kb.created_at as created_at
-		ORDER BY kb.created_at DESC
+		RETURN k.knowledge_id as knowledge_id,`, whereClause)
+	} else {
+		query = `
+		MATCH (k:Knowledge)
+		RETURN k.knowledge_id as knowledge_id,`
+	}
+
+	query += `
+		       k.kind as kind,
+		       k.scope as scope,
+		       k.text as text,
+		       k.created_at as created_at
+		ORDER BY k.created_at DESC
 		LIMIT $limit
-	`, whereClause)
+	`
 
 	records, err := k.db.Execute(ctx, query, params)
 	if err != nil {
@@ -387,8 +398,8 @@ func (k *KnowledgeStore) List(ctx context.Context, kind, scope string, limit int
 // Stats returns knowledge store statistics.
 func (k *KnowledgeStore) Stats(ctx context.Context) (map[string]any, error) {
 	query := `
-		MATCH (kb:Knowledge)
-		RETURN kb.scope as scope, count(*) as count
+		MATCH (k:Knowledge)
+		RETURN k.scope as scope, count(*) as count
 	`
 
 	records, err := k.db.Execute(ctx, query, nil)
@@ -414,14 +425,14 @@ func (k *KnowledgeStore) Stats(ctx context.Context) (map[string]any, error) {
 // Provenance returns who created/used/rejected knowledge.
 func (k *KnowledgeStore) Provenance(ctx context.Context, knowledgeID string) (map[string]any, error) {
 	query := `
-		MATCH (kb:Knowledge {knowledge_id: $knowledge_id})
-		OPTIONAL MATCH (creator:Session)-[c:CREATED]->(kb)
-		OPTIONAL MATCH (user:Session)-[u:USED]->(kb)
-		OPTIONAL MATCH (rejector:Session)-[r:REJECTED]->(kb)
-		RETURN kb.kind as kind,
-		       kb.scope as scope,
-		       kb.created_at as created_at,
-		       kb.context_signature as context,
+		MATCH (k:Knowledge {knowledge_id: $knowledge_id})
+		OPTIONAL MATCH (creator:Session)-[c:CREATED]->(k)
+		OPTIONAL MATCH (user:Session)-[u:USED]->(k)
+		OPTIONAL MATCH (rejector:Session)-[r:REJECTED]->(k)
+		RETURN k.kind as kind,
+		       k.scope as scope,
+		       k.created_at as created_at,
+		       k.context_signature as context,
 		       collect(DISTINCT creator.session_id) as created_by,
 		       collect(DISTINCT user.session_id) as used_by,
 		       collect(DISTINCT {session: rejector.session_id, reason: r.reason}) as rejected_by

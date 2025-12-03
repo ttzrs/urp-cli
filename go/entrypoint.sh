@@ -4,6 +4,9 @@
 
 set -e
 
+# Fix git "dubious ownership" for mounted workspace
+git config --global --add safe.directory /workspace 2>/dev/null || true
+
 # Generate session ID if not provided
 if [[ -z "$URP_SESSION_ID" ]]; then
     export URP_SESSION_ID="s-$(date +%s)-$$"

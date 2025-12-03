@@ -13,13 +13,16 @@ import (
 )
 
 const (
-	NetworkName     = "urp-network"
-	MemgraphName    = "urp-memgraph"
-	SessionsVolume  = "urp_sessions"
-	ChromaVolume    = "urp_chroma"
-	VectorVolume    = "urp_vector"
-	MemgraphImage   = "memgraph/memgraph-platform:latest"
-	URPImage        = "urp:latest"
+	NetworkName      = "urp-network"
+	MemgraphName     = "urp-memgraph"
+	SessionsVolume   = "urp_sessions"
+	ChromaVolume     = "urp_chroma"
+	VectorVolume     = "urp_vector"
+	MemgraphImage    = "memgraph/memgraph-platform:latest"
+	URPImage         = "urp:latest"
+	URPMasterImage   = "urp:master"
+	URPConfigDir     = "~/.urp-go"
+	URPEnvFile       = "~/.urp-go/.env"
 )
 
 // Runtime represents detected container engine.
@@ -66,11 +69,21 @@ func NewManager(ctx context.Context) *Manager {
 }
 
 func detectRuntime() Runtime {
-	if _, err := exec.LookPath("podman"); err == nil {
-		return RuntimePodman
+	// Allow override via env var
+	if override := os.Getenv("URP_RUNTIME"); override != "" {
+		switch override {
+		case "docker":
+			return RuntimeDocker
+		case "podman":
+			return RuntimePodman
+		}
 	}
+	// Prefer docker (more common), fall back to podman
 	if _, err := exec.LookPath("docker"); err == nil {
 		return RuntimeDocker
+	}
+	if _, err := exec.LookPath("podman"); err == nil {
+		return RuntimePodman
 	}
 	return RuntimeNone
 }
@@ -217,7 +230,7 @@ func (m *Manager) waitForMemgraph(timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {
 		// Try to connect via bolt
-		out, err := m.run("exec", MemgraphName, "mgconsole", "--execute", "RETURN 1;")
+		out, err := m.run("exec", MemgraphName, "bash", "-c", "echo 'RETURN 1;' | mgconsole")
 		if err == nil && strings.Contains(out, "1") {
 			return nil
 		}
@@ -334,6 +347,7 @@ func (m *Manager) LaunchWorker(projectPath string, readOnly bool) (string, error
 }
 
 // LaunchMaster starts a master container (read-only, can spawn workers).
+// Now runs interactively with auto-ingest and Claude CLI.
 func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	if m.runtime == RuntimeNone {
 		return "", fmt.Errorf("no container runtime found")
@@ -355,48 +369,125 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	projectName := filepath.Base(absPath)
 	containerName := fmt.Sprintf("urp-master-%s", projectName)
 
-	// Check if already running
-	out, _ := m.run("ps", "-q", "--filter", fmt.Sprintf("name=^%s$", containerName))
-	if out != "" {
-		return containerName, nil
-	}
+	// Stop existing if running
+	m.runQuiet("rm", "-f", containerName)
 
 	// Mount docker socket for spawning workers
 	socketPath := "/var/run/docker.sock"
 	if m.runtime == RuntimePodman {
-		// Podman uses different socket paths
 		xdgRuntime := os.Getenv("XDG_RUNTIME_DIR")
 		if xdgRuntime != "" {
 			socketPath = fmt.Sprintf("%s/podman/podman.sock", xdgRuntime)
 		}
 	}
 
+	// Expand home directory for env file
+	homeDir, _ := os.UserHomeDir()
+	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+
+	// Build args for interactive master with SELinux labels
 	args := []string{
-		"run", "-d",
+		"run", "-it", "--rm",
 		"--name", containerName,
 		"--network", NetworkName,
-		"-v", fmt.Sprintf("%s:/workspace:ro", absPath),
+		// Project: read-only, shared SELinux label (:z)
+		"-v", fmt.Sprintf("%s:/workspace:ro,z", absPath),
+		// Docker socket for spawning workers
 		"-v", fmt.Sprintf("%s:/var/run/docker.sock", socketPath),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		// Vector store: shared
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
+		// Env file: private SELinux label (:Z)
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
+		// Environment
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", "URP_MASTER=1",
 		"-e", "URP_READ_ONLY=true",
+		"-e", "TERM=xterm-256color",
 		"-w", "/workspace",
-		"--restart", "unless-stopped",
-		URPImage,
+		URPMasterImage,
 	}
 
-	_, err = m.run(args...)
+	// Run interactively (attach stdin/stdout/stderr)
+	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("failed to launch master: %w", err)
+		// Exit code from claude is normal
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			if exitErr.ExitCode() == 0 {
+				return containerName, nil
+			}
+		}
+		return "", fmt.Errorf("master exited: %w", err)
 	}
 
 	return containerName, nil
 }
 
-// SpawnWorker creates a worker from inside a master container.
+// SpawnWorker creates an ephemeral worker from inside a master container.
+// Worker has read-write access and is removed when done (--rm).
+// Communication happens via envelope protocol on stdin/stdout.
 func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error) {
+	absPath, err := filepath.Abs(projectPath)
+	if err != nil {
+		return "", fmt.Errorf("invalid path: %w", err)
+	}
+
+	projectName := filepath.Base(absPath)
+	containerName := fmt.Sprintf("urp-%s-w%d", projectName, workerNum)
+
+	// Kill existing worker with same name (if any)
+	m.runQuiet("rm", "-f", containerName)
+
+	// Expand home directory for env file
+	homeDir, _ := os.UserHomeDir()
+	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+
+	args := []string{
+		"run", "-it", "--rm",
+		"--name", containerName,
+		"--network", NetworkName,
+		// Project: read-write with SELinux shared label
+		"-v", fmt.Sprintf("%s:/workspace:rw,z", absPath),
+		// Vector store: shared
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
+		// Env file: private SELinux label
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
+		// Environment
+		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
+		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
+		"-e", "URP_READ_ONLY=false",
+		"-e", "TERM=xterm-256color",
+		"-w", "/workspace",
+		URPImage,
+	}
+
+	// Run interactively
+	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			if exitErr.ExitCode() == 0 {
+				return containerName, nil
+			}
+		}
+		return "", fmt.Errorf("worker exited: %w", err)
+	}
+
+	return containerName, nil
+}
+
+// SpawnWorkerBackground creates a detached worker (for automation).
+func (m *Manager) SpawnWorkerBackground(projectPath string, workerNum int) (string, error) {
 	absPath, err := filepath.Abs(projectPath)
 	if err != nil {
 		return "", fmt.Errorf("invalid path: %w", err)
@@ -411,18 +502,24 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		return containerName, nil
 	}
 
+	// Expand home directory for env file
+	homeDir, _ := os.UserHomeDir()
+	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+
 	args := []string{
 		"run", "-d",
 		"--name", containerName,
 		"--network", NetworkName,
-		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/workspace:rw,z", absPath),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
+		"-e", "URP_READ_ONLY=false",
 		"-w", "/workspace",
-		"--restart", "unless-stopped",
 		URPImage,
+		"tail", "-f", "/dev/null", // Keep alive
 	}
 
 	_, err = m.run(args...)

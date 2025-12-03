@@ -47,6 +47,12 @@ func (s *SessionMemory) Add(ctx context.Context, text, kind string, importance i
 		importance = 5
 	}
 
+	// Resolve session ID (handle name collisions)
+	sessionID, err := s.resolveSessionID(ctx)
+	if err != nil {
+		return "", err
+	}
+
 	memoryID := fmt.Sprintf("m-%d", time.Now().UnixNano())
 	now := time.Now().UTC().Format(time.RFC3339)
 
@@ -59,9 +65,10 @@ func (s *SessionMemory) Add(ctx context.Context, text, kind string, importance i
 		  ON CREATE SET sess.instance_id = $instance_id,
 		                sess.user_id = $user_id,
 		                sess.started_at = $now,
-		                sess.context_signature = $ctx_sig
+		                sess.context_signature = $ctx_sig,
+		                sess.path = $path
 		MERGE (i)-[:HAS_SESSION]->(sess)
-		CREATE (m:Memory {
+		CREATE (m:Memo {
 			memory_id: $memory_id,
 			kind: $kind,
 			text: $text,
@@ -72,11 +79,12 @@ func (s *SessionMemory) Add(ctx context.Context, text, kind string, importance i
 		CREATE (sess)-[:HAS_MEMORY {at: $now}]->(m)
 	`
 
-	err := s.db.ExecuteWrite(ctx, query, map[string]any{
+	err = s.db.ExecuteWrite(ctx, query, map[string]any{
 		"instance_id": s.ctx.InstanceID,
-		"session_id":  s.ctx.SessionID,
+		"session_id":  sessionID,
 		"user_id":     s.ctx.UserID,
 		"ctx_sig":     s.ctx.ContextSignature,
+		"path":        s.ctx.Path,
 		"memory_id":   memoryID,
 		"kind":        kind,
 		"text":        truncate(text, 500),
@@ -94,13 +102,15 @@ func (s *SessionMemory) Add(ctx context.Context, text, kind string, importance i
 
 // Recall searches memories using keyword matching.
 func (s *SessionMemory) Recall(ctx context.Context, queryText string, limit int, kind string, minImportance int) ([]MemoryEntry, error) {
+	sessionID := s.getResolvedSessionID(ctx)
+
 	whereClause := ""
 	if kind != "" {
 		whereClause = "AND m.kind = $kind"
 	}
 
 	query := fmt.Sprintf(`
-		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memory)
+		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memo)
 		WHERE m.importance >= $min_importance %s
 		RETURN m.memory_id as memory_id,
 		       m.kind as kind,
@@ -113,7 +123,7 @@ func (s *SessionMemory) Recall(ctx context.Context, queryText string, limit int,
 	`, whereClause)
 
 	params := map[string]any{
-		"session_id":     s.ctx.SessionID,
+		"session_id":     sessionID,
 		"min_importance": minImportance,
 		"limit":          limit,
 	}
@@ -157,8 +167,10 @@ func (s *SessionMemory) Recall(ctx context.Context, queryText string, limit int,
 
 // List returns all memories for the session.
 func (s *SessionMemory) List(ctx context.Context) ([]MemoryEntry, error) {
+	sessionID := s.getResolvedSessionID(ctx)
+
 	query := `
-		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memory)
+		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memo)
 		RETURN m.memory_id as memory_id,
 		       m.kind as kind,
 		       m.text as text,
@@ -168,7 +180,7 @@ func (s *SessionMemory) List(ctx context.Context) ([]MemoryEntry, error) {
 	`
 
 	records, err := s.db.Execute(ctx, query, map[string]any{
-		"session_id": s.ctx.SessionID,
+		"session_id": sessionID,
 	})
 	if err != nil {
 		return nil, err
@@ -181,7 +193,7 @@ func (s *SessionMemory) List(ctx context.Context) ([]MemoryEntry, error) {
 			Kind:       getString(r, "kind"),
 			Text:       getString(r, "text"),
 			Importance: getInt(r, "importance"),
-			SessionID:  s.ctx.SessionID,
+			SessionID:  sessionID,
 			CreatedAt:  getString(r, "created_at"),
 		})
 	}
@@ -191,27 +203,31 @@ func (s *SessionMemory) List(ctx context.Context) ([]MemoryEntry, error) {
 
 // Delete removes a specific memory.
 func (s *SessionMemory) Delete(ctx context.Context, memoryID string) error {
+	sessionID := s.getResolvedSessionID(ctx)
+
 	query := `
-		MATCH (sess:Session {session_id: $session_id})-[r:HAS_MEMORY]->(m:Memory {memory_id: $memory_id})
+		MATCH (sess:Session {session_id: $session_id})-[r:HAS_MEMORY]->(m:Memo {memory_id: $memory_id})
 		DELETE r, m
 	`
 
 	return s.db.ExecuteWrite(ctx, query, map[string]any{
-		"session_id": s.ctx.SessionID,
+		"session_id": sessionID,
 		"memory_id":  memoryID,
 	})
 }
 
 // Clear removes all memories for the session.
 func (s *SessionMemory) Clear(ctx context.Context) (int, error) {
+	sessionID := s.getResolvedSessionID(ctx)
+
 	// Count first
 	countQuery := `
-		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memory)
+		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memo)
 		RETURN count(m) as count
 	`
 
 	records, err := s.db.Execute(ctx, countQuery, map[string]any{
-		"session_id": s.ctx.SessionID,
+		"session_id": sessionID,
 	})
 	if err != nil {
 		return 0, err
@@ -224,12 +240,12 @@ func (s *SessionMemory) Clear(ctx context.Context) (int, error) {
 
 	// Delete all
 	deleteQuery := `
-		MATCH (sess:Session {session_id: $session_id})-[r:HAS_MEMORY]->(m:Memory)
+		MATCH (sess:Session {session_id: $session_id})-[r:HAS_MEMORY]->(m:Memo)
 		DELETE r, m
 	`
 
 	err = s.db.ExecuteWrite(ctx, deleteQuery, map[string]any{
-		"session_id": s.ctx.SessionID,
+		"session_id": sessionID,
 	})
 
 	return count, err
@@ -237,13 +253,15 @@ func (s *SessionMemory) Clear(ctx context.Context) (int, error) {
 
 // Stats returns statistics about session memory.
 func (s *SessionMemory) Stats(ctx context.Context) (map[string]any, error) {
+	sessionID := s.getResolvedSessionID(ctx)
+
 	query := `
-		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memory)
+		MATCH (sess:Session {session_id: $session_id})-[:HAS_MEMORY]->(m:Memo)
 		RETURN m.kind as kind, count(*) as count
 	`
 
 	records, err := s.db.Execute(ctx, query, map[string]any{
-		"session_id": s.ctx.SessionID,
+		"session_id": sessionID,
 	})
 	if err != nil {
 		return nil, err
@@ -259,10 +277,58 @@ func (s *SessionMemory) Stats(ctx context.Context) (map[string]any, error) {
 	}
 
 	return map[string]any{
-		"session_id": s.ctx.SessionID,
+		"session_id": sessionID,
 		"total":      total,
 		"by_kind":    byKind,
 	}, nil
+}
+
+// resolveSessionID checks for session name collisions and returns the correct ID.
+// If a session with the same project name exists but different path, use project-hash(path).
+func (s *SessionMemory) resolveSessionID(ctx context.Context) (string, error) {
+	// If session_id was explicitly set via env, use it directly
+	if s.ctx.SessionID != s.ctx.Project {
+		return s.ctx.SessionID, nil
+	}
+
+	// Check if session with this project name exists
+	query := `
+		MATCH (sess:Session {session_id: $session_id})
+		RETURN sess.path as path
+		LIMIT 1
+	`
+
+	records, err := s.db.Execute(ctx, query, map[string]any{
+		"session_id": s.ctx.SessionID,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	// No existing session - use simple project name
+	if len(records) == 0 {
+		return s.ctx.SessionID, nil
+	}
+
+	// Session exists - check path
+	existingPath := getString(records[0], "path")
+	if existingPath == s.ctx.Path || existingPath == "" {
+		// Same path or no path recorded - use existing session
+		return s.ctx.SessionID, nil
+	}
+
+	// Different path - collision! Use project-hash(path)
+	return sessionIDWithPath(s.ctx.Project, s.ctx.Path), nil
+}
+
+// getResolvedSessionID returns the session ID to use for queries.
+// Call this before any read operation.
+func (s *SessionMemory) getResolvedSessionID(ctx context.Context) string {
+	resolved, err := s.resolveSessionID(ctx)
+	if err != nil {
+		return s.ctx.SessionID
+	}
+	return resolved
 }
 
 func truncate(s string, max int) string {

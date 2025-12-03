@@ -150,6 +150,21 @@ ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash", "-l"]
 
 # ═══════════════════════════════════════════════════════════════
+# Target: master - Full + orchestration capabilities
+# ═══════════════════════════════════════════════════════════════
+FROM full AS master
+
+# Master-specific entrypoint that runs ingest + claude
+COPY master-entrypoint.sh /master-entrypoint.sh
+RUN chmod 755 /master-entrypoint.sh
+
+ENV URP_MASTER=1 \
+    URP_READ_ONLY=true
+
+ENTRYPOINT ["/master-entrypoint.sh"]
+CMD ["claude"]
+
+# ═══════════════════════════════════════════════════════════════
 # Default target
 # ═══════════════════════════════════════════════════════════════
-FROM dev
+FROM full

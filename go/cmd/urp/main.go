@@ -61,24 +61,84 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	rootCmd.PersistentFlags().BoolVar(&pretty, "pretty", true, "Pretty print output")
 	rootCmd.PersistentFlags().Bool("json", false, "Output as JSON")
 
-	// Add command groups
+	// Define command groups
+	rootCmd.AddGroup(
+		&cobra.Group{ID: "infra", Title: "Infrastructure:"},
+		&cobra.Group{ID: "analysis", Title: "Analysis:"},
+		&cobra.Group{ID: "cognitive", Title: "Cognitive:"},
+		&cobra.Group{ID: "runtime", Title: "Runtime:"},
+	)
+
+	// Infrastructure commands
+	infra := infraCmd()
+	infra.GroupID = "infra"
+	rootCmd.AddCommand(infra)
+
+	launch := launchCmd()
+	launch.GroupID = "infra"
+	rootCmd.AddCommand(launch)
+
+	spawn := spawnCmd()
+	spawn.GroupID = "infra"
+	rootCmd.AddCommand(spawn)
+
+	workers := workersCmd()
+	workers.GroupID = "infra"
+	rootCmd.AddCommand(workers)
+
+	attach := attachCmd()
+	attach.GroupID = "infra"
+	rootCmd.AddCommand(attach)
+
+	kill := killCmd()
+	kill.GroupID = "infra"
+	rootCmd.AddCommand(kill)
+
+	// Analysis commands
+	code := codeCmd()
+	code.GroupID = "analysis"
+	rootCmd.AddCommand(code)
+
+	git := gitCmd()
+	git.GroupID = "analysis"
+	rootCmd.AddCommand(git)
+
+	focus := focusCmd()
+	focus.GroupID = "analysis"
+	rootCmd.AddCommand(focus)
+
+	// Cognitive commands
+	think := thinkCmd()
+	think.GroupID = "cognitive"
+	rootCmd.AddCommand(think)
+
+	mem := memCmd()
+	mem.GroupID = "cognitive"
+	rootCmd.AddCommand(mem)
+
+	kb := kbCmd()
+	kb.GroupID = "cognitive"
+	rootCmd.AddCommand(kb)
+
+	vec := vecCmd()
+	vec.GroupID = "cognitive"
+	rootCmd.AddCommand(vec)
+
+	// Runtime commands
+	sys := sysCmd()
+	sys.GroupID = "runtime"
+	rootCmd.AddCommand(sys)
+
+	events := eventsCmd()
+	events.GroupID = "runtime"
+	rootCmd.AddCommand(events)
+
+	session := sessionCmd()
+	session.GroupID = "runtime"
+	rootCmd.AddCommand(session)
+
+	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
-	rootCmd.AddCommand(eventsCmd())
-	rootCmd.AddCommand(sessionCmd())
-	rootCmd.AddCommand(codeCmd())
-	rootCmd.AddCommand(gitCmd())
-	rootCmd.AddCommand(thinkCmd())
-	rootCmd.AddCommand(memCmd())
-	rootCmd.AddCommand(kbCmd())
-	rootCmd.AddCommand(focusCmd())
-	rootCmd.AddCommand(sysCmd())
-	rootCmd.AddCommand(vecCmd())
-	rootCmd.AddCommand(infraCmd())
-	rootCmd.AddCommand(launchCmd())
-	rootCmd.AddCommand(spawnCmd())
-	rootCmd.AddCommand(workersCmd())
-	rootCmd.AddCommand(attachCmd())
-	rootCmd.AddCommand(killCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -1393,7 +1453,7 @@ func infraCmd() *cobra.Command {
 }
 
 func launchCmd() *cobra.Command {
-	var master bool
+	var worker bool
 	var readOnly bool
 
 	cmd := &cobra.Command{
@@ -1401,10 +1461,13 @@ func launchCmd() *cobra.Command {
 		Short: "Launch a URP container for a project",
 		Long: `Launch a worker or master container for the specified project directory.
 
+Master mode (default): Interactive session with auto-ingest and Claude CLI.
+Worker mode: Background container for code changes.
+
 Examples:
-  urp launch              # Launch worker for current directory
-  urp launch ~/project    # Launch worker for specific path
-  urp launch --master     # Launch master (read-only, can spawn workers)
+  urp launch              # Launch master for current directory (interactive)
+  urp launch ~/project    # Launch master for specific path
+  urp launch --worker     # Launch background worker instead
   urp launch --readonly   # Launch read-only worker`,
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -1418,47 +1481,59 @@ Examples:
 			var containerName string
 			var err error
 
-			if master {
-				fmt.Printf("Launching master for %s...\n", path)
+			if !worker {
+				// Default: launch master (interactive)
+				// No output - master entrypoint handles everything
 				containerName, err = mgr.LaunchMaster(path)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				// Master runs interactively, exits cleanly
+				fmt.Println("\n✓ Master session ended")
 			} else {
+				// Worker mode: background container
 				fmt.Printf("Launching worker for %s...\n", path)
 				containerName, err = mgr.LaunchWorker(path, readOnly)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Printf("✓ Container started: %s\n", containerName)
+				fmt.Println()
+				fmt.Printf("Attach with: urp attach %s\n", containerName)
 			}
-
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Printf("✓ Container started: %s\n", containerName)
-			fmt.Println()
-			fmt.Printf("Attach with: urp attach %s\n", containerName)
 		},
 	}
 
-	cmd.Flags().BoolVarP(&master, "master", "m", false, "Launch as master (read-only, can spawn)")
-	cmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "Read-only access")
+	cmd.Flags().BoolVarP(&worker, "worker", "w", false, "Launch as background worker instead of master")
+	cmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "Read-only access (only with --worker)")
 
 	return cmd
 }
 
 func spawnCmd() *cobra.Command {
+	var background bool
+
 	cmd := &cobra.Command{
 		Use:   "spawn [num]",
 		Short: "Spawn a worker container (from master)",
 		Long: `Spawn a new worker container with write access.
 Use this from inside a master container to create workers.
 
+Default: interactive, ephemeral (--rm). Use -d for background.
+
 Examples:
-  urp spawn      # Spawn worker 1
-  urp spawn 2    # Spawn worker 2`,
+  urp spawn           # Interactive worker 1 (exits when done)
+  urp spawn 2         # Interactive worker 2
+  urp spawn -d        # Background worker (stays alive)
+  urp spawn -d 2      # Background worker 2`,
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Check if running inside master
 			if os.Getenv("URP_MASTER") != "1" {
 				fmt.Fprintln(os.Stderr, "Error: spawn must be run from inside a master container")
-				fmt.Fprintln(os.Stderr, "Use 'urp launch --master' first")
+				fmt.Fprintln(os.Stderr, "Use 'urp launch' first")
 				os.Exit(1)
 			}
 
@@ -1470,16 +1545,30 @@ Examples:
 			path := getCwd()
 			mgr := container.NewManager(context.Background())
 
-			containerName, err := mgr.SpawnWorker(path, workerNum)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
-			}
+			var containerName string
+			var err error
 
-			fmt.Printf("✓ Worker spawned: %s\n", containerName)
-			fmt.Printf("Attach with: urp attach %s\n", containerName)
+			if background {
+				containerName, err = mgr.SpawnWorkerBackground(path, workerNum)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Printf("✓ Worker spawned: %s\n", containerName)
+				fmt.Printf("Attach with: urp attach %s\n", containerName)
+			} else {
+				// Interactive - runs and exits
+				containerName, err = mgr.SpawnWorker(path, workerNum)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Printf("✓ Worker %s finished\n", containerName)
+			}
 		},
 	}
+
+	cmd.Flags().BoolVarP(&background, "detach", "d", false, "Run in background (stays alive)")
 
 	return cmd
 }
