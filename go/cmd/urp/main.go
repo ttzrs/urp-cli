@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/joss/urp/internal/cognitive"
+	"github.com/joss/urp/internal/container"
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/ingest"
 	"github.com/joss/urp/internal/memory"
@@ -72,6 +73,12 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	rootCmd.AddCommand(focusCmd())
 	rootCmd.AddCommand(sysCmd())
 	rootCmd.AddCommand(vecCmd())
+	rootCmd.AddCommand(infraCmd())
+	rootCmd.AddCommand(launchCmd())
+	rootCmd.AddCommand(spawnCmd())
+	rootCmd.AddCommand(workersCmd())
+	rootCmd.AddCommand(attachCmd())
+	rootCmd.AddCommand(killCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -1230,5 +1237,344 @@ func vecCmd() *cobra.Command {
 	addCmd.Flags().StringVarP(&addKind, "kind", "k", "knowledge", "Entry kind (error|code|solution|knowledge)")
 
 	cmd.AddCommand(statsCmd, searchCmd, addCmd)
+	return cmd
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONTAINER ORCHESTRATION COMMANDS
+// ══════════════════════════════════════════════════════════════════════════════
+
+func infraCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "infra",
+		Short: "Infrastructure management",
+		Long:  "Manage URP container infrastructure (network, memgraph, volumes)",
+	}
+
+	// urp infra status
+	statusCmd := &cobra.Command{
+		Use:   "status",
+		Short: "Show infrastructure status",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+			status := mgr.Status()
+
+			fmt.Println("URP INFRASTRUCTURE")
+			fmt.Println()
+
+			// Runtime
+			if status.Runtime == container.RuntimeNone {
+				fmt.Println("  Runtime:  NOT FOUND")
+				fmt.Println()
+				fmt.Println("  Install docker or podman to use URP containers")
+				return
+			}
+			fmt.Printf("  Runtime:  %s\n", status.Runtime)
+
+			// Network
+			if status.Network {
+				fmt.Printf("  Network:  %s ✓\n", container.NetworkName)
+			} else {
+				fmt.Printf("  Network:  %s (not created)\n", container.NetworkName)
+			}
+
+			// Memgraph
+			if status.Memgraph != nil {
+				fmt.Printf("  Memgraph: %s (%s)\n", status.Memgraph.Name, status.Memgraph.Status)
+				if status.Memgraph.Ports != "" {
+					fmt.Printf("            Ports: %s\n", status.Memgraph.Ports)
+				}
+			} else {
+				fmt.Println("  Memgraph: not running")
+			}
+
+			// Volumes
+			fmt.Printf("  Volumes:  %d\n", len(status.Volumes))
+			for _, v := range status.Volumes {
+				fmt.Printf("            - %s\n", v)
+			}
+
+			// Workers
+			fmt.Printf("  Workers:  %d\n", len(status.Workers))
+			for _, w := range status.Workers {
+				fmt.Printf("            - %s (%s)\n", w.Name, w.Status)
+			}
+		},
+	}
+
+	// urp infra start
+	startCmd := &cobra.Command{
+		Use:   "start",
+		Short: "Start infrastructure (network, memgraph)",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			fmt.Println("Starting URP infrastructure...")
+
+			if err := mgr.StartInfra(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println("✓ Network created")
+			fmt.Println("✓ Volumes created")
+			fmt.Println("✓ Memgraph running")
+			fmt.Println()
+			fmt.Println("Infrastructure ready. Use 'urp launch' to start a worker.")
+		},
+	}
+
+	// urp infra stop
+	stopCmd := &cobra.Command{
+		Use:   "stop",
+		Short: "Stop all URP containers",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			fmt.Println("Stopping URP containers...")
+
+			if err := mgr.StopInfra(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println("✓ All containers stopped")
+		},
+	}
+
+	// urp infra clean
+	cleanCmd := &cobra.Command{
+		Use:   "clean",
+		Short: "Remove all URP containers, volumes, and network",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			fmt.Println("Cleaning URP infrastructure...")
+
+			if err := mgr.CleanInfra(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println("✓ Containers removed")
+			fmt.Println("✓ Volumes removed")
+			fmt.Println("✓ Network removed")
+		},
+	}
+
+	// urp infra logs
+	var tail int
+	logsCmd := &cobra.Command{
+		Use:   "logs [container]",
+		Short: "Show container logs",
+		Args:  cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			containerName := container.MemgraphName
+			if len(args) > 0 {
+				containerName = args[0]
+			}
+
+			logs, err := mgr.Logs(containerName, tail)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("=== %s logs (last %d lines) ===\n", containerName, tail)
+			fmt.Println(logs)
+		},
+	}
+	logsCmd.Flags().IntVarP(&tail, "tail", "n", 50, "Number of lines")
+
+	cmd.AddCommand(statusCmd, startCmd, stopCmd, cleanCmd, logsCmd)
+	return cmd
+}
+
+func launchCmd() *cobra.Command {
+	var master bool
+	var readOnly bool
+
+	cmd := &cobra.Command{
+		Use:   "launch [path]",
+		Short: "Launch a URP container for a project",
+		Long: `Launch a worker or master container for the specified project directory.
+
+Examples:
+  urp launch              # Launch worker for current directory
+  urp launch ~/project    # Launch worker for specific path
+  urp launch --master     # Launch master (read-only, can spawn workers)
+  urp launch --readonly   # Launch read-only worker`,
+		Args: cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			path := "."
+			if len(args) > 0 {
+				path = args[0]
+			}
+
+			mgr := container.NewManager(context.Background())
+
+			var containerName string
+			var err error
+
+			if master {
+				fmt.Printf("Launching master for %s...\n", path)
+				containerName, err = mgr.LaunchMaster(path)
+			} else {
+				fmt.Printf("Launching worker for %s...\n", path)
+				containerName, err = mgr.LaunchWorker(path, readOnly)
+			}
+
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("✓ Container started: %s\n", containerName)
+			fmt.Println()
+			fmt.Printf("Attach with: urp attach %s\n", containerName)
+		},
+	}
+
+	cmd.Flags().BoolVarP(&master, "master", "m", false, "Launch as master (read-only, can spawn)")
+	cmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "Read-only access")
+
+	return cmd
+}
+
+func spawnCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "spawn [num]",
+		Short: "Spawn a worker container (from master)",
+		Long: `Spawn a new worker container with write access.
+Use this from inside a master container to create workers.
+
+Examples:
+  urp spawn      # Spawn worker 1
+  urp spawn 2    # Spawn worker 2`,
+		Args: cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			// Check if running inside master
+			if os.Getenv("URP_MASTER") != "1" {
+				fmt.Fprintln(os.Stderr, "Error: spawn must be run from inside a master container")
+				fmt.Fprintln(os.Stderr, "Use 'urp launch --master' first")
+				os.Exit(1)
+			}
+
+			workerNum := 1
+			if len(args) > 0 {
+				fmt.Sscanf(args[0], "%d", &workerNum)
+			}
+
+			path := getCwd()
+			mgr := container.NewManager(context.Background())
+
+			containerName, err := mgr.SpawnWorker(path, workerNum)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("✓ Worker spawned: %s\n", containerName)
+			fmt.Printf("Attach with: urp attach %s\n", containerName)
+		},
+	}
+
+	return cmd
+}
+
+func workersCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "workers",
+		Short: "List worker containers",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			project := os.Getenv("URP_PROJECT")
+			workers := mgr.ListWorkers(project)
+
+			if len(workers) == 0 {
+				fmt.Println("No workers running")
+				return
+			}
+
+			fmt.Printf("WORKERS: %d\n", len(workers))
+			fmt.Println()
+			for i, w := range workers {
+				fmt.Printf("  %d. %s\n", i+1, w.Name)
+				fmt.Printf("     Image: %s\n", w.Image)
+				fmt.Printf("     Status: %s\n", w.Status)
+			}
+		},
+	}
+
+	return cmd
+}
+
+func attachCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "attach <container>",
+		Short: "Attach to a container",
+		Long: `Attach to a running URP container with interactive shell.
+
+Examples:
+  urp attach urp-myproject
+  urp attach urp-myproject-w1`,
+		Args: cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			if err := mgr.AttachWorker(args[0]); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		},
+	}
+
+	return cmd
+}
+
+func killCmd() *cobra.Command {
+	var all bool
+
+	cmd := &cobra.Command{
+		Use:   "kill <container>",
+		Short: "Kill a worker container",
+		Long: `Stop and remove a worker container.
+
+Examples:
+  urp kill urp-myproject-w1
+  urp kill --all              # Kill all workers`,
+		Args: cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			if all {
+				project := os.Getenv("URP_PROJECT")
+				if err := mgr.KillAllWorkers(project); err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Println("✓ All workers killed")
+				return
+			}
+
+			if len(args) == 0 {
+				fmt.Fprintln(os.Stderr, "Error: container name required (or use --all)")
+				os.Exit(1)
+			}
+
+			if err := mgr.KillWorker(args[0]); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("✓ Killed: %s\n", args[0])
+		},
+	}
+
+	cmd.Flags().BoolVarP(&all, "all", "a", false, "Kill all workers")
+
 	return cmd
 }
