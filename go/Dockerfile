@@ -1,57 +1,62 @@
-# URP Container Image
-# ====================
-# Multi-stage build for minimal final image
+# URP Container - Optimized for Speed
+# ====================================
+# Two targets: minimal (CLI only) and dev (interactive shell)
 
-# Stage 1: Build
-FROM golang:1.21-alpine AS builder
-
-RUN apk add --no-cache git
+# ═══════════════════════════════════════════════════════════════
+# Build stage (shared)
+# ═══════════════════════════════════════════════════════════════
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /build
 
-# Copy go mod files first for caching
+# Cache dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy source and build
+# Build with all optimizations
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o urp ./cmd/urp
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build \
+    -ldflags="-s -w -X main.version=0.1.0" \
+    -trimpath \
+    -o urp ./cmd/urp
 
-# Stage 2: Runtime
-FROM alpine:3.19
+# ═══════════════════════════════════════════════════════════════
+# Target: minimal (~12MB) - for CI/CD, batch jobs
+# ═══════════════════════════════════════════════════════════════
+FROM gcr.io/distroless/static-debian12:nonroot AS minimal
 
-# Install runtime dependencies
-RUN apk add --no-cache \
-    bash \
-    git \
-    curl \
-    jq \
-    docker-cli \
-    && rm -rf /var/cache/apk/*
+COPY --from=builder /build/urp /urp
 
-# Create urp user
-RUN adduser -D -s /bin/bash urp
+ENV NEO4J_URI=bolt://urp-memgraph:7687
+WORKDIR /workspace
+ENTRYPOINT ["/urp"]
 
-# Copy binary
+# ═══════════════════════════════════════════════════════════════
+# Target: dev (~25MB) - interactive shell, git, full features
+# ═══════════════════════════════════════════════════════════════
+FROM alpine:3.20 AS dev
+
+# Single layer for all packages
+RUN apk add --no-cache bash git && \
+    adduser -D -s /bin/bash urp && \
+    mkdir -p /var/lib/urp/vector && \
+    chown -R urp:urp /var/lib/urp
+
 COPY --from=builder /build/urp /usr/local/bin/urp
-
-# Copy shell hooks
-COPY shell_hooks.sh /etc/profile.d/urp-hooks.sh
+COPY shell_hooks.sh /etc/profile.d/urp.sh
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh /etc/profile.d/urp-hooks.sh
+RUN chmod +x /entrypoint.sh /etc/profile.d/urp.sh
 
-# Create directories
-RUN mkdir -p /var/lib/urp/vector && chown -R urp:urp /var/lib/urp
-
-# Environment
 ENV URP_PROJECT=unknown \
     NEO4J_URI=bolt://urp-memgraph:7687 \
-    URP_SESSION_ID="" \
-    URP_MASTER=0 \
-    URP_READ_ONLY=false \
     TERM=xterm-256color
 
 WORKDIR /workspace
-
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash", "-l"]
+
+# ═══════════════════════════════════════════════════════════════
+# Default target
+# ═══════════════════════════════════════════════════════════════
+FROM dev
