@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -2306,17 +2307,33 @@ func workerTaskHandler(ctx context.Context, task *protocol.AssignTaskPayload, re
 		reporter.Stdout(fmt.Sprintf("On branch %s\n", task.Branch))
 	}
 
-	reporter.Progress(0.3, "ready for work")
+	reporter.Progress(0.3, "executing command")
 
-	// For now, workers are interactive - they'll use the shell
-	// In the future, this could run automated tasks based on task.Context
-	reporter.Stdout("Worker ready. Execute commands manually or use automation.\n")
+	// Execute the task description as a shell command
+	// If it starts with "urp ", execute directly, otherwise use shell
+	command := task.Description
+	var cmd *exec.Cmd
 
-	// Wait for context cancellation (master cancels when done)
-	<-ctx.Done()
+	if strings.HasPrefix(command, "urp ") {
+		// Direct urp command
+		args := strings.Fields(command)[1:] // Remove "urp" prefix
+		cmd = exec.CommandContext(ctx, "urp", args...)
+	} else {
+		// Shell command
+		cmd = exec.CommandContext(ctx, "sh", "-c", command)
+	}
+	cmd.Dir = "/workspace"
 
-	reporter.Progress(1.0, "task completed")
-	reporter.Complete("Worker session ended", nil, "")
+	reporter.Progress(0.5, "running")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		reporter.Failed(fmt.Sprintf("command failed: %v\n%s", err, string(output)), 1)
+		return err
+	}
+
+	reporter.Progress(1.0, "completed")
+	reporter.Complete(strings.TrimSpace(string(output)), nil, "")
 	return nil
 }
 
@@ -2816,7 +2833,131 @@ Each run shows: status, task count, success/failure, and duration.`,
 		},
 	}
 
-	cmd.AddCommand(runCmd, shellCmd, demoCmd, historyCmd, statsCmd)
+	// urp orchestrate container <command> - Run in real containers
+	var containerWorkers int
+	var containerTimeout int
+	containerCmd := &cobra.Command{
+		Use:   "container <command>",
+		Short: "Run command in containerized workers",
+		Long: `Execute tasks using Docker/Podman containers as workers.
+
+Each worker runs in an isolated container with read-write access
+to the project directory. Communication uses the envelope protocol.
+
+Examples:
+  urp orchestrate container "go test ./..."
+  urp orchestrate container "urp code dead" -n 3`,
+		Args: cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(containerTimeout)*time.Second)
+			defer cancel()
+
+			// Get absolute project path
+			projectPath, _ := filepath.Abs(".")
+
+			orch := orchestrator.New()
+			defer orch.Shutdown()
+
+			orch.OnWorkerReady = func(workerID string, caps []string) {
+				fmt.Printf("  ◉ [%s] ready\n", workerID)
+			}
+
+			orch.OnTaskStarted = func(workerID, taskID string) {
+				fmt.Printf("  ► [%s] started %s\n", workerID, taskID)
+			}
+
+			orch.OnTaskComplete = func(workerID, taskID string, result *orchestrator.TaskResult) {
+				if result.Success {
+					fmt.Printf("  ✓ [%s] completed (%.1fs)\n", workerID, result.Duration.Seconds())
+				} else {
+					fmt.Printf("  ✗ [%s] failed: %s\n", workerID, result.Error)
+				}
+			}
+
+			fmt.Printf("CONTAINER ORCHESTRATION: %d workers\n", containerWorkers)
+			fmt.Printf("Command: %s\n", args[0])
+			fmt.Printf("Project: %s\n", projectPath)
+			fmt.Println()
+
+			// Spawn container workers
+			for i := 1; i <= containerWorkers; i++ {
+				workerID := fmt.Sprintf("urp-orch-w%d", i)
+				if err := orch.SpawnWorkerContainer(ctx, workerID, projectPath); err != nil {
+					fmt.Fprintf(os.Stderr, "Error spawning worker %s: %v\n", workerID, err)
+					os.Exit(1)
+				}
+			}
+
+			// Wait for workers to be ready
+			fmt.Println("Waiting for workers...")
+			readyCtx, readyCancel := context.WithTimeout(ctx, 30*time.Second)
+			defer readyCancel()
+
+			readyCount := 0
+			for readyCount < containerWorkers {
+				select {
+				case <-readyCtx.Done():
+					fmt.Fprintf(os.Stderr, "Error: timeout waiting for workers (%d/%d ready)\n", readyCount, containerWorkers)
+					os.Exit(1)
+				case <-orch.WorkerReadyCh():
+					readyCount++
+				}
+			}
+			fmt.Println("All workers ready")
+			fmt.Println()
+
+			// Assign tasks
+			workerIDs := orch.ListWorkers()
+			taskIDs := make([]string, len(workerIDs))
+			for i, wID := range workerIDs {
+				taskID := fmt.Sprintf("task-%d", i+1)
+				taskIDs[i] = taskID
+				if err := orch.AssignTask(taskID, wID, args[0]); err != nil {
+					fmt.Fprintf(os.Stderr, "Error assigning task: %v\n", err)
+				}
+			}
+
+			// Wait for completion
+			results, err := orch.WaitForAll(ctx, taskIDs)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			// Summary
+			fmt.Println()
+			fmt.Println("RESULTS:")
+			successes := 0
+			for _, taskID := range taskIDs {
+				result := results[taskID]
+				if result == nil {
+					fmt.Printf("  ? %s: no result\n", taskID)
+					continue
+				}
+				if result.Success {
+					successes++
+					fmt.Printf("  ✓ %s:\n", taskID)
+					for _, line := range strings.Split(result.Output, "\n") {
+						if line != "" {
+							fmt.Printf("      %s\n", line)
+						}
+					}
+				} else {
+					fmt.Printf("  ✗ %s: %s\n", taskID, result.Error)
+				}
+			}
+			fmt.Println()
+			fmt.Printf("Summary: %d/%d succeeded\n", successes, containerWorkers)
+
+			if successes < containerWorkers {
+				os.Exit(1)
+			}
+		},
+	}
+	containerCmd.Flags().IntVarP(&containerWorkers, "workers", "n", 1, "Number of container workers")
+	containerCmd.Flags().IntVarP(&containerTimeout, "timeout", "t", 120, "Timeout in seconds")
+
+	cmd.AddCommand(runCmd, shellCmd, demoCmd, historyCmd, statsCmd, containerCmd)
 	return cmd
 }
 
