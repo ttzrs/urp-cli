@@ -66,25 +66,23 @@ CMD ["/bin/bash", "-l"]
 # ═══════════════════════════════════════════════════════════════
 FROM alpine:3.20 AS full
 
-# Fast CLI tools (single layer)
+# Fast CLI tools (split layers for caching)
 RUN apk add --no-cache \
-    bash zsh git curl wget \
+    bash zsh git curl \
     ripgrep fd bat fzf \
-    jq yq httpie make \
-    nodejs npm && \
-    # Delta (git diff viewer) - download pre-built
-    wget -qO /tmp/delta.tar.gz https://github.com/dandavison/delta/releases/download/0.18.2/delta-0.18.2-x86_64-unknown-linux-musl.tar.gz && \
-    tar -xzf /tmp/delta.tar.gz -C /tmp && \
-    mv /tmp/delta-*/delta /usr/local/bin/ && \
-    rm -rf /tmp/delta* && \
-    # Zoxide (smarter cd)
-    wget -qO /tmp/zoxide.tar.gz https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.6/zoxide-0.9.6-x86_64-unknown-linux-musl.tar.gz && \
-    tar -xzf /tmp/zoxide.tar.gz -C /usr/local/bin && \
-    rm /tmp/zoxide.tar.gz && \
-    # Claude Code
-    npm install -g @anthropic-ai/claude-code --unsafe-perm && \
+    jq yq make \
+    nodejs npm
+
+# Delta (git diff viewer) - from Alpine repos (simpler, no network issues)
+RUN apk add --no-cache delta || true
+
+# Zoxide (smarter cd) - from Alpine repos
+RUN apk add --no-cache zoxide || true
+
+# Claude Code
+RUN npm install -g @anthropic-ai/claude-code --unsafe-perm && \
     npm cache clean --force && \
-    rm -rf /var/cache/apk/* /root/.npm
+    rm -rf /root/.npm
 
 # Create user
 RUN adduser -D -s /bin/bash urp && \
@@ -150,9 +148,12 @@ ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash", "-l"]
 
 # ═══════════════════════════════════════════════════════════════
-# Target: master - Full + orchestration capabilities
+# Target: master - Full + orchestration + gh CLI
 # ═══════════════════════════════════════════════════════════════
 FROM full AS master
+
+# Add GitHub CLI for PR creation
+RUN apk add --no-cache github-cli
 
 # Master-specific entrypoint that runs ingest + claude
 COPY master-entrypoint.sh /master-entrypoint.sh
@@ -163,6 +164,27 @@ ENV URP_MASTER=1 \
 
 ENTRYPOINT ["/master-entrypoint.sh"]
 CMD ["claude"]
+
+# ═══════════════════════════════════════════════════════════════
+# Target: worker - Dev tools + protocol communication
+# ═══════════════════════════════════════════════════════════════
+FROM dev AS worker
+
+# Add language runtimes and dev tools for task execution
+RUN apk add --no-cache \
+    go python3 py3-pip nodejs npm \
+    make gcc musl-dev \
+    github-cli
+
+# Worker entrypoint that communicates via protocol
+COPY worker-entrypoint.sh /worker-entrypoint.sh
+RUN chmod 755 /worker-entrypoint.sh
+
+ENV URP_WORKER=1 \
+    URP_READ_ONLY=false
+
+ENTRYPOINT ["/worker-entrypoint.sh"]
+CMD ["urp", "worker", "run"]
 
 # ═══════════════════════════════════════════════════════════════
 # Default target
