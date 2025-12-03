@@ -3152,6 +3152,193 @@ Use --compute to calculate new baselines from recent metrics.`,
 	}
 	baselineCmd.Flags().BoolVar(&computeBaseline, "compute", false, "Compute new baselines from recent metrics")
 
-	cmd.AddCommand(logCmd, errorsCmd, statsCmd, commitCmd, metricsCmd, anomaliesCmd, baselineCmd)
+	// urp audit heal [--dry-run] [--level LEVEL]
+	var healDryRun bool
+	var healLevel string
+	healCmd := &cobra.Command{
+		Use:   "heal",
+		Short: "Auto-heal detected anomalies",
+		Long: `Attempt to remediate detected anomalies automatically.
+
+Remediation actions:
+  retry      - Retry the failed operation
+  rollback   - Rollback to previous git state
+  restart    - Restart affected service
+  notify     - Send notification (no auto-fix)
+  escalate   - Escalate to critical alert
+  clear_cache - Clear relevant caches
+  skip       - Skip (no action)
+
+Use --dry-run to see what would be done without executing.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph database")
+				os.Exit(1)
+			}
+
+			sessCtx := memory.NewContext()
+			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
+			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
+			healer := audit.NewHealer()
+
+			// Get anomalies to heal
+			var anomalies []audit.Anomaly
+			var err error
+
+			if healLevel != "" {
+				anomalies, err = anomalyStore.GetByLevel(context.Background(), audit.AnomalyLevel(healLevel), 20)
+			} else {
+				anomalies, err = anomalyStore.GetRecent(context.Background(), 20)
+			}
+
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			if len(anomalies) == 0 {
+				fmt.Println("No anomalies to heal")
+				return
+			}
+
+			if healDryRun {
+				fmt.Printf("DRY RUN - Would heal %d anomalies:\n\n", len(anomalies))
+
+				for _, a := range anomalies {
+					rule := healer.FindRule(&a)
+					if rule == nil {
+						fmt.Printf("  %-10s %s/%s - no matching rule\n",
+							"[skip]", a.Category, a.Operation)
+						continue
+					}
+
+					canHeal, reason := healer.CanHeal(&a, rule)
+					status := fmt.Sprintf("[%s]", rule.Action)
+					if !canHeal {
+						status = "[blocked: " + reason + "]"
+					}
+
+					fmt.Printf("  %-20s %s/%s - %s\n",
+						status, a.Category, a.Operation, a.Description)
+				}
+				return
+			}
+
+			// Execute healing
+			fmt.Printf("HEALING %d ANOMALIES\n\n", len(anomalies))
+
+			results := healer.HealAll(context.Background(), anomalies)
+
+			successCount := 0
+			for _, r := range results {
+				icon := "✗"
+				if r.Success {
+					icon = "✓"
+					successCount++
+				}
+
+				fmt.Printf("%s [%s] %s\n", icon, r.Action, r.Message)
+
+				// Persist result
+				if err := healingStore.Save(context.Background(), &r); err != nil {
+					fmt.Fprintf(os.Stderr, "  Warning: failed to save result: %v\n", err)
+				}
+			}
+
+			fmt.Printf("\nHealed %d/%d anomalies\n", successCount, len(results))
+		},
+	}
+	healCmd.Flags().BoolVar(&healDryRun, "dry-run", false, "Show what would be done without executing")
+	healCmd.Flags().StringVarP(&healLevel, "level", "l", "", "Only heal anomalies of this level")
+
+	// urp audit history
+	historyCmd := &cobra.Command{
+		Use:   "history",
+		Short: "Show healing history",
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Error: Not connected to graph database")
+				os.Exit(1)
+			}
+
+			sessCtx := memory.NewContext()
+			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
+
+			results, err := healingStore.GetRecent(context.Background(), 30)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			if len(results) == 0 {
+				fmt.Println("No healing history")
+				return
+			}
+
+			fmt.Printf("HEALING HISTORY (%d attempts)\n\n", len(results))
+
+			for _, r := range results {
+				icon := "✗"
+				if r.Success {
+					icon = "✓"
+				}
+
+				fmt.Printf("%s [%s] %s @ %s (%dms)\n",
+					icon,
+					r.Action,
+					r.Message,
+					r.AttemptedAt.Format("15:04:05"),
+					r.DurationMs,
+				)
+
+				if r.RollbackRef != "" {
+					fmt.Printf("    └─ rollback: %s\n", r.RollbackRef[:7])
+				}
+			}
+
+			// Show stats
+			stats, err := healingStore.GetStats(context.Background())
+			if err == nil {
+				fmt.Println()
+				fmt.Printf("Total: %v  Success: %v  Failed: %v\n",
+					stats["total"], stats["success"], stats["failed"])
+			}
+		},
+	}
+
+	// urp audit rules
+	rulesCmd := &cobra.Command{
+		Use:   "rules",
+		Short: "Show remediation rules",
+		Run: func(cmd *cobra.Command, args []string) {
+			healer := audit.NewHealer()
+
+			fmt.Println("REMEDIATION RULES")
+			fmt.Println()
+
+			// Access rules via reflection isn't ideal, but we can describe defaults
+			rules := []struct {
+				name   string
+				action string
+				desc   string
+			}{
+				{"high-latency-retry", "retry", "Retry operations with high latency"},
+				{"critical-latency-escalate", "escalate", "Escalate critical latency issues"},
+				{"code-error-rollback", "rollback", "Rollback code changes on persistent errors"},
+				{"git-error-notify", "notify", "Notify on git operation failures"},
+				{"system-error-restart", "restart", "Restart system services on critical failures"},
+				{"large-output-clear", "clear_cache", "Clear cache when output sizes spike"},
+			}
+
+			for _, r := range rules {
+				fmt.Printf("  %-28s [%s]\n", r.name, r.action)
+				fmt.Printf("    %s\n\n", r.desc)
+			}
+
+			_ = healer // Keep reference
+		},
+	}
+
+	cmd.AddCommand(logCmd, errorsCmd, statsCmd, commitCmd, metricsCmd, anomaliesCmd, baselineCmd, healCmd, historyCmd, rulesCmd)
 	return cmd
 }
