@@ -292,7 +292,15 @@ func (o *Orchestrator) SpawnWorkerContainer(ctx context.Context, workerID, proje
 }
 
 func detectContainerRuntime() string {
-	// Prefer podman (rootless, SELinux-friendly)
+	// Check which runtime has urp-memgraph running (must match infra)
+	// This ensures workers can reach the database on the same network
+	if out, err := exec.Command("docker", "ps", "-q", "-f", "name=urp-memgraph").Output(); err == nil && len(out) > 0 {
+		return "docker"
+	}
+	if out, err := exec.Command("podman", "ps", "-q", "-f", "name=urp-memgraph").Output(); err == nil && len(out) > 0 {
+		return "podman"
+	}
+	// Fallback: prefer podman for rootless
 	if _, err := exec.LookPath("podman"); err == nil {
 		return "podman"
 	}
