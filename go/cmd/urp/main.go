@@ -29,9 +29,10 @@ import (
 )
 
 var (
-	version = "0.1.0"
-	db      graph.Driver
-	pretty  = true
+	version     = "0.1.0"
+	db          graph.Driver
+	pretty      = true
+	auditLogger *audit.Logger
 )
 
 func main() {
@@ -53,6 +54,9 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 				// Silent fail for status command
 				db = nil
 			}
+
+			// Initialize audit logger
+			auditLogger = audit.Global()
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if db != nil {
@@ -196,8 +200,19 @@ func eventsCmd() *cobra.Command {
 		Long:  "Run a command transparently, logging execution to the knowledge graph",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.StartWithCommand(audit.CategoryEvents, "run", strings.Join(args, " "))
+
 			executor := runner.NewExecutor(db)
 			result := executor.Run(context.Background(), args)
+
+			event.ExitCode = result.ExitCode
+			event.OutputSize = len(result.Stdout) + len(result.Stderr)
+			if result.ExitCode != 0 {
+				event.ErrorMessage = result.Stderr
+				auditLogger.LogError(event, fmt.Errorf("exit code %d", result.ExitCode))
+			} else {
+				auditLogger.LogSuccess(event)
+			}
 			os.Exit(result.ExitCode)
 		},
 	}
@@ -209,7 +224,10 @@ func eventsCmd() *cobra.Command {
 		Use:   "list",
 		Short: "Show recent commands",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryEvents, "list")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -217,9 +235,12 @@ func eventsCmd() *cobra.Command {
 			store := runner.NewEventStore(db)
 			events, err := store.ListRecent(context.Background(), limit, project)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			r := render.New(pretty)
 			fmt.Print(r.Events(events))
@@ -235,7 +256,10 @@ func eventsCmd() *cobra.Command {
 		Short: "Show recent errors (pain)",
 		Long:  "Show recent command failures (⊥ conflicts)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryEvents, "errors")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -243,9 +267,12 @@ func eventsCmd() *cobra.Command {
 			store := runner.NewEventStore(db)
 			conflicts, err := store.ListErrors(context.Background(), minutes, project)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			r := render.New(pretty)
 			title := fmt.Sprintf("Errors in last %d minutes", minutes)
@@ -337,7 +364,10 @@ func codeCmd() *cobra.Command {
 		Short: "Parse code into graph",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "ingest")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -345,11 +375,14 @@ func codeCmd() *cobra.Command {
 			ingester := ingest.NewIngester(db)
 			stats, err := ingester.Ingest(context.Background(), args[0])
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(stats, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -361,7 +394,10 @@ func codeCmd() *cobra.Command {
 		Short: "Find dependencies of a function (Φ forward)",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "deps")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -369,11 +405,14 @@ func codeCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			deps, err := q.FindDeps(context.Background(), args[0], depth)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(deps, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -385,7 +424,10 @@ func codeCmd() *cobra.Command {
 		Short: "Find impact of changing a function (Φ inverse)",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "impact")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -393,11 +435,14 @@ func codeCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			impacts, err := q.FindImpact(context.Background(), args[0], depth)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(impacts, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -408,7 +453,10 @@ func codeCmd() *cobra.Command {
 		Use:   "dead",
 		Short: "Find unused code (⊥ unused)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "dead")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -416,11 +464,14 @@ func codeCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			dead, err := q.FindDeadCode(context.Background())
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(dead, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -430,7 +481,10 @@ func codeCmd() *cobra.Command {
 		Use:   "cycles",
 		Short: "Find circular dependencies (⊥ conflict)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "cycles")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -438,11 +492,14 @@ func codeCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			cycles, err := q.FindCycles(context.Background())
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(cycles, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -453,7 +510,10 @@ func codeCmd() *cobra.Command {
 		Use:   "hotspots",
 		Short: "Find high-churn areas (τ + Φ)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "hotspots")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -461,11 +521,14 @@ func codeCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			hotspots, err := q.FindHotspots(context.Background(), days)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(hotspots, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -476,7 +539,10 @@ func codeCmd() *cobra.Command {
 		Use:   "stats",
 		Short: "Show graph statistics",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryCode, "stats")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -484,11 +550,14 @@ func codeCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			stats, err := q.GetStats(context.Background())
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(stats, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -511,7 +580,10 @@ func gitCmd() *cobra.Command {
 		Short: "Load git history into graph",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryGit, "ingest")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -519,11 +591,14 @@ func gitCmd() *cobra.Command {
 			loader := ingest.NewGitLoader(db, args[0])
 			stats, err := loader.LoadHistory(context.Background(), maxCommits)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(stats, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -536,7 +611,10 @@ func gitCmd() *cobra.Command {
 		Short: "Show file change history",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryGit, "history")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -544,11 +622,14 @@ func gitCmd() *cobra.Command {
 			q := query.NewQuerier(db)
 			history, err := q.GetHistory(context.Background(), args[0], limit)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			out, _ := json.MarshalIndent(history, "", "  ")
+			event.OutputSize = len(out)
+			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
 		},
 	}
@@ -574,7 +655,10 @@ func thinkCmd() *cobra.Command {
 		Long:  "Search for similar errors and their solutions",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryKnowledge, "wisdom")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -582,9 +666,12 @@ func thinkCmd() *cobra.Command {
 			svc := cognitive.NewWisdomService(db)
 			matches, err := svc.ConsultWisdom(context.Background(), args[0], threshold, project)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			if len(matches) == 0 {
 				fmt.Println("WISDOM: No similar past errors found")
@@ -614,7 +701,10 @@ func thinkCmd() *cobra.Command {
 		Long:  "Analyze how novel a piece of code is compared to the codebase",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryKnowledge, "novelty")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -622,9 +712,12 @@ func thinkCmd() *cobra.Command {
 			svc := cognitive.NewNoveltyService(db)
 			result, err := svc.CheckNovelty(context.Background(), args[0])
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			// Visual indicator
 			indicator := "🟢"
@@ -651,7 +744,10 @@ func thinkCmd() *cobra.Command {
 		Long:  "Create a Solution node linking recent successful commands",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryKnowledge, "learn")
+
 			if db == nil {
+				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 				os.Exit(1)
 			}
@@ -664,14 +760,18 @@ func thinkCmd() *cobra.Command {
 			svc := cognitive.NewLearningService(db)
 			result, err := svc.ConsolidateLearning(context.Background(), description, minutes)
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			if !result.Success {
+				auditLogger.LogError(event, fmt.Errorf(result.Error))
 				fmt.Printf("Learning failed: %s\n", result.Error)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			fmt.Printf("LEARNED: %s\n", result.Description)
 			fmt.Printf("  Solution ID: %s\n", result.SolutionID)
@@ -1072,18 +1172,24 @@ func sysCmd() *cobra.Command {
 		Short: "Show container CPU/RAM metrics",
 		Long:  "Display energy metrics for running containers (Φ primitive)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategorySystem, "vitals")
+
 			obs := runtime.NewObserver(db)
 
 			if obs.Runtime() == "" {
+				auditLogger.LogWarning(event, "no container runtime detected")
 				fmt.Println("No container runtime detected (docker/podman)")
 				return
 			}
 
 			states, err := obs.Vitals(context.Background())
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			if len(states) == 0 {
 				fmt.Println("No running containers")
@@ -1111,13 +1217,18 @@ func sysCmd() *cobra.Command {
 		Short: "Show container network map",
 		Long:  "Display container network topology (⊆ inclusion)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategorySystem, "topology")
+
 			obs := runtime.NewObserver(db)
 
 			topo, err := obs.Topology(context.Background())
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			if topo.Error != "" {
 				fmt.Printf("Warning: %s\n\n", topo.Error)
@@ -1154,13 +1265,18 @@ func sysCmd() *cobra.Command {
 		Short: "Check container health issues",
 		Long:  "Detect container problems (⊥ orthogonal conflicts)",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategorySystem, "health")
+
 			obs := runtime.NewObserver(db)
 
 			issues, err := obs.Health(context.Background())
 			if err != nil {
+				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
+			auditLogger.LogSuccess(event)
 
 			if len(issues) == 0 {
 				fmt.Println("HEALTH: All containers healthy")
@@ -1185,8 +1301,13 @@ func sysCmd() *cobra.Command {
 		Use:   "runtime",
 		Short: "Show detected container runtime",
 		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategorySystem, "runtime")
+
 			obs := runtime.NewObserver(db)
 			rt := obs.Runtime()
+
+			auditLogger.LogSuccess(event)
+
 			if rt == "" {
 				fmt.Println("No container runtime detected")
 				return
