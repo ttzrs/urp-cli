@@ -17,6 +17,7 @@ import (
 	"github.com/joss/urp/internal/render"
 	"github.com/joss/urp/internal/runner"
 	"github.com/joss/urp/internal/runtime"
+	"github.com/joss/urp/internal/vector"
 )
 
 var (
@@ -70,6 +71,7 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	rootCmd.AddCommand(kbCmd())
 	rootCmd.AddCommand(focusCmd())
 	rootCmd.AddCommand(sysCmd())
+	rootCmd.AddCommand(vecCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -1114,4 +1116,119 @@ func formatBytes(b int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f%cB", float64(b)/float64(div), "KMGTPE"[exp])
+}
+
+func vecCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "vec",
+		Short: "Vector store commands",
+		Long:  "Manage vector embeddings for semantic search",
+	}
+
+	// urp vec stats
+	statsCmd := &cobra.Command{
+		Use:   "stats",
+		Short: "Show vector store statistics",
+		Run: func(cmd *cobra.Command, args []string) {
+			store := vector.Default()
+			count, err := store.Count(context.Background())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			embedder := vector.GetDefaultEmbedder()
+
+			fmt.Println("VECTOR STORE")
+			fmt.Println()
+			fmt.Printf("  Entries:    %d\n", count)
+			fmt.Printf("  Dimensions: %d\n", embedder.Dimensions())
+			fmt.Printf("  Embedder:   local (hash-based)\n")
+		},
+	}
+
+	// urp vec search <query>
+	var limit int
+	var kind string
+	searchCmd := &cobra.Command{
+		Use:   "search <query>",
+		Short: "Search vectors by text",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			store := vector.Default()
+			embedder := vector.GetDefaultEmbedder()
+
+			// Generate embedding for query
+			queryVec, err := embedder.Embed(context.Background(), args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error embedding query: %v\n", err)
+				os.Exit(1)
+			}
+
+			// Search
+			results, err := store.Search(context.Background(), queryVec, limit, kind)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			if len(results) == 0 {
+				fmt.Println("No matching vectors found")
+				return
+			}
+
+			fmt.Printf("VECTOR SEARCH: %d results\n", len(results))
+			fmt.Println()
+			for i, r := range results {
+				fmt.Printf("%d. [%.0f%%] [%s] %s\n",
+					i+1, r.Score*100, r.Entry.Kind, truncateStr(r.Entry.Text, 60))
+				if r.Entry.Metadata != nil {
+					if cmd := r.Entry.Metadata["command"]; cmd != "" {
+						fmt.Printf("   Command: %s\n", truncateStr(cmd, 50))
+					}
+					if proj := r.Entry.Metadata["project"]; proj != "" {
+						fmt.Printf("   Project: %s\n", proj)
+					}
+				}
+			}
+		},
+	}
+	searchCmd.Flags().IntVarP(&limit, "limit", "n", 10, "Max results")
+	searchCmd.Flags().StringVarP(&kind, "kind", "k", "", "Filter by kind (error|code|solution)")
+
+	// urp vec add <text>
+	var addKind string
+	addCmd := &cobra.Command{
+		Use:   "add <text>",
+		Short: "Add text to vector store",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			store := vector.Default()
+			embedder := vector.GetDefaultEmbedder()
+
+			// Generate embedding
+			vec, err := embedder.Embed(context.Background(), args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error embedding: %v\n", err)
+				os.Exit(1)
+			}
+
+			entry := vector.VectorEntry{
+				Text:   args[0],
+				Vector: vec,
+				Kind:   addKind,
+			}
+
+			if err := store.Add(context.Background(), entry); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("Added to vector store [%s]: %s\n", addKind, truncateStr(args[0], 50))
+		},
+	}
+	addCmd.Flags().StringVarP(&addKind, "kind", "k", "knowledge", "Entry kind (error|code|solution|knowledge)")
+
+	cmd.AddCommand(statsCmd, searchCmd, addCmd)
+	return cmd
 }
