@@ -277,7 +277,10 @@ func (m *Master) handleWorkerMessage(w *WorkerConnection, env *Envelope) {
 	case MsgError:
 		var p ErrorPayload
 		if err := env.GetPayload(&p); err == nil {
-			fmt.Printf("[%s] error: %s - %s\n", w.ID, p.Code, p.Message)
+			// Suppress EOF errors during shutdown (expected)
+			if p.Message != "EOF" {
+				fmt.Printf("[%s] error: %s - %s\n", w.ID, p.Code, p.Message)
+			}
 		}
 	}
 }

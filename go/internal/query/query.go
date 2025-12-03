@@ -110,16 +110,19 @@ type DeadCode struct {
 
 // FindDeadCode returns functions that are never called (⊥ unused).
 func (q *Querier) FindDeadCode(ctx context.Context) ([]DeadCode, error) {
+	// Memgraph-compatible: use OPTIONAL MATCH + WHERE null check instead of NOT EXISTS pattern
 	query := `
 		MATCH (f:Function)
-		WHERE NOT ()-[:CALLS]->(f)
-		  AND NOT f.name STARTS WITH 'Test'
+		WHERE NOT f.name STARTS WITH 'Test'
 		  AND NOT f.name STARTS WITH 'main'
 		  AND NOT f.name STARTS WITH 'init'
+		OPTIONAL MATCH (caller)-[:CALLS]->(f)
+		WITH f, caller
+		WHERE caller IS NULL
 		RETURN f.name as name,
 		       f.path as path,
 		       f.signature as signature,
-		       labels(f)[0] as type
+		       'Function' as type
 		ORDER BY f.path, f.name
 		LIMIT 100
 	`
@@ -149,9 +152,14 @@ type Cycle struct {
 
 // FindCycles returns circular dependencies (⊥ conflict).
 func (q *Querier) FindCycles(ctx context.Context) ([]Cycle, error) {
+	// Memgraph-compatible: extract path nodes in the query itself
+	// Use UNWIND to extract node names from the path
 	query := `
-		MATCH path = (a)-[:CALLS*2..5]->(a)
-		RETURN [n in nodes(path) | n.name] as cycle
+		MATCH p = (a:Function)-[:CALLS*2..5]->(a)
+		WITH p, a
+		UNWIND nodes(p) as node
+		WITH p, a, collect(node.name) as names
+		RETURN names as cycle
 		LIMIT 20
 	`
 

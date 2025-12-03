@@ -19,29 +19,33 @@ type Worker struct {
 	dec      *Decoder
 	handler  TaskHandler
 	caps     []string
+	exitFunc func(int) // override for testing
 
-	mu         sync.Mutex
+	mu          sync.Mutex
 	currentTask string
-	cancelFunc context.CancelFunc
+	cancelFunc  context.CancelFunc
 }
 
 // NewWorker creates a worker that communicates via stdin/stdout.
 func NewWorker(id string, caps []string) *Worker {
 	return &Worker{
-		id:   id,
-		enc:  NewEncoder(os.Stdout),
-		dec:  NewDecoder(os.Stdin),
-		caps: caps,
+		id:       id,
+		enc:      NewEncoder(os.Stdout),
+		dec:      NewDecoder(os.Stdin),
+		caps:     caps,
+		exitFunc: os.Exit,
 	}
 }
 
 // NewWorkerWithIO creates a worker with custom IO (for testing).
+// In test mode, shutdown doesn't call os.Exit.
 func NewWorkerWithIO(id string, caps []string, r io.Reader, w io.Writer) *Worker {
 	return &Worker{
-		id:   id,
-		enc:  NewEncoder(w),
-		dec:  NewDecoder(r),
-		caps: caps,
+		id:       id,
+		enc:      NewEncoder(w),
+		dec:      NewDecoder(r),
+		caps:     caps,
+		exitFunc: func(int) {}, // no-op for testing
 	}
 }
 
@@ -97,8 +101,10 @@ func (w *Worker) handleMessage(ctx context.Context, env *Envelope) error {
 
 	case MsgShutdown:
 		w.cancelCurrentTask()
-		os.Exit(0)
-		return nil
+		if w.exitFunc != nil {
+			w.exitFunc(0)
+		}
+		return io.EOF // signal clean exit
 
 	default:
 		return fmt.Errorf("unknown message type: %s", env.Type)
