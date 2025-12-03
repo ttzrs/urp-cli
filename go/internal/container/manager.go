@@ -324,18 +324,24 @@ func (m *Manager) LaunchWorker(projectPath string, readOnly bool) (string, error
 		mountOpt = "ro"
 	}
 
+	// Expand home directory for env file
+	homeDir, _ := os.UserHomeDir()
+	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+
 	args := []string{
 		"run", "-d",
 		"--name", containerName,
 		"--network", NetworkName,
-		"-v", fmt.Sprintf("%s:/workspace:%s", absPath, mountOpt),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/workspace:%s,z", absPath, mountOpt),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", fmt.Sprintf("URP_READ_ONLY=%v", readOnly),
 		"-w", "/workspace",
 		"--restart", "unless-stopped",
 		URPImage,
+		"tail", "-f", "/dev/null", // Keep alive for background worker
 	}
 
 	_, err = m.run(args...)
