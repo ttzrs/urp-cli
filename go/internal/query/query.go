@@ -281,32 +281,37 @@ type GraphStats struct {
 }
 
 // GetStats returns graph statistics.
+// Uses a single batched query instead of 8 sequential queries.
 func (q *Querier) GetStats(ctx context.Context) (*GraphStats, error) {
+	// Single query that counts all node types and relationships
+	query := `
+		OPTIONAL MATCH (f:File) WITH count(f) as files
+		OPTIONAL MATCH (fn:Function) WITH files, count(fn) as functions
+		OPTIONAL MATCH (s:Struct) WITH files, functions, count(s) as structs
+		OPTIONAL MATCH (c:Commit) WITH files, functions, structs, count(c) as commits
+		OPTIONAL MATCH (a:Author) WITH files, functions, structs, commits, count(a) as authors
+		OPTIONAL MATCH (e:TerminalEvent) WITH files, functions, structs, commits, authors, count(e) as events
+		OPTIONAL MATCH (x:Conflict) WITH files, functions, structs, commits, authors, events, count(x) as conflicts
+		OPTIONAL MATCH ()-[r:CALLS]->()
+		RETURN files, functions, structs, commits, authors, events, conflicts, count(r) as calls
+	`
+
+	records, err := q.db.Execute(ctx, query, nil)
+	if err != nil {
+		return nil, fmt.Errorf("stats query failed: %w", err)
+	}
+
 	stats := &GraphStats{}
-
-	counts := map[string]*int{
-		"File":          &stats.Files,
-		"Function":      &stats.Functions,
-		"Struct":        &stats.Structs,
-		"Commit":        &stats.Commits,
-		"Author":        &stats.Authors,
-		"TerminalEvent": &stats.Events,
-		"Conflict":      &stats.Conflicts,
-	}
-
-	for label, ptr := range counts {
-		query := fmt.Sprintf("MATCH (n:%s) RETURN count(n) as count", label)
-		records, err := q.db.Execute(ctx, query, nil)
-		if err == nil && len(records) > 0 {
-			*ptr = getInt(records[0], "count")
-		}
-	}
-
-	// Count CALLS relationships
-	callsQuery := "MATCH ()-[r:CALLS]->() RETURN count(r) as count"
-	records, err := q.db.Execute(ctx, callsQuery, nil)
-	if err == nil && len(records) > 0 {
-		stats.Calls = getInt(records[0], "count")
+	if len(records) > 0 {
+		r := records[0]
+		stats.Files = getInt(r, "files")
+		stats.Functions = getInt(r, "functions")
+		stats.Structs = getInt(r, "structs")
+		stats.Commits = getInt(r, "commits")
+		stats.Authors = getInt(r, "authors")
+		stats.Events = getInt(r, "events")
+		stats.Conflicts = getInt(r, "conflicts")
+		stats.Calls = getInt(r, "calls")
 	}
 
 	return stats, nil
