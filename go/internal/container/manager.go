@@ -458,6 +458,10 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		args = append(args, "-d")
 	}
 
+	// Alerts directory
+	alertsDir := filepath.Join(homeDir, ".urp-go", "alerts")
+	os.MkdirAll(alertsDir, 0755)
+
 	args = append(args,
 		"--name", containerName,
 		"--network", NetworkName,
@@ -469,6 +473,8 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		"-v", fmt.Sprintf("%s:/var/run/docker.sock", socketPath),
 		// Vector store
 		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		// Alerts directory for Claude hooks
+		"-v", fmt.Sprintf("%s:/var/lib/urp/alerts", alertsDir),
 		// Env file
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		// Environment

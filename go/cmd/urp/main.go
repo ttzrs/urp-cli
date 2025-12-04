@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/joss/urp/internal/alerts"
 	"github.com/joss/urp/internal/audit"
 	"github.com/joss/urp/internal/cognitive"
 	"github.com/joss/urp/internal/container"
@@ -209,6 +210,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	doctor := doctorCmd()
 	doctor.GroupID = "infra"
 	rootCmd.AddCommand(doctor)
+
+	// Alert command
+	alert := alertCmd()
+	alert.GroupID = "runtime"
+	rootCmd.AddCommand(alert)
 
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
@@ -3995,5 +4001,112 @@ Use --dry-run to see what would be done without executing.`,
 	}
 
 	cmd.AddCommand(logCmd, errorsCmd, statsCmd, commitCmd, metricsCmd, anomaliesCmd, baselineCmd, healCmd, historyCmd, rulesCmd)
+	return cmd
+}
+
+// alertCmd provides commands for sending and managing system alerts
+func alertCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "alert",
+		Short: "System alert commands",
+		Long:  "Send and manage alerts that Claude receives via hooks",
+	}
+
+	// urp alert send <level> <component> <title> <message>
+	sendCmd := &cobra.Command{
+		Use:   "send <level> <component> <title> <message>",
+		Short: "Send a system alert",
+		Long: `Send an alert that will be injected into Claude's context.
+
+Levels: info, warning, error, critical
+
+Examples:
+  urp alert send error worker "Worker Crashed" "Worker-1 exited with code 137"
+  urp alert send critical container "OOM Kill" "Container ran out of memory"`,
+		Args: cobra.ExactArgs(4),
+		Run: func(cmd *cobra.Command, args []string) {
+			level := alerts.Level(args[0])
+			component := args[1]
+			title := args[2]
+			message := args[3]
+
+			ctx := make(map[string]interface{})
+			if ctxFlag, _ := cmd.Flags().GetString("context"); ctxFlag != "" {
+				json.Unmarshal([]byte(ctxFlag), &ctx)
+			}
+
+			var alert *alerts.Alert
+			switch level {
+			case alerts.LevelInfo:
+				alert = alerts.Info(component, title, message)
+			case alerts.LevelWarning:
+				alert = alerts.Warning(component, title, message)
+			case alerts.LevelError:
+				alert = alerts.Error(component, title, message, ctx)
+			case alerts.LevelCritical:
+				alert = alerts.Critical(component, title, message, ctx)
+			default:
+				fmt.Fprintf(os.Stderr, "Invalid level: %s (use info, warning, error, critical)\n", level)
+				os.Exit(1)
+			}
+
+			fmt.Printf("Alert sent: %s\n", alert.ID)
+			fmt.Printf("  Level: %s\n", alert.Level)
+			fmt.Printf("  Component: %s\n", alert.Component)
+			fmt.Printf("  Title: %s\n", alert.Title)
+		},
+	}
+	sendCmd.Flags().String("context", "", "JSON context data")
+
+	// urp alert list
+	listCmd := &cobra.Command{
+		Use:   "list",
+		Short: "List active alerts",
+		Run: func(cmd *cobra.Command, args []string) {
+			active := alerts.Global().GetActive()
+			if len(active) == 0 {
+				fmt.Println("No active alerts")
+				return
+			}
+
+			fmt.Printf("%d active alert(s):\n\n", len(active))
+			for _, a := range active {
+				icon := "i"
+				switch a.Level {
+				case alerts.LevelWarning:
+					icon = "!"
+				case alerts.LevelError:
+					icon = "X"
+				case alerts.LevelCritical:
+					icon = "!!"
+				}
+				fmt.Printf("[%s] %s: %s\n", icon, a.Component, a.Title)
+				fmt.Printf("    %s\n", a.Message)
+				fmt.Printf("    ID: %s\n\n", a.ID)
+			}
+		},
+	}
+
+	// urp alert resolve <id>
+	resolveCmd := &cobra.Command{
+		Use:   "resolve <alert-id>",
+		Short: "Resolve an alert",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			alerts.Resolve(args[0])
+			fmt.Printf("Resolved: %s\n", args[0])
+		},
+	}
+
+	// urp alert dir
+	dirCmd := &cobra.Command{
+		Use:   "dir",
+		Short: "Show alert directory path",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(alerts.GetAlertDir())
+		},
+	}
+
+	cmd.AddCommand(sendCmd, listCmd, resolveCmd, dirCmd)
 	return cmd
 }

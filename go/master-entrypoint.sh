@@ -36,6 +36,30 @@ if [[ -f /etc/urp/.env ]]; then
     set +a
 fi
 
+# ─────────────────────────────────────────────────────────────
+# Claude Configuration (hooks for alert injection)
+# ─────────────────────────────────────────────────────────────
+
+# Setup Claude config directory
+CLAUDE_CONFIG_DIR="/home/urp/.claude"
+mkdir -p "$CLAUDE_CONFIG_DIR/hooks"
+
+# Copy settings if not exists
+if [[ -f /etc/urp/claude-settings.json ]] && [[ ! -f "$CLAUDE_CONFIG_DIR/settings.json" ]]; then
+    cp /etc/urp/claude-settings.json "$CLAUDE_CONFIG_DIR/settings.json"
+fi
+
+# Ensure alert hook is accessible
+if [[ -f /etc/urp/claude-alert-hook.sh ]]; then
+    cp /etc/urp/claude-alert-hook.sh "$CLAUDE_CONFIG_DIR/hooks/"
+    chmod +x "$CLAUDE_CONFIG_DIR/hooks/claude-alert-hook.sh"
+fi
+
+chown -R urp:urp "$CLAUDE_CONFIG_DIR"
+
+# Set alert directory environment
+export URP_ALERT_DIR="/var/lib/urp/alerts"
+
 # Fix git "dubious ownership" for mounted workspace
 git config --global --add safe.directory /workspace 2>/dev/null || true
 

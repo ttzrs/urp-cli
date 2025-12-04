@@ -158,7 +158,11 @@ RUN apk add --no-cache github-cli docker-cli shadow
 
 # Master-specific entrypoint that runs ingest + claude
 COPY master-entrypoint.sh /master-entrypoint.sh
-RUN chmod 755 /master-entrypoint.sh
+COPY claude-alert-hook.sh /etc/urp/claude-alert-hook.sh
+COPY claude-container-settings.json /etc/urp/claude-settings.json
+RUN chmod 755 /master-entrypoint.sh /etc/urp/claude-alert-hook.sh && \
+    mkdir -p /var/lib/urp/alerts && \
+    chown -R urp:urp /var/lib/urp
 
 ENV URP_MASTER=1 \
     URP_READ_ONLY=true
