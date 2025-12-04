@@ -1,0 +1,1159 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Duration, Date and Time</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Advanced Topicâs" href="advanced.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_model.html">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="static_analysis.html">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="async.html">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="async.html#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multicore.html">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varnames.html">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="docScripting.html">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="concepts.html">Concepts and Elements</a> &raquo;</li>
+      
+          <li><a href="advanced.html">Advanced Topicâs</a> &raquo;</li>
+      
+    <li>Duration, Date and Time</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="duration-date-and-time">
+<span id="date-time"></span><h1>Duration, Date and Time<a class="headerlink" href="#duration-date-and-time" title="Permalink to this heading">Â¶</a></h1>
+<section id="duration">
+<h2>Duration<a class="headerlink" href="#duration" title="Permalink to this heading">Â¶</a></h2>
+<p>The library <cite>SysTimeCore</cite> supports functions for handling the difference (delta) between two points in time (duration) provided by the CODESYS runtime system.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">SysTime</span></code> alias type is defined to handle <code class="docutils literal notranslate"><span class="pre">ULINT</span></code> values (0 - 18.446.744.073.709.551.615).</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">xOK</span> <span class="p">:=</span> <span class="p">(</span><span class="k">SIZEOF</span><span class="p">(</span><span class="n">SysTime</span><span class="p">)</span> <span class="p">=</span> <span class="mi">8</span> <span class="cm">(* Bytes *)</span><span class="p">)</span> <span class="k">AND</span> <span class="p">(</span><span class="k">SIZEOF</span><span class="p">(</span><span class="kt">ULINT</span><span class="p">)</span> <span class="p">=</span> <span class="mi">8</span> <span class="cm">(* Bytes *)</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the following examples the prefix <code class="docutils literal notranslate"><span class="pre">st</span></code> was selected for variables of type <code class="docutils literal notranslate"><span class="pre">SysTime</span></code>.</p>
+</div>
+<p>See: <a class="reference internal" href="varnames.html#varnames"><span class="std std-ref">Naming Conventions</span></a> for variables of type <code class="docutils literal notranslate"><span class="pre">UDINT</span></code>, <code class="docutils literal notranslate"><span class="pre">ULINT</span></code>, <code class="docutils literal notranslate"><span class="pre">TIME</span></code> and <code class="docutils literal notranslate"><span class="pre">LTIME</span></code>.</p>
+<section id="systimegetms">
+<h3>SysTimeGetMs<a class="headerlink" href="#systimegetms" title="Permalink to this heading">Â¶</a></h3>
+<div class="line-block">
+<div class="line">Returns a timer tick value (point in time) of type <code class="docutils literal notranslate"><span class="pre">UDINT</span></code> in a resolution of one millisecond ([ms]).</div>
+<div class="line">This results in a value range of 4.294.967.296ms â 4.294.967s â 7.582m â 1.193h â 49d</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The value range of the data type <code class="docutils literal notranslate"><span class="pre">TIME</span></code> corresponds to the value range of the data type <code class="docutils literal notranslate"><span class="pre">UDINT</span></code> with a resolution of one millisecond.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Instead of the function <code class="docutils literal notranslate"><span class="pre">SysTimeGetMs</span></code>, the operator <code class="docutils literal notranslate"><span class="pre">TIME()</span></code> can also be used.</p>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">tDelta</span><span class="p">,</span> <span class="n">tStart</span><span class="p">,</span> <span class="n">tEnd</span> <span class="p">:</span> <span class="kt">TIME</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">tStart</span> <span class="p">:=</span> <span class="n">TO_TIME</span><span class="p">(</span><span class="n">SysTimeGetMs</span><span class="p">());</span>
+<span class="cm">(* ... lengthy operation ... *)</span>
+<span class="n">tEnd</span> <span class="p">:=</span> <span class="n">TO_TIME</span><span class="p">(</span><span class="n">SysTimeGetMs</span><span class="p">());</span>
+<span class="n">tDelta</span> <span class="p">:=</span> <span class="n">tEnd</span> <span class="p">-</span> <span class="n">tStart</span> <span class="cm">(* ms *)</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The code example in the last section has the same effect as the code example in the next section.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">tStart</span> <span class="p">:=</span> <span class="kt">TIME</span><span class="p">();</span>
+<span class="cm">(* ... lengthy operation ... *)</span>
+<span class="n">tDelta</span> <span class="p">:=</span> <span class="kt">TIME</span><span class="p">()</span> <span class="p">-</span> <span class="n">tStart</span> <span class="cm">(* ms *)</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="systimegetus">
+<h3>SysTimeGetUs<a class="headerlink" href="#systimegetus" title="Permalink to this heading">Â¶</a></h3>
+<div class="line-block">
+<div class="line">Returns a timer tick value (point in time) of type <code class="docutils literal notranslate"><span class="pre">SysTime</span></code> in a resolution of one microsecond ([Âµs]).</div>
+<div class="line">This results in a value range of 18.446.744.073.709.551.615Âµs â 18.446.744.073.709.551ms â 18.446.744.073.709s â 307.445.734.561m  â 5.124.095.576h â 213.503.982d  â 599.730y</div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">stDelta</span><span class="p">,</span> <span class="n">stStart</span><span class="p">,</span> <span class="n">stEnd</span> <span class="p">:</span> <span class="n">SysTime</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">SysTimeGetUs</span><span class="p">(</span><span class="n">stStart</span><span class="p">);</span>
+<span class="cm">(* ... lengthy operation ... *)</span>
+<span class="n">SysTimeGetUs</span><span class="p">(</span><span class="n">stEnd</span><span class="p">);</span>
+<span class="n">stDelta</span> <span class="p">:=</span> <span class="n">stEnd</span> <span class="p">-</span> <span class="n">stStart</span> <span class="cm">(* Âµs *)</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="systimegetns">
+<h3>SysTimeGetNs<a class="headerlink" href="#systimegetns" title="Permalink to this heading">Â¶</a></h3>
+<div class="line-block">
+<div class="line">Returns a timer tick value (point in time) of type <code class="docutils literal notranslate"><span class="pre">SysTime</span></code> in a resolution of one nanosecond ([ns]).</div>
+<div class="line">This results in a value range of 18.446.744.073.709.551.615ns â 18.446.744.073.709.551Âµs â 18.446.744.073.709ms â 18.446.744.073s â 307.445.734m â 5.124.095h â 213.503d  â 599y</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The value range of the data type <code class="docutils literal notranslate"><span class="pre">LTIME</span></code> corresponds to the value range of the data type <code class="docutils literal notranslate"><span class="pre">SysTime</span></code> and <code class="docutils literal notranslate"><span class="pre">ULINT</span></code> with a resolution of one nanosecond.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Instead of the function <code class="docutils literal notranslate"><span class="pre">SysTimeGetNs</span></code>, the operator <code class="docutils literal notranslate"><span class="pre">LTIME()</span></code> should be used.</p>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">ltDelta</span> <span class="p">:</span> <span class="kt">LTIME</span><span class="p">;</span>
+    <span class="n">stStart</span><span class="p">,</span> <span class="n">stEnd</span> <span class="p">:</span> <span class="n">SysTime</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">SysTimeGetNs</span><span class="p">(</span><span class="n">stStart</span><span class="p">);</span>
+<span class="cm">(* ... lengthy operation ... *)</span>
+<span class="n">SysTimeGetNs</span><span class="p">(</span><span class="n">stEnd</span><span class="p">);</span>
+<span class="n">ltDelta</span> <span class="p">:=</span> <span class="n">TO_LTIME</span><span class="p">(</span><span class="n">stEnd</span> <span class="p">-</span> <span class="n">stStart</span><span class="p">)</span> <span class="cm">(* ns *)</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The code example in the last section has the same effect as the code example in the next section.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">ltDelta</span><span class="p">,</span> <span class="n">ltStart</span> <span class="p">:</span> <span class="kt">LTIME</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">ltStart</span> <span class="p">:=</span> <span class="kt">LTIME</span><span class="p">();</span>
+<span class="cm">(* lengthy operation *)</span>
+<span class="n">ltDelta</span> <span class="p">:=</span> <span class="kt">LTIME</span><span class="p">()</span> <span class="p">-</span> <span class="n">ltStart</span> <span class="cm">(* ns *)</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="timer">
+<h3>Timer<a class="headerlink" href="#timer" title="Permalink to this heading">Â¶</a></h3>
+<p>The handling of a time duration at the basis of the data types <code class="docutils literal notranslate"><span class="pre">TIME</span></code> and <code class="docutils literal notranslate"><span class="pre">LTIME</span></code> are also the kernel
+of the timer function blocks in the libraries standard (for <code class="docutils literal notranslate"><span class="pre">TIME</span></code>) and standard64 (for <code class="docutils literal notranslate"><span class="pre">LTIME</span></code>).</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">PROGRAM</span> <span class="n">TIMER</span>
+<span class="k">VAR</span>
+    <span class="n">tDelta</span> <span class="p">:</span> <span class="kt">TIME</span> <span class="p">:=</span> <span class="l">T#2s</span><span class="p">;</span>
+    <span class="n">T1</span> <span class="p">:</span> <span class="n">TON</span><span class="p">;</span>
+    <span class="n">T2</span> <span class="p">:</span> <span class="n">TP</span><span class="p">;</span>
+    <span class="n">T3</span> <span class="p">:</span> <span class="n">TOF</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/timer.png"><img alt="_images/timer.png" src="_images/timer.png" style="width: 500px;" /></a>
+</div>
+</section>
+</section>
+<section id="date-and-time">
+<h2>Date and Time<a class="headerlink" href="#date-and-time" title="Permalink to this heading">Â¶</a></h2>
+<section id="problems-with-localtime">
+<h3>Problems with Localtime<a class="headerlink" href="#problems-with-localtime" title="Permalink to this heading">Â¶</a></h3>
+<p>The major problem dealing with the localtime is that certain times of a day may occur twice in a year.
+For example, in the US/Eastern timezone on the last Sunday morning in October, the following sequence happens:</p>
+<ul class="simple">
+<li><p>01:00 EDT occurs</p></li>
+<li><p>1 hour later, instead of 2:00am the clock is turned back 1 hour and 01:00 happens again (this time 01:00 EST)</p></li>
+</ul>
+<p>In fact, every instant between 01:00 and 02:00 occurs twice.
+This means that if a variable of type âTIMEâ is written in the âUS/Easternâ time zone, it can no longer be decided
+whether it was written shortly before or after the transition from summer time to winter time.</p>
+<p>The best and simplest solution is to stick with using UTC.
+Note that some other timezones are commonly thought of as the same (GMT, Greenwich, Universal, etc.).
+The definition of UTC is distinct from these other timezones, and they are not equivalent.</p>
+<p>âUTCâ is Coordinated Universal Time. It is a successor to, but distinct from, Greenwich Mean Time (GMT)
+and the various definitions of Universal Time. UTC is currently the worldwide standard for regulating
+clocks and time measurement.</p>
+<p>All other timezones are defined relative to UTC, and include offsets like UTC+0800 - hours to add or subtract
+from UTC to derive the local time. No daylight saving time occurs in UTC, making it a useful timezone
+to perform date arithmetic without worrying about the confusion and ambiguities caused by daylight saving
+time transitions, your country changing its timezone, or mobile applications that roam through multiple timezones.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is therefore very important to remember that it is not just the current time that is relevant,
+but also the values of date and time zone.
+Otherwise, it is not possible to associate a specific point in time with a specific event.
+We can only omit the time zone value and work with just the time and date value if UTC is the associated time zone.</p>
+<p>For this the data types <code class="docutils literal notranslate"><span class="pre">DATE_AND_TIME</span></code> or better <code class="docutils literal notranslate"><span class="pre">LDATE_AND_TIME</span></code> in the UTC time zone are a good choice.</p>
+</div>
+<p>The <cite>SysTimeRTC</cite> Library provides a set of functions to deal with this issues and helps to handle variables of the types
+<code class="docutils literal notranslate"><span class="pre">(L)DATE</span></code>, <code class="docutils literal notranslate"><span class="pre">(L)TIME_OF_DAY</span></code> and <code class="docutils literal notranslate"><span class="pre">(L)DATE_AND_TIME</span></code> correctly.</p>
+</section>
+<section id="the-data-types">
+<h3>The Data Types<a class="headerlink" href="#the-data-types" title="Permalink to this heading">Â¶</a></h3>
+<p>CODESYS is following the IEC 61131-3 standard and implements therefore some data types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DATE</span></code>: Seconds since Thursday, 1.1.1970 00:00:00, managed in a 32 Bit data type like <code class="docutils literal notranslate"><span class="pre">UDINT</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TIME_OF_DAY</span></code> or <code class="docutils literal notranslate"><span class="pre">TOD</span></code>: Milliseconds since 00:00:00.000, managed in a 32 Bit data type like <code class="docutils literal notranslate"><span class="pre">UDINT</span></code> (Modulo TIME#1d)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DATE_AND_TIME</span></code> or <code class="docutils literal notranslate"><span class="pre">DT</span></code>: Seconds since Thursday, 1.1.1970 00:00:00, managed in a 32 Bit data type like <code class="docutils literal notranslate"><span class="pre">UDINT</span></code></p></li>
+</ul>
+<p>Starting with data type <code class="docutils literal notranslate"><span class="pre">DATE_AND_TIME</span></code>, variables of the other data types can be assigned accordingly.
+A variable of type <code class="docutils literal notranslate"><span class="pre">DATE_AND_TIME</span></code> can be initialized with a current value with the help of the CODESYS
+runtime systemâs functions <code class="docutils literal notranslate"><span class="pre">SysTimeRtcGet</span></code>.</p>
+<p>See: <a class="reference internal" href="varnames.html#varnames"><span class="std std-ref">Naming Conventions</span></a> for variables of type <code class="docutils literal notranslate"><span class="pre">UDINT</span></code>, <code class="docutils literal notranslate"><span class="pre">DATE</span></code>, <code class="docutils literal notranslate"><span class="pre">TIME_OF_DAY</span></code> and <code class="docutils literal notranslate"><span class="pre">DATE_AND_TIME</span></code>.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">udiUTC_DateAndTime</span> <span class="p">:</span> <span class="kt">UDINT</span><span class="p">;</span>
+
+    <span class="n">Result</span> <span class="p">:</span> <span class="n">RTS_IEC_RESULT</span><span class="p">;</span>
+
+    <span class="n">dtNow</span> <span class="p">:</span> <span class="kt">DATE_AND_TIME</span><span class="p">;</span>
+    <span class="n">todNow</span> <span class="p">:</span> <span class="kt">TIME_OF_DAY</span><span class="p">;</span>
+    <span class="n">datNow</span> <span class="p">:</span> <span class="kt">DATE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">udiUTC_DateAndTime</span> <span class="p">:=</span> <span class="n">TO_UDINT</span><span class="p">(</span><span class="n">SysTimeRtcGet</span><span class="p">(</span><span class="n">Result</span><span class="p">));</span> <span class="c1">// UDINT#1528268918</span>
+
+<span class="n">dtNow</span> <span class="p">:=</span> <span class="n">TO_DT</span><span class="p">(</span><span class="n">udiUTC_DateAndTime</span><span class="p">);</span> <span class="c1">// DT#2018-6-6-7:8:38</span>
+<span class="n">todNow</span> <span class="p">:=</span> <span class="n">TO_TOD</span><span class="p">(</span><span class="n">dtNow</span><span class="p">);</span> <span class="c1">// TOD#7:8:38</span>
+<span class="n">datNow</span> <span class="p">:=</span> <span class="n">TO_DATE</span><span class="p">(</span><span class="n">dtNow</span><span class="p">);</span> <span class="c1">// D#2018-6-6</span>
+</pre></div>
+</div>
+<p>A further edition of IEC 61131-3 has added some additional data types. This is also the case in CODESYS.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LDATE</span></code>: Nanoseconds since Thursday, 1.1.1970 00:00:00, managed in a 64 Bit data type like <code class="docutils literal notranslate"><span class="pre">LINT</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LTIME_OF_DAY</span></code> or <code class="docutils literal notranslate"><span class="pre">LTOD</span></code>: Nanoseconds since 00:00:00, managed in a 64 Bit data type like <code class="docutils literal notranslate"><span class="pre">ULINT</span></code> (Modulo LTIME#1d)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LDATE_AND_TIME</span></code> or <code class="docutils literal notranslate"><span class="pre">LDT</span></code>: Nanoseconds since Thursday, 1.1.1970 00:00:00, managed in a 64 Bit data type like <code class="docutils literal notranslate"><span class="pre">LINT</span></code></p></li>
+</ul>
+<p>Starting with data type <code class="docutils literal notranslate"><span class="pre">LDATE_AND_TIME</span></code>, variables of the other data types can be assigned accordingly.
+A variable of type <code class="docutils literal notranslate"><span class="pre">LDATE_AND_TIME</span></code> can be initialized with a current value with the help of the CODESYS
+runtime systemâs functions <code class="docutils literal notranslate"><span class="pre">SysTimeRtcHighResGet</span></code>.</p>
+<p>See: <a class="reference internal" href="varnames.html#varnames"><span class="std std-ref">Naming Conventions</span></a> for variables of type <code class="docutils literal notranslate"><span class="pre">ULINT</span></code>, <code class="docutils literal notranslate"><span class="pre">LDATE</span></code>, <code class="docutils literal notranslate"><span class="pre">LTIME_OF_DAY</span></code> and <code class="docutils literal notranslate"><span class="pre">LDATE_AND_TIME</span></code>.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">stUTC_DateAndTime</span> <span class="p">:</span> <span class="n">SYSTIME</span><span class="p">;</span>
+
+    <span class="n">Result</span> <span class="p">:</span> <span class="n">RTS_IEC_RESULT</span><span class="p">;</span>
+
+    <span class="n">ldtNow</span> <span class="p">:</span> <span class="n">LDATE_AND_TIME</span><span class="p">;</span>
+    <span class="n">ltodNow</span> <span class="p">:</span> <span class="n">LTIME_OF_DAY</span><span class="p">;</span>
+    <span class="n">ldatNow</span> <span class="p">:</span> <span class="n">LDATE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">Result</span> <span class="p">:=</span> <span class="n">SysTimeRtcHighResGet</span><span class="p">(</span><span class="n">stUTC_DateAndTime</span><span class="p">);</span> <span class="c1">// UlINT#1738934115369</span>
+
+<span class="n">ldtNow</span> <span class="p">:=</span> <span class="n">TO_LDT</span><span class="p">(</span><span class="n">stUTC_DateAndTime</span> <span class="p">*</span> <span class="l">LTIME#1ms</span><span class="p">);</span> <span class="c1">// LDT#2025-2-7-13:15:15.369000000</span>
+<span class="n">ltodNow</span> <span class="p">:=</span> <span class="n">TO_LTOD</span><span class="p">(</span><span class="n">ldtNow</span><span class="p">);</span> <span class="c1">// LTOD#13:15:15.369000000</span>
+<span class="n">ldatNow</span> <span class="p">:=</span> <span class="n">TO_LDATE</span><span class="p">(</span><span class="n">ldtNow</span><span class="p">);</span> <span class="c1">// LD#2025-2-7</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The basic data type <code class="docutils literal notranslate"><span class="pre">LINT</span></code> now also allows to operate on dates that occurred before 1 January 1970.</div>
+<div class="line">Here, for example, the moon landing on 21 July 1969</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ldatApollo11</span> <span class="pre">:</span> <span class="pre">LDATE</span> <span class="pre">:=</span> <span class="pre">LD#1969-07-21;</span> <span class="pre">//</span> <span class="pre">LINT#-14169600000000000</span></code></p>
+</div>
+<p>The CODESYS runtime system specifies some additional data types:</p>
+<ul>
+<li><p>Standard <code class="docutils literal notranslate"><span class="pre">udiTimeStamp</span></code> (<code class="docutils literal notranslate"><span class="pre">UDINT</span></code>) Seconds since Thursday, 1.1.1970 00:00:00</p></li>
+<li><p>High Resolution <code class="docutils literal notranslate"><span class="pre">uliTimeStamp</span></code> (<code class="docutils literal notranslate"><span class="pre">ULINT</span></code>) Milliseconds since Thursday, 1.1.1970 00:00:00.000</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SysTimeDate</span></code> (<code class="docutils literal notranslate"><span class="pre">STRUCT</span></code>)</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">wYear</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Year (e.g. 2006)</span>
+<span class="n">wMonth</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Month (1..12: January = 1, December = 12)</span>
+<span class="n">wDay</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Day of month (1..31)</span>
+<span class="n">wHour</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Hours after midnight (0..23)</span>
+<span class="n">wMinute</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Minutes after hour (0..59)</span>
+<span class="n">wSecond</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Seconds after minute (0..59)</span>
+<span class="n">wMilliseconds</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Milliseconds after second (0..999). Optional!</span>
+<span class="n">wDayOfWeek</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Day of week (1..7: Monday = 1, Sunday = 7</span>
+<span class="n">wYday</span> <span class="p">:</span> <span class="kt">UINT</span><span class="p">;</span> <span class="c1">// Day of year (1..365): January 1 = 1, December 31 = 364/365</span>
+</pre></div>
+</div>
+<p>See: <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms724950(v=vs.85).aspx">SYSTEMTIME structure</a></p>
+</li>
+</ul>
+</section>
+<section id="getting-date-and-time-utc">
+<h3>Getting Date and Time (UTC)<a class="headerlink" href="#getting-date-and-time-utc" title="Permalink to this heading">Â¶</a></h3>
+<p>The CODESYS runtime system provides the following functions for getting the current date and time in the UTC timezone:</p>
+<ul class="simple">
+<li><p>SysTimeRtcGet: Returns the date and time in seconds since Thursday, 1.1.1970 00:00:00, managed in a 32 Bit data type like <code class="docutils literal notranslate"><span class="pre">UDINT</span></code></p></li>
+<li><p>SysTimeRtcHighResGet: Returns the date and time in milliseconds since Thursday, 1.1.1970 00:00:00.000, managed in a 64 Bit data type like <code class="docutils literal notranslate"><span class="pre">SysTime</span></code></p></li>
+</ul>
+</section>
+<section id="converting-from-utc-to-localtime">
+<h3>Converting from UTC to Localtime<a class="headerlink" href="#converting-from-utc-to-localtime" title="Permalink to this heading">Â¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The concept âlocal timezoneâ in the context of the CODESYS runtime system is based on the time zone witch the local
+controller is configured for. This is not always the time zone suitable for displaying the current time.
+Some times it is necessary to use the timezone which the CODESYS development environment is configured for.
+Some times there are other requirements to use a completely different time zone.</p>
+<p><strong>With the</strong> <code class="docutils literal notranslate"><span class="pre">SysTimeRtcGetTimezone2</span></code> <strong>the name of the âlocal timezoneâ can be queried.</strong></p>
+<p>In order to meet these conflicting requirements, the util.library offers the option of using the functions for
+converting time and date data with a flexible specification of a freely selectable time zone.</p>
+</div>
+<p>The CODESYS runtime system provides the following functions for converting the current date and time from the UTC timezone to the local timezone:</p>
+<ul class="simple">
+<li><p>SysTimeRtcConvertHighResToLocal: Converts a high resolution Time format <code class="docutils literal notranslate"><span class="pre">SysTime</span></code> to Localtime in the <code class="docutils literal notranslate"><span class="pre">SysTimeDate</span></code> format.</p></li>
+<li><p>SysTimeRtcConvertDateToHighRes: Converts the time given by time in the SysTimeDate format into a High Resolution Time of format <code class="docutils literal notranslate"><span class="pre">SysTime</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the following examples the prefix <code class="docutils literal notranslate"><span class="pre">std</span></code> was selected for variables of type <code class="docutils literal notranslate"><span class="pre">SysTimeDate</span></code>.</p>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">stUTC_Timestamp</span> <span class="p">:</span> <span class="n">SysTime</span><span class="p">;</span>
+    <span class="n">stLocal_TimeStamp</span> <span class="p">:</span> <span class="n">SysTime</span><span class="p">;</span>
+    <span class="n">stdNow</span> <span class="p">:</span> <span class="n">SysTimeDate</span><span class="p">;</span>
+
+    <span class="n">Result</span> <span class="p">:</span> <span class="n">RTS_IEC_RESULT</span><span class="p">;</span>
+
+    <span class="n">dtNow</span> <span class="p">:</span> <span class="kt">DATE_AND_TIME</span><span class="p">;</span>
+    <span class="n">todNow</span> <span class="p">:</span> <span class="kt">TIME_OF_DAY</span><span class="p">;</span>
+    <span class="n">datNow</span> <span class="p">:</span> <span class="kt">DATE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">Result</span> <span class="p">:=</span> <span class="n">SysTimeRtcHighResGet</span><span class="p">(</span><span class="n">stUTC_Timestamp</span><span class="p">);</span> <span class="c1">// ULINT#1528273494913</span>
+<span class="n">Result</span> <span class="p">:=</span> <span class="n">SysTimeRtcConvertHighResToLocal</span><span class="p">(</span><span class="n">stUTC_Timestamp</span><span class="p">,</span> <span class="n">stdNow</span><span class="p">);</span>
+
+<span class="c1">// stdNow.wYear = UINT#2018</span>
+<span class="c1">// stdNow.wMonth = UINT#6</span>
+<span class="c1">// stdNowy.wDay = UINT#6</span>
+<span class="c1">// stdNow.wHour = UINT#10</span>
+<span class="c1">// stdNow.wMinute = UINT#24</span>
+<span class="c1">// stdNow.wSecond = UINT#54</span>
+<span class="c1">// stdNow.wMilliseconds = UINT#913</span>
+<span class="c1">// stdNow.wDayOfWeek = UINT#3</span>
+<span class="c1">// stdNow.wYday = UINT#157</span>
+
+<span class="n">Result</span> <span class="p">:=</span> <span class="n">SysTimeRtcConvertDateToHighRes</span><span class="p">(</span><span class="n">stdNow</span><span class="p">,</span> <span class="n">stLocal_TimeStamp</span><span class="p">);</span> <span class="c1">// ULINT#1528280694913</span>
+
+<span class="n">dtNow</span> <span class="p">:=</span> <span class="n">TO_DT</span><span class="p">(</span><span class="n">stLocal_TimeStamp</span> <span class="p">/</span> <span class="l">TIME#1ms</span><span class="p">);</span> <span class="c1">// DT#2018-6-6-10:24:54</span>
+<span class="n">todNow</span> <span class="p">:=</span> <span class="n">TO_TOD</span><span class="p">(</span><span class="n">stLocal_TimeStamp</span> <span class="k">MOD</span> <span class="n">TO_ULINT</span><span class="p">(</span><span class="l">T#1D</span><span class="p">));</span> <span class="c1">// TOD#10:24:54.913</span>
+<span class="n">datToday</span> <span class="p">:=</span> <span class="n">TO_DATE</span><span class="p">(</span><span class="n">dtNow</span><span class="p">);</span> <span class="c1">// D#2018-6-6</span>
+</pre></div>
+</div>
+</section>
+<section id="converting-from-localtime-to-utc">
+<h3>Converting from Localtime to UTC<a class="headerlink" href="#converting-from-localtime-to-utc" title="Permalink to this heading">Â¶</a></h3>
+<p>The CODESYS runtime system provides the following function for converting the current date and time from the local timezone to the UTC timezone:</p>
+<ul class="simple">
+<li><p>SysTimeRtcConvertLocalToHighRes: Converts the date and time given by <code class="docutils literal notranslate"><span class="pre">SysTimeDate</span></code> structure (localtime) into a high resolution time of type <code class="docutils literal notranslate"><span class="pre">SysTime</span></code> (UTC)</p></li>
+</ul>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">stdNew</span> <span class="p">:</span> <span class="n">SysTimeDate</span><span class="p">;</span>
+    <span class="n">stUTC_Timestamp</span> <span class="p">:</span> <span class="n">SysTime</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="c1">// stdNew.wYear = UINT#2018</span>
+<span class="c1">// stdNew.wMonth = UINT#6</span>
+<span class="c1">// stdNew.wDay = UINT#6</span>
+<span class="c1">// stdNew.wHour = UINT#10</span>
+<span class="c1">// stdNew.wMinute = UINT#24</span>
+<span class="c1">// stdNew.wSecond = UINT#54</span>
+<span class="c1">// stdNew.wMilliseconds = UINT#913</span>
+
+<span class="n">Result</span> <span class="p">:=</span> <span class="n">SysTimeRtcConvertLocalToHighRes</span><span class="p">(</span><span class="n">stdNew</span><span class="p">,</span> <span class="n">stUTC_Timestamp</span><span class="p">);</span> <span class="c1">// ULINT#1528273494913</span>
+</pre></div>
+</div>
+</section>
+<section id="support-from-the-util-library">
+<h3>Support from the <cite>Util.library</cite><a class="headerlink" href="#support-from-the-util-library" title="Permalink to this heading">Â¶</a></h3>
+<p>To handle the local time, it is necessary to always specify the time and date and the time zone that is currently valid.
+This makes it possible to convert the local time to <strong>C</strong>oordinated <strong>U</strong>niversal <strong>T</strong>ime and vice versa.
+<strong>UTC</strong> is Coordinated Universal Time. It is a successor to, but distinct from, Greenwich Mean Time (GMT) and
+the various definitions of Universal Time. UTC is now the worldwide standard for regulating clocks and time measurement.</p>
+<p>All other timezones are defined relative to UTC, and include offsets like UTC+0800 - hours to add or subtract from UTC
+to derive the local time. No daylight saving time occurs in UTC, making it a useful timezone to perform date arithmetic
+without worrying about the confusion and ambiguities caused by daylight saving time transitions,
+your country changing its timezone, or mobile computers that roam through multiple timezones.</p>
+<p>The following snippet exposes the definition of UTC
+and <strong>C</strong>entral<strong>E</strong>urope<strong>T</strong>ime/<strong>C</strong>entral<strong>E</strong>urope<strong>S</strong>ommer<strong>T</strong>ime.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR_GLOBAL</span> <span class="k">CONSTANT</span>
+    <span class="cs">/// Coordinated Universal Time</span>
+    <span class="n">gc_tzTimeZoneUTC</span> <span class="p">:</span> <span class="n">TimeZone</span> <span class="p">:=</span> <span class="p">(</span><span class="n">asgPeriod</span> <span class="p">:=</span> <span class="l">[(sName:=&#39;UTC&#39;)]</span><span class="p">);</span>
+
+    <span class="cs">/// Central Europe Time</span>
+    <span class="n">gc_tzTimeZoneCET</span> <span class="p">:</span> <span class="n">TimeZone</span> <span class="p">:=</span>
+    <span class="p">(</span>
+        <span class="n">iBias</span> <span class="p">:=</span> <span class="mi">60</span> <span class="cm">(* T#1M =&gt; minutes *)</span><span class="p">,</span>
+        <span class="n">asgPeriod</span> <span class="p">:=</span> <span class="l">[</span>
+<span class="l">        ( (* (CEST -&gt; CET) - Last Sunday in Oktober at 03:00:00.000 (CEST) *)</span>
+<span class="l">            sName:=&#39;CET&#39;,</span>
+<span class="l">            dtDate := (uiMonth := 10, eWeekday := WEEKDAY.SUNDAY, uiDay := 5, uiHour := 3)</span>
+<span class="l">        ),( (* (CET -&gt; CEST) - Last Sunday in March at 02:00:00.000 (CET) *)</span>
+<span class="l">            sName := &#39;CEST&#39;,</span>
+<span class="l">            dtDate := (uiMonth := 3, eWeekday := WEEKDAY.SUNDAY, uiDay := 5, uiHour := 2),</span>
+<span class="l">            iBias := 60 (* T#1M =&gt; minutes *)</span>
+<span class="l">        )]</span>
+    <span class="p">);</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Bias element represents the offset from the Coordinated Universal Time (UTC). This value is in minutes.</p>
+<ul class="simple">
+<li><p>The offset growing positive in eastern direction starting from the prime meridian.</p></li>
+<li><p>The offset is growing negative in western direction starting from the prime meridian.</p></li>
+</ul>
+<a class="reference internal image-reference" href="_images/TimeZones.png"><img alt="_images/TimeZones.png" class="align-center" src="_images/TimeZones.png" style="width: 640px;" /></a>
+<p>See: <a class="reference external" href="https://en.wikipedia.org/wiki/List_of_UTC_time_offsets">List of UTC time offsets</a></p>
+</div>
+<p>With the data structure <code class="docutils literal notranslate"><span class="pre">TimeZone</span></code> it is possible to specify every
+<a class="reference external" href="https://en.wikipedia.org/wiki/List_of_time_zones_by_country">timezone of the world</a> and so the functions below
+can handle the local time conversion and the switching from standard to day light saving periodâs if necessary.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>With the following expressions the difference between the UTC time zone and an other timezone instance can be calculated.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">iBiasUTC_Standard</span> <span class="p">:=</span> <span class="n">gc_tzTimeZoneCET.iBias</span><span class="p">;</span>
+<span class="n">iBiasUTC_Daylight</span> <span class="p">:=</span> <span class="n">gc_tzTimeZoneCET.iBias</span> <span class="p">+</span> <span class="n">gc_tzTimeZoneCET.asgPeriod</span><span class="l">[PERIOD.DAYLIGHT]</span><span class="p">.</span><span class="n">iBias</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The time zone which the current computer is configured for, is not always the time zone suitable for displaying the current time.
+Therefore in the respective application, the possibility should be provided, to be able to select the âcorrectâ time zone
+that is suitable for the related output option (WebVisu, LogFiles, Email, â¦).</p>
+</div>
+<p>In version 3.5.14.0 and higher, the <cite>Util</cite> library provides the following functions:</p>
+<p>Conversion from <cite>UTC</cite> timestamp (e.g. from <code class="docutils literal notranslate"><span class="pre">SysTimeRtcHighResGet</span></code>) to the current period and the local date and time related to the <code class="docutils literal notranslate"><span class="pre">TimeZone</span></code> parameter.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">LocalDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span>
+<span class="k">VAR_IN_OUT</span> <span class="k">CONSTANT</span>
+    <span class="n">tzTimeZone</span> <span class="p">:</span> <span class="n">TimeZone</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uliDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+    <span class="n">ePeriod</span> <span class="p">:</span> <span class="n">PERIOD</span><span class="p">;</span> <span class="cm">(* 1 = ``PERIOD.STANDARD``, 2 = ``PERIOD.DAYLIGHT`` *)</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="twocol docutils container">
+<div class="leftside docutils container">
+<p>Splitting a timestamp into the components of a point in time.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">SplitDateTime</span> <span class="p">:</span> <span class="n">ERROR</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uliDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">uiYear</span> <span class="p">:</span> <span class="n">YEAR</span><span class="p">;</span> <span class="cm">(* 1970..2106 *)</span>
+    <span class="n">uiMonth</span> <span class="p">:</span> <span class="n">MONTH</span><span class="p">;</span>
+    <span class="n">uiDay</span> <span class="p">:</span> <span class="n">DAY</span><span class="p">;</span>
+    <span class="n">uiHour</span> <span class="p">:</span> <span class="n">HOUR</span><span class="p">;</span>
+    <span class="n">uiMinute</span> <span class="p">:</span> <span class="n">MINUTE</span><span class="p">;</span>
+    <span class="n">uiSecond</span> <span class="p">:</span> <span class="n">SECOND</span><span class="p">;</span>
+    <span class="n">uiMilliseconds</span> <span class="p">:</span> <span class="n">MILLISECOND</span><span class="p">;</span>
+    <span class="n">eWeekday</span> <span class="p">:</span> <span class="n">WEEKDAY</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+<div class="rightside docutils container">
+<p>Joining the components of a point in time to a timestamp.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">JoinDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uiYear</span> <span class="p">:</span> <span class="n">YEAR</span><span class="p">;</span> <span class="cm">(* 1970..2106 *)</span>
+    <span class="n">uiMonth</span> <span class="p">:</span> <span class="n">MONTH</span><span class="p">;</span>
+    <span class="n">uiDay</span> <span class="p">:</span> <span class="n">DAY</span><span class="p">;</span>
+    <span class="n">uiHour</span> <span class="p">:</span> <span class="n">HOUR</span><span class="p">;</span>
+    <span class="n">uiMinute</span> <span class="p">:</span> <span class="n">MINUTE</span><span class="p">;</span>
+    <span class="n">uiSecond</span> <span class="p">:</span> <span class="n">SECOND</span><span class="p">;</span>
+    <span class="n">uiMilliseconds</span> <span class="p">:</span> <span class="n">MILLISECOND</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span> <span class="p">:=</span> <span class="n">ERROR.NO_ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="twocol docutils container">
+<div class="leftside docutils container">
+<p>Separates a timestamp in its IEC data typed parts.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">SeparateDateTime</span> <span class="p">:</span> <span class="n">ERROR</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uliDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eWeekDay</span> <span class="p">:</span> <span class="n">WEEKDAY</span><span class="p">;</span>
+    <span class="n">datDate</span> <span class="p">:</span> <span class="kt">DATE</span><span class="p">;</span>
+    <span class="n">todTime</span> <span class="p">:</span> <span class="kt">TIME_OF_DAY</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+<div class="rightside docutils container">
+<p>Combines the IEC data typed parts to a timestamp.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">CombineDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">datDate</span> <span class="p">:</span> <span class="kt">DATE</span><span class="p">;</span>
+    <span class="n">todTime</span> <span class="p">:</span> <span class="kt">TIME_OF_DAY</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="twocol docutils container">
+<div class="leftside docutils container">
+<p>Calculates the appropriate values of the ISO week date parts that matches the parameter <code class="docutils literal notranslate"><span class="pre">uliDateTime</span></code></p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">WeekOfYear</span> <span class="p">:</span> <span class="n">ERROR</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uliDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">uiYear</span> <span class="p">:</span> <span class="n">YEAR</span><span class="p">;</span>
+    <span class="n">uiWeek</span><span class="p">:</span> <span class="n">WEEK</span><span class="p">;</span>
+    <span class="n">eWeekday</span> <span class="p">:</span> <span class="n">WEEKDAY</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+<div class="rightside docutils container">
+<p>Combines the ISO week date parts to a timestamp</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="n">DateTimeFromWeek</span> <span class="p">:</span> <span class="kt">ULINT</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uiYear</span> <span class="p">:</span> <span class="n">YEAR</span><span class="p">;</span>
+    <span class="n">uiWeek</span> <span class="p">:</span> <span class="n">WEEK</span><span class="p">;</span>
+    <span class="n">eWeekday</span> <span class="p">:</span> <span class="n">WEEKDAY</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Calculates the appropriate value of the WEEKDAY enum that matches the parameter <code class="docutils literal notranslate"><span class="pre">datDate</span></code>.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">DayOfWeek</span> <span class="p">:</span> <span class="n">WEEKDAY</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">datDate</span> <span class="p">:</span> <span class="kt">DATE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>Checks whether the year (<code class="docutils literal notranslate"><span class="pre">uiYear</span></code>) passed represents a leap year.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="k">PUBLIC</span> <span class="n">IsLeapYear</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">uiYear</span> <span class="p">:</span> <span class="n">YEAR</span><span class="p">;</span> <span class="cm">(* 1970..2106 *)</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="special-applications">
+<h2>Special Applications<a class="headerlink" href="#special-applications" title="Permalink to this heading">Â¶</a></h2>
+<p><strong>Handling of the clock time at application level, if it is not possible to change the clock time in the runtime system.</strong></p>
+<p>In this case we can read the current clock time from the runtime system, but we are not allowed to change the clock time
+in the runtime system. Either we do not have the necessary access rights or changing the time could have unwanted
+consequences for the other processes running parallel to the runtime system on the current controller.</p>
+<p>A possible solution would then be as follows:</p>
+<ul class="simple">
+<li><p>We create an application specific function block that implements the interface <code class="docutils literal notranslate"><span class="pre">IDateTimeProvider</span></code>.</p></li>
+<li><p>We add another input to this function block. This offset would then be used to calculate
+an application-specific clock time from the clock time that we previously read from the runtime system.</p></li>
+<li><p>The variable which supplies the input of the function block with the current offset should be able to keep
+its value even after restarting the controller. <a class="reference external" href="https://help.codesys.com/webapp/_cds_f_setting_data_persistence;product=codesys;version=3.5.14.0#id2">CODESYS provides various mechanisms</a> for this purpose.</p></li>
+</ul>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="cp">{attribute &#39;no_explicit_call&#39; := &#39;Use method like GetDateTime&#39;}</span>
+<span class="k">FUNCTION_BLOCK</span> <span class="k">FINAL</span> <span class="n">AdjustableTimeProvider</span> <span class="k">IMPLEMENTS</span> <span class="n">Util.IDateTimeProvider</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">liOffset</span> <span class="p">:</span> <span class="kt">LINT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="k">FINAL</span> <span class="n">GetDateTime</span> <span class="p">:</span> <span class="kt">ULINT</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span>        <span class="p">:</span> <span class="n">Util.ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">liOffset</span> <span class="p">&gt;=</span> <span class="mi">0</span> <span class="k">THEN</span>
+    <span class="n">GetDateTime</span> <span class="p">:=</span> <span class="n">Util.GetDateTime</span><span class="p">(</span><span class="n">eErrorID</span><span class="p">=&gt;</span><span class="n">eErrorID</span><span class="p">)</span> <span class="p">+</span> <span class="n">TO_ULINT</span><span class="p">(</span><span class="n">liOffset</span><span class="p">);</span>
+<span class="k">ELSE</span>
+    <span class="n">GetDateTime</span> <span class="p">:=</span> <span class="n">Util.GetDateTime</span><span class="p">(</span><span class="n">eErrorID</span><span class="p">=&gt;</span><span class="n">eErrorID</span><span class="p">)</span> <span class="p">-</span> <span class="n">TO_ULINT</span><span class="p">(-</span><span class="n">liOffset</span><span class="p">);</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+<p>Take a look to the application exaple:</p>
+<img alt="_images/AdjustableTimeProvider.png" src="_images/AdjustableTimeProvider.png" />
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">PROGRAM</span> <span class="n">PLC_PRG</span>
+<span class="k">VAR</span>
+    <span class="n">ATP</span> <span class="p">:</span> <span class="n">AdjustableTimeProvider</span><span class="p">;</span>
+    <span class="n">TS</span> <span class="p">:</span> <span class="n">Util.TimerSwitch</span> <span class="p">:=</span> <span class="p">(</span><span class="n">itfDateTimeProvider</span><span class="p">:=</span><span class="n">ATP</span><span class="p">);</span>
+    <span class="n">liOffset</span> <span class="p">:</span> <span class="kt">LINT</span> <span class="p">:=</span> <span class="n">TO_LINT</span><span class="p">(</span><span class="l">TIME#1H</span><span class="p">);</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>The application clock time is exactly one hour ahead of the realtime clock inside the runtime system.
+If the application will change the value of <code class="docutils literal notranslate"><span class="pre">uliOffset</span></code> the the application clock time will be changing accordingly.</p>
+<p>Another example with the help of some other time supporting functions of the Util library:</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">ATP</span> <span class="p">:</span> <span class="n">AdjustableTimeProvider</span><span class="p">;</span>
+    <span class="n">liOffset</span> <span class="p">:</span> <span class="kt">LINT</span> <span class="p">:=</span> <span class="n">TO_LINT</span><span class="p">(</span><span class="l">TIME#1H</span><span class="p">);</span>
+    <span class="n">datDate</span> <span class="p">:</span> <span class="kt">DATE</span><span class="p">;</span>
+    <span class="n">todTime</span> <span class="p">:</span> <span class="kt">TIME_OF_DAY</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">ATP.liOffset</span> <span class="p">:=</span> <span class="n">liOffset</span><span class="p">;</span>
+
+<span class="n">UTIL.SeparateDateTime</span><span class="p">(</span>
+    <span class="n">Util.LocalDateTime</span><span class="p">(</span>
+        <span class="n">tzTimeZone</span> <span class="p">:=</span> <span class="n">Util.TSW.gc_tzTimeZoneCET</span><span class="p">,</span>
+        <span class="n">uliDateTime</span><span class="p">:=</span> <span class="n">ATP.GetDateTime</span><span class="p">()</span>
+    <span class="p">),</span>
+    <span class="n">datDate</span> <span class="p">=&gt;</span> <span class="n">datDate</span><span class="p">,</span>
+    <span class="n">todTime</span> <span class="p">=&gt;</span> <span class="n">todTime</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Handling of the clock time at application level, if it is a point in time in the further past</strong></p>
+<p>When handling date and time, there is sometimes a requirement to be able to display the local time valid at that point in time.
+For example, it must be possible today to assign the time valid at that time to an event that took place two weeks ago,
+although a changeover to daylight saving time has taken place in between.</p>
+<p>Thus it is necessary not only to store the UTC time stamp for a specific event but also the offset between local time and UTC valid at that time.</p>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

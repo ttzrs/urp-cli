@@ -1,0 +1,1021 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Naming Conventions</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Guidelines for Library Development" href="guidelines.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_model.html">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="static_analysis.html">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="date_time.html">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="async.html">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="async.html#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multicore.html">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="docScripting.html">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="guidelines.html">Guidelines for Library Development</a> &raquo;</li>
+      
+    <li>Naming Conventions</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="naming-conventions">
+<span id="varnames"></span><h1>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permalink to this heading">Â¶</a></h1>
+<aside class="topic">
+<p class="topic-title">Rule #10:</p>
+<p>Use clean Naming Conventions (<a class="reference internal" href="glossary.html#term-Optional"><span class="xref std std-term">Optional</span></a>)</p>
+<ul>
+<li><div class="line-block">
+<div class="line">The consistent use of a naming convention is the best way for clean code.</div>
+<div class="line">(Checked by the Static Code Analysis <a class="footnote-reference brackets" href="#sa" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>)</div>
+</div>
+</li>
+</ul>
+</aside>
+<p>These rules propose a kind of <a class="reference external" href="http://en.wikipedia.org/wiki/Hungarian_notation">Hungarian notation</a>. Itâs an identifier naming convention
+in which the name of a variable indicates its type.
+Hungarian notation provides the programmer with explicit knowledge of each variableâs data type.
+After the prefix the variable name should be formatted following the <code class="docutils literal notranslate"><span class="pre">PascalCase</span></code> rule.</p>
+<section id="standard-data-types">
+<h2>Standard Data Types<a class="headerlink" href="#standard-data-types" title="Permalink to this heading">Â¶</a></h2>
+<p>These data types are originally from the IEC 61131-3 standard. The extra-wide data types (64-bit) are CODESYS specific extensions.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head" rowspan="2"><p>Data type</p></th>
+<th class="head" colspan="2"><p>Range limits</p></th>
+<th class="head" rowspan="2"><p>Length</p></th>
+<th class="head" rowspan="2"><p>Prefix</p></th>
+<th class="head" rowspan="2"><p>Note</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>Lower limit</p></th>
+<th class="head"><p>Upper limit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BOOL</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TRUE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FALSE</span></code></p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x</span></code> <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td></td>
+<td colspan="2"></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">b</span></code></p></td>
+<td><p>reserved</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td colspan="2"></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n</span></code></p></td>
+<td><p>reserved</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td colspan="2"></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f</span></code></p></td>
+<td><p>reserved</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BYTE</span></code></p></td>
+<td colspan="2"></td>
+<td><p>8</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">by</span></code></p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WORD</span></code></p></td>
+<td colspan="2"></td>
+<td><p>16</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DWORD</span></code></p></td>
+<td colspan="2"></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dw</span></code></p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LWORD</span></code></p></td>
+<td colspan="2"></td>
+<td><p>64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lw</span></code></p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-odd"><td colspan="6"></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__XWORD</span></code></p></td>
+<td colspan="2"></td>
+<td><p>32/64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">xw</span></code></p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">__UXINT</span></code></p></td>
+<td colspan="2"></td>
+<td><p>32/64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uxi</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__XINT</span></code></p></td>
+<td colspan="2"></td>
+<td><p>32/64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">xi</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td colspan="6"></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SINT</span></code></p></td>
+<td><p>-128</p></td>
+<td><p>127</p></td>
+<td><p>8</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">si</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">USINT</span></code></p></td>
+<td><p>0</p></td>
+<td><p>255</p></td>
+<td><p>8</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">usi</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">INT</span></code></p></td>
+<td><p>-32.768</p></td>
+<td><p>32.767</p></td>
+<td><p>16</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">i</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">UINT</span></code></p></td>
+<td><p>0</p></td>
+<td><p>65.535</p></td>
+<td><p>16</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ui</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DINT</span></code></p></td>
+<td><p>-2.147.483.648</p></td>
+<td><p>2.147.483.647</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">di</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">UDINT</span></code></p></td>
+<td><p>0</p></td>
+<td><p>4.294.967.295</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">udi</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LINT</span></code></p></td>
+<td><p>-9.223.372.036.854.775.808</p></td>
+<td><p>9.223.372.036.854.775.807</p></td>
+<td><p>64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">li</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ULINT</span></code></p></td>
+<td><p>0</p></td>
+<td><p>18.446.744.073.709.551.615</p></td>
+<td><p>64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uli</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td colspan="6"></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">REAL</span></code></p></td>
+<td colspan="2"><p>Single-precision IEEE 754</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LREAL</span></code></p></td>
+<td colspan="2"><p>Double-precision IEEE 754</p></td>
+<td><p>64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lr</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td colspan="6"></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">STRING</span></code></p></td>
+<td colspan="2"><p>8 Bit Zeichen</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">WSTRING</span></code> <a class="footnote-reference brackets" href="#id5" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></td>
+<td colspan="2"><p>16 Bit Zeichen (UCS-2 Codierung)</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ws</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td colspan="6"></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TIME</span></code></p></td>
+<td><p>T#0</p></td>
+<td><p>T#49d17h2m37s295ms</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">t</span></code></p></td>
+<td><p>time base is a millisecond [ms]</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LTIME</span></code></p></td>
+<td><p>LTIME#0</p></td>
+<td><p>LTIME#213503d23h34m33s709ms551us615ns</p></td>
+<td><p>64</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lt</span></code></p></td>
+<td><p>time base is a nanosecond [ns]</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TIME_OF_DAY</span></code> / <code class="docutils literal notranslate"><span class="pre">TOD</span></code></p></td>
+<td><p>TOD#0:0:0.0</p></td>
+<td><p>TOD#23:59:59.999</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tod</span></code></p></td>
+<td><p>time base is a millisecond [ms]</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DATE_AND_TIME</span></code> / <code class="docutils literal notranslate"><span class="pre">DT</span></code></p></td>
+<td><p>DT#1970-1-1-0:0:0</p></td>
+<td><p>DT#2106-2-7-6:28:15</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dt</span></code></p></td>
+<td><p>time base is a second [s]</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DATE</span></code></p></td>
+<td><p>D#1970-1-1</p></td>
+<td><p>D#2106-2-7</p></td>
+<td><p>32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dat</span></code></p></td>
+<td><p>time base is 86400 seconds per day [s]</p></td>
+</tr>
+<tr class="row-even"><td colspan="6"></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ENUM</span></code></p></td>
+<td colspan="2"><p>e&lt;variable&gt;</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">e</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td colspan="6"></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">INTERFACE</span></code></p></td>
+<td colspan="2"><p>I&lt;Interface&gt;</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">I</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Interface Referenz</p></td>
+<td colspan="2"><p>itf&lt;instance&gt;</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">itf</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td colspan="6"></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">REFERENCE</span></code></p></td>
+<td colspan="2"><p>r&lt;prefix&gt;&lt;variable&gt;</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td colspan="6"></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ARRAY</span></code></p></td>
+<td colspan="2"><p>a&lt;prefix&gt;&lt;variable&gt;</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">a</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">POINTER</span></code></p></td>
+<td colspan="2"><p>p&lt;prefix&gt;&lt;variable&gt;</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">p</span></code></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="scope-marker">
+<h2>Scope Marker<a class="headerlink" href="#scope-marker" title="Permalink to this heading">Â¶</a></h2>
+<p>In addition to the type related prefixes there are some scope related prefixes defined:</p>
+<ul>
+<li><div class="line-block">
+<div class="line">Constant Variables</div>
+<div class="line">Such variables receive the prefix <code class="docutils literal notranslate"><span class="pre">c</span></code></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Global Variables</div>
+<div class="line">Such variables  receive the prefix <code class="docutils literal notranslate"><span class="pre">g</span></code></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Member Variables</div>
+<div class="line">Such variables  receive the prefix <code class="docutils literal notranslate"><span class="pre">_</span></code></div>
+</div>
+</li>
+</ul>
+<p>Some examples of possible combinations:</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION_BLOCK</span> <span class="n">SendData</span>
+<span class="k">VAR</span>
+    <span class="n">_pabyTelegramData</span><span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="k">ARRAY</span> <span class="l">[0..7]</span> <span class="k">OF</span> <span class="kt">BYTE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+
+<span class="k">VAR</span> <span class="k">CONSTANT</span>
+    <span class="n">c_uiSyncID</span><span class="p">:</span> <span class="kt">UINT</span> <span class="p">:=</span> <span class="mh">16#80</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+
+<span class="k">VAR_GLOBAL</span>
+    <span class="n">g_iTest</span><span class="p">:</span> <span class="kt">INT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+
+<span class="k">VAR_GLOBAL</span> <span class="k">CONSTANT</span>
+    <span class="n">gc_dwExample</span><span class="p">:</span> <span class="kt">DWORD</span> <span class="p">:=</span> <span class="mh">DWORD#16#12345678</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</section>
+<section id="safety-data-types">
+<h2>Safety Data Types<a class="headerlink" href="#safety-data-types" title="Permalink to this heading">Â¶</a></h2>
+<p>From the first part of the PLCopen document of the Technical Committee 5, titled âConcepts and Function Blocks for Safety Functionsâ, the following conventions for Safety-relevant variables as well as for Safety-relevant in-/outputs of functions and function blocks are taken and applied CODESYS-specifically.
+The main prefix âS_â, prescribed by PLCopen, is supplemented by the prefix of the base data type - taken from the table above -  to the recommended CODESYS Safety prefix.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head" rowspan="2"><p>Data type</p></th>
+<th class="head" colspan="2"><p>Range limits</p></th>
+<th class="head" rowspan="2"><p>Length</p></th>
+<th class="head" rowspan="2"><p>Prefix</p></th>
+<th class="head" rowspan="2"><p>Note</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>lower limit</p></th>
+<th class="head"><p>upper limit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p>SAFEBOOL</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td></td>
+<td><p>S_x</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SAFEBYTE</p></td>
+<td colspan="2"></td>
+<td><p>8</p></td>
+<td><p>S_by</p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-odd"><td><p>SAFEWORD</p></td>
+<td colspan="2"></td>
+<td><p>16</p></td>
+<td><p>S_w</p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-even"><td><p>SAFEDWORD</p></td>
+<td colspan="2"></td>
+<td><p>32</p></td>
+<td><p>S_dw</p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-odd"><td><p>SAFELWORD</p></td>
+<td colspan="2"></td>
+<td><p>64</p></td>
+<td><p>S_lw</p></td>
+<td><p>Bitstring not intended for
+arithmetic operations</p></td>
+</tr>
+<tr class="row-even"><td><p>SAFESINT</p></td>
+<td><p>-128</p></td>
+<td><p>127</p></td>
+<td><p>8</p></td>
+<td><p>S_si</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SAFEUSINT</p></td>
+<td><p>0</p></td>
+<td><p>255</p></td>
+<td><p>8</p></td>
+<td><p>S_ui</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SAFEINT</p></td>
+<td><p>-32.768</p></td>
+<td><p>32.767</p></td>
+<td><p>16</p></td>
+<td><p>S_i</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SAFEUINT</p></td>
+<td><p>0</p></td>
+<td><p>65.535</p></td>
+<td><p>16</p></td>
+<td><p>S_ui</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SAFEDINT</p></td>
+<td><p>-2.147.483.648</p></td>
+<td><p>2.147.483.647</p></td>
+<td><p>32</p></td>
+<td><p>S_di</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SAFEUDINT</p></td>
+<td><p>0</p></td>
+<td><p>4.294.967.295</p></td>
+<td><p>32</p></td>
+<td><p>S_udi</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SAFELINT</p></td>
+<td><p>-9.223.372.036.854.775.808</p></td>
+<td><p>9.223.372.036.854.775.807</p></td>
+<td><p>64</p></td>
+<td><p>S_li</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SAFEULINT</p></td>
+<td><p>0</p></td>
+<td><p>18.446.744.073.709.551.615</p></td>
+<td><p>64</p></td>
+<td><p>S_uli</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td colspan="6"></td>
+</tr>
+<tr class="row-odd"><td><p>SAFETIME</p></td>
+<td><p>T#0</p></td>
+<td><p>T#49d17h2m37s295m</p></td>
+<td></td>
+<td><p>S_t</p></td>
+<td><p>time base is a millisecond [ms]</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The <strong>CODESYS Professional Developer Edition</strong> provides a tool called <em>Static Code Analysis</em>. A <a class="reference download internal" download="" href="_downloads/37a3d6e701f02483e51c5f6a61f1ceac/Standard.csa"><code class="xref download docutils literal notranslate"><span class="pre">rule</span> <span class="pre">set</span></code></a> is
+included for automatically checking the naming convention described above.</div>
+<div class="line">See: <a class="reference internal" href="static_analysis.html#static-analysis"><span class="std std-ref">Static Analysis</span></a></div>
+</div>
+</div>
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="sa" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference internal" href="static_analysis.html#recommendedsa"><span class="std std-ref">Recommended Rules for Static Analysis</span></a></p>
+</aside>
+<aside class="footnote brackets" id="id4" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>For <code class="docutils literal notranslate"><span class="pre">BOOL</span></code> variables deliberately <code class="docutils literal notranslate"><span class="pre">x</span></code> is chosen as prefix in order to get a distinction against <code class="docutils literal notranslate"><span class="pre">BYTE</span></code> and to meet the viewpoint of an IEC programmer (compare addressing <code class="docutils literal notranslate"><span class="pre">%IX0.0</span></code>).</p>
+</aside>
+<aside class="footnote brackets" id="id5" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>The <code class="docutils literal notranslate"><span class="pre">WSTRING</span></code> type is not optimal for systems with a small footprint. Please avoid this data type wherever possible!</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

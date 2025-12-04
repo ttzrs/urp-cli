@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DNP3 Library Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="DNP3 V1.0.0.0" href="#"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="https://www.helpme-codesys.com" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="DNP3/fld-DNP3.html">DNP3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Doc/fld-Doc.html">Doc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/examplesrst.html">Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/introrst.html">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/introrst.html#outstation-data-model-and-data-points">Outstation data model and data points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/introrst.html#outstation-data-point-inputs-outputs-versa-configuration">Outstation data point - inputs / outputs versa configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/introrst.html#outstation-data-point-inputs-outputs-of-type-anynumber">Outstation data point inputs / outputs of type AnyNumber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/introrst.html#outstation-data-flow">Outstation data flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Doc/outlookrst.html">Outlook</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Enums/fld-Enums.html">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Enums/DoubleBitState.html">DoubleBitState (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Enums/Error.html">Error (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Enums/PointType.html">PointType (Enum)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Function-Blocks/Groups/fld-Groups.html">Groups</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupAnalogInputDeadbands.html">GroupAnalogInputDeadbands (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupAnalogInputs.html">GroupAnalogInputs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupAnalogOutputs.html">GroupAnalogOutputs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupBinaryCounters.html">GroupBinaryCounters (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupBinaryInputs.html">GroupBinaryInputs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupBinaryOutputs.html">GroupBinaryOutputs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupDoubleBitInputs.html">GroupDoubleBitInputs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupFrozenCounters.html">GroupFrozenCounters (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/fld-Outstation.html">Outstation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/ETHdeviceHelper.html">ETHdeviceHelper (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/Outstation.html">Outstation (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfiguration.html">OutstationConfiguration (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfigurationCOM.html">OutstationConfigurationCOM (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfigurationIP.html">OutstationConfigurationIP (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationDataModel.html">OutstationDataModel (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Function-Blocks/Points/fld-Points.html">Points</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogInput.html">AnalogInput (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogInputDeadband.html">AnalogInputDeadband (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogOutput.html">AnalogOutput (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryCounter.html">BinaryCounter (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryInput.html">BinaryInput (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryOutput.html">BinaryOutput (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/DoubleBitInput.html">DoubleBitInput (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/Point.html">Point (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Function-Blocks/Points/PointWithFlags.html">PointWithFlags (FunctionBlock)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Functions/fld-Functions.html">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Functions/AnyNumber/fld-AnyNumber.html">AnyNumber</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberArithmetic.html">AnyNumberArithmetic (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberAssign.html">AnyNumberAssign (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberAssignIfNotEqual.html">AnyNumberAssignIfNotEqual (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberCheck.html">AnyNumberCheck (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberCompare.html">AnyNumberCompare (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberMaximum.html">AnyNumberMaximum (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberMinimum.html">AnyNumberMinimum (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberToString.html">AnyNumberToString (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberTypeEquals.html">AnyNumberTypeEquals (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/AnyNumberTypeToString.html">AnyNumberTypeToString (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Functions/AnyNumber/IEC_TMWTYPES_ANALOG_TYPE_ToString.html">IEC_TMWTYPES_ANALOG_TYPE_ToString (Function)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/GlobalConstants/fld-GlobalConstants.html">GlobalConstants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/GlobalConstants/ConstantsInternal.html">ConstantsInternal (GVL)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Interfaces/fld-Interfaces.html">Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupAnalogInputDeadbands.html">IGroupAnalogInputDeadbands (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupAnalogInputDeadbands/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupAnalogInputs.html">IGroupAnalogInputs (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupAnalogInputs/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupAnalogOutputs.html">IGroupAnalogOutputs (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupAnalogOutputs/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupBinaryCounters.html">IGroupBinaryCounters (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupBinaryCounters/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupBinaryInputs.html">IGroupBinaryInputs (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupBinaryInputs/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupBinaryOutputs.html">IGroupBinaryOutputs (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupBinaryOutputs/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupDoubleBitInputs.html">IGroupDoubleBitInputs (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupDoubleBitInputs/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IGroupFrozenCounters.html">IGroupFrozenCounters (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IGroupFrozenCounters/GetPointData.html">GetPointData (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IOutstation.html">IOutstation (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstation/IdToString.html">IdToString (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstation/LogOptions.html">LogOptions (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstation/Name.html">Name (Property)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IOutstationConfiguration.html">IOutstationConfiguration (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationConfiguration/GetEnableUnsolicitedResponses.html">GetEnableUnsolicitedResponses (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IOutstationConfigurationCOM.html">IOutstationConfigurationCOM (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IOutstationConfigurationIP.html">IOutstationConfigurationIP (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Interfaces/IOutstationDataModel.html">IOutstationDataModel (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupAnalogInputDeadbands.html">GetGroupAnalogInputDeadbands (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupAnalogInputs.html">GetGroupAnalogInputs (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupAnalogOutputs.html">GetGroupAnalogOutputs (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupBinaryCounters.html">GetGroupBinaryCounters (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupBinaryInputs.html">GetGroupBinaryInputs (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupBinaryOutputs.html">GetGroupBinaryOutputs (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Interfaces/pou-IOutstationDataModel/GetGroupDoubleBitInputs.html">GetGroupDoubleBitInputs (Method)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Parameter/fld-Parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Parameter/Parameter.html">Parameter (ParamList)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Types/fld-Types.html">Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Types/AnyNumber/fld-AnyNumber.html">AnyNumber</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumber.html">AnyNumber (Struct)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumberPointerUnion.html">AnyNumberPointerUnion (Union)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumberTypes.html">AnyNumberTypes (Enum)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumberUnion.html">AnyNumberUnion (Union)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumberValueUnion.html">AnyNumberValueUnion (Union)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Types/COMParity.html">COMParity (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Types/COMStopBits.html">COMStopBits (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Types/DNP3_String.html">DNP3_String (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DNP3/Types/LoggingOptions.html">LoggingOptions (Enum)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Library-Information/fld-Library-Information.html">Library Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersion.html">GetLibVersion (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersionNumber.html">GetLibVersionNumber (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/IsLibReleased.html">IsLibReleased (Function)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">File and Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">Library Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#slicense">3SLicense</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-identification">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-properties">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpdnp3">CmpDNP3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id1">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id2">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmperrors2-interfaces">CmpErrors2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id3">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id4">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmplog">CmpLog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id5">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id6">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#component-manager">Component Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id7">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id8">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#iodrvethernet-interfaces">IoDrvEthernet Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id9">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id10">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#iodrvutility">IoDrvUtility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id11">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id12">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#iostandard">IoStandard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id13">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id14">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#standard">Standard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id15">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id16">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#syssocket">SysSocket</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id17">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id18">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systypes2-interfaces">SysTypes2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id19">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id20">Library Properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="#">DNP3</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>DNP3 Library Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="dnp3-library-documentation">
+<span id="index"></span><h1>DNP3 Library Documentation<a class="headerlink" href="#dnp3-library-documentation" title="Permalink to this heading">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Company<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CODESYS</p>
+</dd>
+<dt class="field-even">Title<span class="colon">:</span></dt>
+<dd class="field-even"><p>DNP3</p>
+</dd>
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1.0.0.0</p>
+</dd>
+<dt class="field-even">Categories<span class="colon">:</span></dt>
+<dd class="field-even"><p>Communication Protocols</p>
+</dd>
+<dt class="field-odd">Namespace<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DNP3</p>
+</dd>
+<dt class="field-even">Author<span class="colon">:</span></dt>
+<dd class="field-even"><p>CODESYS Development GmbH</p>
+</dd>
+<dt class="field-odd">Placeholder<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DNP3</p>
+</dd>
+</dl>
+<section id="description-1">
+<span id="index-description"></span><h2>Description <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="headerlink" href="#description-1" title="Permalink to this heading">¶</a></h2>
+<p>DNP3 library is the library to work with DNP3 on application level.</p>
+</section>
+</section>
+<section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h1>
+<p>The CODESYS DNP3 library is intended to support the application development using the DNP3 protocol according to IEEE Std 1815-2012.</p>
+<p>It provides function blocks for:</p>
+<ul class="simple">
+<li><p>Outstation <a class="reference internal" href="DNP3/Function-Blocks/Outstation/Outstation.html#outstation"><span class="std std-ref">Outstation</span></a></p></li>
+<li><p>Outstation configuration <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfiguration.html#outstationconfiguration"><span class="std std-ref">OutstationConfiguration</span></a></p></li>
+<li><p>Outstation data model <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationDataModel.html#outstationdatamodel"><span class="std std-ref">OutstationDataModel</span></a></p></li>
+<li><p>Outstation data points <a class="reference internal" href="DNP3/Function-Blocks/Points/Point.html#point"><span class="std std-ref">Point</span></a> and specific <a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogInput.html#analoginput"><span class="std std-ref">AnalogInput</span></a>, <a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryInput.html#binaryinput"><span class="std std-ref">BinaryInput</span></a> etc.</p></li>
+<li><p>Outstation data point groups <a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupAnalogInputs.html#groupanaloginputs"><span class="std std-ref">GroupAnalogInputs</span></a>, <a class="reference internal" href="DNP3/Function-Blocks/Groups/GroupBinaryInputs.html#groupbinaryinputs"><span class="std std-ref">GroupBinaryInputs</span></a> etc.</p></li>
+</ul>
+</section>
+<section id="outstation-data-model-and-data-points">
+<h1>Outstation data model and data points<a class="headerlink" href="#outstation-data-model-and-data-points" title="Permalink to this heading">¶</a></h1>
+<p>The following outstation data point types are supported:</p>
+<ul class="simple">
+<li><p>Analog Input <a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogInput.html#analoginput"><span class="std std-ref">AnalogInput</span></a></p></li>
+<li><p>Analog Output <a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogOutput.html#analogoutput"><span class="std std-ref">AnalogOutput</span></a></p></li>
+<li><p>Binary Counter <a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryCounter.html#binarycounter"><span class="std std-ref">BinaryCounter</span></a></p></li>
+<li><p>Binary Input <a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryInput.html#binaryinput"><span class="std std-ref">BinaryInput</span></a></p></li>
+<li><p>Binary Output <a class="reference internal" href="DNP3/Function-Blocks/Points/BinaryOutput.html#binaryoutput"><span class="std std-ref">BinaryOutput</span></a></p></li>
+<li><p>Double Bit Input <a class="reference internal" href="DNP3/Function-Blocks/Points/DoubleBitInput.html#doublebitinput"><span class="std std-ref">DoubleBitInput</span></a></p></li>
+</ul>
+<p>An application can setup an <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationDataModel.html#outstationdatamodel"><span class="std std-ref">OutstationDataModel</span></a> describing a number of data points of the supported types.</p>
+</section>
+<section id="outstation-data-point-inputs-outputs-versa-configuration">
+<h1>Outstation data point - inputs / outputs versa configuration<a class="headerlink" href="#outstation-data-point-inputs-outputs-versa-configuration" title="Permalink to this heading">¶</a></h1>
+<p>Outstation data points do work with two types of input variables:</p>
+<ul class="simple">
+<li><p>configuration (for example BinaryInput.description)</p></li>
+<li><p>input / output (for example BinaryInput.pValue or AnalogInput.lowLimit)</p></li>
+</ul>
+<p>Data point configuration is fixed (sampled) at Outstation startup (xEnable FALSE –&gt; TRUE) - so changes to data point configuration after Outstation startup are ignored.</p>
+<p>Data point inputs / outputs are intended to expose application data to the DNP3 protocol - so they are processed after Outstation startup accordingly.</p>
+</section>
+<section id="outstation-data-point-inputs-outputs-of-type-anynumber">
+<h1>Outstation data point inputs / outputs of type AnyNumber<a class="headerlink" href="#outstation-data-point-inputs-outputs-of-type-anynumber" title="Permalink to this heading">¶</a></h1>
+<p>Some data point inputs / outputs are implemented as VAR_INPUT / VAR_IN_OUT (data) using <a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumber.html#anynumber"><span class="std std-ref">AnyNumber</span></a>,
+to support easy use of certain data types - for example <a class="reference internal" href="DNP3/Function-Blocks/Points/AnalogInput.html#analoginput"><span class="std std-ref">AnalogInput</span></a>.
+<a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumber.html#anynumber"><span class="std std-ref">AnyNumber</span></a> requires to use support functions for compare, arithmetic etc. - see documentation of <a class="reference internal" href="DNP3/Types/AnyNumber/AnyNumber.html#anynumber"><span class="std std-ref">AnyNumber</span></a>.</p>
+</section>
+<section id="outstation-data-flow">
+<h1>Outstation data flow<a class="headerlink" href="#outstation-data-flow" title="Permalink to this heading">¶</a></h1>
+<p>Outstation data points of same type are grouped in a data point group.
+Data point groups needed for a specific Outstation do specify the <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationDataModel.html#outstationdatamodel"><span class="std std-ref">OutstationDataModel</span></a> which is connected to <a class="reference internal" href="DNP3/Function-Blocks/Outstation/Outstation.html#outstation"><span class="std std-ref">Outstation</span></a> input dataModel.
+A specific <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfiguration.html#outstationconfiguration"><span class="std std-ref">OutstationConfiguration</span></a> (actually either <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfigurationIP.html#outstationconfigurationip"><span class="std std-ref">OutstationConfigurationIP</span></a> or <a class="reference internal" href="DNP3/Function-Blocks/Outstation/OutstationConfigurationCOM.html#outstationconfigurationcom"><span class="std std-ref">OutstationConfigurationCOM</span></a>) is also connected to <a class="reference internal" href="DNP3/Function-Blocks/Outstation/Outstation.html#outstation"><span class="std std-ref">Outstation</span></a> input configuration.
+If the <a class="reference internal" href="DNP3/Function-Blocks/Outstation/Outstation.html#outstation"><span class="std std-ref">Outstation</span></a> is enabled, the dataModel and the configuration is checked for consistency.</p>
+<img alt="_images/OutstationCFC.png" src="_images/OutstationCFC.png" />
+</section>
+<section id="example">
+<h1>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h1>
+<p>The CODESYS DNP3 package includes an example how to work with <a class="reference internal" href="DNP3/Function-Blocks/Outstation/Outstation.html#outstation"><span class="std std-ref">Outstation</span></a> in ST and CFC.
+The example gets installed at your local hard drive during package installation - default is C:\\Users\\your-username\\CODESYS DNP3\\x.x.x.x\\Projects.</p>
+</section>
+<section id="outlook">
+<h1>Outlook<a class="headerlink" href="#outlook" title="Permalink to this heading">¶</a></h1>
+<p>Future versions of CODESYS DNP3 will provide function blocks for:</p>
+<ul class="simple">
+<li><p>Outstation data point event generation</p></li>
+<li><p>Master</p></li>
+</ul>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="DNP3/fld-DNP3.html">DNP3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Doc/fld-Doc.html">Doc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Enums/fld-Enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Functions/fld-Functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/GlobalConstants/fld-GlobalConstants.html">GlobalConstants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Interfaces/fld-Interfaces.html">Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Parameter/fld-Parameter.html">Parameter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DNP3/Types/fld-Types.html">Types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Library-Information/fld-Library-Information.html">Library Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersion.html">GetLibVersion (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersionNumber.html">GetLibVersionNumber (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/IsLibReleased.html">IsLibReleased (Function)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<div class="line-block">
+<div class="line">Based on DNP3.library, last modified 04.10.2023, 10:20:41. LibDoc 4.4.0.0-b.37</div>
+<div class="line">The content file DNP3.clean.json was generated with CODESYS V3.5 SP16 Patch 3 on 04.10.2023, 10:20:43.</div>
+</div>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

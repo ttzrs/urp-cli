@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['de'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Allgemeine Beschreibung ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Allgemeine Beschreibung ", 
+"snippet" : "Das Package CODESYS Base Libraries enthält eine Sammlung von Bibliotheken, die die Entwicklung weiterer Bibliotheken und Applikationen vereinfachen. Diese Bibliotheken wurden in den Versionen <= 3.5.20.0 von CODESYS Development System noch direkt mit installiert. Sehen Sie die Beschreibung einiger B...", 
+"body" : "Das Package CODESYS Base Libraries enthält eine Sammlung von Bibliotheken, die die Entwicklung weiterer Bibliotheken und Applikationen vereinfachen. Diese Bibliotheken wurden in den Versionen <= 3.5.20.0 von CODESYS Development System noch direkt mit installiert. Sehen Sie die Beschreibung einiger Beispielprojekte zur Verwendung dieser Basisbibliotheken: Beispiel: Element Collections Beispiel: PLC Chat Net Base Services Beispiel: Net Base Services " }, 
+{ "title" : "Die folgenden Bibliotheken werden mit dem Package bereitgestellt ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Die folgenden Bibliotheken werden mit dem Package bereitgestellt ", 
+"snippet" : "Asynchronous Job Manager : Die Bibliothek enthält Funktionsbausteine zum optimierten Abarbeiten asynchroner Tasks. Common Behaviour Model : Die Bibliothek enthält eine objektorientierte Implementierung des Common Behaviour Models. Element Collections : Die Bibliothek enthält Funktionsbausteine und S...", 
+"body" : "Asynchronous Job Manager : Die Bibliothek enthält Funktionsbausteine zum optimierten Abarbeiten asynchroner Tasks. Common Behaviour Model : Die Bibliothek enthält eine objektorientierte Implementierung des Common Behaviour Models. Element Collections : Die Bibliothek enthält Funktionsbausteine und Schnittstellen für das Speichern von Objektreferenzen in vordefinierten Datenstrukturen wie Listen, Queues, Stacks und Hashtables (\"Collections\"). Net Base Services : Die Bibliothek implementiert einen TCP-Server, TCP-Client und ein UDP-Peer als eine Sammlung von Basisdiensten für Ethernet. Segmented Buffer Manager : Die Bibliothek enthält Funktionen für die Handhabung verschiedener Segmente eines großen Puffers, das Zusammenfügen von Segmenten oder das Aufteilen von Puffern in Segmente. Dies geschieht, ohne dass der Inhalt ständig kopiert wird. Die Funktionen versuchen, die Segmente zu referenzieren, anstatt sie zu kopieren, und verwalten die Segmente in doppelt verknüpften Listen. SharedData Utilities for MultiCore : Die Bibliothek enthält Datenstrukturen und Funktionen für die Sicherstellung der Datenkonsistenz in einer Multicore-Umgebung. " }, 
+{ "title" : "Fehlersuche- und behebung ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Fehlersuche- und behebung ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Fehlersuche- und behebung \/ Net Base Services ", 
+"snippet" : "Der Verbindungsabbruch einer bestehenden Verbindung zwischen Server und Client, beispielsweise durch Abziehen des Ethernet-Kabels, wird von der Steuerung nicht erkannt. Ein Kabelbruch kann bei TCP\/IP nur dadurch erkannt werden, dass Client bzw. Server erkennen, dass für eine bestimmte Zeit (Timeout)...", 
+"body" : "Der Verbindungsabbruch einer bestehenden Verbindung zwischen Server und Client, beispielsweise durch Abziehen des Ethernet-Kabels, wird von der Steuerung nicht erkannt. Ein Kabelbruch kann bei TCP\/IP nur dadurch erkannt werden, dass Client bzw. Server erkennen, dass für eine bestimmte Zeit (Timeout) ein erwartetes Telegramm ausbleibt. Das Protokoll muss daher so gestaltet sein, dass regelmäßig Telegramme zwischen Client und Server ausgetauscht werden. Wenn eine Zeitüberschreitung auftritt, können beide Seiten die Verbindung unabhängig voneinander schließen. Die Verbindung kann dann wieder für einen neuen Verbindungsaufbau genutzt werden. " }
+]
+$(document).trigger('search.ready');
+});

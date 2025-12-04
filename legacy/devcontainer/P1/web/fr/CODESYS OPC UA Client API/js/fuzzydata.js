@@ -1,0 +1,8 @@
+$(document).ready(function () {indexDict['fr'] = [{ "title" : "CODESYS OPC UA Client ", 
+"url" : "_uacapi_start_page.html", 
+"breadcrumbs" : "CODESYS OPC UA Client API \/ CODESYS OPC UA Client ", 
+"snippet" : "Le CODESYS OPC UA Client le module complémentaire fournit OPC UA Client.library bibliothèque. La bibliothèque contient des blocs fonctionnels permettant de travailler avec un serveur tel que défini par la Fondation OPC UA La bibliothèque ne peut être utilisée que sur des contrôleurs dotés d'une lice...", 
+"body" : "Le CODESYS OPC UA Client le module complémentaire fournit OPC UA Client.library bibliothèque. La bibliothèque contient des blocs fonctionnels permettant de travailler avec un serveur tel que défini par la Fondation OPC UA La bibliothèque ne peut être utilisée que sur des contrôleurs dotés d'une licence activée CODESYS OPC UA Client fonctionnalité. CODESYS OPC UA Client contient uniquement le OPC UA Client.library bibliothèque de blocs fonctionnels. Un configurateur, comme c'est le cas pour les autres protocoles de bus de terrain, n'est pas implémenté Le CODESYS Installer peut être utilisé pour télécharger et installer le module complémentaire : Commencer le téléchargement . Pour des informations générales sur la communication avec un serveur OPC UA, le contenu de la bibliothèque et comment l'utiliser, consultez le description de l'exemple de projet . Pour plus d'informations, consultez les rubriques suivantes : Client OPC UA documentation de bibliothèque et Serveur OPC UA . " }
+]
+$(document).trigger('search.ready');
+});

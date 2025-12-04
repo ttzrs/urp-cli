@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['it'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Descrizione generale ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Descrizione generale ", 
+"snippet" : "IL CODESYS IIoT Libraries SL Il pacchetto contiene numerose librerie per la comunicazione in ambiente IIOT. Sono supportati diversi protocolli, come MQTT e HTTPS. Il pacchetto fornisce inoltre strumenti per la codifica e decodifica delle strutture dati (ad esempio INI, CSV, JSON e XML) e blocchi fun...", 
+"body" : "IL CODESYS IIoT Libraries SL Il pacchetto contiene numerose librerie per la comunicazione in ambiente IIOT. Sono supportati diversi protocolli, come MQTT e HTTPS. Il pacchetto fornisce inoltre strumenti per la codifica e decodifica delle strutture dati (ad esempio INI, CSV, JSON e XML) e blocchi funzione per la comunicazione diretta con i servizi cloud dei singoli fornitori (ad esempio AWS e Azure). Dopo l'installazione del pacchetto troverete progetti di esempio per l'utilizzo delle librerie nella directory di installazione sotto IIoT Libraries SL\\Examples . Esempio: raccolte di elementi Esempio: servizi base PLC Chat Net Esempio: Net Base Services " }, 
+{ "title" : "Con il pacchetto vengono fornite le seguenti librerie: ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Con il pacchetto vengono fornite le seguenti librerie: ", 
+"snippet" : "Asynchronous Job Manager : La libreria contiene blocchi funzionali per l'elaborazione ottimizzata di task asincroni. Common Behaviour Model : La libreria contiene un'implementazione orientata agli oggetti del modello di comportamento comune. Element Collections : La libreria contiene blocchi funzion...", 
+"body" : "Asynchronous Job Manager : La libreria contiene blocchi funzionali per l'elaborazione ottimizzata di task asincroni. Common Behaviour Model : La libreria contiene un'implementazione orientata agli oggetti del modello di comportamento comune. Element Collections : La libreria contiene blocchi funzione e interfacce per salvare riferimenti a oggetti in strutture dati predefinite, come elenchi, code, stack e tabelle hash (\"raccolte\"). Net Base Services : La libreria implementa un server TCP, un client TCP e un peer UDP come raccolta di servizi di base per Ethernet. Segmented Buffer Manager : La libreria contiene funzioni per la gestione di diversi segmenti di un buffer di grandi dimensioni, l'unione di segmenti o la suddivisione dei buffer in segmenti. Questo viene fatto senza che i contenuti vengano costantemente copiati. Le funzioni provano a fare riferimento ai segmenti invece di copiarli e gestiscono i segmenti in elenchi con doppio collegamento. SharedData Utilities for MultiCore : La libreria contiene strutture dati e funzioni per garantire la coerenza dei dati in un ambiente multicore. " }, 
+{ "title" : "Rilevamento e correzione degli errori ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Rilevamento e correzione degli errori ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Rilevamento e correzione degli errori \/ Net Base Services ", 
+"snippet" : "L'interruzione di una connessione esistente tra server e client (ad esempio scollegando il cavo Ethernet) non viene rilevata dal controller. Nel caso di TCP\/IP, la disconnessione di un cavo può essere rilevata solo se il client o il server rileva che un telegramma previsto manca per un certo periodo...", 
+"body" : "L'interruzione di una connessione esistente tra server e client (ad esempio scollegando il cavo Ethernet) non viene rilevata dal controller. Nel caso di TCP\/IP, la disconnessione di un cavo può essere rilevata solo se il client o il server rileva che un telegramma previsto manca per un certo periodo di tempo (timeout). Il protocollo deve quindi essere progettato in modo tale che i telegrammi vengano scambiati regolarmente tra il client e il server. Quando si verifica un timeout, entrambe le parti possono chiudere la connessione indipendentemente l'una dall'altra. La connessione può quindi essere utilizzata di nuovo per stabilire una nuova connessione. " }
+]
+$(document).trigger('search.ready');
+});

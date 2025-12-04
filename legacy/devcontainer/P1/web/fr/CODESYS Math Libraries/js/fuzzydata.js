@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['fr'] = [{ "title" : "CODESYS Math Libraries ", 
+"url" : "_mathlib_start_page.html", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Présentation ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018560416181", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Présentation ", 
+"snippet" : "CODESYS Math Libraries comprend le Matrice bibliothèque et interne Utils à virgule flottante bibliothèque. Matrix la bibliothèque prend en charge les matrices de dimensions arbitraires et les opérations mathématiques de base sur celles-ci. Les opérations suivantes sont prises en charge : addition, m...", 
+"body" : "CODESYS Math Libraries comprend le Matrice bibliothèque et interne Utils à virgule flottante bibliothèque. Matrix la bibliothèque prend en charge les matrices de dimensions arbitraires et les opérations mathématiques de base sur celles-ci. Les opérations suivantes sont prises en charge : addition, multiplication, résolution d'équations linéaires, inversion et calcul du déterminant " }, 
+{ "title" : "Description du produit ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018604946206", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Description du produit ", 
+"snippet" : "Le Matrix La bibliothèque fournit un type de données permettant de définir des matrices de dimensions arbitraires et des fonctions permettant d'effectuer des opérations de base sur des matrices....", 
+"body" : "Le Matrix La bibliothèque fournit un type de données permettant de définir des matrices de dimensions arbitraires et des fonctions permettant d'effectuer des opérations de base sur des matrices. " }, 
+{ "title" : "Types de données et fonctions ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018606155652", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Description du produit \/ Types de données et fonctions ", 
+"snippet" : "Les matrices sont définies à l'aide de mtx.Matrix type de données. mtx.Matrix le type de données enregistre une matrice sous ARRAY de LREAL . Le tableau se présente sous la forme d'une ligne principale Les opérations mathématiques de base sont fournies sous forme de fonctions qui ont 3 matrices comm...", 
+"body" : "Les matrices sont définies à l'aide de mtx.Matrix type de données. mtx.Matrix le type de données enregistre une matrice sous ARRAY de LREAL . Le tableau se présente sous la forme d'une ligne principale Les opérations mathématiques de base sont fournies sous forme de fonctions qui ont 3 matrices comme VAR_IN_OUT argument : résultat, source, cible. Par exemple, la fonction d'addition de matrices possède l'interface suivante : (* Adds two matrices : C := A + B. \n* A, B, and C must have identical dimensions.\n* Note: A, B, and C may all be the same matrix. *)\nFUNCTION AddM : ResultCode\nVAR_IN_OUT\n C : Matrix ; (* The result *)\n A : Matrix ; (* The first summand *)\n B : Matrix ; (* The second summand *)\nEND_VAR La bibliothèque propose les opérations mathématiques suivantes : Ajout de matrices (élément par élément) : AddM Soustraction de matrices (élément par élément) : SubM Multiplication de matrices (élément par élément) : TimesM Division des matrices (élément par élément) : RDivideM Multiplication scalaire d'une matrice : MultMS Multiplication de matrices : MultM Transposition d'une matrice : TransposeM Il existe également des fonctions auxiliaires pour initialiser des matrices, copier et accéder à des éléments : Initialiser une matrice avec ARRAY de valeurs : InitMatrix Copier ARRAY éléments à mettre en matrice : CopyElems Copiez des matrices de même dimension : CopyMatrix Initialisez en tant que matrice d'identité : IdentityMatrix Initialisez en tant que matrice nulle : ZeroMatrix Éléments de lecture et d'écriture : Elem , SetElem Des opérations plus complexes sont également proposées : Résoudre une équation linéaire A * X = B : SolveLU Inverser une matrice quadratique : InvertLU Calculez le déterminant d'une matrice quadratique : DeterminantLU Déterminez un LU décomposition (cette décomposition sert de base aux trois fonctions ci-dessus) : DecomposeLU " }, 
+{ "title" : "Gestion de la mémoire ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018653767388", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Description du produit \/ Gestion de la mémoire ", 
+"snippet" : "L'utilisateur est responsable de la gestion de la mémoire. Les matrices seront initialisées avec un pointeur vers la mémoire (via InitMatrix fonction). Dans certains cas, il est possible pour l'utilisateur de fournir une mémoire adaptée. En outre, les blocs fonctionnels auxiliaires MatrixS , ColVect...", 
+"body" : "L'utilisateur est responsable de la gestion de la mémoire. Les matrices seront initialisées avec un pointeur vers la mémoire (via InitMatrix fonction). Dans certains cas, il est possible pour l'utilisateur de fournir une mémoire adaptée. En outre, les blocs fonctionnels auxiliaires MatrixS , ColVectorS , et RowVectorS peut être utilisé pour initialiser des matrices avec des tableaux de taille constante. Ils mettent en œuvre le IMatrixAllocator interface qui est également disponible pour l'utilisateur. " }
+]
+$(document).trigger('search.ready');
+});

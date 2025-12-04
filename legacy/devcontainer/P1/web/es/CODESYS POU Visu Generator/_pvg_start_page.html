@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Buscar"></meta><meta name="search.results" content="Resultados de la bÃºsqueda"></meta><meta name="no.search.results" content="No se han encontrado resultados"></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'es';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>CODESYS POU Visu Generator</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V1.0.0.0"></meta><link rel="prev" href="index.html" title="CODESYS POU Visu Generator"></link><link rel="next" href="_pvg_start_page.html#UUID-22a83d9d-042d-8266-f215-334a372e3950" title="CreaciÃ³n de una visualizaciÃ³n para una POU en SFC o LD2"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=es"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Buscar" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS POU Visu Generator</a></li><li class="breadcrumb-node"><span class="phrase">CODESYS POU Visu Generator</span></li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">Anterior</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_pvg_start_page.html#UUID-22a83d9d-042d-8266-f215-334a372e3950">Siguiente</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="es" lang="es" dir="ltr" class="section" data-origin-id="UUID-c4b2e825-db66-9650-5a1c-c608526a6b4d" data-permalink="_pvg_start_page.html" data-topic-level="1" data-relative-prefix="" data-time-modified="November 4, 2025" data-publication-date="" id="UUID-3e01cc58-2a7d-327b-78f6-8ca623f561b0"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both"><span class="phrase">CODESYS POU Visu Generator</span></h1></div></div></div><p><span class="phrase">CODESYS POU Visu Generator</span> es un complemento para <span class="phrase">CODESYS Development System</span>.</p><p>Con este complemento, puede generar visualizaciones basadas en POU programadas en SFC o LD2.</p><p>Puedes usar el <span class="phrase">CODESYS Installer</span> para instalar y actualizar el <span class="phrase">CODESYS POU Visu Generator</span> complemento.</p><section xml:lang="es" lang="es" dir="ltr" class="section" data-origin-id="UUID-fdd05842-8723-aac5-73a4-ee715b4022c6" data-time-modified="November 4, 2025" data-publication-date="" id="UUID-22a83d9d-042d-8266-f215-334a372e3950"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">CreaciÃ³n de una visualizaciÃ³n para una POU en SFC o LD2</h2></div></div></div><p>Para POU (<code class="code">PROGRAM</code> o <code class="code">FUNCTION_BLOCK</code>) programado en el <span class="guilabel">GrÃ¡fico de funciones secuenciales (SFC)</span> o <span class="guilabel">Diagrama de escalera (LD2)</span> lenguaje de implementaciÃ³n, puede crear un objeto de visualizaciÃ³n que muestre un diagrama de bloques adecuado.</p><p>Si desea tener este tipo de visualizaciÃ³n, entonces el <span class="guilabel">Genere visualizaciones SFC/LD</span> El comando puede ayudarlo con esto.</p><section xml:lang="es" lang="es" dir="ltr" class="section" data-origin-id="UUID-656f7095-995d-e216-430b-85d027708248" data-time-modified="November 4, 2025" data-publication-date="" id="UUID-d0409bfc-911d-4924-b44d-a70354f5bf71"><div class="titlepage"><div><div class="title"><h3 class="title">Generar una visualizaciÃ³n a partir de una POU SFC</h3></div></div></div><div dir="ltr" class="important"><h3 class="title">Solo es posible con objetos LD2</h3><p>Solo puede crear visualizaciones para las POU en <span class="guilabel">Escalera (LD2)</span> lenguaje de implementaciÃ³n. Para visualizar una POU en <span class="guilabel">LD</span>, primero conviÃ©rtalo a LD2 usando el <span class="guilabel">Convertir en nueva escalera</span> comando. DespuÃ©s de eso, puede generar una visualizaciÃ³n de LD2 a partir de esto</p></div><p>Para obtener mÃ¡s informaciÃ³n, consulte:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><a class="link" href="../CODESYS%20Ladder/_ld_cmd_convert_to_new_ladder.html" target="_blank"> Comando: Convertir en un nuevo plan de contactos</a></p></li></ul></div></section><section xml:lang="es" lang="es" dir="ltr" class="section" data-origin-id="UUID-b853a88f-8e2b-6c11-19ae-94c0af153841" data-time-modified="November 4, 2025" data-publication-date="" id="UUID-dec8ea49-3386-d969-6220-015bdafe3329"><div class="titlepage"><div><div class="title"><h3 class="title">Generar una visualizaciÃ³n a partir de una POU SFC</h3></div></div></div><div dir="ltr" class="important"><h3 class="title">Importante</h3><p>Configure el <code class="code">SFCCurrentStep</code> marca para cada objeto SFC en su cuadro de diÃ¡logo de propiedades en <span class="guilabel">ConfiguraciÃ³n de SFC</span> pestaÃ±a. De lo contrario, se producirÃ¡n errores de compilaciÃ³n.</p></div><p>Si el cÃ³digo SFC contiene macros, se genera una visualizaciÃ³n independiente para cada macro. Esta visualizaciÃ³n se puede seleccionar haciendo clic en ella.</p><div class="example" id="UUID-dec8ea49-3386-d969-6220-015bdafe3329_example-idm234360473165808"><div class="example-title"><span class="formal-label"><span class="formal-label-text">ejemplo</span><span class="formal-number"> 1</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Ejemplo</span></div><div class="example-contents"><p>VisualizaciÃ³n SFC generada</p><div class="mediaobject"><img src="image/uuid-0b963015-568c-06a0-1824-db1ca4b160f9.png" style="" alt="_pvg_img_generated_sfc_visu.png"></img></div></div></div><br class="example-break"></br><p>Para obtener mÃ¡s informaciÃ³n, consulte:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><a class="link" href="../CODESY SFC/_cds_dlg_properties_sfc_settings.html" target="_blank"> Cuadro de diÃ¡logo: Propiedades: configuraciÃ³n de AS</a></p></li></ul></div></section></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">En esta secciÃ³n<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-3e01cc58-2a7d-327b-78f6-8ca623f561b0">CODESYS POU Visu Generator</a></li><li><a href="#UUID-22a83d9d-042d-8266-f215-334a372e3950">CreaciÃ³n de una visualizaciÃ³n para una POU en SFC o LD2</a><ul class="nav"><li><a href="#UUID-d0409bfc-911d-4924-b44d-a70354f5bf71">Generar una visualizaciÃ³n a partir de una POU SFC</a></li><li><a href="#UUID-dec8ea49-3386-d969-6220-015bdafe3329">Generar una visualizaciÃ³n a partir de una POU SFC</a></li></ul></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Resultados de la bÃºsqueda</h2><ul class="searchresults"></ul><p class="noresults">No se han encontrado resultados</p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22CODESYS%20POU%20Visu%20Generator%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22CODESYS%20POU%20Visu%20Generator%22%20in%20the%20publication%20%22CODESYS%20POU%20Visu%20Generator%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Â¿Te gustarÃ­a dar tu opiniÃ³n? Simplemente haga clic aquÃ­ para sugerir ediciones.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">Anterior</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_pvg_start_page.html#UUID-22a83d9d-042d-8266-f215-334a372e3950">Siguiente</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-11-10 13:37:59 -->

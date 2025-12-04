@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['en-US'] = [{ "title" : "CODESYS Math Libraries ", 
+"url" : "_mathlib_start_page.html", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Introduction ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018560416181", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Introduction ", 
+"snippet" : "CODESYS Math Libraries includes the Matrix library and the internal FloatingPointUtils library. The Matrix library supports matrices of arbitrary dimensions and basic mathematical operations on them. The following operations are supported: addition, multiplication, solving linear equations, inversio...", 
+"body" : "CODESYS Math Libraries includes the Matrix library and the internal FloatingPointUtils library. The Matrix library supports matrices of arbitrary dimensions and basic mathematical operations on them. The following operations are supported: addition, multiplication, solving linear equations, inversion, and calculation of the determinant. " }, 
+{ "title" : "Product Description ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018604946206", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Product Description ", 
+"snippet" : "The Matrix library provides a data type to define matrices of arbitrary dimension and functions to perform basic operations on matrices....", 
+"body" : "The Matrix library provides a data type to define matrices of arbitrary dimension and functions to perform basic operations on matrices. " }, 
+{ "title" : "Data Types and Functions ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018606155652", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Product Description \/ Data Types and Functions ", 
+"snippet" : "Matrices are defined through the mtx.Matrix data type. The mtx.Matrix data type saves a matrix as ARRAY of LREAL . The array is in row-major form. Basic mathematical operations are provided as functions which have 3 matrices as a VAR_IN_OUT argument: result, source, target. For example, the function...", 
+"body" : "Matrices are defined through the mtx.Matrix data type. The mtx.Matrix data type saves a matrix as ARRAY of LREAL . The array is in row-major form. Basic mathematical operations are provided as functions which have 3 matrices as a VAR_IN_OUT argument: result, source, target. For example, the function for matrix addition has the following interface: (* Adds two matrices : C := A + B. \n* A, B, and C must have identical dimensions.\n* Note: A, B, and C may all be the same matrix. *)\nFUNCTION AddM : ResultCode\nVAR_IN_OUT\n C : Matrix ; (* The result *)\n A : Matrix ; (* The first summand *)\n B : Matrix ; (* The second summand *)\nEND_VAR The library offers following mathematical operations: Addition of matrices (element-wise): AddM Subtraction of matrices (element-wise): SubM Multiplication of matrices (element-wise): TimesM Division of matrices (element-wise): RDivideM Scalar multiplication of a matrix: MultMS Multiplication of matrices: MultM Transposition of a matrix: TransposeM There are also some auxiliary functions for initializing matrices, copying, and accessing elements: Initialize a matrix with an ARRAY of values: InitMatrix Copy ARRAY elements to matrix: CopyElems Copy matrices with same dimension: CopyMatrix Initialize as identity matrix: IdentityMatrix Initialize as zero matrix: ZeroMatrix Read and write elements: Elem , SetElem More complex operations are also provided: Solve a linear equation A * X = B : SolveLU Invert a quadratic matrix: InvertLU Calculate the determinant of a quadratic matrix: DeterminantLU Determine an LU decomposition (this decomposition serves as the basis for the above three functions): DecomposeLU " }, 
+{ "title" : "Memory Management ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018653767388", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Product Description \/ Memory Management ", 
+"snippet" : "The user is responsible for memory management. Matrices will be initialized with a pointer to the memory (via the InitMatrix function). In some cases, it is possible for the user to provide a suitable memory. Furthermore, the auxiliary function blocks MatrixS , ColVectorS , and RowVectorS can be use...", 
+"body" : "The user is responsible for memory management. Matrices will be initialized with a pointer to the memory (via the InitMatrix function). In some cases, it is possible for the user to provide a suitable memory. Furthermore, the auxiliary function blocks MatrixS , ColVectorS , and RowVectorS can be used to initialize matrices with arrays of constant size. They implement the IMatrixAllocator interface which is also available to the user. " }
+]
+$(document).trigger('search.ready');
+});

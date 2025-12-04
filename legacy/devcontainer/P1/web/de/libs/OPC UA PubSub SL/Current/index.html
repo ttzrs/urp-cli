@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+<html lang="de" xml:lang="de">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OPC UA PubSub SL Library Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Stichwortverzeichnis" href="genindex.html"/>
+    <link rel="top" title="OPC UA PubSub SL V1.0.1.0" href="#"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="https://de.helpme-codesys.com" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Men&uuml;</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Suche</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://de.helpme-codesys.com/suche.html" class=""
+                  data-suggest="https://de.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Suchbegriff" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="Library-Information/fld-Library-Information.html">Library Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersion.html">GetLibVersion (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersionNumber.html">GetLibVersionNumber (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/IsLibReleased.html">IsLibReleased (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="OPC-UA-PubSub-SL/fld-OPC-UA-PubSub-SL.html">OPC UA PubSub SL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/fld-Aliases.html">Aliases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/AsyncProperty.html">AsyncProperty (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/IAsyncProperty.html">IAsyncProperty (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/IIPAddress.html">IIPAddress (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/IIPAddressSet.html">IIPAddressSet (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/IPADDRESS.html">IPADDRESS (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/IPAddressSet.html">IPAddressSet (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/IPv4Address.html">IPv4Address (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/ITSNContext.html">ITSNContext (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/ResolveHostname.html">ResolveHostname (Alias)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Constants/fld-Constants.html">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Constants/IEC_TYPES.html">IEC_TYPES (GVL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Constants/UDP.html">UDP (GVL)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Enums/fld-Enums.html">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Enums/DiagnosticsClassification.html">DiagnosticsClassification (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Enums/DiagnosticsLevel.html">DiagnosticsLevel (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Enums/ERROR.html">ERROR (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Enums/STATE.html">STATE (Enum)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Configuration.html">Configuration (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-Configuration/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Connection.html">Connection (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-Connection/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/DataSet.html">DataSet (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-DataSet/PrepareValues.html">PrepareValues (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-DataSet/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/fld-Diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/Base/fld-Base.html">Base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/ConnectionDiagnostics.html">ConnectionDiagnostics (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/ReaderDiagnostics.html">ReaderDiagnostics (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/ReaderGroupDiagnostics.html">ReaderGroupDiagnostics (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/RootDiagnostics.html">RootDiagnostics (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/WriterDiagnostics.html">WriterDiagnostics (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Diagnostics/WriterGroupDiagnostics.html">WriterGroupDiagnostics (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Reader.html">Reader (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-Reader/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/ReaderGroup.html">ReaderGroup (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-ReaderGroup/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/Writer.html">Writer (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-Writer/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/WriterGroup.html">WriterGroup (FunctionBlock)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/pou-WriterGroup/SetInitialValue.html">SetInitialValue (Method)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/fld-Functions.html">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/DT_TO_UAVersionTime.html">DT_TO_UAVersionTime (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/GetAsChar.html">GetAsChar (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/GetAsWChar.html">GetAsWChar (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/STRING_SIZE_TO_UALEN.html">STRING_SIZE_TO_UALEN (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/WSTRING_SIZE_TO_UALEN.html">WSTRING_SIZE_TO_UALEN (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/fld-Interfaces.html">Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/fld-Diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IConnectionDiagnostics.html">IConnectionDiagnostics (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IDiagnostics.html">IDiagnostics (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IDiagnosticsCounter.html">IDiagnosticsCounter (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IReaderDiagnostics.html">IReaderDiagnostics (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IReaderGroupDiagnostics.html">IReaderGroupDiagnostics (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IRootDiagnostics.html">IRootDiagnostics (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IWriterDiagnostics.html">IWriterDiagnostics (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/Diagnostics/IWriterGroupDiagnostics.html">IWriterGroupDiagnostics (Interface)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IConfiguration.html">IConfiguration (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IConnection.html">IConnection (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IDataSet.html">IDataSet (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/pou-IDataSet/GetSize.html">GetSize (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/pou-IDataSet/GetVersion.html">GetVersion (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IReader.html">IReader (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IReaderGroup.html">IReaderGroup (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IStatus.html">IStatus (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/pou-IStatus/Disable.html">Disable (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/pou-IStatus/Enable.html">Enable (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/pou-IStatus/GetState.html">GetState (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IWriter.html">IWriter (Interface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/IWriterGroup.html">IWriterGroup (Interface)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/fld-Structs.html">Structs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/ArrayType.html">ArrayType (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/Index.html">Index (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/UIndex.html">UIndex (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/UMeta.html">UMeta (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/VersionTime.html">VersionTime (Struct)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Types/fld-Types.html">Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Types/IEC_TYPE.html">IEC_TYPE (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="OPC-UA-PubSub-SL/Types/UNICODE.html">UNICODE (Alias)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">File and Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">Library Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#slicense">3SLicense</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-identification">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-properties">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpapp">CmpApp</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id1">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id2">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpasyncmgr">CmpAsyncMgr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id3">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id4">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmperrors2-interfaces">CmpErrors2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id5">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id6">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpeventmgr">CmpEventMgr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id7">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id8">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpiectask">CmpIecTask</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id9">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id10">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmplog">CmpLog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id11">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id12">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpschedule">CmpSchedule</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id13">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id14">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#common-behaviour-model">Common Behaviour Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id15">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id16">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#component-manager">Component Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id17">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id18">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#net-base-services">Net Base Services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id19">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id20">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systimertc">SysTimeRtc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id21">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id22">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systypes2-interfaces">SysTypes2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id23">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id24">Library Properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="#">OPC UA PubSub SL</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>OPC UA PubSub SL Library Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="opc-ua-pubsub-sl-library-documentation">
+<span id="index"></span><h1>OPC UA PubSub SL Library Documentation<a class="headerlink" href="#opc-ua-pubsub-sl-library-documentation" title="Permalink to this heading">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Company</dt>
+<dd class="field-odd"><p>3S - Smart Software Solutions GmbH</p>
+</dd>
+<dt class="field-even">Title</dt>
+<dd class="field-even"><p>OPC UA PubSub SL</p>
+</dd>
+<dt class="field-odd">Version</dt>
+<dd class="field-odd"><p>1.0.1.0</p>
+</dd>
+<dt class="field-even">Categories</dt>
+<dd class="field-even"><p>Intern</p>
+</dd>
+<dt class="field-odd">Namespace</dt>
+<dd class="field-odd"><p>UADP</p>
+</dd>
+<dt class="field-even">Author</dt>
+<dd class="field-even"><p>3S - Smart Software Solutions GmbH</p>
+</dd>
+<dt class="field-odd">Placeholder</dt>
+<dd class="field-odd"><p>OPC_UA_PubSub_SL</p>
+</dd>
+</dl>
+<section id="description-1">
+<span id="index-description"></span><h2>Description <a class="footnote-reference brackets" href="#id2" id="id1">1</a><a class="headerlink" href="#description-1" title="Permalink to this heading">¶</a></h2>
+<p>Function blocks for communication with the <cite>OPC-UA</cite> defined protocol for <cite>PubSub</cite> over <cite>UADP</cite></p>
+<p>The communication via the <cite>OPC UA Pub/Sub</cite> protocol provides, besides the <cite>Client/Server</cite> communication,
+another possibility to exchange data between network members, conforming to the rules of the <cite>OPC UA Foundation</cite>.
+The structure of the data can be freely defined (See: <a class="reference internal" href="OPC-UA-PubSub-SL/Constants/IEC_TYPES.html#iec-types"><span class="std std-ref">IEC_TYPES</span></a>, <a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/DataSet.html#dataset"><span class="std std-ref">DataSet</span></a>) and is agreed in advance between the sender (<cite>Publisher</cite>) and receiver (<cite>Subscriber</cite>). This eliminates the need to transport additional (meta-) data. Data is transferred using the <cite>OPC UA PubSub SL</cite> library via <cite>UDP/IP</cite> according to the rules defined for <cite>UADP</cite>. A certain <cite>Publisher</cite> publishes his data to an unknown number of <cite>Subscriber</cite>. So sender and receiver do not know each other. Therefore the number of receivers has no effect on the sender. A feedback to the sender if his messages have reached the receivers cannot be done via the protocol. If required, such a feedback must be managed in an application-specific way. The data is transferred in a binary format according to the rules of the <cite>OPC UA Foundation</cite>. The conversion of the IEC data types into the corresponding <cite>OPC UA</cite> data types and vice versa is done by the <cite>OPC UA PubSub SL</cite> library.</p>
+<p>The implementation follows the following profiles:</p>
+<ul class="simple">
+<li><p><cite>Publisher: PubSub Publisher UADP Periodic Fixed Settings</cite></p></li>
+<li><p><cite>Subscriber: PubSub Subscriber UADP Periodic Fixed Settings</cite></p></li>
+</ul>
+<div class="line-block">
+<div class="line">The length of messages is limited to 1500 <cite>Bytes</cite> (<a class="reference internal" href="OPC-UA-PubSub-SL/Constants/UDP.html#udp-mtu"><span class="std std-ref">UDP.MTU</span></a>) (<cite>Chunked NetworkMessages not supported</cite>).</div>
+<div class="line">As long as the rules for a <cite>Time Sensitive Network</cite> are not yet available, hard real-time conditions cannot be met. The implementation of the <cite>OPC UA PubSub SL</cite> library tries to keep the <cite>Jitter</cite> as small as possible.</div>
+</div>
+<div class="line-block">
+<div class="line">See: <a class="reference external" href="https://reference.opcfoundation.org/v104/Core/docs/Part14/5.1/">PubSub Concepts</a> at <cite>OPC Foundation</cite></div>
+<div class="line">See: <a class="reference external" href="https://reference.opcfoundation.org/v104/Core/docs/Part14/7.3.2/">OPC UA UDP / UADP</a> at <cite>OPC Foundation</cite></div>
+</div>
+<p>Please take a look to the overview of aviable set of function blocks:</p>
+<img alt="_images/Block_Overview.png" src="_images/Block_Overview.png" />
+</section>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Library-Information/fld-Library-Information.html">Library Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersion.html">GetLibVersion (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersionNumber.html">GetLibVersionNumber (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/IsLibReleased.html">IsLibReleased (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="OPC-UA-PubSub-SL/fld-OPC-UA-PubSub-SL.html">OPC UA PubSub SL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Aliases/fld-Aliases.html">Aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Constants/fld-Constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Enums/fld-Enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Functions/fld-Functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Interfaces/fld-Interfaces.html">Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Structs/fld-Structs.html">Structs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OPC-UA-PubSub-SL/Types/fld-Types.html">Types</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><div class="line-block">
+<div class="line">Based on OPC UA PubSub SL.library, last modified 14.12.2022, 14:15:14. LibDoc 4.4.0.0-b.27</div>
+<div class="line">The content file OPC UA PubSub SL.clean.json was generated with CODESYS V3.5 SP16 Patch 3 on 14.12.2022, 14:15:19.</div>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>Die CODESYS Group ist Hersteller von CODESYS, der f&uuml;hrenden hardwareunabh&auml;ngigen
+                                    IEC 61131-3 Automatisierungssoftware zur Projektierung und Entwicklung von
+                                    Steuerungsanwendungen.<br/>
+                                    CODESYS&reg; ist ein eingetragenes Warenzeichen.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://de.codesys.com/impressum.html">
+                                    <span>Impressum</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://de.codesys.com/datenschutz.html">
+                                    <span>Datenschutz</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+ 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

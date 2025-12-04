@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['en-US'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "General Description ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ General Description ", 
+"snippet" : "The CODESYS Base Libraries package contains a collection of libraries which simplify the development of other libraries and applications. These libraries have been installed directly in CODESYS Development System versions <= 3.5.20.0. See the description of some sample projects using these base libr...", 
+"body" : "The CODESYS Base Libraries package contains a collection of libraries which simplify the development of other libraries and applications. These libraries have been installed directly in CODESYS Development System versions <= 3.5.20.0. See the description of some sample projects using these base libraries: Example: Element Collections Example: PLC Chat Net Base Services Example: Net Base Services " }, 
+{ "title" : "The following libraries are supplied with the package: ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ The following libraries are supplied with the package: ", 
+"snippet" : "Asynchronous Job Manager : The library contains function blocks for optimized processing of asynchronous tasks. Common Behaviour Model : The library contains an object-oriented implementation of the Common Behaviour Model. Element Collections : The library contains function blocks and interfaces for...", 
+"body" : "Asynchronous Job Manager : The library contains function blocks for optimized processing of asynchronous tasks. Common Behaviour Model : The library contains an object-oriented implementation of the Common Behaviour Model. Element Collections : The library contains function blocks and interfaces for saving object references in predefined data structures, such as lists, queues, stacks, and hash tables (\"collections\"). Net Base Services : The library implements a TCP server, a TCP client, and a UDP peer as a collection of basic services for Ethernet. Segmented Buffer Manager : The library contains functions for handling different segments of a large buffer, the merging of segments, or the splitting of buffers into segments. This is done without the contents being constantly copied. The functions try to reference the segments instead of copying them, and manage the segments in double-linked lists. SharedData Utilities for MultiCore : The library contains data structures and functions for ensuring data consistency in a multicore environment. " }, 
+{ "title" : "Detecting and correcting errors ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Detecting and correcting errors ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Detecting and correcting errors \/ Net Base Services ", 
+"snippet" : "The interruption of an existing connection between the server and client (for example by unplugging the Ethernet cable) is not detected by the controller. In the case of TCP\/IP, the disconnection of a cable can be detected only if the client or server detects that an expected telegram is missing for...", 
+"body" : "The interruption of an existing connection between the server and client (for example by unplugging the Ethernet cable) is not detected by the controller. In the case of TCP\/IP, the disconnection of a cable can be detected only if the client or server detects that an expected telegram is missing for a certain time (timeout). The protocol must therefore be designed in such a way that telegrams are regularly exchanged between the client and the server. When a timeout occurs, both sides can close the connection independently of each other. The connection can then be used again to establish a new connection. " }
+]
+$(document).trigger('search.ready');
+});

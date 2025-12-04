@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['zh-CHS'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "一般说明 ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ 一般说明 ", 
+"snippet" : "这 CODESYS Base Libraries 软件包包含一组库，可简化其他库和应用程序的开发。这些库已直接安装在 CODESYS Development System 版本 <= 3.5.20.0。 查看使用这些基础库的一些示例项目的描述： 示例：元素集合 例如：PLC 聊天网络基础服务 示例：网络基础服务...", 
+"body" : "这 CODESYS Base Libraries 软件包包含一组库，可简化其他库和应用程序的开发。这些库已直接安装在 CODESYS Development System 版本 <= 3.5.20.0。 查看使用这些基础库的一些示例项目的描述： 示例：元素集合 例如：PLC 聊天网络基础服务 示例：网络基础服务 " }, 
+{ "title" : "该包提供了以下库： ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ 该包提供了以下库： ", 
+"snippet" : "Asynchronous Job Manager ：该库包含用于优化处理异步任务的功能块。 Common Behaviour Model ：该库包含面向对象的通用行为模型实现。 Element Collections ：该库包含用于在预定义数据结构（例如列表、队列、堆栈和哈希表（“集合”））中保存对象引用的功能块和接口。 Net Base Services ：该库实现了 TCP 服务器、TCP 客户端和 UDP 对等体，作为以太网基本服务的集合。 Segmented Buffer Manager ：该库包含用于处理大型缓冲区的不同段、段合并或将缓冲区拆分为段的函数。这些操作无需不断复制内容。这...", 
+"body" : "Asynchronous Job Manager ：该库包含用于优化处理异步任务的功能块。 Common Behaviour Model ：该库包含面向对象的通用行为模型实现。 Element Collections ：该库包含用于在预定义数据结构（例如列表、队列、堆栈和哈希表（“集合”））中保存对象引用的功能块和接口。 Net Base Services ：该库实现了 TCP 服务器、TCP 客户端和 UDP 对等体，作为以太网基本服务的集合。 Segmented Buffer Manager ：该库包含用于处理大型缓冲区的不同段、段合并或将缓冲区拆分为段的函数。这些操作无需不断复制内容。这些函数尝试引用段而不是复制它们，并在双向链表中管理段。 +SharedData Utilities for MultiCore ：该库包含用于确保多核环境中数据一致性的数据结构和函数。 " }, 
+{ "title" : "检测和纠正错误 ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ 检测和纠正错误 ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ 检测和纠正错误 \/ Net Base Services ", 
+"snippet" : "控制器无法检测到服务器和客户端之间现有连接的中断（例如，拔掉以太网电缆）。对于 TCP\/IP，只有当客户端或服务器检测到预期的电报在一定时间内丢失（超时）时，才能检测到电缆断开。 因此，协议必须设计成客户端和服务器之间定期交换电报。当发生超时时，双方可以独立关闭连接。然后可以再次使用该连接建立新连接。...", 
+"body" : "控制器无法检测到服务器和客户端之间现有连接的中断（例如，拔掉以太网电缆）。对于 TCP\/IP，只有当客户端或服务器检测到预期的电报在一定时间内丢失（超时）时，才能检测到电缆断开。 因此，协议必须设计成客户端和服务器之间定期交换电报。当发生超时时，双方可以独立关闭连接。然后可以再次使用该连接建立新连接。 " }
+]
+$(document).trigger('search.ready');
+});

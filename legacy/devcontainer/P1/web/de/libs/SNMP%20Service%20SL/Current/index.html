@@ -1,0 +1,409 @@
+
+<!DOCTYPE html>
+<html lang="de" xml:lang="de">
+<head>
+    
+  
+
+    
+
+    <title>SNMP Service SL Library Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Stichwortverzeichnis" href="genindex.html"/>
+    <link rel="top" title="SNMP Service SL V1.12.0.0" href="#"/> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+<link href="https://www.codesys.com/css/sphynx-additional.css" rel="stylesheet">
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+<header id="page-header"></header>
+
+ 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="SNMP-Service/fld-SNMP-Service.html">SNMP Service</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Enums/fld-Enums.html">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/AccessType.html">AccessType (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/AuthMethods.html">AuthMethods (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/Error.html">Error (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/PrivMethods.html">PrivMethods (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/RequestType.html">RequestType (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/SNMPVersion.html">SNMPVersion (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Enums/TrapType.html">TrapType (Enum)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Function-Blocks/Agent/fld-Agent.html">Agent</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/Agent/SNMP_AGENT.html">SNMP_AGENT (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/Agent/SNMP_DINT.html">SNMP_DINT (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/Agent/SNMP_OBJECT.html">SNMP_OBJECT (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/Agent/SNMP_STRING.html">SNMP_STRING (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Function-Blocks/GET/fld-GET.html">GET</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/GET/SNMP_GET_REQUEST.html">SNMP_GET_REQUEST (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Function-Blocks/SET/fld-SET.html">SET</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/SET/SNMP_SET.html">SNMP_SET (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Function-Blocks/Trap/fld-Trap.html">Trap</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/Trap/SNMP_TRAP_RECEIVER.html">SNMP_TRAP_RECEIVER (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Function-Blocks/Trap/SNMP_TRAP_SENDER.html">SNMP_TRAP_SENDER (FunctionBlock)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Functions/fld-Functions.html">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Functions/Converter/fld-Converter.html">Converter</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Functions/Converter/DINT2SNMPValue.html">DINT2SNMPValue (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Functions/Converter/LINT2SNMPValue.html">LINT2SNMPValue (Function)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Functions/Converter/String2SNMPValue.html">String2SNMPValue (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Functions/MessageSubsystemV3/fld-MessageSubsystemV3.html">MessageSubsystemV3</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Functions/MessageSubsystemV3/USM/fld-USM.html">USM</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Functions/Utils/fld-Utils.html">Utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SNMP-Service/Functions/Utils/SNMPValues2VarBindings.html">SNMPValues2VarBindings (Function)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/GlobalConstants/fld-GlobalConstants.html">GlobalConstants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/GlobalConstants/GVL.html">GVL (GVL)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Parameters/fld-Parameters.html">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Parameters/Param.html">Param (ParamList)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Structs/fld-Structs.html">Structs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Structs/SNMPValue.html">SNMPValue (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Structs/SNMPVarBinding.html">SNMPVarBinding (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SNMP-Service/Structs/User.html">User (Struct)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">File and Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">Library Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#slicense">3SLicense</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-identification">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-properties">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpcrypto">CmpCrypto</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id1">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id2">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmperrors2-interfaces">CmpErrors2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id3">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id4">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmplog">CmpLog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id5">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id6">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#component-manager">Component Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id7">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id8">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#net-base-services">Net Base Services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id9">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id10">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#standard">Standard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id11">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id12">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#sysmem">SysMem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id13">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id14">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#syssocket">SysSocket</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id15">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id16">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systarget">SysTarget</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id17">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id18">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systime">SysTime</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id19">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id20">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systypes-interfaces">SysTypes Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id21">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id22">Library Properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="#">SNMP Service SL</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>SNMP Service SL Library Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="snmp-service-sl-library-documentation">
+<span id="index"></span><h1>SNMP Service SL Library Documentation<a class="headerlink" href="#snmp-service-sl-library-documentation" title="Permalink to this heading">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Company<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CODESYS</p>
+</dd>
+<dt class="field-even">Title<span class="colon">:</span></dt>
+<dd class="field-even"><p>SNMP Service SL</p>
+</dd>
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1.12.0.0</p>
+</dd>
+<dt class="field-even">Categories<span class="colon">:</span></dt>
+<dd class="field-even"><p>Application|Utils</p>
+</dd>
+<dt class="field-odd">Namespace<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SNMP</p>
+</dd>
+<dt class="field-even">Author<span class="colon">:</span></dt>
+<dd class="field-even"><p>CODESYS Development GmbH</p>
+</dd>
+<dt class="field-odd">Placeholder<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SNMP_Service_SL</p>
+</dd>
+</dl>
+<section id="description-1">
+<span id="index-description"></span><h2>Description <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="headerlink" href="#description-1" title="Permalink to this heading">¶</a></h2>
+<p>This library enables to read device information of printers, routers etc. via the SNMP protocol.
+The library provides function blocks to send and receive SNMP messages.
+The package contains the SNMP library and example applications.</p>
+</section>
+<section id="supported-snmp-features">
+<h2>Supported SNMP features<a class="headerlink" href="#supported-snmp-features" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>SNMP GET: Request a value. see <a class="reference internal" href="SNMP-Service/Function-Blocks/GET/SNMP_GET_REQUEST.html#snmp-get-request"><span class="std std-ref">SNMP_GET_REQUEST</span></a></p></li>
+<li><p>SNMP GET_NEXT: Request a value and get the OID from the next value. see <a class="reference internal" href="SNMP-Service/Function-Blocks/GET/SNMP_GET_REQUEST.html#snmp-get-request"><span class="std std-ref">SNMP_GET_REQUEST</span></a></p></li>
+<li><p>SNMP Agent: Enables devices to request values from the control (agent). see <a class="reference internal" href="SNMP-Service/Function-Blocks/Agent/SNMP_AGENT.html#snmp-agent"><span class="std std-ref">SNMP_AGENT</span></a></p></li>
+<li><p>SNMP TRAP: Send and receive TRAP telegrams. see <a class="reference internal" href="SNMP-Service/Function-Blocks/Trap/SNMP_TRAP_RECEIVER.html#snmp-trap-receiver"><span class="std std-ref">SNMP_TRAP_RECEIVER</span></a></p></li>
+<li><p>SNMP SET: Set values via SNMP. see <a class="reference internal" href="SNMP-Service/Function-Blocks/Trap/SNMP_TRAP_SENDER.html#snmp-trap-sender"><span class="std std-ref">SNMP_TRAP_SENDER</span></a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="supported-snmp-versions">
+<h2>Supported SNMP versions<a class="headerlink" href="#supported-snmp-versions" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>SNMP V1</p></li>
+<li><p>SNMP V2c</p></li>
+<li><p>SNMP V3</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="snmp-v3">
+<h2>SNMP V3<a class="headerlink" href="#snmp-v3" title="Permalink to this heading">¶</a></h2>
+<p>SNMP V3 users can be created an registered with the functions <a class="reference internal" href="SNMP-Service/Functions/MessageSubsystemV3/USM/Users/CreateRWUser.html#createrwuser"><span class="std std-ref">CreateRWUser</span></a> and <a class="reference internal" href="SNMP-Service/Functions/MessageSubsystemV3/USM/Users/CreateUser.html#createuser"><span class="std std-ref">CreateUser</span></a>.</p>
+</section>
+<section id="the-package-snmplibrary-package-contains-following-components">
+<h2>The package SNMPLibrary.package contains following components<a class="headerlink" href="#the-package-snmplibrary-package-contains-following-components" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>SNMPLibrary (Namespace: SNMP)</p></li>
+<li><p>Project with example applications (SNMP Service SL Example.project). Use this project to get started.</p></li>
+<li><p>CHM help</p></li>
+<li><p>Product data sheet</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="the-library-snmplibrary-is-divided-in-four-categories-see-folder-function-blocks">
+<h2>The library SNMPLibrary is divided in four categories (see folder ‚Function Blocks‘)<a class="headerlink" href="#the-library-snmplibrary-is-divided-in-four-categories-see-folder-function-blocks" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Agent: Function blocks of the SNMP agent.</p></li>
+<li><p>GET: Function block to request values.</p></li>
+<li><p>Trap: Function blocks to send and receive TRAP messages.</p></li>
+<li><p>SET: Function block to set SNMP values.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SNMP-Service/fld-SNMP-Service.html">SNMP Service</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Enums/fld-Enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Functions/fld-Functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/GlobalConstants/fld-GlobalConstants.html">GlobalConstants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Parameters/fld-Parameters.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SNMP-Service/Structs/fld-Structs.html">Structs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<div class="line-block">
+<div class="line">Based on SNMP Service SL.library, last modified 12.05.2025, 06:40:19. LibDoc 4.5.0.0</div>
+<div class="line">The content file SNMP Service SL.clean.json was generated with CODESYS V3.5 SP16 Patch 3 on 12.05.2025, 06:40:21.</div>
+</div>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+ 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.12.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>
+<!-- last generated: 2025-06-12 12:29:53 -->

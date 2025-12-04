@@ -1,0 +1,8 @@
+$(document).ready(function () {indexDict['zh-CHS'] = [{ "title" : "CODESYS OPC UA PubSub ", 
+"url" : "_uaps_lib_startpage.html", 
+"breadcrumbs" : "CODESYS OPC UA PubSub \/ CODESYS OPC UA PubSub ", 
+"snippet" : "这个 CODESYS OPC UA PubSub 插件提供了 OPC UA PubSub SL 用于通过 OPC 基金会规则定义的 Pub\/Sub 协议交换消息的库。 除了客户端\/服务器通信外，通过OPC UA Pub\/Sub协议进行的通信还提供了根据OPC UA基金会的规定在网络用户之间交换数据的额外功能。数据（DataSet）的结构可以自由定义，并由发送方和接收方事先商定。这样就无需传输其他（元）数据。在 UDP\/IP 的帮助下，数据通过 UDP\/IP 传输 OPC UA PubSub SL 库符合为 UADP 定义的规则。“发布者” 将其数据发布给未知数量的 “订阅者”。结果，发送者和接...", 
+"body" : "这个 CODESYS OPC UA PubSub 插件提供了 OPC UA PubSub SL 用于通过 OPC 基金会规则定义的 Pub\/Sub 协议交换消息的库。 除了客户端\/服务器通信外，通过OPC UA Pub\/Sub协议进行的通信还提供了根据OPC UA基金会的规定在网络用户之间交换数据的额外功能。数据（DataSet）的结构可以自由定义，并由发送方和接收方事先商定。这样就无需传输其他（元）数据。在 UDP\/IP 的帮助下，数据通过 UDP\/IP 传输 OPC UA PubSub SL 库符合为 UADP 定义的规则。“发布者” 将其数据发布给未知数量的 “订阅者”。结果，发送者和接收者彼此不认识。这就是为什么接收者的数量也不会对发送者产生任何影响的原因。由于协议的性质，无法通过协议向发件人发送关于其消息是否已到达接收者的答复。如有必要，必须以特定应用程序的方式管理此类回复。根据OPC基金会的规定，数据以二进制格式传输。这个 OPC UA PubSub SL 库处理将 IEC 数据类型转换为相应的 OPC UA 数据类型并反向转换。 下载和许可 你可以下载 CODESYS OPC UA PubSub 的附加组件 CODESYS Store International 并通过以下方式进行安装 CODESYS Installer 。 该库可以直接在某些控制器上使用，而对于其他控制器，必须在控制器上安装 SL 许可证。 设备许可证读取器 以了解您的控制器是否具有所需的许可证。 您可以在 CODESYS 商店 。 安装 安装完这个包后你会发现 OPC UA PubSub SL Example.project 所选安装目标目录中的示例项目。该项目展示了如何使用该库。 请参阅示例项目的帮助，获取有关通过 OPC UA Pub\/Sub 协议进行通信、库的内容及其用法的一般信息： 使用 OPC UA PubSub SL 库 有关更多信息，请参阅： OPC 美国 PubSub SL 库文档 CODESYS OPC UA PubSub 仅包含 OPC UA PubSub SL 函数块库。与现场总线协议一样，没有实现配置器 " }
+]
+$(document).trigger('search.ready');
+});

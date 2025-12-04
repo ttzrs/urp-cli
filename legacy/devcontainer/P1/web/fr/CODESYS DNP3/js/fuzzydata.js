@@ -1,0 +1,13 @@
+$(document).ready(function () {indexDict['fr'] = [{ "title" : "CODESYS DNP3 ", 
+"url" : "_dnp3_start_page.html", 
+"breadcrumbs" : "CODESYS DNP3 \/ CODESYS DNP3 ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Introduction ", 
+"url" : "_dnp3_start_page.html#UUID-3fd16e46-085d-bc50-ef17-bdf15bc07a42_section-idm4664735744121633736389596078", 
+"breadcrumbs" : "CODESYS DNP3 \/ CODESYS DNP3 \/ Introduction ", 
+"snippet" : "DNP3 (Distributed Network Protocol) est une norme de communication officielle pour la téléconduite. Le protocole DNP3 est standardisé et développé par le DNP Users Group. Le groupe d'utilisateurs DNP se compose de fournisseurs et d'utilisateurs d'appareils qui utilisent le protocole DNP3. Vous pouve...", 
+"body" : "DNP3 (Distributed Network Protocol) est une norme de communication officielle pour la téléconduite. Le protocole DNP3 est standardisé et développé par le DNP Users Group. Le groupe d'utilisateurs DNP se compose de fournisseurs et d'utilisateurs d'appareils qui utilisent le protocole DNP3. Vous pouvez utiliser CODESYS DNP3 pour créer des applications utilisant le protocole DNP3. CODESYS DNP3 contient une bibliothèque avec des blocs fonctionnels, entre autres pour : Les points de données (tels que Binary Input et Analog Input ) Outstation UN CODESYS DNP3 Outstation peut actuellement communiquer via TCP\/IP ou série RS232 avec un (ou si nécessaire plusieurs) maîtres DNP3. CODESYS DNP3 nécessite CmpDNP3 composant du système d'exécution qui doit être activé dans l'automate. Deux bibliothèques sont incluses dans CODESYS DNP3 : DNP3.library : Cette bibliothèque est destinée à être utilisée dans l'application. CmpDNP3.library : Cette bibliothèque est utilisée par DNP3.library pour accéder à la CmpDNP3 composant du système d'exécution et n'est pas destiné à être utilisé dans l'application Le DNP3.library bibliothèque contient la documentation des blocs fonctions destinés au développement d'applications. En outre, CODESYS DNP3 contient des exemples d'utilisation des blocs fonctionnels mentionnés ci-dessus. Des détails sur les exemples sont également inclus dans la documentation du DNP3.library bibliothèque. CODESYS DNP3 contient uniquement les bibliothèques de blocs fonctionnels DNP3.library et CmpDNP3.library . Un configurateur, comme dans le cas d'autres protocoles de bus de terrain, n'est pas implémenté. " }
+]
+$(document).trigger('search.ready');
+});

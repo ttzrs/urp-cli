@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Suche"></meta><meta name="search.results" content="Suchresultat"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'de';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>Voraussetzungen des Antriebs</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V4.20.0.0"></meta><link rel="prev" href="_sm_light_start_page.html" title="CODESYS SoftMotion Light"></link><link rel="next" href="_sm_light_driveconfiguration.html" title="Antriebskonfiguration"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=de"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Suche" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS SoftMotion Light</a></li><li class="breadcrumb-node">Voraussetzungen des Antriebs</li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_sm_light_start_page.html">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_sm_light_driveconfiguration.html">Weiter</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="UUID-4d7d12d2-f4fc-f7fd-04ee-6d1ab859ec29" data-permalink="_sm_light_requirements.html" data-topic-level="1" data-relative-prefix="" data-time-modified="January 14, 2022" data-publication-date="" id="UUID-be93bc3c-a33d-5bd9-a329-cfd3da344cde"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both">Voraussetzungen des Antriebs</h1></div></div></div><p>Ein Antrieb muss für die Verwendung mit <span class="phrase">CODESYS SoftMotion Light</span> folgende Voraussetzungen erfüllen:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>EtherCAT- oder CAN-Unterstützung</p></li><li class="listitem"><p>CiA 402-Unterstützung, insbesondere der Betriebsmodi:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem"><p><code class="code">Profile position mode</code> (für <code class="code">MC_MoveAbsolute_SML</code> / <code class="code">MC_MoveRelative_SML</code>)</p></li><li class="listitem"><p><code class="code">Profile velocity mode</code> (für <code class="code">MC_MoveVelocity_SML</code>)</p></li><li class="listitem"><p><code class="code">Homing mode</code> (für <code class="code">MC_Home_SML</code>.</p></li></ul></div><p>Wenn der Antrieb einen dieser Modi nicht unterstützt, können Sie die entsprechenden Funktionsbausteine nicht verwenden.</p></li><li class="listitem"><p>Unterstützung der in der folgenden Tabelle aufgelisteten, von CiA 402 definierten Objekte:</p></li></ul></div><div class="informaltable table-responsive"><table class="informaltable table-bordered"><colgroup><col style="width:25%;"></col><col style="width:25%;"></col><col style="width:25%;"></col><col style="width:25%;"></col></colgroup><thead><tr><th class="th"><p>Objekt</p></th><th class="th"><p>Beschreibung</p></th><th class="th"><p>SML Parameter</p></th><th class="th"><p>Bemerkungen</p></th></tr></thead><tbody><tr><td class="td"><p>16#6040</p></td><td class="td"><p>Control-Word</p></td><td class="td"><p>10064</p></td><td class="td"></td></tr><tr><td class="td"><p>16#6041</p></td><td class="td"><p>Status-Word</p></td><td class="td"><p>20065</p></td><td class="td"></td></tr><tr><td class="td"><p>16#605A</p></td><td class="td"><p>Quick stop option code</p></td><td class="td"></td><td class="td"><p>Optional</p><p>Wenn nicht unterstützt, wird angenommen, dass der Antrieb nach einem Quick Stop im CiA 402-Zustand <code class="code">Quick Stop Active</code> bleibt. (Dies entspricht einem Wert zwischen 5 und 8)</p></td></tr><tr><td class="td"><p>16#605D</p></td><td class="td"><p>Halt option code</p></td><td class="td"></td><td class="td"><p>Optional</p><p>Wenn nicht unterstützt, sollte der Antrieb auf einen Halt wie in Modus 2 reagieren („slow down on quick stop mode“). Andernfalls wird sich <code class="code">MC_Stop_SML</code> nicht korrekt verhalten.</p></td></tr><tr><td class="td"><p>16#6060</p></td><td class="td"><p>Modes of operation</p></td><td class="td"><p>2000</p></td><td class="td"></td></tr><tr><td class="td"><p>16#6061</p></td><td class="td"><p>Modes of operation display.</p></td><td class="td"><p>2001</p></td><td class="td"></td></tr><tr><td class="td"><p>16#6064/16#6063</p></td><td class="td"><p>Istposition</p></td><td class="td"><p>1101</p></td><td class="td"><p>Notwendig, wenn Sie <code class="code">MC_MoveAbsolute_SML</code> oder <code class="code">MC_MoveRelative_SML</code> auf einer Modulo-Achse verwenden. In diesem Fall müssen Sie per PDO übertragen.</p><p>(Hinweis: alternativ können Sie Objekt <code class="code">16#6063</code> über PDO übertragen.)</p></td></tr><tr><td class="td"><p>16#607A</p></td><td class="td"><p>Zielposition</p></td><td class="td"><p>2030</p></td><td class="td"><p>Notwendig, wenn Sie <code class="code">MC_MoveAbsolute_SML</code> oder <code class="code">MC_MoveRelative_SML</code> verwenden.</p></td></tr><tr><td class="td"><p>16#607C</p></td><td class="td"><p>Home-Offset</p></td><td class="td"><p>1211</p></td><td class="td"><p>Notwendig wenn Sie <code class="code">MC_Home_SML</code> verwenden.</p></td></tr><tr><td class="td"><p>16#6081</p></td><td class="td"><p>Geschwindigkeitsprofil</p></td><td class="td"><p>2050</p></td><td class="td"><p>Notwendig wenn Sie <code class="code">MC_MoveAbsolute_SML</code> oder <code class="code">MC_MoveRelative_SML</code> verwenden.</p></td></tr><tr><td class="td"><p>16#6083</p></td><td class="td"><p>Beschleunigungsprofil</p></td><td class="td"><p>2060</p></td><td class="td"></td></tr><tr><td class="td"><p>16#6084</p></td><td class="td"><p>Verzögerungsprofil</p></td><td class="td"><p>2070</p></td><td class="td"></td></tr><tr><td class="td"><p>16#6085</p></td><td class="td"><p>Verzögerung QuickStop</p></td><td class="td"><p>2090</p></td><td class="td"><p>Optional</p><p>Wenn nicht unterstützt, müssen Sie die Schnell-Stop-Verzögerung antriebsspezifisch konfigurieren.</p></td></tr><tr><td class="td"><p>16#6086</p></td><td class="td"><p>Typ Bewegungsprofil</p></td><td class="td"><p>1062</p></td><td class="td"><p>Optional</p><p>Die verwendeten Profiltypen sind 0 (Linear ramp) und 1 (Sin² ramp).</p></td></tr><tr><td class="td"><p>16#60FF</p></td><td class="td"><p>Zielgeschwindigkeit</p></td><td class="td"><p>2040</p></td><td class="td"><p>Notwendig, wenn Sie <code class="code">MC_Movevelocity_SML</code> verwenden müssen.</p></td></tr></tbody></table></div><div dir="ltr" class="tip"><h3 class="title">Tipp</h3><p>Sie können alle diese Objekte als PDOs abbilden. Dies wird jedoch nur für das Control-Word, Status-Word und die aktuelle Position (falls nötig) empfohlen.</p></div></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">In diesem Abschnitt<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Suchresultat</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22Voraussetzungen%20des%20Antriebs%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22Voraussetzungen%20des%20Antriebs%22%20in%20the%20publication%20%22CODESYS%20SoftMotion%20Light%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Möchten Sie uns Feedback geben? Klicken Sie hier, um Änderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_sm_light_start_page.html">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_sm_light_driveconfiguration.html">Weiter</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-11-19 10:14:17 -->

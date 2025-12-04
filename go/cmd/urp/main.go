@@ -1895,11 +1895,11 @@ Examples:
 		},
 	}
 
-	// urp plan show <plan_id>
+	// urp plan show [plan_id]
 	showCmd := &cobra.Command{
-		Use:   "show <plan_id>",
-		Short: "Show plan details",
-		Args:  cobra.ExactArgs(1),
+		Use:   "show [plan_id]",
+		Short: "Show plan details (latest if no ID given)",
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
@@ -1907,7 +1907,24 @@ Examples:
 			}
 
 			planner := getPlanner()
-			plan, err := planner.GetPlan(context.Background(), args[0])
+			var plan *planning.Plan
+			var err error
+
+			if len(args) > 0 {
+				plan, err = planner.GetPlan(context.Background(), args[0])
+			} else {
+				// Get latest plan
+				plans, listErr := planner.ListPlans(context.Background(), 1)
+				if listErr != nil {
+					fmt.Fprintln(os.Stderr, "No plans found")
+					return
+				}
+				if len(plans) == 0 {
+					fmt.Fprintln(os.Stderr, "No plans found")
+					return
+				}
+				plan = &plans[0]
+			}
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)

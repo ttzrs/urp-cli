@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Suche"></meta><meta name="search.results" content="Suchresultat"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'de';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>Erste Schritte mit dem CODESYS Automation Server</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V1.38.0.0"></meta><link rel="prev" href="_cas_start_page.html" title="CODESYS Automation Server und CODESYS Automation Server Connector"></link><link rel="next" href="_cas_first_steps.html#id11297" title="CODESYS Automation Server im CODESYS Store International bestellen"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=de"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Suche" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS Automation Server</a></li><li class="breadcrumb-node">Erste Schritte mit dem <span class="phrase">CODESYS Automation Server</span></li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_cas_start_page.html">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_cas_first_steps.html#id11297">Weiter</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="UUID-d1cf372a-71a4-000e-6d30-30f21618bd75" data-permalink="_cas_first_steps.html" data-topic-level="1" data-relative-prefix="" data-time-modified="November 21, 2022" data-publication-date="" id="UUID-330820fb-00bb-9d98-2c4a-eecc8094a05d"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both">Erste Schritte mit dem <span class="phrase">CODESYS Automation Server</span></h1></div></div></div><p>Für die Verwendung der <span class="phrase">CODESYS Automation Server</span>-Plattform zur Kommunikation mit Steuerungen und mit dem <span class="phrase">CODESYS Development System</span> benötigen Sie die folgenden Produkte, die im <span class="phrase">CODESYS Store International</span> erhältlich sind:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><span class="bold"><strong></strong></span><span id="UUID-330820fb-00bb-9d98-2c4a-eecc8094a05d_phrase-idm53259567987966" class="phrase">CODESYS Automation Server</span></p><p>Damit erhalten Sie Ihren Zugang zur Plattform <span class="phrase">CODESYS Automation Server</span>, um vom <span class="phrase">CODESYS Automation Server</span> aus mit Steuerungen des Netzwerks zu kommunizieren</p></li><li class="listitem"><p><span class="bold"><strong><span class="phrase">CODESYS Automation Server Connector</span></strong></span></p><p>Add-on für das <span class="phrase">CODESYS Development System</span>, um vom <span class="phrase">CODESYS Development System</span> aus mit dem <span class="phrase">CODESYS Automation Server</span> zu kommunizieren</p></li><li class="listitem"><p><span class="bold"><strong><span class="phrase">CODESYS</span> Edge Gateway</strong></span></p><p>Erweitertes <span class="phrase">CODESYS</span> Gateway für die Kommunikation zwischen dem Steuerungsnetzwerk und dem <span class="phrase">CODESYS Automation Server</span></p></li></ul></div><div dir="ltr" class="important"><h3 class="title">Wichtig</h3><p>Beachten Sie unbedingt die <a class="link linktype-component" href="_cas_security_notes_for_edge_gateway.html" title="Sicherheitshinweise zum Edge-Gateway">Sicherheitshinweise zur Verwendung des <span class="phrase">CODESYS</span> Edge-Gateway</a>!</p></div><div dir="ltr" class="tip"><h3 class="title">Tipp</h3><p>Wenn Sie das Package <span class="phrase">CODESYS Edge Gateway</span> auf Ihrem Computer installieren, werden die Services des bereits existierenden Gateways überschrieben.</p></div><div dir="ltr" class="note notice"><h3 class="title">Hinweis</h3><p><span class="inlinemediaobject"><img src="image/uuid-25f9e55e-b5e4-9ecd-415b-6c577f4fce49.png" alt="YouTube-32x32.png"></img></span> <a class="link" href="https://www.youtube.com/watch?v=iiPKyyO4M00&amp;list=PLaws15OZmd7Uu2W23zX2w424aI3TrOfHf&amp;index=1" target="_blank" rel="noopener">Video "Überblick: CODESYS Automation Server - Getting Started"</a></p></div><section dir="ltr" class="section internal" data-origin-id="" data-publication-date="" id="id11297"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both"><span class="phrase">CODESYS Automation Server</span> im <span class="phrase">CODESYS Store International</span> bestellen</h2></div></div></div><div class="procedure"><ol class="procedure" type="1"><li class="step"><p>Öffnen Sie den <a class="link" href="https://store.codesys.com" target="_blank" rel="noopener"><span class="phrase">CODESYS Store International</span></a> oder den <a class="link" href="https://us.store.codesys.com/" target="_blank" rel="noopener">CODESYS Store North America</a>.</p></li><li class="step"><p>Im <span class="phrase">CODESYS Store International</span> wählen Sie die Registerkarte <span class="phrase">CODESYS Automation Server</span>.</p></li><li class="step"><p>Klicken Sie auf das Produkt <span class="phrase">CODESYS Automation Server</span>.</p><div class="result"><p>Ausführliche Produktinformationen werden angezeigt.</p></div></li><li class="step"><p>Geben Sie in das Feld <span class="guilabel">Hostname (wird in der URL genutzt):</span> einen eindeutigen Namen für Ihren <span class="phrase">CODESYS Automation Server</span> ein.</p><p>Für <span class="guilabel">Plattform</span> und <span class="guilabel">Region</span> werden in einer späteren Version Auswahllisten zur Verfügung stehen.</p></li><li class="step"><p>Klicken Sie auf <span class="guilabel">Jetzt bestellen</span>.</p></li><li class="step"><p>Im nächsten Schritt geben Sie die Zahlungsdaten ein und akzeptieren die AGB und Dateschutzbestimmungen der Firma <span class="phrase">CODESYS GmbH</span> sowie die Einverständniserklärung, dass Ihre Geschäftsdaten für bestimmte Zwecke an Drittanbieter weitergegeben werden dürfen.</p></li><li class="step"><p>Um den Bestellvorgang abzuschließen, klicken Sie nun auf <span class="guilabel">Jetzt kaufen</span>.</p></li><li class="step"><p>Anschließend erhalten Sie eine E-Mail mit der Bestätigung Ihrer Bestellung und eine E-Mail mit dem Aktivierungslink für Ihren <span class="phrase">CODESYS Automation Server</span> „&lt;host name&gt;“.</p><p>In der Bestätigungsmail finden Sie einen Link zu Ihrem Benutzerkonto, auf dem Sie stets die aktuellen Artikeldaten und Kosteninformationen zu Ihrem <span class="phrase">CODESYS Automation Server</span> einsehen können. In dem Benutzerkonto können Sie auch Änderungen und eine Kündigung Ihres <span class="phrase">CODESYS Automation Server</span> vornehmen.</p></li><li class="step"><p>In der E-Mail mit dem Aktivierungslink klicken Sie auf den Link <code class="code">Setup user</code>.</p><div class="result"><p>Der Dialog <span class="guilabel">Add initial admin account</span> des <span class="phrase">CODESYS Automation Server</span> öffnet sich. Im Dialog wird auch die ID Ihres Tickets angezeigt.</p><div class="informalfigure"><div class="mediaobject"><img src="image/uuid-e06230df-8068-19d9-e068-54eff601e4fd.png" style="" alt="_cas_img_create_initial_admin_account.png"></img></div></div></div></li><li class="step"><p>Geben Sie im Dialog <span class="guilabel">Add initial admin account</span> den <span class="guilabel">Name</span>, im Feld <span class="guilabel">User name</span> Ihren Benutzernamen und Ihre E-Mail-Adresse ein und vergeben Sie ein sicheres eindeutiges Passwort. Das Passwort muss folgende Anforderungen erfüllen:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Mindestlänge 8 Zeichen</p></li><li class="listitem"><p>Mindestens 6 unterschiedliche Zeichen</p></li><li class="listitem"><p>Mindestens eine Ziffer (0..9)</p></li><li class="listitem"><p>Mindestens ein Großbuchstabe</p></li><li class="listitem"><p>Mindestens ein Kleinbuchstabe</p></li></ul></div><p>Anschließend klicken Sie auf die Schaltfläche <span class="guilabel">Create initial administrator</span>.</p><div class="result"><p>Im nächsten Fenster werden die Meldung <span class="guilabel">Initial administrator account was created</span> und die URL für das Einloggen auf Ihren Server angezeigt.</p><div dir="ltr" class="tip"><h3 class="title">Tipp</h3><p>Kopieren Sie sich diese URL beispielsweise auf den Desktop Ihres Computers, da Sie über diese URL auf die Login-Seite Ihres Automation Servers gelangen.</p><p>Ihre E-Mail-Adresse und das vergebene Passwort benötigen Sie auch, um sich vom <span class="phrase">CODESYS Development System</span> mit Ihrem Automation Server zu verbinden.</p></div></div></li><li class="step"><p>Kopieren Sie diese URL und fügen Sie diese in Ihrem Browser ein.</p><div class="result"><p>Jetzt können Sie sich auf der Seite <span class="guilabel">Anmelden</span> mit Ihrem Benutzernamen und dem im vorigen Schritt vergebenen Passwort auf Ihrem Server einloggen.</p></div></li><li class="step"><p>Anschließend können Sie gemäß den Anleitungen dieser Hilfe auf dem <span class="phrase">CODESYS Automation Server</span> Steuerungen eintragen und den Server mit diesen verbinden. Vom <span class="phrase">CODESYS Development System</span> können Sie nun mit Hilfe des Packages <span class="phrase">CODESYS Automation Server Connector</span> dem Server ein Edge-Gateway hinzufügen und <span class="phrase">CODESYS</span>-Projekte und Bootapplikationen auf den <span class="phrase">CODESYS Automation Server</span> laden.</p></li></ol></div></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">In diesem Abschnitt<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-330820fb-00bb-9d98-2c4a-eecc8094a05d">Erste Schritte mit dem CODESYS Automation Server</a></li><li><a href="#id11297">CODESYS Automation Server im CODESYS Store International bestellen</a></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Suchresultat</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22Erste%20Schritte%20mit%20dem%20CODESYS%20Automation%20Server%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22Erste%20Schritte%20mit%20dem%20CODESYS%20Automation%20Server%22%20in%20the%20publication%20%22CODESYS%20Automation%20Server%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Möchten Sie uns Feedback geben? Klicken Sie hier, um Änderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_cas_start_page.html">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_cas_first_steps.html#id11297">Weiter</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-11-25 13:21:43 -->

@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    
+  
+
+    
+
+    <title>SharedData Utilities for MultiCore Library Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="SharedData Utilities for MultiCore V4.1.0.0" href="#"/> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+<link href="https://www.codesys.com/css/sphynx-additional.css" rel="stylesheet">
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+<header id="page-header"></header>
+
+ 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="Library-Information/fld-Library-Information.html">Library Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersion.html">GetLibVersion (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersionNumber.html">GetLibVersionNumber (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/IsLibReleased.html">IsLibReleased (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SharedData/fld-SharedData.html">SharedData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/Enums/fld-Enums.html">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/Enums/ERROR.html">ERROR (Enum)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/SharedArea/fld-SharedArea.html">SharedArea</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/SharedArea/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Function-Blocks/SharedArea.html">SharedArea (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Function-Blocks/SharedAreaFactoryArgs.html">SharedAreaFactoryArgs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Function-Blocks/SharedAreaFactoryBase.html">SharedAreaFactoryBase (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Function-Blocks/SharedAreaRefDisposer.html">SharedAreaRefDisposer (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/SharedArea/Interfaces/fld-Interfaces.html">Interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Interfaces/IReadableSharedArea.html">IReadableSharedArea (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Interfaces/ISharedArea.html">ISharedArea (Folder)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Interfaces/ISharedAreaObserver.html">ISharedAreaObserver (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Interfaces/ISharedAreaRef.html">ISharedAreaRef (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Interfaces/ISharedAreaUtilities.html">ISharedAreaUtilities (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedArea/Interfaces/IWriteableSharedArea.html">IWriteableSharedArea (Interface)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/SharedPointer/fld-SharedPointer.html">SharedPointer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/SharedPointer/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedPointer/Function-Blocks/SharedPointer.html">SharedPointer (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedPointer/Function-Blocks/SharedPointerFactoryArgs.html">SharedPointerFactoryArgs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedPointer/Function-Blocks/SharedPointerFactoryBase.html">SharedPointerFactoryBase (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/SharedPointer/Interfaces/fld-Interfaces.html">Interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedPointer/Interfaces/ISharedPointer.html">ISharedPointer (Interface)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/SharedQueue/fld-SharedQueue.html">SharedQueue</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/SharedQueue/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedQueue/Function-Blocks/SharedQueue.html">SharedQueue (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedQueue/Function-Blocks/SharedQueueFactoryArgs.html">SharedQueueFactoryArgs (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedQueue/Function-Blocks/SharedQueueFactoryBase.html">SharedQueueFactoryBase (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SharedData/SharedQueue/Interfaces/fld-Interfaces.html">Interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedQueue/Interfaces/IQueueableNode.html">IQueueableNode (Interface)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="SharedData/SharedQueue/Interfaces/ISharedQueue.html">ISharedQueue (Interface)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">File and Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">Library Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmperrors2-interfaces">CmpErrors2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-identification">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-properties">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpschedule">CmpSchedule</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id1">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id2">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#fb-factory">FB Factory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id3">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id4">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#memory-block-manager">Memory Block Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id5">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id6">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#syscpuhandling">SysCpuHandling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id7">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id8">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#sysmem">SysMem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id9">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id10">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#syssem">SysSem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id11">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id12">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systypes2-interfaces">SysTypes2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id13">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id14">Library Properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="#">SharedData Utilities for MultiCore</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>SharedData Utilities for MultiCore Library Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="shareddata-utilities-for-multicore-library-documentation">
+<span id="index"></span><h1>SharedData Utilities for MultiCore Library Documentation<a class="headerlink" href="#shareddata-utilities-for-multicore-library-documentation" title="Permalink to this heading">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Company<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CODESYS</p>
+</dd>
+<dt class="field-even">Title<span class="colon">:</span></dt>
+<dd class="field-even"><p>SharedData Utilities for MultiCore</p>
+</dd>
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>4.1.0.0</p>
+</dd>
+<dt class="field-even">Categories<span class="colon">:</span></dt>
+<dd class="field-even"><p>Intern|Base</p>
+</dd>
+<dt class="field-odd">Namespace<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SHD</p>
+</dd>
+<dt class="field-even">Author<span class="colon">:</span></dt>
+<dd class="field-even"><p>CODESYS Development GmbH</p>
+</dd>
+<dt class="field-odd">Placeholder<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SharedDataUtilities</p>
+</dd>
+</dl>
+<section id="description-1">
+<span id="index-description"></span><h2>Description <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="headerlink" href="#description-1" title="Permalink to this heading">¶</a></h2>
+<p>Sharing data in a multi-core environment requires special measures to maintain data consistency and ensure that all participating cores are able to perform to their full potential. Designing data structures for which concurrentl access can be synchronized without blocking is very difficult. This library offers a collection of such data structures and the associated functions.</p>
+</section>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Library-Information/fld-Library-Information.html">Library Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersion.html">GetLibVersion (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/GetLibVersionNumber.html">GetLibVersionNumber (Function)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Library-Information/IsLibReleased.html">IsLibReleased (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SharedData/fld-SharedData.html">SharedData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/Enums/fld-Enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/SharedArea/fld-SharedArea.html">SharedArea</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/SharedPointer/fld-SharedPointer.html">SharedPointer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SharedData/SharedQueue/fld-SharedQueue.html">SharedQueue</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<div class="line-block">
+<div class="line">Based on SharedData Utilities for MultiCore.library, last modified 31.03.2025, 08:36:53. LibDoc 4.5.0.0</div>
+<div class="line">The content file SharedData Utilities for MultiCore.clean.json was generated with CODESYS V3.5 SP16 Patch 3 on 31.03.2025, 08:36:55.</div>
+</div>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+ 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.1.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>
+<!-- last generated: 2025-06-12 12:35:00 -->

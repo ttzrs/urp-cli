@@ -1,0 +1,831 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Behaviour Model and Interface Design</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Concepts and Elements" href="concepts.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="static_analysis.html">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="date_time.html">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="async.html">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="async.html#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multicore.html">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varnames.html">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="docScripting.html">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="concepts.html">Concepts and Elements</a> &raquo;</li>
+      
+    <li>Behaviour Model and Interface Design</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="behaviour-model-and-interface-design">
+<span id="behaviour-model"></span><h1>Behaviour Model and Interface Design<a class="headerlink" href="#behaviour-model-and-interface-design" title="Permalink to this heading">Â¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>With CODESYS 3.5.11.0 a new library was introduced.
+The <a class="reference download internal" download="" href="_downloads/cf26aa99b39a841cc44e90159fe65b29/Common%20Behaviour%20Model.library"><code class="xref download docutils literal notranslate"><span class="pre">Common</span> <span class="pre">Behaviour</span> <span class="pre">Model</span></code></a> replaces the <cite>CAA_Bahaviour.library</cite>.
+Please take a look to the documentation inside the new library for more detailed information.</p>
+</div>
+<p>Actions whose execution time depends on external devices
+(e.g. reading from a network interface) or is strongly influenced by the
+size of parameters (e.g. writing the data of a huge portion of memory to a file), should be defined as
+function blocks (FB) with <span class="target" id="index-0"></span>asynchronous <span class="target" id="index-1"></span>processing, i.e. for distributing the work
+load over several plc cycles (invocations).</p>
+<p>We distinguish two models according their processing behaviour:</p>
+<a class="reference internal image-reference" href="_images/ETrigATlTo.png"><img alt="_images/ETrigATlTo.png" src="_images/ETrigATlTo.png" style="width: 20%;" /></a>
+<a class="reference internal image-reference" href="_images/LConTlTo.png"><img alt="_images/LConTlTo.png" src="_images/LConTlTo.png" style="width: 20%;" /></a>
+<ol class="arabic simple">
+<li><p><span class="target" id="index-2"></span>Edge triggered (<code class="docutils literal notranslate"><span class="pre">xExecute</span></code>)</p></li>
+<li><p><span class="target" id="index-3"></span>Level controlled (<code class="docutils literal notranslate"><span class="pre">xEnable</span></code>)</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please take a look to an article about the special handling of <a class="reference internal" href="var_input_constant.html#var-input-constant"><span class="std std-ref">VAR_INPUT CONSTANT</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">VAR_INPUT</span> <span class="pre">CONSTANT</span></code> construct is part of a convention for declarative parameterization of function blocks.</p>
+</div>
+<section id="edge-triggered-function-blocks">
+<h2>Edge Triggered Function Blocks<a class="headerlink" href="#edge-triggered-function-blocks" title="Permalink to this heading">Â¶</a></h2>
+<div class="twocol docutils container">
+<div class="leftside docutils container">
+<ul class="simple">
+<li><p>The input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> is the defining feature for this type of function block.</p></li>
+<li><p>A rising edge detected at the input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> (<em>start condition</em>) starts the operation defined by
+this particular edge triggered function block.</p></li>
+<li><p>All inputs other than <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> and the eventually present variable <code class="docutils literal notranslate"><span class="pre">xAbort</span></code> are sampled with this rising edge.
+Their values will be stored locally.
+Thus, later changes of these inputs can not influence the defined operation while it is running <a class="footnote-reference brackets" href="#nsv" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p></li>
+<li><p>The input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> after the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> was seen on the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code>.</p></li>
+<li><p>A falling edge detected at the input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> will <strong>not</strong> abort the defined operation.
+The defined operation is running normally to its <em>ready condition</em>, <em>abort condition</em> or <em>error condition</em>.</p></li>
+<li><p>Only the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> detected on the eventually present input variable <code class="docutils literal notranslate"><span class="pre">xAbort</span></code> cancels the defined operation (<em>abort condition</em>).</p></li>
+<li><p>If the eventually present input variable <code class="docutils literal notranslate"><span class="pre">xAbort</span></code> and the input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> have the same value <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> the <em>abort condition</em> is reached immediately.</p></li>
+<li><p>Only one of the output variables <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xBusy</span></code>, <code class="docutils literal notranslate"><span class="pre">xError</span></code> or the eventually present output variable <code class="docutils literal notranslate"><span class="pre">xAborted</span></code> can have the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> at the same time.</p></li>
+<li><p>If a <em>abort condition</em> was detected, the output variable <code class="docutils literal notranslate"><span class="pre">xAborted</span></code> is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> after setting the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code>.</p>
+</li>
+<li id="reset-request-etrig"><p>With the falling edge of <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> the input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> is sampled and its inverted value is stored as a <em>reset request</em>.</p></li>
+<li><p>The state of the output variables will be valid for a minimum of one invocation even though the state of the <code class="docutils literal notranslate"><span class="pre">xExecute</span></code>
+input variable is already set to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code>. In this case (<em>reset request</em> is <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>) the internal state of the function block is automatically reinitialized.
+In the other case (<code class="docutils literal notranslate"><span class="pre">xExecute</span></code> is still <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>) the function block is waiting for a falling edge of the input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> before reinitializing the function block (<em>standard handshake</em>).</p></li>
+<li><p>The status of the output variables other than <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xBusy</span></code>, <code class="docutils literal notranslate"><span class="pre">xError</span></code>,  <code class="docutils literal notranslate"><span class="pre">xAborted</span></code> or <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> are valid only while <code class="docutils literal notranslate"><span class="pre">xDone</span></code> has the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> <a class="footnote-reference brackets" href="#valid" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#notvalid" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+</li>
+<li id="quick-handshake-etrig"><p>With an active <em>reset request</em> and after the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> of one of the output variables <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xError</span></code> or <code class="docutils literal notranslate"><span class="pre">xAborted</span></code> was seen,
+the input variable <code class="docutils literal notranslate"><span class="pre">xExecute</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> again and the function block will restart its defined operation (<em>quick handshake</em>).</p></li>
+</ul>
+</div>
+<div class="rightside docutils container">
+<a class="reference internal image-reference" href="_images/ETrig-Gallery.png"><img alt="_images/ETrig-Gallery.png" class="align-center" src="_images/ETrig-Gallery.png" style="width: 80%;" /></a>
+</div>
+</div>
+<p>See the <a class="reference internal" href="#common-properties"><span class="std std-ref">description of the output behaviour</span></a>, the <a class="reference internal" href="#timing-constraints"><span class="std std-ref">description of the possible timing constraints</span></a>
+and the <a class="reference internal" href="#error-handling"><span class="std std-ref">description of the possible error handling</span></a>.</p>
+<p>See the detailed descriptions of the reference implementation for the different edge triggered function blocks in the library:
+<code class="docutils literal notranslate"><span class="pre">ETrig</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigTl</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigTo</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigTlTo</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigA</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigATl</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigATo</span></code> | <code class="docutils literal notranslate"><span class="pre">ETrigATlTo</span></code></p>
+</section>
+<section id="level-controlled-function-blocks">
+<h2>Level Controlled Function Blocks<a class="headerlink" href="#level-controlled-function-blocks" title="Permalink to this heading">Â¶</a></h2>
+<div class="twocol docutils container">
+<div class="leftside docutils container">
+<ul class="simple">
+<li><p>The input variable <code class="docutils literal notranslate"><span class="pre">xEnable</span></code> is the defining feature for this type of function block.</p></li>
+<li><p>The status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> detected on the input variable <code class="docutils literal notranslate"><span class="pre">xEnable</span></code> (<em>start condition</em>) starts the operation
+defined by this particular level controlled function block.
+The defined operation is running to its <em>ready condition</em> or <em>error condition</em> while the input variable <code class="docutils literal notranslate"><span class="pre">xEnable</span></code> is <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>.
+The status <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> detected on the input variable <code class="docutils literal notranslate"><span class="pre">xEnable</span></code> is interpreted as an abort (<em>abort condition</em>).
+This means the internal state of the function block and all output variables will be reinitialized and it is then
+ready for a new start (<em>standard handshake</em>).</p></li>
+<li><p>The input variables will <strong>not</strong> be stored locally and can so influence the current work flow of the defined operation.</p></li>
+<li><p>Only one of the output variables <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> or <code class="docutils literal notranslate"><span class="pre">xError</span></code> can have the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> at the same time.</p></li>
+<li><p>The status of all output variables are valid as long as the status of the output variables <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> or <code class="docutils literal notranslate"><span class="pre">xDone</span></code> is <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> <a class="footnote-reference brackets" href="#notvalid" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p></li>
+<li><p>With the falling edge of <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> the input variable <code class="docutils literal notranslate"><span class="pre">xEnable</span></code> is sampled and its inverted value is stored as a <em>reset request</em>.</p></li>
+<li><p>The state of the output variables will be valid for a minimum of one invocation even though the state of the <code class="docutils literal notranslate"><span class="pre">xEnable</span></code>
+input variable is already set to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code>. In this case (<em>reset request</em> is <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>) the internal state of the function
+block is automatically reinitialized. This can especially be happen after an <em>error condition</em> while aborting the defined operation.</p></li>
+<li><p>The status of the output variables other than <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xBusy</span></code>, <code class="docutils literal notranslate"><span class="pre">xError</span></code> or <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> are valid only while
+<code class="docutils literal notranslate"><span class="pre">xDone</span></code> has the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> <a class="footnote-reference brackets" href="#valid" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#notvalid" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p></li>
+<li><p>With an active <em>reset request</em> and after the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> of one of the output variables <code class="docutils literal notranslate"><span class="pre">xDone</span></code> or <code class="docutils literal notranslate"><span class="pre">xError</span></code> was seen,
+the input variable <code class="docutils literal notranslate"><span class="pre">xEnable</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> again and the function block will restart its defined operation (<em>quick handshake</em>).</p></li>
+</ul>
+<p>Sometimes it is necessary to have a behaviour model which never reaches its ready condition.
+Such a function block has no <code class="docutils literal notranslate"><span class="pre">xDone</span></code> output variable and no <code class="docutils literal notranslate"><span class="pre">Done</span></code> state.
+This behaviour is defined as a <em>Continuous Behaviour</em>.
+In the context of this document we refer to this kind of behavior models as <code class="docutils literal notranslate"><span class="pre">LConC</span></code> and <code class="docutils literal notranslate"><span class="pre">LConTlC</span></code>.</p>
+</div>
+<div class="rightside docutils container">
+<a class="reference internal image-reference" href="_images/LCon-Gallery.png"><img alt="_images/LCon-Gallery.png" class="align-center" src="_images/LCon-Gallery.png" style="width: 80%;" /></a>
+</div>
+</div>
+<p>See the <a class="reference internal" href="#common-properties"><span class="std std-ref">description of the output behaviour</span></a>, the <a class="reference internal" href="#timing-constraints"><span class="std std-ref">description of the possible timing constraints</span></a>
+and the <a class="reference internal" href="#error-handling"><span class="std std-ref">description of the possible error handling</span></a>.</p>
+<p>See the detailed descriptions of the reference implementation for the different level controlled function blocks:
+<code class="docutils literal notranslate"><span class="pre">LCon</span></code> | <code class="docutils literal notranslate"><span class="pre">LConTl</span></code> | <code class="docutils literal notranslate"><span class="pre">LConTo</span></code> | <code class="docutils literal notranslate"><span class="pre">LConTlTo</span></code> | <code class="docutils literal notranslate"><span class="pre">LConC</span></code> | <code class="docutils literal notranslate"><span class="pre">LConTlC</span></code></p>
+</section>
+<section id="common-properties">
+<span id="id7"></span><h2>Common properties<a class="headerlink" href="#common-properties" title="Permalink to this heading">Â¶</a></h2>
+<ul class="simple">
+<li><p>If a specific invocation of a function block detects a <em>start condition</em>, the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> is set immediately to the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>.</p></li>
+<li><p>As long as the defined operation of a function block is running the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> has the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>.</p></li>
+<li><p>If a <em>error condition</em> was detected, the output variable <code class="docutils literal notranslate"><span class="pre">xError</span></code> is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> and the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> is set to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code>.
+In addition, one of the defined error codes (one value out of the local enumeration type <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>)
+will be assigned to the output variable <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code>.</p></li>
+<li><p>If the <em>ready condition</em> is reached, the output variable <code class="docutils literal notranslate"><span class="pre">xDone</span></code> is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> and the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> is set to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code>.</p></li>
+<li><p>If the defined operation can be fully processed in one invocation, the <em>ready condition</em> or the <em>error condition</em> is reached immediately
+and the <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> status of the output variable <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> is never be seen.</p></li>
+<li><p>With the rising edge of <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, the status of all output variables will be frozen.</p></li>
+<li><p>As long as one of the output variables <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xBusy</span></code>, <code class="docutils literal notranslate"><span class="pre">xAborted</span></code> (eventually present) or <code class="docutils literal notranslate"><span class="pre">xError</span></code> has the status <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> the
+defined operation of this function block is not yet completed, so further invocations are necessary to complete the <em>Resetting</em> state.</p></li>
+</ul>
+</section>
+<section id="timing-constraints">
+<span id="id8"></span><h2>Timing constraints<a class="headerlink" href="#timing-constraints" title="Permalink to this heading">Â¶</a></h2>
+<ul>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code> ([Âµs], 0 â no operating time limit):</div>
+<div class="line">A function block could, for example, complete a complex task in a loop.
+The larger the task is, the more time that is consumed in the current invocation of this function block.
+The <code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code> parameter can define how much time per invocation is permitted for consumption in the respective function block.
+Function blocks with a <code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code> input variable are implement in such a way that the current invocation is exited when the task is complete (<em>Ready Condition</em>),
+or when the consumed time for this invocation has exceeded the settings from <code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">udiTimeOut</span></code> ([Âµs], 0 â no operating time limit):</div>
+<div class="line">When processing its defined operation, a function block could be forced for example to wait for an external event.
+It can do this in an internal loop (Busy Wait) or it can check in each invocation whether its task can be completed in full.
+The <code class="docutils literal notranslate"><span class="pre">udiTimeOut</span></code> parameter can define then how much time is permitted for consumption for the defined operation.
+Function blocks with the <code class="docutils literal notranslate"><span class="pre">udiTimeOut</span></code> input variable are implemented in such a way that the current invocation is exited
+towards a <em>error condition</em> (<code class="docutils literal notranslate"><span class="pre">xError</span></code> â <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> and <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> â <code class="docutils literal notranslate"><span class="pre">ERROR.TIME_OUT</span></code>) when the time interval as defined by <code class="docutils literal notranslate"><span class="pre">udiTimeOut</span></code> has been exceeded.</div>
+</div>
+</li>
+</ul>
+</section>
+<section id="error-handling">
+<span id="id9"></span><h2>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this heading">Â¶</a></h2>
+<p>Every Function Block in this document has a Boolean output <code class="docutils literal notranslate"><span class="pre">xError</span></code> to indicate that there is an <em>error condition</em> reached.
+In that case the related information will be signaled with the value of the output <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> represents an Integer, indicating the reason of the error.
+In many cases this integer value is used as input for an additional FB which converts the number to a related localized string in an applicable language.
+The set of values for a specific <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> are application dependent.
+In case several libraries are combined (several domains), there can be an overlap in the numbers of the <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code>,
+meaning that the same number identifies a different error in a different domain.
+For this reason an value range definition for <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> per library must be done.</p>
+<p>The error handling of a function block should be designed in a way that only error codes are returned, which are documented in the affected library.
+It is very convenient but not recommended simply to return untreated error codes from sub libraries.
+This would result in a bad user experience. It is recommended to map foreign error codes to the error range of the affected library.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please take a look  to the <a class="reference internal" href="errors.html#errors"><span class="std std-ref">Rules for Error Handling</span></a></p>
+</div>
+</section>
+<section id="sorting-inputs-and-outputs">
+<span id="sorting-inout"></span><h2>Sorting Inputs and Outputs<a class="headerlink" href="#sorting-inputs-and-outputs" title="Permalink to this heading">Â¶</a></h2>
+<p>If default inputs (<code class="docutils literal notranslate"><span class="pre">xExecute</span></code> or <code class="docutils literal notranslate"><span class="pre">xEnable</span></code>, <code class="docutils literal notranslate"><span class="pre">xAbort</span></code>, <code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code>, <code class="docutils literal notranslate"><span class="pre">udiTimeOut</span></code>) are used,
+these must be positioned at top of the list of inputs, followed by specific inputs and the section <code class="docutils literal notranslate"><span class="pre">VAR_IN_OUT</span></code>.
+Further on the default outputs are to be declared in the following sequence: <code class="docutils literal notranslate"><span class="pre">xDone</span></code>, <code class="docutils literal notranslate"><span class="pre">xBusy</span></code>, <code class="docutils literal notranslate"><span class="pre">xError</span></code>, <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code>.
+Subsequently the specific outputs are to be defined.</p>
+</section>
+<section id="cooperation">
+<h2>Cooperation<a class="headerlink" href="#cooperation" title="Permalink to this heading">Â¶</a></h2>
+<p>If the design of function block interfaces consistently takes into account the described behaviour models then complex relationships
+between instances of them can easily be expressed and understood, in particular in graphical languages.
+The following example demonstrates the opportunities which are resulting from the use of the CODESYS Common Behaviour Model:</p>
+<section id="tcp-reader-example">
+<h3>TCP Reader Example<a class="headerlink" href="#tcp-reader-example" title="Permalink to this heading">Â¶</a></h3>
+<a class="reference internal image-reference" href="_images/TCPReader.png"><img alt="_images/TCPReader.png" src="_images/TCPReader.png" style="width: 70%;" /></a>
+<p>A TCP <code class="docutils literal notranslate"><span class="pre">Server</span></code> (<code class="docutils literal notranslate"><span class="pre">LConC</span></code>) listens at a specific endpoint. This endpoint is defined with an tuple consisting of an IP address and a related port number.
+After a connection to a TCP client has been established, the related <code class="docutils literal notranslate"><span class="pre">Connection</span></code> (<code class="docutils literal notranslate"><span class="pre">LConC</span></code>) will be activated.
+With the help of an <code class="docutils literal notranslate"><span class="pre">Reader</span></code> (<code class="docutils literal notranslate"><span class="pre">LConTlC</span></code>), a message structure is allocated out of a <code class="docutils literal notranslate"><span class="pre">MessagePool</span></code>.
+This structure is then used to store the information received from the client.
+For further processing, the message is then handed over to function block <code class="docutils literal notranslate"><span class="pre">QWrite</span></code> (<code class="docutils literal notranslate"><span class="pre">LCon</span></code>) that interfaces a queue.</p>
+</section>
+<section id="extending-the-example-to-a-complete-echoserver">
+<h3>Extending the Example to a Complete EchoServer<a class="headerlink" href="#extending-the-example-to-a-complete-echoserver" title="Permalink to this heading">Â¶</a></h3>
+<a class="reference internal image-reference" href="_images/TCPEchoServer.png"><img alt="_images/TCPEchoServer.png" src="_images/TCPEchoServer.png" style="width: 70%;" /></a>
+<p>A <code class="docutils literal notranslate"><span class="pre">Writer</span></code> (<code class="docutils literal notranslate"><span class="pre">ETrigTlTo</span></code>) is working now at the end of the original <code class="docutils literal notranslate"><span class="pre">Queue</span></code> and is requesting (dequeuing) the stored messages.
+This message is sent back over the original <code class="docutils literal notranslate"><span class="pre">Connection</span></code> to the client.
+So every received message will be sent back to the original sender, the client.
+With this small modification, a complete <code class="docutils literal notranslate"><span class="pre">Echo</span> <span class="pre">Server</span></code> is created.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Why is it sometimes important to choose a level-controlled model rather than an edge-triggered model?</p>
+<p>For the detection of a rising edge in a function block, two PLC cycles are necessary.
+Thus, if the requirement is to be able to process a new value in each cycle, an edge-triggered model cannot serve as a solution.
+In this case, a level-controlled function block model is the preferred way to implement the required functionality.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Reader</span></code> function block in the example above must have the possibility to provide a new message in each cycle.
+If there is no new message available in the current cycle, the output variable is set to null.
+So in this case, a level-control model was chosen.</p>
+<p>Sending a message with the help of the <code class="docutils literal notranslate"><span class="pre">Writer</span></code> function block in the example above can last more then one cycle.
+So it is important to choose an edge-triggered model.</p>
+<p>In order to combine these two function blocks into an efficient working team, a queue mechanism is necessary.</p>
+<p>Please spend a look to the connection between the <code class="docutils literal notranslate"><span class="pre">xBusy</span></code> output variable of the Writer and the negated
+<code class="docutils literal notranslate"><span class="pre">xExecute</span></code> input variable of the <code class="docutils literal notranslate"><span class="pre">QRead</span></code>. In this way the handshake between these two function block generated
+the most efficient output.</p>
+</div>
+</section>
+<section id="transformation-to-a-multithreaded-echoserver">
+<h3>Transformation to a Multithreaded EchoServer<a class="headerlink" href="#transformation-to-a-multithreaded-echoserver" title="Permalink to this heading">Â¶</a></h3>
+<p><strong>Step 1</strong>: Encapsulate the âReader â Queue â Writerâ logic into a function block called <code class="docutils literal notranslate"><span class="pre">EchoHandler</span></code></p>
+<a class="reference internal image-reference" href="_images/TCPEchoServer-2.png"><img alt="_images/TCPEchoServer-2.png" src="_images/TCPEchoServer-2.png" style="width: 70%;" /></a>
+<p>Content of the new <code class="docutils literal notranslate"><span class="pre">EchoHandler</span></code> function block:</p>
+<a class="reference internal image-reference" href="_images/EchoHandler.png"><img alt="_images/EchoHandler.png" src="_images/EchoHandler.png" style="width: 70%;" /></a>
+<p><strong>Step 2:</strong> Declare a numer of <code class="docutils literal notranslate"><span class="pre">EchoHandler</span></code> instances and assign these instances to different tasks.</p>
+<a class="reference internal image-reference" href="_images/TCPEchoServer-3.png"><img alt="_images/TCPEchoServer-3.png" src="_images/TCPEchoServer-3.png" style="width: 50%;" /></a>
+<p>Now we have a full-fledged multi threaded EchoServer.</p>
+</section>
+</section>
+<section id="library-support">
+<span id="id10"></span><h2>Library Support<a class="headerlink" href="#library-support" title="Permalink to this heading">Â¶</a></h2>
+<div class="twocol docutils container">
+<div class="leftside docutils container">
+<p>For CODESYS V3 there is the library CommonBehaviourModel.library, it implements
+the behavior model described earlier at a central location.
+Also there are library project templates, extending the behaviour model for
+the particular usage.
+The Library and the templates are available with the CODESYS V3 setup.</p>
+<div class="admonition-how-to-set-up-a-user-specific-implementation-of-a-behaviour-model-fb-in-a-new-library admonition">
+<p class="admonition-title">How to set up a user specific implementation of a Behaviour Model FB in a new library:</p>
+<p>Create a new library in CODESYS (New Project -&gt; Category âLibraryâ)
+and for this for example choose the template âCODESYS libraryâ.
+In the Template folder in the POUs view of your new library project you will
+find an example for each of the function blocks of the CommonBehaviourModel.library.
+To create an implementation e.g. of the FB <code class="docutils literal notranslate"><span class="pre">ETrigA</span></code> copy <code class="docutils literal notranslate"><span class="pre">ETrigA_Temp</span></code>
+from the Templates folder to the function block folder and rename
+it to <code class="docutils literal notranslate"><span class="pre">myETrigA</span></code>. Activate code generation for myEtrigA as follows:
+Open the âPropertiesâ of the POU and in category âBuildâ deactivate
+option âExclude from buildâ. In the comments of <code class="docutils literal notranslate"><span class="pre">myETrigA</span></code> and its methods
+you will find hints on how to do the implementation. For being able to
+acquire some experience with the behaviour of the FB
+(when and at which state change of the inputs which of the related method gets called),
+we recommend to implement a counter in each method before starting to
+test the implementation.
+For further information please take a look to the source code of <a class="reference download internal" download="" href="_downloads/cf26aa99b39a841cc44e90159fe65b29/Common%20Behaviour%20Model.library"><code class="xref download docutils literal notranslate"><span class="pre">Common</span> <span class="pre">Behaviour</span> <span class="pre">Model</span></code></a>.</p>
+</div>
+<div class="admonition-state-chart-of-the-abortable-timing-constrained-and-edge-triggered-common-behaviour-model-etrigatlto admonition">
+<p class="admonition-title">State Chart of the abortable, timing constrained and edge triggered Common Behaviour Model (ETrigATlTo)</p>
+<a class="reference internal image-reference" href="_images/et-states.png"><img alt="_images/et-states.png" class="align-center" src="_images/et-states.png" style="width: 100%;" /></a>
+</div>
+</div>
+<div class="leftside docutils container">
+<img alt="_images/fb_templates.png" src="_images/fb_templates.png" />
+</div>
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="nsv" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Sometimes it is necessary to have additional input variables which can influence the internal work flow.
+In this case, the special behaviour of these variables should be clearly documented.</p>
+</aside>
+<aside class="footnote brackets" id="valid" role="note">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
+<p>Sometimes it is necessary to have additional output variables with a valid status while <code class="docutils literal notranslate"><span class="pre">xDone</span></code> is not set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>.
+In this case, the special behaviour of these variables should be clearly documented.</p>
+</aside>
+<aside class="footnote brackets" id="notvalid" role="note">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id4">2</a>,<a role="doc-backlink" href="#id6">3</a>)</span>
+<p>Sometimes it is necessary to have additional output variables which a valid only in combination with the status of some other output variables.
+In this case, the special behaviour and relationship of these variables should be clearly documented.</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

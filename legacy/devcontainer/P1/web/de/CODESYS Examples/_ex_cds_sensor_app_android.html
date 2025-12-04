@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Suche"></meta><meta name="search.results" content="Suchresultat"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'de';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>Beispiel: Sensor App für Android</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V1.4.0.0"></meta><link rel="prev" href="_ex_cds_task_manager.html#UUID-d42ec650-2fe5-88ff-42e8-bfc16b1324fd_section-idm4631416718558433093815530489" title="Systemvoraussetzungen und Einschränkungen"></link><link rel="next" href="_ex_cds_sensor_app_android.html#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455597657" title="Installation"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=de"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Suche" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS Beispiele</a></li><li class="breadcrumb-link"><a href="_ex_codesys_development_system.html">Beispiele <span class="phrase">CODESYS Development System</span></a></li><li class="breadcrumb-node">Beispiel: Sensor App für Android</li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_ex_cds_task_manager.html#UUID-d42ec650-2fe5-88ff-42e8-bfc16b1324fd_section-idm4631416718558433093815530489">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_ex_cds_sensor_app_android.html#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455597657">Weiter</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="UUID-e0aba376-7c91-1b19-329f-76b26f0ba841" data-permalink="_ex_cds_sensor_app_android.html" data-topic-level="1" data-relative-prefix="" data-time-modified="November 27, 2025" data-publication-date="" id="UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both">Beispiel: Sensor App für Android</h1></div></div></div><p><span class="bold"><strong>Produkt</strong></span>: <a class="link" href="../CODESYS Sensor App for Android/codesys_sensor_app_start_page.html" target="_blank">Link auf CODESYS Sensor App for Android</a></p><p>Das Beispielprojekt zeigt, wie Sensordaten eines Android-Smartphones an eine <span class="phrase">CODESYS</span>-Steuerung übertragen werden.</p><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455597657"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Installation</h2></div></div></div><p><span class="bold"><strong>Installation der Android-App</strong></span></p><p>Die Installation der Android-App <a class="link" href="https://play.google.com/store/apps/details?id=com.codesys.codesyssensor&amp;hl=en" target="_blank" rel="noopener">CODESYS Sensor App</a> erfolgt ausschließlich über den Google Play Store.</p><p>Suchen Sie im Google Play Store nach "CODESYS Sensor App" und installieren Sie die Anwendung auf dem Android-Gerät.</p><p><span class="bold"><strong>Installation des <span class="phrase">CODESYS</span>-Packages</strong></span></p><p>Installieren Sie das Package <code class="code">CODESYS Sensor App for Android Example</code> mit dem <span class="phrase">CODESYS Installer</span>. Benutzen Sie dazu den Download-Link am Ende dieser Seite.</p></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455812283"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Konfiguration</h2></div></div></div><p>Die Android-App sendet die Sensordaten des Android-Gerätes über Netzwerkvariablen zur <span class="phrase">CODESYS</span>-Steuerung, via UDP auf Port 1202 und 1059. Das Android-Gerät (beispielsweise Smartphone oder Tablet) und die <span class="phrase">CODESYS</span>-Steuerung müssen sich im gleichen lokalen Netzwerk befinden. Am einfachsten kann dies über den WLAN-Hotspot des Android-Geräts erreicht werden.</p><div class="procedure" id="id16906"><div class="procedure-title"><span class="formal-label"><span class="formal-label-text">Prozedur</span><span class="formal-label-delimiter">. </span></span><span class="formal-title"><span class="bold"><strong>Einrichten eines WLAN-Hotspots im Android-Gerät</strong></span></span></div><ol class="procedure" type="1"><li class="step"><p>Richten Sie einen WLAN-Hotspot auf dem Android-Gerät ein.</p><p>(beispielsweise über <span class="guilabel">Einstellungen</span> → <span class="guilabel">Hotspot und Tethering</span> → <span class="guilabel">WLAN-Hotspot</span>)</p></li><li class="step"><p>Verbinden Sie die <span class="phrase">CODESYS</span>-Steuerung mit dem WLAN-Hotspot und ermitteln Sie die IP-Adresse der Steuerung für den WLAN-Adapter (beispielsweise über den CMD-Befehl <code class="code">ipconfig</code>).</p></li></ol></div><div class="procedure" id="id16919"><div class="procedure-title"><span class="formal-label"><span class="formal-label-text">Prozedur</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Vorbereiten des <span class="phrase">CODESYS Development System</span></span></div><ol class="procedure" type="1"><li class="step"><p>Öffnen Sie das <span class="phrase">CODESYS</span>-Beispielprojekt <code class="code">AndroidSensorApp.project</code>. </p></li><li class="step"><p>Starten Sie die Applikation <code class="code">SensorReceiver</code> auf der Steuerung.</p></li></ol></div><div class="procedure" id="id16929"><div class="procedure-title"><span class="formal-label"><span class="formal-label-text">Prozedur</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Konfiguration Android-Gerät</span></div><ol class="procedure" type="1"><li class="step"><p>Starten Sie die App "CODESYS Sensor App".</p></li><li class="step"><p>Geben Sie bei <span class="guilabel">Target IP address</span> die IP-Adresse der <span class="phrase">CODESYS</span>-Steuerung ein.</p></li><li class="step"><p>Schalten Sie <span class="guilabel">Send sensor data to control</span> auf <span class="guilabel">AN</span>.</p></li></ol></div><p>Die aktuellen Sensordaten werden jetzt an die Steuerung übertragen und in der Visualisierung dargestellt.</p><div dir="ltr" class="important"><h3 class="title">Wichtig</h3><p>Wenn die <span class="phrase">CODESYS</span>-Applikation keine Daten empfängt, überprüfen Sie die Port-Freigaben in Ihrem Netzwerk und Ihrer Firewall.</p></div></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243456395385"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Funktionsumfang</h2></div></div></div><div class="itemizedlist"><div class="itemizedlist-title"><span class="formal-label"><span class="formal-label-text"></span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Funktionen der Android-App "CODESYS Sensor App"</span></div><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><span class="guilabel">Target IP address</span>: Setzen der IP-Adresse der <span class="phrase">CODESYS</span>-Steuerung</p></li><li class="listitem"><p><span class="guilabel">Send sensor data to control</span>: Senden der Sensordaten an die angegebene IP-Adresse</p></li><li class="listitem"><p><span class="guilabel">Messages</span>: Meldungen zum Status der <span class="phrase">CODESYS</span>-App</p></li><li class="listitem"><p><span class="guilabel">Start Speech Recognition</span>: Starten der automatischen Worterkennung von Google</p><p>(Nur bei bestehender Internetverbindung)</p></li><li class="listitem"><p><span class="guilabel">Recognized Words</span>: Liste der erkannten Worte</p></li></ul></div><div class="itemizedlist"><div class="itemizedlist-title"><span class="formal-label"><span class="formal-label-text"></span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Beispielprojekt <code class="code">AndroidSensorApp.project</code></span></div><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>In der Visualisierung der Applikation <code class="code">SensorReceiver</code> werden die empfangenen Sensordaten dargestellt. Die erkannten Worte der Spracherkennung werden im String <code class="code">strCommand</code> der Netzwerkvariablen NVL gespeichert.</p></li></ul></div><div class="mediaobject"><img src="image/uuid-4b81426e-ba4e-c7f5-9b07-9c76df77b6ba.png" style="" alt="_codesys_sensor_app_1.png"></img></div><p>Screenshot: <span class="phrase">CODESYS Sensor App​ for Android</span> auf dem Android-Gerät</p><div class="mediaobject"><img src="image/uuid-2d3ddec4-773c-e920-99d7-e3d268b5e354.png" style="" alt="_codesys_sensor_app_2.png"></img></div><p>Screenshot: Darstellung der Sensordaten im <span class="phrase">CODESYS Development System</span> (<code class="code">AndroidSensorApp.project</code>)</p></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-idm43524324567102"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Systemvoraussetzungen und Einschränkungen</h2></div></div></div><div class="informaltable table-responsive"><table class="informaltable table-bordered"><tbody><tr><td class="td"><p>Programmiersystem</p></td><td class="td"><p><span class="phrase">CODESYS Development System</span> Version 3.5.17.0 oder höher</p></td></tr><tr><td class="td"><p>Laufzeitsystem</p></td><td class="td"><p><span class="phrase">CODESYS Control Win</span> Version 3.5.17.0</p><div dir="ltr" class="tip"><h3 class="title">Tipp</h3><p>Verwenden Sie das kostenlos im <span class="phrase">CODESYS Store International</span> erhältliche Projekt Device Reader, um von der Steuerung unterstützten Funktionen zu ermitteln.</p></div></td></tr><tr><td class="td"><p>Zusatzkomponenten</p></td><td class="td"><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Android-Gerät (beispielsweise Smartphones) mit aus dem Google Playstore installierter CODESYS Sensor App</p></li><li class="listitem"><p><span class="phrase">CODESYS Development System</span>-fähige Steuerung</p></li></ul></div></td></tr><tr><td class="td"><p>Zusätzliche Anforderungen</p></td><td class="td"><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Netzwerk-Verbindung zwischen Android-Gerät und <span class="phrase">CODESYS Development System</span>-Steuerung</p></li><li class="listitem"><p>Internetverbindung (für Sprachsteuerung)</p></li></ul></div></td></tr></tbody></table></div><div dir="ltr" class="note notice"><h3 class="title">Hinweis</h3><p><span class="inlinemediaobject"><img src="image/uuid-d6347eb2-f6b3-24e3-d291-552c637e9a6d.png" alt="_example_icon.png"></img></span> <a class="link" href="ap-installer://codesys.com/package/install?id=53b81201-386f-4653-8465-5c1bc7c8cda6" target="_blank">DOWNLOAD</a> Projekt</p></div></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">In diesem Abschnitt<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0">Beispiel: Sensor App für Android</a></li><li><a href="#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455597657">Installation</a></li><li><a href="#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455812283">Konfiguration</a></li><li><a href="#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243456395385">Funktionsumfang</a></li><li><a href="#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-idm43524324567102">Systemvoraussetzungen und Einschränkungen</a></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Suchresultat</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22Beispiel:%20Sensor%20App%20f%C3%BCr%20Android%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22Beispiel:%20Sensor%20App%20f%C3%BCr%20Android%22%20in%20the%20publication%20%22CODESYS%20Beispiele%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Möchten Sie uns Feedback geben? Klicken Sie hier, um Änderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_ex_cds_task_manager.html#UUID-d42ec650-2fe5-88ff-42e8-bfc16b1324fd_section-idm4631416718558433093815530489">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_ex_cds_sensor_app_android.html#UUID-7414a159-308e-365c-e2d7-9c1f2f9d77f0_section-id235243455597657">Weiter</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-11-27 08:07:26 -->

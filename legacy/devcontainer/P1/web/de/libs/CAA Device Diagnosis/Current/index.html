@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html lang="de" xml:lang="de">
+<head>
+    
+  
+
+    
+
+    <title>CAA Device Diagnosis Library Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Stichwortverzeichnis" href="genindex.html"/>
+    <link rel="top" title="CAA Device Diagnosis V3.5.21.0" href="#"/> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+<link href="https://www.codesys.com/css/sphynx-additional.css" rel="stylesheet">
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+<header id="page-header"></header>
+
+ 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="CAA-Device-Diagnosis/fld-CAA-Device-Diagnosis.html">CAA Device Diagnosis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/fld-Enums.html">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/BUS_STATE.html">BUS_STATE (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/BUS_TYPE.html">BUS_TYPE (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/DEVICE_STATE.html">DEVICE_STATE (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/DEVICE_TRANSITION_STATE.html">DEVICE_TRANSITION_STATE (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/DEVICE_TYPE.html">DEVICE_TYPE (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/ERROR.html">ERROR (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/LOGGER_MODE.html">LOGGER_MODE (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/PROC_CMD.html">PROC_CMD (Enum)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/PROC_STATE.html">PROC_STATE (Enum)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Bus/fld-Bus.html">Bus</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Bus/GetBusError.html">GetBusError (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Device/fld-Device.html">Device</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Device/GetDeviceError.html">GetDeviceError (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Device/GetSpecificDeviceError.html">GetSpecificDeviceError (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Reconfigure/fld-Reconfigure.html">Reconfigure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Reconfigure/Reconfigure.html">Reconfigure (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Stack/fld-Stack.html">Stack</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Stack/GetBusScan.html">GetBusScan (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Utility/fld-Utility.html">Utility</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/Utility/GetIDeviceInstByIoAddr.html">GetIDeviceInstByIoAddr (FunctionBlock)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/fld-Functions.html">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/CanReconfigure.html">CanReconfigure (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/GetDeviceNameString.html">GetDeviceNameString (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/GetDeviceNameWString.html">GetDeviceNameWString (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/GetNextNode.html">GetNextNode (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/GetNodeDepth.html">GetNodeDepth (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/GetRoot.html">GetRoot (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/INode_TO_IBus.html">INode_TO_IBus (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/INode_TO_IDevice.html">INode_TO_IDevice (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/INode_TO_IDevice2.html">INode_TO_IDevice2 (Function)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/INode_TO_IStack.html">INode_TO_IStack (Function)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Global-Constants/fld-Global-Constants.html">Global Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Global-Constants/ERROR_CODES.html">ERROR_CODES (GVL)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/fld-Interfaces.html">Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/IBus.html">IBus (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IBus/Fieldbus-dependent-methods/fld-Fieldbus-dependent-methods.html">Fieldbus-dependent-methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IBus/GetBusDiagnosisInfo.html">GetBusDiagnosisInfo (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IBus/GetBusErrorAsync.html">GetBusErrorAsync (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IBus/GetBusInfo.html">GetBusInfo (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IBus/GetBusState.html">GetBusState (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IBus/GetQoS.html">GetQoS (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/IDevice.html">IDevice (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice/Fieldbus-dependent-methods/fld-Fieldbus-dependent-methods.html">Fieldbus-dependent-methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice/GetDeviceDiagnosisInfo.html">GetDeviceDiagnosisInfo (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice/GetDeviceErrorAsync.html">GetDeviceErrorAsync (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice/GetDeviceInfo.html">GetDeviceInfo (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice/GetDeviceState.html">GetDeviceState (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice/SetCommunicationState.html">SetCommunicationState (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/IDevice2.html">IDevice2 (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice2/CheckCurrentSupportedCommunicationState.html">CheckCurrentSupportedCommunicationState (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IDevice2/CheckSupportedCommunicationState.html">CheckSupportedCommunicationState (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/ILogger.html">ILogger (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-ILogger/DisableLogger.html">DisableLogger (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-ILogger/EnableLogger.html">EnableLogger (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-ILogger/GetLogEntry.html">GetLogEntry (Method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/INode.html">INode (Folder)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/ChildNodeCount.html">ChildNodeCount (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/Enable.html">Enable (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/FirstChildNode.html">FirstChildNode (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/IsRootNode.html">IsRootNode (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/NextSiblingNode.html">NextSiblingNode (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/ParentNode.html">ParentNode (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-INode/SiblingNodeCount.html">SiblingNodeCount (Property)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/IReconfigureProvider.html">IReconfigureProvider (Folder)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IReconfigureProvider/ReconfigureActive.html">ReconfigureActive (Property)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IReconfigureProvider/ReconfigureAsync.html">ReconfigureAsync (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IReconfigureProvider/RegisterIRPChild.html">RegisterIRPChild (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IReconfigureProvider/SiblingIRP.html">SiblingIRP (Property)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/IStack.html">IStack (Interface)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IStack/GetBusScanAsync.html">GetBusScanAsync (Method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/pou-IStack/GetLogger.html">GetLogger (Method)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Internal/fld-Internal.html">Internal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Internal/Diag-Base/fld-Diag-Base.html">Diag Base</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Internal/Diag-Base/CAADiagDeviceDefault.html">CAADiagDeviceDefault (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Internal/Diag-Base/CAADiagTreeBase.html">CAADiagTreeBase (FunctionBlock)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="CAA-Device-Diagnosis/Internal/Diag-Base/CAAReconfigureBase.html">CAAReconfigureBase (FunctionBlock)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/fld-Structs.html">Structs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/BUS_INFO.html">BUS_INFO (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/DEVICE_INFO.html">DEVICE_INFO (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/ERROR_INFO.html">ERROR_INFO (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/LOG_ENTRY.html">LOG_ENTRY (Struct)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/QOS_INFO.html">QOS_INFO (Struct)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="VersionConstants.html">VersionConstants (GVL)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">File and Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">Library Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#base-interfaces">Base Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-identification">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-properties">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#caa-types-extern">CAA Types Extern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id1">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id2">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpasyncmgr">CmpAsyncMgr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id3">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id4">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmperrors2-interfaces">CmpErrors2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id5">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id6">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpeventmgr">CmpEventMgr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id7">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id8">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#commfb">CommFB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id9">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id10">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#iodriver-interfaces">IoDriver Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id11">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id12">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#iostandard">IoStandard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id13">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id14">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systypes2-interfaces">SysTypes2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id15">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id16">Library Properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="#">CAA Device Diagnosis</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>CAA Device Diagnosis Library Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="caa-device-diagnosis-library-documentation">
+<span id="index"></span><h1>CAA Device Diagnosis Library Documentation<a class="headerlink" href="#caa-device-diagnosis-library-documentation" title="Permalink to this heading">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Company<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CAA Technical Workgroup</p>
+</dd>
+<dt class="field-even">Title<span class="colon">:</span></dt>
+<dd class="field-even"><p>CAA Device Diagnosis</p>
+</dd>
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>3.5.21.0</p>
+</dd>
+<dt class="field-even">Categories<span class="colon">:</span></dt>
+<dd class="field-even"><p>Intern|CAA|Fieldbus</p>
+</dd>
+<dt class="field-odd">Namespace<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DED</p>
+</dd>
+<dt class="field-even">Author<span class="colon">:</span></dt>
+<dd class="field-even"><p>CODESYS Development GmbH</p>
+</dd>
+<dt class="field-odd">Placeholder<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CAA Device Diagnosis</p>
+</dd>
+</dl>
+<section id="description-1">
+<span id="index-description"></span><h2>Description <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="headerlink" href="#description-1" title="Permalink to this heading">¶</a></h2>
+<p>Generic device diagnosis interface for all fieldbus types</p>
+</section>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CAA-Device-Diagnosis/fld-CAA-Device-Diagnosis.html">CAA Device Diagnosis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Enums/fld-Enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Functions/fld-Functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Global-Constants/fld-Global-Constants.html">Global Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Interfaces/fld-Interfaces.html">Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Internal/fld-Internal.html">Internal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CAA-Device-Diagnosis/Structs/fld-Structs.html">Structs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="VersionConstants.html">VersionConstants (GVL)</a></li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<div class="line-block">
+<div class="line">Based on CAA Device Diagnosis.library, last modified 10.03.2025, 15:42:04. LibDoc 4.5.0.0</div>
+<div class="line">The content file CAA Device Diagnosis.clean.json was generated with CODESYS V3.5 SP16 Patch 3 on 10.03.2025, 15:42:06.</div>
+</div>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+ 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>
+<!-- last generated: 2025-06-12 09:13:55 -->

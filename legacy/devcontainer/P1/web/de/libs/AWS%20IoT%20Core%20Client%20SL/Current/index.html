@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="de" xml:lang="de">
+<head>
+    
+  
+
+    
+
+    <title>AWS IoT Core Client SL Library Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Stichwortverzeichnis" href="genindex.html"/>
+    <link rel="top" title="AWS IoT Core Client SL V1.12.0.0" href="#"/> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+<link href="https://www.codesys.com/css/sphynx-additional.css" rel="stylesheet">
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+<header id="page-header"></header>
+
+ 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="AWS-Iot-Core-Client/fld-AWS-Iot-Core-Client.html">AWS Iot Core Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Enums/fld-Enums.html">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Enums/MQTT_REASON_CODE.html">MQTT_REASON_CODE (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Enums/MQTT_VERSION.html">MQTT_VERSION (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Enums/QOS.html">QOS (Enum)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/AWSIoTClient.html">AWSIoTClient (FunctionBlock)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/AWSIoTGetDeviceShadow.html">AWSIoTGetDeviceShadow (FunctionBlock)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/AWSIoTPublish.html">AWSIoTPublish (FunctionBlock)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/AWSIoTSubscribe.html">AWSIoTSubscribe (FunctionBlock)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/AWSIoTSubscribeDeviceShadow.html">AWSIoTSubscribeDeviceShadow (FunctionBlock)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/AWSIoTUpdateDeviceShadow.html">AWSIoTUpdateDeviceShadow (FunctionBlock)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/fld-Structs.html">Structs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/MQTTConnackProperties.html">MQTTConnackProperties (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/MQTTConnectProperties.html">MQTTConnectProperties (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/MQTTPublishProperties.html">MQTTPublishProperties (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/MQTTSubscribeProperties.html">MQTTSubscribeProperties (Alias)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/MQTTWillProperties.html">MQTTWillProperties (Alias)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Visualization/fld-Visualization.html">Visualization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Visualization/ETrigToTemplate.html">ETrigToTemplate (FunctionBlock)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Visualization/GlobalTextList.html">GlobalTextList (GlobalTextList)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Visualization/TextListForCombobox_MQTT_QOS.html">TextListForCombobox_MQTT_QOS (TextList)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AWS-Iot-Core-Client/Visualization/TextListForCombobox_QOS.html">TextListForCombobox_QOS (TextList)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">File and Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">Library Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpcrypto">CmpCrypto</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-identification">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-properties">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmperrors2-interfaces">CmpErrors2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id1">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id2">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#cmpx509cert">CmpX509Cert</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id3">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id4">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#common-behaviour-model">Common Behaviour Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id5">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id6">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#component-manager">Component Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id7">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id8">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#element-collections">Element Collections</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id9">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id10">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#mqtt-client-sl">MQTT Client SL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id11">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id12">Library Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#library-parameter">Library Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#net-base-services">Net Base Services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id13">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id14">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#standard">Standard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id15">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id16">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#stringutils">StringUtils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id17">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id18">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#sysmem">SysMem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id19">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id20">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#systypes2-interfaces">SysTypes2 Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id21">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id22">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelem3dpath">VisuElem3DPath</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id23">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id24">Library Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id25">Library Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemcamdisplayer">VisuElemCamDisplayer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id26">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id27">Library Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id28">Library Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemmeter">VisuElemMeter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id29">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id30">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemtexteditor">VisuElemTextEditor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id31">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id32">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemtrace">VisuElemTrace</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id33">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id34">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemxychart">VisuElemXYChart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id35">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id36">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelems">VisuElems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id37">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id38">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemsalarm">VisuElemsAlarm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id39">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id40">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemsdatetime">VisuElemsDateTime</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id41">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id42">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemsspecialcontrols">VisuElemsSpecialControls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id43">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id44">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuelemswincontrols">VisuElemsWinControls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id45">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id46">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visuinputs">VisuInputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id47">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id48">Library Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html#visunativecontrol">VisuNativeControl</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id49">Library Identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libraries.html#id50">Library Properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="#">AWS IoT Core Client SL</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>AWS IoT Core Client SL Library Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="aws-iot-core-client-sl-library-documentation">
+<span id="index"></span><h1>AWS IoT Core Client SL Library Documentation<a class="headerlink" href="#aws-iot-core-client-sl-library-documentation" title="Permalink to this heading">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Company<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CODESYS</p>
+</dd>
+<dt class="field-even">Title<span class="colon">:</span></dt>
+<dd class="field-even"><p>AWS IoT Core Client SL</p>
+</dd>
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1.12.0.0</p>
+</dd>
+<dt class="field-even">Categories<span class="colon">:</span></dt>
+<dd class="field-even"><p>Application|Utils</p>
+</dd>
+<dt class="field-odd">Namespace<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AWS_IOT</p>
+</dd>
+<dt class="field-even">Author<span class="colon">:</span></dt>
+<dd class="field-even"><p>CODESYS Development GmbH</p>
+</dd>
+<dt class="field-odd">Placeholder<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AWS_IoT_Core_Client_SL</p>
+</dd>
+</dl>
+<section id="description-1">
+<span id="index-description"></span><h2>Description <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="headerlink" href="#description-1" title="Permalink to this heading">¶</a></h2>
+<p>Client to publish and subscribe messages on AWS IoT Core.</p>
+</section>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="AWS-Iot-Core-Client/fld-AWS-Iot-Core-Client.html">AWS Iot Core Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Enums/fld-Enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Function-Blocks/fld-Function-Blocks.html">Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Structs/fld-Structs.html">Structs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AWS-Iot-Core-Client/Visualization/fld-Visualization.html">Visualization</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<div class="line-block">
+<div class="line">Based on AWS IoT Core Client SL.library, last modified 12.05.2025, 06:37:57. LibDoc 4.5.0.0</div>
+<div class="line">The content file AWS IoT Core Client SL.clean.json was generated with CODESYS V3.5 SP16 Patch 3 on 12.05.2025, 06:38:08.</div>
+</div>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+ 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.12.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>
+<!-- last generated: 2025-06-12 08:56:02 -->

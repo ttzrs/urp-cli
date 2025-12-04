@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Suche"></meta><meta name="search.results" content="Suchresultat"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'de';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>Trace-Scripting-Schnittstelle verwenden</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V4.2.0.0"></meta><link rel="prev" href="_trace_start_page.html" title="CODESYS Trace"></link><link rel="next" href="_trace_script_use_scripting_interface.html#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-698d46a3-837f-222a-2594-c7b891d9d1f4" title="Erstellen eines Traces"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=de"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Suche" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS Trace</a></li><li class="breadcrumb-node">Trace-Scripting-Schnittstelle verwenden</li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_trace_start_page.html">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_trace_script_use_scripting_interface.html#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-698d46a3-837f-222a-2594-c7b891d9d1f4">Weiter</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="UUID-d3a551ea-e7d2-60a0-aa9a-d0721028b5ef" data-permalink="_trace_script_use_scripting_interface.html" data-topic-level="1" data-relative-prefix="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both">Trace-Scripting-Schnittstelle verwenden</h1></div></div></div><p>Das Add-on <span class="phrase">CODESYS Trace</span> stellt eine Scripting-Schnittstelle zur Verfügung. Im Folgenden finden Sie Beispiele für die Verwendung dieser Schnittstelle.</p><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-698d46a3-837f-222a-2594-c7b891d9d1f4"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Erstellen eines Traces</h2></div></div></div><pre class="programlisting python" data-language="python"># a new trace can be created using the toplevel trace api
+myApplication = projects.primary.find("Device", "PLC Logic", "Application")[0]
+traceObject = trace.create(myApplication, "MyTraceName")
+traceObject.task_name = "Task" # a task with the name "Task" should already exist here. If it does not exist, this assignment throws an ValueError.</pre><pre class="programlisting python" data-language="python"># the task of the trace can be set during creation
+myApplication = projects.primary.find("Device", "PLC Logic", "Application")[0]
+traceObjectWithTaskSet = trace.create(myApplication, "NameOfMySecondTrace", "MainTask")
+assert traceObjectWithTaskSet.task_name == "MainTask"</pre></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-4f30c66c-f683-740b-5346-2912ac88f465"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Finden und Verifizieren von bestehenden Traces</h2></div></div></div><pre class="programlisting python" data-language="python"># finding an existing trace can be done via the project.find method
+foundObjects = projects.primary.find("Device", "PLC Logic", "Application", "MyTraceObject")
+expectedTraceObject = foundObjects[0]
+assert expectedTraceObject.is_trace_object, "Could not find trace object with the expected name" # .is_trace_object is False for all other objects of type IScriptObject</pre></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-8bd43b1c-6343-ac35-d7f3-df547d6050cc"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Hinzufügen und Ändern von Trace-Variablen</h2></div></div></div><pre class="programlisting python" data-language="python">myTrace = projects.primary.find("Device", "PLC Logic", "Application", "MyTraceObject")[0]
+
+# add_variable() is a convenience method to add a new ScriptTraceVariable and set its properties during creation
+addedVariable = myTrace.add_trace_variable(variableName="PLC_PRG.a1",
+    graphColor= 0xff000000,
+    graphType=GraphType.LINES,
+    activateMaxWarning=True,
+    maxWarningArea=9.0,
+    maxColor= 0xffff0000)
+
+addedVariable.enabled = False
+
+for i in range(2,11):
+    newVariable = myTrace.variable_list.add()
+    newVariable.variable_name = "PLC_PRG.a"+str(i)
+    newVariable.graph_type = GraphType.LINES_CROSSES
+
+assert len(myTrace.variable_list) == 10</pre></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-b1ed5b03-c620-077c-2f62-acfd84e810f5"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Ändern der <code class="code">ScriptTrace</code>-Variablenliste</h2></div></div></div><p>Entfernen einer bestimmten <code class="code">ScriptTrace</code>-Variablen</p><p>Der folgende Codefragment findet die Variable mit dem angegebenen Namen und entfernt diese aus der <code class="code">ScriptTrace</code>-Variablenliste.</p><pre class="programlisting python" data-language="python">def remove_variable_by_name(traceObject, variableName):
+    index_to_remove = -1
+    for variable in traceObject.variable_list:
+        if variable.variable_name == variableName:
+            index_to_remove = traceObject.variable_list.index_of(variable)
+            break
+        if index_to_remove != -1:
+            traceObject.variable_list.remove(index_to_remove)</pre></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-c9a5ef6d-6d81-7926-9538-b2249d53bb6a"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Ändern der Aufzeichnungseinstellungen</h2></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737059980421"><div class="titlepage"><div><div class="title"><h3 class="title">Einstellen der Auflösung (ms/µs) der Trace-Aufzeichnung</h3></div></div></div><p>Der folgende Codefragment basiert auf dem Fragment ???.</p><pre class="programlisting python" data-language="python">traceObject.resolution = Resolution.MicroSeconds
+# Use Resolution.MilliSeconds if you want to have a trace recording based on milliseconds</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737059249726"><div class="titlepage"><div><div class="title"><h3 class="title">Einstellen der Aufzeichnungsbedingung</h3></div></div></div><p>Der folgende Codefragment basiert auf dem Fragment ???.</p><pre class="programlisting python" data-language="python">traceObject.record_condition = "PLC_PRG.bDoRecord"</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737061351582"><div class="titlepage"><div><div class="title"><h3 class="title">Einstellen des Kommentars</h3></div></div></div><p>Der folgende Codefragment basiert auf dem Fragment ???.</p><pre class="programlisting python" data-language="python">traceObject.comment = "This trace records the ..."</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737062520065"><div class="titlepage"><div><div class="title"><h3 class="title">Einstellen der Option Automatischer Start</h3></div></div></div><p>Der folgende Codefragment basiert auf dem Fragment ???.</p><pre class="programlisting python" data-language="python">traceObject.auto_start = True</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737065791034"><div class="titlepage"><div><div class="title"><h3 class="title">Einstellen der Option, nur jeden N-ten Zyklus aufzuzeichnen</h3></div></div></div><p>Der folgende Codefragment basiert auf dem Fragment ???.</p><pre class="programlisting python" data-language="python">traceObject.every_n_cycles = 10</pre></section></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-d5a33595-77ec-1fc8-237c-1153a9fda9ec"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Diagramme und ihre Variablen</h2></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737073150269"><div class="titlepage"><div><div class="title"><h3 class="title">Erstellen eines <code class="code">ScriptTrace</code>-Diagramms mit allen <code class="code">ScriptTrace</code>-Variablen</h3></div></div></div><p>Das folgende Skript verdeutlicht, wie ein einfaches Diagramm und seine Variablen erstellt werden können.</p><pre class="programlisting python" data-language="python"># first we need a ScriptTraceObject and some ScriptTraceVariables
+traceObject = projects.primary.find("Device","PLC Logic","Application","Trace")[0]
+assert traceObject.is_trace_object
+for i in range(5):
+    traceObject.add_trace_variable(variableName="PLC_PRG.a"+str(i))
+
+# create one ScriptTraceDiagram and add all ScriptTraceVariables to it
+traceDiagram = traceObject.diagrams.add()
+for traceVar in traceObject.variable_list:
+    traceDiagram.add_diagram_variable(traceVar)</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737077515554"><div class="titlepage"><div><div class="title"><h3 class="title">Erstellen eines <code class="code">ScriptTrace</code>-Diagramms pro <code class="code">ScriptTrace</code>-Variable</h3></div></div></div><p>Die folgende Python-Methode nimmt ein <code class="code">ScriptTrace</code>-Objekt und fügt ein Diagramm pro <code class="code">ScriptTrace</code>-Variable hinzu.</p><pre class="programlisting python" data-language="python">def one_diagram_per_variable(traceObject):
+    assert traceObject.is_trace_object
+    for traceVar in traceObject.variable_list:
+        diagram = traceObject.diagrams.add(traceVar)
+        diagram.name = traceVar.variable_name</pre></section></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-8a9f24ff-4056-39eb-4996-c2e4c45b98e2"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Kopieren von Einstellungen eines <code class="code">ScriptTrace</code>-Diagramms</h2></div></div></div><p>Das folgende Skript zeigt, wie die Einstellungen eines <code class="code">ScriptTrace</code>-Diagramms geändert und kopiert werden können.</p><pre class="programlisting python" data-language="python"># we assume, that the traceObject already has multiple diagrams
+traceObject = projects.primary.find("Device","PLC Logic","Application","Trace")[0]
+assert traceObject.is_trace_object
+
+# apply settings for the first diagram
+traceObject.diagrams[0].y_axis.mode = AxisScaleMode.FixedLength
+traceObject.diagrams[0].y_axis.range = 10.0
+traceObject.diagrams[0].y_axis.color = 0xffee0000
+traceObject.diagrams[0].y_axis.draw_grid = True
+traceObject.diagrams[0].y_axis.grid_color = 0xffee0000
+traceObject.diagrams[0].tickmark_fixed_spacing = True
+traceObject.diagrams[0].tickmark_fixed_distance = 5.0
+traceObject.diagrams[0].tickmark_fixed_subdivisions = 4
+
+# copy the settings from the first diagrams to all other diagrams
+for i in range(1,len(traceObject.diagrams))    
+    traceObject.diagrams[i].y_axis.copy_from(traceObject.diagrams[0])</pre></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-b432ef0d-fb60-07d4-552a-2c91ddb4f1f7"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Online-Handling des Traces</h2></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737089222798"><div class="titlepage"><div><div class="title"><h3 class="title">Download und Starten des Traces</h3></div></div></div><p>Das folgende Codefragment findet den Trace <code class="code">Trace</code> der Applikation <code class="code">Application</code>, lädt ihn herunter und startet ihn.</p><pre class="programlisting python" data-language="python">proj = projects.open(r"&lt;Path to the project file&gt;")
+app = proj.find("Device", "PLC Logic", "Application")[0]
+with online.create_online_application(app) as onlineapp:
+    traceObject = proj.find("Device", "PLC Logic", "Application", "Trace")[0]
+    onlineapp.login(OnlineChangeOption.Never, True)
+    onlineapp.start()
+    editor = traceObject.open_editor()
+    editor.download()
+    editor.start()</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737181972189"><div class="titlepage"><div><div class="title"><h3 class="title">Speichern des Traces in einer Datei</h3></div></div></div><p>Das folgende Codefragment basiert auf dem Fragment <a class="xref" href="_trace_script_use_scripting_interface.html#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737089222798" title="Download und Starten des Traces"><span class="xreftitle">Download und Starten des Traces</span></a>. Um den Trace zu speichern, muss er angehalten werden. Dies kann entweder durch Erreichen der Triggerbedingung oder einen expliziten Aufruf von <code class="code">stop()</code> erfolgen.</p><pre class="programlisting python" data-language="python"># We assume, that we have an already running trace
+editor.stop()
+editor.save(r"&lt;File path to csv file&gt;")</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737189210837"><div class="titlepage"><div><div class="title"><h3 class="title">Abfragen verschiedener Informationen zur Trace-Aufzeichnung</h3></div></div></div><p>Das folgende Codefragment basiert auf dem Fragment <a class="xref" href="_trace_script_use_scripting_interface.html#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737089222798" title="Download und Starten des Traces"><span class="xreftitle">Download und Starten des Traces</span></a>.</p><pre class="programlisting python" data-language="python"># We assume, that we have an already running trace
+print("Packet State: {}".format(editor.get_packet_state()))
+print("Trace started at {} (absolute timestamp)".format(editor.get_trace_start_timetamp()))</pre></section></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-223bf514-9693-ae47-273f-2222b07b3394"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Trigger-Handling</h2></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737222218896"><div class="titlepage"><div><div class="title"><h3 class="title">Konfigurieren eines <code class="code">BOOL</code>-Triggers</h3></div></div></div><pre class="programlisting python" data-language="python">traceObject = proj.find("Device", "PLC Logic", "Application", "Trace")[0]
+traceObject.trigger_variable = "PLC_PRG.bVar"
+traceObject.trigger_edge = TriggerEdge.Positive
+traceObject.post_trigger_samples = 20
+
+# The trigger level is only needed for numeric trigger variables. It is a good coding style to set the trigger explicitly to "None"
+traceObject.trigger_level = None</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737226322301"><div class="titlepage"><div><div class="title"><h3 class="title">Konfigurieren eines numerischen Triggers</h3></div></div></div><pre class="programlisting python" data-language="python">traceObject = proj.find("Device", "PLC Logic", "Application", "Trace")[0]
+traceObject.trigger_variable = "PLC_PRG.iTemperature"
+traceObject.trigger_edge = TriggerEdge.PositivetraceObject.post_trigger_samples = 20
+
+# In case of a trigger variable of REAL or LREAL type it is also possible to specify floating point trigger levels, e.g. 80.5
+traceObject.trigger_level = 80</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737227937476"><div class="titlepage"><div><div class="title"><h3 class="title">Warten auf Trigger und Speichern der aufgezeichneten Daten</h3></div></div></div><p>Das folgende Codefragment basiert auf den Fragmenten "Konfigurieren eines <code class="code">BOOL</code>-Triggers" und "Konfigurieren eines * Triggers“ .</p><pre class="programlisting python" data-language="python">triggerstate = editor.get_trigger_state()
+while triggerstate != TriggerState.TriggerReached:
+    system.delay(200)
+    triggerstate = editor.get_trigger_state()
+    editor.save(r"&lt;File path to csv file&gt;")</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737235318186"><div class="titlepage"><div><div class="title"><h3 class="title">Abfrage von Zeitstempelinformationen, nachdem der Trigger erreicht wurde</h3></div></div></div><p>Das folgende Codefragment basiert auf den Fragmenten "Konfigurieren eines <code class="code">BOOL</code>-Triggers" und „Konfigurieren eines * Triggers“ .</p><pre class="programlisting python" data-language="python">print("Trigger reached at {} (absolute timestamp)".format(editor.get_trigger_timetamp()))
+print("Trigger reached at {}".format(editor.get_trigger_startdate()))
+print("Trace was running {}ms until trigger has been reached".format(editor.get_trigger_timetamp() - editor.get_trace_start_timetamp()))</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737241377252"><div class="titlepage"><div><div class="title"><h3 class="title">Fortsetzen der Trace-Aufzeichnung nach Erreichen des Triggers</h3></div></div></div><p>Das folgende Codefragment basiert auf den Fragmenten "Konfigurieren eines <code class="code">BOOL</code>-Triggers" und „Konfigurieren eines * Triggers“ .</p><pre class="programlisting python" data-language="python">editor.reset_trigger()</pre></section></section><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="" data-time-modified="January 20, 2025" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-fb2803e2-9aa1-edc1-bfbe-5d0d052f53f0"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">DeviceTrace</h2></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737244690592"><div class="titlepage"><div><div class="title"><h3 class="title">Erstellen eines <code class="code">DeviceTrace</code></h3></div></div></div><pre class="programlisting javascript" data-language="javascript">myDevice = projects.primary.find("Device")[0]
+devicetrace = trace.create(myDevice, "DeviceTrace")</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737246350891"><div class="titlepage"><div><div class="title"><h3 class="title">Abfrage der aktuellen Trace-Aufzeichnungen des Geräts</h3></div></div></div><p>Das folgende Codefragment basiert auf dem Fragment "Erstellen eines <code class="code">DeviceTrace</code>" .</p><pre class="programlisting javascript" data-language="javascript">traceObject = projects.primary.find("Device", "DeviceTrace")[0]
+
+# for application traces the result of get_online_traces contains only the traces of the application
+# traceObject = projects.primary.find("Device", "PLC Logic", "Application", "Trace")[0]
+editor = traceObject.open_editor()
+for tracepacket in editor.get_online_traces():
+    print(tracepacket)</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737250094566"><div class="titlepage"><div><div class="title"><h3 class="title">Download einer vorhandenen Aufzeichnung auf das <code class="code">DeviceTrace</code></h3></div></div></div><p>Das folgende Codefragment basiert auf dem Fragment "Erstellen eines <code class="code">DeviceTrace</code>".</p><pre class="programlisting javascript" data-language="javascript">traceObject = projects.primary.find("Device", "DeviceTrace")[0]
+editor = traceObject.open_editor()
+editor.upload_to_device_trace("CpuCoreLoad")</pre></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737269513402"><div class="titlepage"><div><div class="title"><h3 class="title">Was mit dem <code class="code">DeviceTrace</code> nicht funktioniert</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Zugriff auf <code class="code">traceobject.variable_list</code></p></li><li class="listitem"><p>Anlegen von Trace-Variablen mittels <code class="code">traceobject.add_variable())</code></p></li><li class="listitem"><p>Zugriff auf <code class="code">traceobject.diagrams</code></p></li></ul></div></section></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">In diesem Abschnitt<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc">Trace-Scripting-Schnittstelle verwenden</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-698d46a3-837f-222a-2594-c7b891d9d1f4">Erstellen eines Traces</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-4f30c66c-f683-740b-5346-2912ac88f465">Finden und Verifizieren von bestehenden Traces</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-8bd43b1c-6343-ac35-d7f3-df547d6050cc">Hinzufügen und Ändern von Trace-Variablen</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-b1ed5b03-c620-077c-2f62-acfd84e810f5">Ändern der ScriptTrace-Variablenliste</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-c9a5ef6d-6d81-7926-9538-b2249d53bb6a">Ändern der Aufzeichnungseinstellungen</a><ul class="nav"><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737059980421">Einstellen der Auflösung (ms/µs) der Trace-Aufzeichnung</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737059249726">Einstellen der Aufzeichnungsbedingung</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737061351582">Einstellen des Kommentars</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737062520065">Einstellen der Option Automatischer Start</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737065791034">Einstellen der Option, nur jeden N-ten Zyklus aufzuzeichnen</a></li></ul></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-d5a33595-77ec-1fc8-237c-1153a9fda9ec">Diagramme und ihre Variablen</a><ul class="nav"><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737073150269">Erstellen eines ScriptTrace-Diagramms mit allen ScriptTrace-Variablen</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737077515554">Erstellen eines ScriptTrace-Diagramms pro ScriptTrace-Variable</a></li></ul></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-8a9f24ff-4056-39eb-4996-c2e4c45b98e2">Kopieren von Einstellungen eines ScriptTrace-Diagramms</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-b432ef0d-fb60-07d4-552a-2c91ddb4f1f7">Online-Handling des Traces</a><ul class="nav"><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737089222798">Download und Starten des Traces</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737181972189">Speichern des Traces in einer Datei</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737189210837">Abfragen verschiedener Informationen zur Trace-Aufzeichnung</a></li></ul></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-223bf514-9693-ae47-273f-2222b07b3394">Trigger-Handling</a><ul class="nav"><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737222218896">Konfigurieren eines BOOL-Triggers</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737226322301">Konfigurieren eines numerischen Triggers</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737227937476">Warten auf Trigger und Speichern der aufgezeichneten Daten</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737235318186">Abfrage von Zeitstempelinformationen, nachdem der Trigger erreicht wurde</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737241377252">Fortsetzen der Trace-Aufzeichnung nach Erreichen des Triggers</a></li></ul></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-fb2803e2-9aa1-edc1-bfbe-5d0d052f53f0">DeviceTrace</a><ul class="nav"><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737244690592">Erstellen eines DeviceTrace</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737246350891">Abfrage der aktuellen Trace-Aufzeichnungen des Geräts</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737250094566">Download einer vorhandenen Aufzeichnung auf das DeviceTrace</a></li><li><a href="#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_section-idm234737269513402">Was mit dem DeviceTrace nicht funktioniert</a></li></ul></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Suchresultat</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22Trace-Scripting-Schnittstelle%20verwenden%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22Trace-Scripting-Schnittstelle%20verwenden%22%20in%20the%20publication%20%22CODESYS%20Trace%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Möchten Sie uns Feedback geben? Klicken Sie hier, um Änderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_trace_start_page.html">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_trace_script_use_scripting_interface.html#UUID-8e241e83-fddc-67c5-15e4-8436a5cb79cc_UUID-698d46a3-837f-222a-2594-c7b891d9d1f4">Weiter</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-09-15 10:59:06 -->

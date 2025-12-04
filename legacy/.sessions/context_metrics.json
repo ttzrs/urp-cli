@@ -1,0 +1,209 @@
+{
+  "created": "2025-12-02T13:14:40.651086",
+  "by_mode": {
+    "semi": {
+      "actions": 0,
+      "tokens_saved": 0,
+      "errors": 0,
+      "quality_sum": 0,
+      "quality_count": 0
+    },
+    "auto": {
+      "actions": 14,
+      "tokens_saved": 10500,
+      "errors": 0,
+      "quality_sum": 0,
+      "quality_count": 0
+    },
+    "hybrid": {
+      "actions": 0,
+      "tokens_saved": 0,
+      "errors": 0,
+      "quality_sum": 63,
+      "quality_count": 14
+    },
+    "none": {
+      "actions": 1,
+      "tokens_saved": 0,
+      "errors": 0,
+      "quality_sum": 0,
+      "quality_count": 0
+    }
+  },
+  "events": [
+    {
+      "timestamp": "2025-12-02T13:14:40.651093",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T13:14:40.651703",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T13:14:40.651950",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T13:14:40.652165",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    },
+    {
+      "timestamp": "2025-12-02T13:17:01.598415",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T13:17:01.598654",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T13:17:01.598965",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T13:17:01.599145",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    },
+    {
+      "timestamp": "2025-12-02T12:26:06.442122",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T12:26:06.442424",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T12:26:06.442728",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T12:26:06.443030",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    },
+    {
+      "timestamp": "2025-12-02T12:35:47.461971",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T12:35:47.462233",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T12:35:47.462758",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T12:35:47.463027",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    },
+    {
+      "timestamp": "2025-12-02T12:41:02.017235",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T12:41:02.017656",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T12:41:02.018053",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T12:41:02.018376",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    },
+    {
+      "timestamp": "2025-12-02T14:17:18.002797",
+      "mode": "none",
+      "metric": "tokens_saved",
+      "value": 0
+    },
+    {
+      "timestamp": "2025-12-02T14:17:41.480456",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T14:17:41.480760",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T14:17:41.481141",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T14:17:41.481489",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.193950",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 4
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.194344",
+      "mode": "hybrid",
+      "metric": "quality",
+      "value": 5
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.194779",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 1000
+    },
+    {
+      "timestamp": "2025-12-02T23:30:38.195145",
+      "mode": "auto",
+      "metric": "tokens_saved",
+      "value": 500
+    }
+  ]
+}

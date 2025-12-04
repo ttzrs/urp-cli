@@ -1,0 +1,997 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Multicore - Tools</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Advanced Topicâs" href="advanced.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_model.html">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="static_analysis.html">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="date_time.html">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="async.html">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="async.html#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varnames.html">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="docScripting.html">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="concepts.html">Concepts and Elements</a> &raquo;</li>
+      
+          <li><a href="advanced.html">Advanced Topicâs</a> &raquo;</li>
+      
+    <li>Multicore - Tools</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="multicore-tools">
+<span id="multicore"></span><h1>Multicore - Tools<a class="headerlink" href="#multicore-tools" title="Permalink to this heading">Â¶</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">Â¶</a></h2>
+<p>Multicore is a term associated with parallel processing and refers to the use of several cores that are simultaneously
+engaged in the execution of a program. Parallel processing divides computational-intensive operations into smaller
+parts and distributes these tasks among several cores.
+The goal is to speed up processing of a computationally-intensive operations.</p>
+<p>Characteristics of computationally-intensive applications:</p>
+<ul class="simple">
+<li><p>Large amount of data to process</p></li>
+<li><p>Complex algorithms require heavy computations</p></li>
+</ul>
+<p>We can understand the control program for a system, which was previously calculated on a single processor core, as a complex algorithm.
+The division of this complex program flow into several subprograms (task partitioning) that can be executed as independently as possible enables
+the reduction of the cycle times. This results in a better reaction time of the system because the sampling rates can be increased.</p>
+<p>Goals of task partitioning:</p>
+<ul class="simple">
+<li><p>Evenly dividing the effort among all available cores</p></li>
+<li><p>Minimization of contention for shared resources</p></li>
+</ul>
+<p>Up to now, the processing of very large amounts of data (e. g. image processing in real time) has often been outsourced to specialized
+control components because the computing capacity of the PLCâs only processor core has not been sufficient to handle both parts of
+the data processing in the required time window.</p>
+<p>The ability to use multiple processor cores directly out of  the PLC program now opens up a wide range of additional possibilities.
+The parallel processing of data, distributed over several processor cores, now makes it possible to execute the
+complex processing sequence (e. g. for image processing in real time) in the required time window.
+In many cases, it is no longer necessary to implement parallel file processing outside the PLC with special tools and programming languages.
+Parallel data processing becomes an integral part of a PLC program.</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading">Â¶</a></h2>
+<p>The new possibilities will be illustrated with the example of industrial image processing, which is based on the evaluation of just taken images,
+which then influences the sequence of further production steps.</p>
+<p>In our example, the image processing consists of three steps:</p>
+<ol class="arabic simple">
+<li><p>Image capture due to an external event.</p></li>
+<li><p>Image analysis</p></li>
+<li><p>Decision on rejection as scrap or forwarding to subsequent process steps.</p></li>
+</ol>
+<p>With a single core PLC the second step was outsourced to an external system, which was triggered by an external event.
+The result of the image analysis was provided through an physical input of the PLC.</p>
+<p>With a multi-core PLC, the following structure is feasible: The Image processing takes place in a library block,
+which is triggered by a local input variable and ensures a minimum processing time for image evaluation based on the number of currently available processor cores.
+The calculations are thus dynamically distributed to an optimal number of processor cores.
+Subsequently, the results are summarized in order to be able to make a decision about whether the current product meets the requirements.
+In addition to the computational effort for image processing, there is also the effort for distributing the data and the effort for summarizing the results.
+Therefore, the image processing efficiency does not increase linearly with the number of processor cores.
+The different efforts should be in a good relationship to each other.
+Only then a shorter processing time per product will be possible.</p>
+</section>
+<section id="measurement">
+<h2>Measurement<a class="headerlink" href="#measurement" title="Permalink to this heading">Â¶</a></h2>
+<p>Below we present a list of procedures and tools to measure and compare the runtime of applications and libraries on single and multicore systems.</p>
+<dl>
+<dt>TaskManager:</dt><dd><p>This tool allows you to view and evaluate basic data on the current existing tasks.
+Based on the cycle time and the processing time of the task with the highest priority,
+the remaining calculation time available for the other tasks can be determined very well.
+This is a first indication of how successful a multi-core distribution can be.
+If the remaining computing time which the task with the highest priority leaves for the other tasks is very small,
+then the difficulties to handle the other tasks adequately in the required time window are growing very fast.</p>
+</dd>
+<dt>TraceManager:</dt><dd><p>If the SysCpuMultiCore and CmpTraceMgr components are integrated in the runtime system, then there are two system traces configured,
+which can be uploaded in the CODESYS environment for analyzing the CPU load and the IEC-Task load.</p>
+</dd>
+<dt>Profiler:</dt><dd><ul>
+<li><div class="line-block">
+<div class="line">Profiler Watch List</div>
+<div class="line">Provides the possibility, to assign (also while in online mode) a specific instance of a building block to the watch list.
+For each entry in the list, the number of calls and processing times (Min, Max, AVG) are displayed.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Profiling a Task Cycle</div>
+<div class="line">A configuration dialog can be used to determine how the runtime measurement is to be performed.
+With the next download, the PLC program is instrumented in such a way that the required data is recorded.
+The result of the measurement can be uploaded into the CODESYS environment.
+A call tree view gives you an idea of how much time was spent in which part of the program.</div>
+</div>
+</li>
+</ul>
+</dd>
+<dt>ExecutionTimeReporter:</dt><dd><p>Each function block out of the CommonBehaviourModel family can be observed with an ExecutionTimeReporter.
+For each state of the BehaviourModel, it records the time intervals in which it is active.
+With this data,   the real manufacturing operations associated with these states can be precisely analyzed.</p>
+</dd>
+</dl>
+</section>
+<section id="atomic-operations">
+<h2>Atomic Operations<a class="headerlink" href="#atomic-operations" title="Permalink to this heading">Â¶</a></h2>
+<p>Atomic operations are mainly used to implement locking mechanisms (locking) used in the synchronization of data and processes.
+Another variant is the non-blocking synchronization of data structures, whereby objects are only modified by atomic
+operations and explicit locking of the objects becomes unnecessary.</p>
+<p>An operation acting on shared memory is atomic if it completes in a single step relative to other task.
+When an atomic store is performed on a shared variable, no other task can observe the modification half-complete.
+When an atomic load is performed on a shared variable, it reads the entire value as it appeared at a single moment in time.
+Non-atomic loads and stores do not make those guarantees.</p>
+<p>Typical CPU instructions for implementing atomic operations on current processors are:</p>
+<ul class="simple">
+<li><p>Atomic load and store of integral IEC data types like <code class="docutils literal notranslate"><span class="pre">LINT</span></code>, <code class="docutils literal notranslate"><span class="pre">__XWORD</span></code>, <code class="docutils literal notranslate"><span class="pre">POINTER</span></code>, <code class="docutils literal notranslate"><span class="pre">INTERFACE</span></code>, â¦</p></li>
+<li><p>Atomic read-modify-write operations like <cite>AtomicTestAndSet</cite>, <cite>AtomicAdd</cite> or <cite>AtomicCompareAndSwap</cite>.</p></li>
+</ul>
+<p>Please take a look to the <a class="reference download internal" download="" href="_downloads/4106f521493043a97d5763a3cd6dd448/TestMultiCore.project"><code class="xref download docutils literal notranslate"><span class="pre">DemoMultiCore.project</span></code></a> example project to see the executable methods.</p>
+<section id="atomiccompareandswap">
+<h3>AtomicCompareAndSwap<a class="headerlink" href="#atomiccompareandswap" title="Permalink to this heading">Â¶</a></h3>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="line-block">
+<div class="line">The following pseudo code snippet demonstrates the basic operation of <cite>AtomicCompareAndSwap</cite>:</div>
+<div class="line">The value at an address is compared with an expected value, if these two are the same, a new value
+is written to this address.</div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="n">AtomicCompareAndSwap</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">pxwAddress</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="kt">__XWORD</span><span class="p">;</span>
+    <span class="n">xwExpected</span> <span class="p">:</span> <span class="kt">__XWORD</span><span class="p">;</span>
+    <span class="n">xwNewValue</span> <span class="p">:</span> <span class="kt">__XWORD</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">pxwAddress</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span> <span class="n">AND_THEN</span> <span class="n">pxwAddress</span><span class="p">^</span> <span class="p">=</span> <span class="n">xwExpected</span> <span class="k">THEN</span>
+    <span class="n">pxwAddress</span><span class="p">^:=</span> <span class="n">xwNewValue</span><span class="p">;</span>
+    <span class="n">AtomicCompareAndSwap</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+<span class="k">ELSE</span>
+    <span class="n">AtomicCompareAndSwap</span> <span class="p">:=</span> <span class="kc">FALSE</span><span class="p">;</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+<p>With the help of an <cite>AtomicTestAndSet</cite> the operation <cite>AtomicCompareAndSwap</cite> can be implemented as:</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="c1">// +-------------------------------------------------------------------------------------------------------------+</span>
+<span class="c1">// | ``_xwSync`` is context variable of type ``__XWORD`` to synchronize all tasks/cores in the related context   |</span>
+<span class="c1">// +-------------------------------------------------------------------------------------------------------------+</span>
+
+<span class="k">WHILE</span> <span class="n">AtomicTestAndSet</span><span class="p">(</span><span class="k">ADR</span><span class="p">(</span><span class="n">_xwSync</span><span class="p">))</span> <span class="p">=</span> <span class="kc">TRUE</span> <span class="k">DO</span>
+    <span class="n">SchedWaitSleep</span><span class="p">(</span><span class="n">uliSleepOneUs</span><span class="p">);</span>
+<span class="k">END_WHILE</span>
+<span class="k">IF</span> <span class="n">pxwAddress</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span> <span class="n">AND_THEN</span> <span class="n">pxwAddress</span><span class="p">^</span> <span class="p">=</span> <span class="n">xwExpected</span> <span class="k">THEN</span>
+    <span class="n">pxwAddress</span><span class="p">^:=</span> <span class="n">xwNewValue</span><span class="p">;</span>
+    <span class="n">AtomicCompareAndSwap</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+<span class="k">ELSE</span>
+    <span class="n">AtomicCompareAndSwap</span> <span class="p">:=</span> <span class="kc">FALSE</span><span class="p">;</span>
+<span class="k">END_IF</span>
+<span class="n">_xwSync</span> <span class="p">:=</span> <span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="atomictestandset">
+<h3>AtomicTestAndSet<a class="headerlink" href="#atomictestandset" title="Permalink to this heading">Â¶</a></h3>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="line-block">
+<div class="line">The following pseudo code snippet demonstrates the basic operation of <cite>AtomicTestAndSet</cite>:</div>
+<div class="line">The value at an address is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, the old value will be returned.</div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="n">AtomicTestAndSet</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">pxwAddress</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="kt">__XWORD</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">pxwAddress</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span> <span class="k">THEN</span>
+    <span class="n">AtomicTestAndSet</span> <span class="p">:=</span> <span class="n">pxwAddress</span><span class="p">^</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">pxwAddress</span><span class="p">^</span> <span class="p">:=</span> <span class="mi">1</span>
+<span class="k">ELSE</span>
+    <span class="n">AtomicTestAndSet</span> <span class="p">:=</span> <span class="kc">FALSE</span><span class="p">;</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+<p>With the help of an <cite>AtomicCompareAndSwap</cite> the operation <cite>AtomicTestAndSet</cite> can be implemented as:</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">AtomicCompareAndSwap</span><span class="p">(</span><span class="n">pxwAddress</span><span class="p">:=</span><span class="n">pxwAddress</span><span class="p">,</span> <span class="n">xwExpected</span><span class="p">:=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xwNewValue</span><span class="p">:=</span><span class="mi">1</span><span class="p">)</span> <span class="k">THEN</span>
+    <span class="n">AtomicTestAndSet</span> <span class="p">:=</span> <span class="kc">FALSE</span><span class="p">;</span>
+<span class="k">ELSE</span>
+    <span class="n">AtomicTestAndSet</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="atomicadd">
+<h3>AtomicAdd<a class="headerlink" href="#atomicadd" title="Permalink to this heading">Â¶</a></h3>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="line-block">
+<div class="line">The following pseudo code snippet demonstrates the basic operation of <cite>AtomicAdd</cite>:</div>
+<div class="line">The sum of the value at an address and an given value is written back to the addressed location,
+the former value at the address will be returned.</div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION</span> <span class="n">AtomicAdd</span> <span class="p">:</span> <span class="kt">__XWORD</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">pxwAddress</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="kt">__XWORD</span><span class="p">;</span>
+    <span class="n">xwValue</span> <span class="p">:</span> <span class="kt">__XWORD</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">xError</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+    <span class="n">xOk</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">pxwAddress</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span> <span class="k">THEN</span>
+    <span class="n">AtomicAdd</span> <span class="p">:=</span> <span class="n">pxwAddress</span><span class="p">^;</span>
+    <span class="n">pxwAddress</span><span class="p">^</span> <span class="p">:=</span> <span class="n">AtomicAdd</span> <span class="p">+</span> <span class="n">xwValue</span><span class="p">;</span>
+<span class="k">ELSE</span>
+    <span class="n">xError</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+<p>With the help of an <cite>AtomicCompareAndSwap</cite> the operation <cite>AtomicAdd</cite> can be implemented as:</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">pxwAddress</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span> <span class="k">THEN</span>
+    <span class="k">REPEAT</span>
+        <span class="n">AtomicAdd</span> <span class="p">:=</span> <span class="n">pxwAddress</span><span class="p">^;</span>
+        <span class="n">xOk</span> <span class="p">:=</span> <span class="n">AtomicCompareAndSwap</span><span class="p">(</span><span class="n">pxwAddress</span><span class="p">:=</span><span class="n">pxwAddress</span><span class="p">,</span> <span class="n">xwExpected</span><span class="p">:=</span><span class="n">AtomicAdd</span><span class="p">,</span> <span class="n">xwNewValue</span><span class="p">:=</span><span class="n">AtomicAdd</span> <span class="p">+</span> <span class="n">xwValue</span><span class="p">);</span>
+    <span class="k">UNTIL</span> <span class="n">xOk</span>
+    <span class="k">END_REPEAT</span><span class="p">;</span>
+<span class="k">ELSE</span>
+    <span class="n">xError</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="applications-in-codesys">
+<h3>Applications in CODESYS<a class="headerlink" href="#applications-in-codesys" title="Permalink to this heading">Â¶</a></h3>
+<p>IEC Operators (Some are not yet implemented!):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dwOldValue</span> <span class="pre">:=</span> <span class="pre">TEST_AND_SET(dwValue);</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xOk</span> <span class="pre">:=</span> <span class="pre">__COMPARE_AND_SWAP(pxwAddress,</span> <span class="pre">xwExpectedValue,</span> <span class="pre">xwNewValue);</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diOldValue</span> <span class="pre">:=</span> <span class="pre">__XADD(pdiAddress,</span> <span class="pre">diValueToAdd);</span></code></p></li>
+</ul>
+<p>CODESYS runtime system support:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">udiResult</span> <span class="pre">:=</span> <span class="pre">SysCpuAtomicCompareAndSwap(pxwAddress,</span> <span class="pre">ADR(xwNewValue),</span> <span class="pre">ADR(xwExpected),</span> <span class="pre">SIZEOF(__XWORD))</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diNewValue</span> <span class="pre">:=</span> <span class="pre">SysCpuAtomicAdd(pdiAddress,</span> <span class="pre">diValueToAdd,</span> <span class="pre">pResult);</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">udiOldValue</span> <span class="pre">:=</span> <span class="pre">SysCpuTestAndSet(pudiAddress,</span> <span class="pre">0);</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The parameters of <code class="docutils literal notranslate"><span class="pre">SysCpuAtomicAdd</span></code> based on <code class="docutils literal notranslate"><span class="pre">DINT</span></code> data type.
+The examples above are based on <code class="docutils literal notranslate"><span class="pre">__XWORD</span></code> data type.</p>
+</div>
+</section>
+<section id="memory-ordering">
+<h3>Memory Ordering<a class="headerlink" href="#memory-ordering" title="Permalink to this heading">Â¶</a></h3>
+<p>Different memory ordering at run-time, on the processor itself is invisible to a single-threaded program.
+It only becomes apparent when a shared memory area is manipulated without using any mutual exclusion between the related tasks.
+However, the effects of different processor reordering are only visible in multi-core environments.
+When writing lock-free code, one must often take special care to enforce correct memory ordering.
+Otherwise, surprising things can happen.</p>
+<p>Hereâs one of the simplest examples.
+Suppose we have two global integers X and Y, both are initially 0.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span> <span class="n">GLOBAL</span>
+    <span class="n">X</span> <span class="p">:</span> <span class="kt">INT</span> <span class="p">:=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">Y</span> <span class="p">:</span> <span class="kt">INT</span> <span class="p">:=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>Two cores, running in parallel, execute the following code:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Core1</p></th>
+<th class="head"><p>Core2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="p">:=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">A</span> <span class="p">:=</span> <span class="n">Y</span><span class="p">;</span>
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">Y</span> <span class="p">:=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">B</span> <span class="p">:=</span> <span class="n">X</span><span class="p">;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Each processor stores 1 into one of the integer variables, then loads the other integer into a locale variable.
+Now, no matter which processor writes 1 to memory first, itâs natural to expect the other processor to read that value back,
+which means we should end up with either A = 1, B = 1, or perhaps both.
+But according to some observations, that wonât necessarily be the case.
+Some times we can observe that the value of A and/or B equals to 0 at the end of this example â a quite counterintuitive
+result, to say the least!</p>
+<p>One way to understand this is that most processor families, are allowed to reorder the memory interactions
+of machine instructions according to certain rules, as long it never changes the execution of a single-threaded program.
+In particular, each processor is allowed to delay the effect of a store past any load from a different location.
+As a result, it might end up as though the instructions had executed in this order:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Core1</p></th>
+<th class="head"><p>Core2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="p">:=</span> <span class="n">Y</span><span class="p">;</span>
+<span class="n">X</span> <span class="p">:=</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">B</span> <span class="p">:=</span> <span class="n">X</span><span class="p">;</span>
+<span class="n">Y</span> <span class="p">:=</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>You can enforce correct memory ordering on the processor by issuing an instruction which acts as a memory barrier.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">__MEMORYBARRIER</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>A code snippet to illustrate variables and types</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span> <span class="n">GLOBAL</span>
+    <span class="n">g_xIsPublished</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+    <span class="n">g_datValue</span> <span class="p">:</span> <span class="n">DATA</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>A code snippet running on core #1</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">IF</span> <span class="n">g_xIsPublished</span> <span class="k">THEN</span>        <span class="c1">// Load and check shared flag</span>
+    <span class="n">datResult</span> <span class="p">:=</span> <span class="n">g_datValue</span><span class="p">;</span>  <span class="c1">// Load published value</span>
+    <span class="n">x</span> <span class="p">:=</span> <span class="n">g_datValue.x</span><span class="p">;</span>
+    <span class="n">y</span> <span class="p">:=</span> <span class="n">g_datValue.y</span><span class="p">;</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+<p>A code snippet running on core #2</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">g_datValue.x</span> <span class="p">:=</span> <span class="n">x</span><span class="p">;</span>            <span class="c1">// Publish some data</span>
+<span class="n">g_datValue.y</span> <span class="p">:=</span> <span class="n">y</span><span class="p">;</span>            <span class="c1">// Publish some data</span>
+<span class="n">__MEMORYBARRIER</span><span class="p">();</span>
+<span class="n">g_xIsPublished</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>       <span class="c1">// Set shared flag to indicate availability of data</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If, at certain position in the program, the result of a sequence of write operations should to become visible for a
+program running on another core, a <code class="docutils literal notranslate"><span class="pre">__MEMORYBARRIER</span></code> operation must be inserted at exactly this position.</p>
+</div>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>Below a pseudo code snippet of a queue implementation illustrates another fact:</p>
+<p>Atomic Operations like <code class="docutils literal notranslate"><span class="pre">AtomicCompareAndSwap</span></code>, <code class="docutils literal notranslate"><span class="pre">AtomicAdd</span></code> and <code class="docutils literal notranslate"><span class="pre">AtomicTestAndSet</span></code> act like a memory barrier.
+Therefor a extra <code class="docutils literal notranslate"><span class="pre">__MEMORYBARRIER</span></code> in this use case <strong>is not necessary</strong>.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">TYPE</span> <span class="n">NODE</span> <span class="p">:</span>
+<span class="k">STRUCT</span>
+    <span class="n">pNext</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="n">NODE</span><span class="p">;</span>
+<span class="k">END_STRUCT</span>
+<span class="k">END_TYPE</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">g_pTail</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="n">NODE</span><span class="p">;</span>
+    <span class="n">g_pHead</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="n">NODE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">Enqueue</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">pNode</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="n">NODE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR</span>
+    <span class="n">pTail</span> <span class="p">:</span> <span class="k">POINTER</span> <span class="k">TO</span> <span class="n">NODE</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="c1">// Keep trying until Enqueue is done</span>
+<span class="k">REPEAT</span>
+    <span class="n">pTail</span> <span class="p">:=</span> <span class="n">g_pTail</span><span class="p">;</span>
+    <span class="k">IF</span> <span class="n">AtomicCompareAndSwap</span><span class="p">(</span><span class="k">ADR</span><span class="p">(</span><span class="n">pTail</span><span class="p">^.</span><span class="n">pNext</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pNode</span><span class="p">)</span> <span class="k">THEN</span>
+        <span class="c1">// __MEMORYBARRIER();</span>
+        <span class="c1">// Enqueue is done. Exit loop</span>
+        <span class="k">EXIT</span><span class="p">;</span>
+    <span class="k">ELSE</span>
+        <span class="c1">// Tail was not pointing to the last node</span>
+        <span class="c1">// Try to swing Tail to the next node</span>
+        <span class="n">AtomicCompareAndSwap</span><span class="p">(</span><span class="k">ADR</span><span class="p">(</span><span class="n">g_pTail</span><span class="p">),</span> <span class="n">pTail</span><span class="p">,</span> <span class="n">pTail</span><span class="p">^.</span><span class="n">pNext</span><span class="p">);</span>
+        <span class="c1">// __MEMORYBARRIER();</span>
+    <span class="k">END_IF</span>
+<span class="k">UNTIL</span> <span class="kc">FALSE</span>
+<span class="k">END_REPEAT</span>
+<span class="c1">// Enqueue is done. Try to swing Tail to the inserted node</span>
+<span class="n">AtomicCompareAndSwap</span><span class="p">(</span><span class="k">ADR</span><span class="p">(</span><span class="n">g_pTail</span><span class="p">),</span> <span class="n">pTail</span><span class="p">,</span> <span class="n">pNode</span><span class="p">);</span>
+<span class="c1">// __MEMORYBARRIER();</span>
+</pre></div>
+</div>
+<p>An interesting aspect of the <code class="docutils literal notranslate"><span class="pre">Enqueue</span></code> method is that it is lazy: it takes place in
+two distinct steps. To make this method lock-free, threads may need to help one another.
+Normally, the <code class="docutils literal notranslate"><span class="pre">Enqueue</span></code> method locates the last node in the queue, and performs the following two steps:</p>
+<ol class="arabic simple">
+<li><p>It calls <code class="docutils literal notranslate"><span class="pre">AtomicCompareAndSwap</span></code> to append the new node, and</p></li>
+<li><p>calls <code class="docutils literal notranslate"><span class="pre">AtomicCompareAndSwap</span></code> to change the queueâs tail pointer from the prior last node to the current last node.</p></li>
+</ol>
+<p>Because these two steps are not executed atomically, every other method call must be prepared to encounter a
+half-finished <code class="docutils literal notranslate"><span class="pre">Enqueue</span></code> call, and to finish the job.</p>
+</div>
+</section>
+<section id="consistent-values-swapping">
+<h3>Consistent Values Swapping<a class="headerlink" href="#consistent-values-swapping" title="Permalink to this heading">Â¶</a></h3>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">TYPE</span> <span class="n">IObserver_XWORD_Converter</span> <span class="p">:</span>
+<span class="k">UNION</span>
+    <span class="n">itf</span> <span class="p">:</span> <span class="n">IObserver</span><span class="p">;</span>
+    <span class="n">xwd</span> <span class="p">:</span> <span class="kt">__XWORD</span><span class="p">;</span>
+<span class="k">END_UNION</span>
+<span class="k">END_TYPE</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">SetObserver</span> <span class="p">:</span> <span class="n">IObserver</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">itfObserver</span> <span class="p">:</span> <span class="n">IObserver</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR</span>
+    <span class="n">xOk</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+    <span class="n">cvtOldValue</span> <span class="p">:</span> <span class="n">IObserver_XWORD_Converter</span><span class="p">;</span>
+    <span class="n">cvtNewValue</span> <span class="p">:</span> <span class="n">IObserver_XWORD_Converter</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">cvtNewValue.itf</span> <span class="p">:=</span> <span class="n">itfObserver</span><span class="p">;</span>
+<span class="k">REPEAT</span>
+    <span class="n">cvtOldValue.itf</span> <span class="p">:=</span> <span class="n">_itfObserver</span><span class="p">;</span>
+    <span class="n">xOk</span> <span class="p">:=</span> <span class="n">AtomicCompareAndSwap</span><span class="p">(</span><span class="k">ADR</span><span class="p">(</span><span class="n">_itfObserver</span><span class="p">),</span> <span class="n">cvtOldValue.xwd</span><span class="p">,</span> <span class="n">cvtNewValue.xwd</span><span class="p">);</span>
+<span class="k">UNTIL</span> <span class="n">xOK</span>
+<span class="k">END_REPEAT</span>
+<span class="n">SetObserver</span> <span class="p">:=</span> <span class="n">cvtOldValue.itf</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

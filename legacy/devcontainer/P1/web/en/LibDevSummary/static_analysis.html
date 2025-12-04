@@ -1,0 +1,1703 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Static Analysis</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Concepts and Elements" href="concepts.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_model.html">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="date_time.html">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="async.html">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="async.html#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multicore.html">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varnames.html">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="docScripting.html">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="concepts.html">Concepts and Elements</a> &raquo;</li>
+      
+    <li>Static Analysis</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="static-analysis">
+<span id="index-0"></span><span id="id1"></span><h1>Static Analysis<a class="headerlink" href="#static-analysis" title="Permalink to this heading">Â¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <strong>CODESYS Professional Developer Edition</strong> provides a tool for <em>static code analysis</em>. A <a class="reference download internal" download="" href="_downloads/37a3d6e701f02483e51c5f6a61f1ceac/Standard.csa"><code class="xref download docutils literal notranslate"><span class="pre">rule</span> <span class="pre">set</span></code></a> is
+included for automatically checking the naming convention described above.</p>
+</div>
+<p>Under some circumstances it would be necessary to deactivate a specific rule.
+CODESYS Static Analysis provides pragmas and attributes for activating or deactivating
+individual rules or naming conventions for static code analysis.</p>
+<p>Attributes are inserted in the declaration part of a POU.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="cp">{attribute &#39;analysis&#39; := &#39;-33, -31&#39;}</span>
+<span class="cs">/// ...</span>
+<span class="cs">/// some code which does not conforme to rule SA0031 and SA0033</span>
+<span class="cs">/// ...</span>
+<span class="cp">{attribute &#39;analysis&#39; := &#39;+33, +31&#39;}</span>
+</pre></div>
+</div>
+<p>Pragmas are used in the implementation part of a POU.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="cp">{analysis -46}</span>
+<span class="cs">/// ...</span>
+<span class="cs">/// some code which does not conforme to rule SA0046</span>
+<span class="cs">/// ...</span>
+<span class="cp">{analysis +46}</span>
+</pre></div>
+</div>
+<section id="plcopen-coding-guidelines">
+<h2>PLCopen - Coding Guidelines<a class="headerlink" href="#plcopen-coding-guidelines" title="Permalink to this heading">Â¶</a></h2>
+<p>The official <cite>PLCopen</cite> document <strong>Coding Guidelines</strong> summarises the results of the <cite>PLCopen</cite> workgroup <cite>Software Construction Guidelines Task Force Coding Guidelines</cite>.
+Itâs first official published version dates from April 20, 2016.
+The aim of this guidelines is to define a set of rules and to provide a PLCopen proposal how these rules can be used.</p>
+<p>Please take a look to the homepage of the <a class="reference external" href="https://plcopen.org/system/files/downloads/plcopen_coding_guidelines_version_1.0.pdf">PLCopen</a> for the related documents.</p>
+<p>Every Rule has an classification number, as shown hereunder:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 10.0%" />
+<col style="width: 50.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rule</p></th>
+<th class="head"><p>CODESYS</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Comment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>N1</p></td>
+<td><p>SA0047</p></td>
+<td><p>Avoid physical addresses</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>N2</p></td>
+<td></td>
+<td><p>Define type prefixes for Variables</p></td>
+<td><p>see: <a class="reference internal" href="varnames.html#varnames"><span class="std std-ref">Naming Conventions</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>N3</p></td>
+<td></td>
+<td><p>Define the names to avoid</p></td>
+<td><p>see: Forbidden Symbols</p></td>
+</tr>
+<tr class="row-odd"><td><p>N4</p></td>
+<td></td>
+<td><p>Define the use of case (capitals)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>N5</p></td>
+<td><p>SA0013</p></td>
+<td><p>Local names shall not shadow global names</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>N6</p></td>
+<td><p>SA0101</p></td>
+<td><p>Define an acceptable name length</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>N7</p></td>
+<td></td>
+<td><p>Define naming rules for namespaces</p></td>
+<td><p>see: <a class="reference internal" href="namespaces.html#namespace"><span class="std std-ref">Namespace</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>N8</p></td>
+<td></td>
+<td><p>Define the acceptable character set</p></td>
+<td><p>see: Allow unicode characters for identifiers</p></td>
+</tr>
+<tr class="row-even"><td><p>N9</p></td>
+<td><p>SA0013, SA0027</p></td>
+<td><p>Different element types should not bear the same name</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>N10</p></td>
+<td></td>
+<td><p>Define name prefixes for user defined types</p></td>
+<td><p>see: <a class="reference internal" href="reSTOverview.html#dut-prefix"><span class="std std-ref">Description of the prefix for a data type</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>C1</p></td>
+<td></td>
+<td><p>Comments shall describe the intention of the code</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>C2</p></td>
+<td><p>SA0162</p></td>
+<td><p>All elements shall be commented</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>C3</p></td>
+<td><p>SA0163</p></td>
+<td><p>Avoid nested comments</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>C4</p></td>
+<td><p>SA0140</p></td>
+<td><p>Comments may not include code</p></td>
+<td><p>Exception, see: <a class="reference internal" href="reSTOverview.html#literal-blocks"><span class="std std-ref">Literal Blocks</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>C5</p></td>
+<td><p>SA0164</p></td>
+<td><p>Use single line comments</p></td>
+<td><p>see: <a class="reference internal" href="properties.html#lib-doc-content"><span class="std std-ref">LibDocContent</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>C6</p></td>
+<td></td>
+<td><p>Define comments language</p></td>
+<td><p>Library developer employed by 3S use English for their comments</p></td>
+</tr>
+<tr class="row-even"><td><p>CP1</p></td>
+<td><p>SA0047, SA0048</p></td>
+<td><p>Access to a member shall be by name</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP2</p></td>
+<td><p>SA0001, SA0031</p></td>
+<td><p>All code shall be used in the application</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP3</p></td>
+<td></td>
+<td><p>All variables shall be initialized before being used</p></td>
+<td><p>see: CODESYS initialize all variables with all bits zero by default</p></td>
+</tr>
+<tr class="row-odd"><td><p>CP4</p></td>
+<td><p>SA0028</p></td>
+<td><p>Direct addressing should not overlap</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP5</p></td>
+<td></td>
+<td><p>Applications shall be well designed</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP6</p></td>
+<td></td>
+<td><p>Avoid external variables in functions and function blocks</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP7</p></td>
+<td><p>SA0009</p></td>
+<td><p>Error information shall be tested</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP8</p></td>
+<td><p>SA0054</p></td>
+<td><p>Floating point comparison shall not be equality or inequality</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP9</p></td>
+<td><p>SA0150</p></td>
+<td><p>Limit the complexity of POU code</p></td>
+<td><p>see: Static Analysis - Metrics in the OnlineHelp</p></td>
+</tr>
+<tr class="row-odd"><td><p>CP10</p></td>
+<td><p>SA0006</p></td>
+<td><p>Avoid multiple writes from multiple tasks</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP11</p></td>
+<td></td>
+<td><p>Manage synchronization among tasks</p></td>
+<td><p>see: CAA_types.library <code class="docutils literal notranslate"><span class="pre">BOLT</span></code>, <code class="docutils literal notranslate"><span class="pre">SEMA</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>CP12</p></td>
+<td><p>SA0004</p></td>
+<td><p>Physical outputs shall be written once per PLC cycle</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP13</p></td>
+<td><p>SA0160</p></td>
+<td><p>POUs shall not call themselves directly or indirectly</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP14</p></td>
+<td><p>SA0090</p></td>
+<td><p>POUs shall have a single point of exit</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP15</p></td>
+<td></td>
+<td><p>Read a variable written by another task only once per cycle</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP16</p></td>
+<td><p>SA0165</p></td>
+<td><p>Tasks shall only call program POUs and not Function Blocks</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP17</p></td>
+<td><p>SA0009</p></td>
+<td><p>Usage of parameters shall match their declaration mode</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP18</p></td>
+<td><p>SA0121</p></td>
+<td><p>Use of global variables shall be limited</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP19</p></td>
+<td></td>
+<td><p>Usage of jump and return should be avoided</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP20</p></td>
+<td><p>SA0105</p></td>
+<td><p>Function block instances should be called only once</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP21</p></td>
+<td><p>SA0073</p></td>
+<td><p>Use <code class="docutils literal notranslate"><span class="pre">VAR_TEMP</span></code> for temporary variable declaration</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP22</p></td>
+<td><p>SA0011, SA0033</p></td>
+<td><p>Select appropriate data type</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP23</p></td>
+<td><p>SA0166</p></td>
+<td><p>Define maximum number of input/output/in-out variables of a POU</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP24</p></td>
+<td><p>SA0032, SA0033, SA0035, SA0036</p></td>
+<td><p>Do not declare variables that are not used</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP25</p></td>
+<td><p>SA0019</p></td>
+<td><p>Data types conversion should be explicit</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP26</p></td>
+<td><p>SA0043</p></td>
+<td><p>A global variable may be written only by one <code class="docutils literal notranslate"><span class="pre">PROGRAM</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CP27</p></td>
+<td></td>
+<td><p>Avoid deprecated features</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>CP28</p></td>
+<td></td>
+<td><p>Time and physical measures comparison shall not be equality or inequality</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L1</p></td>
+<td></td>
+<td><p>Define indentation</p></td>
+<td><p>Library developer employed by 3S use four spaces</p></td>
+</tr>
+<tr class="row-odd"><td><p>L2</p></td>
+<td></td>
+<td><p>(FBD) Avoid assignments of intermediate results within networks</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L3</p></td>
+<td></td>
+<td><p>(FBD) Define maximum complexity of single network</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L4</p></td>
+<td></td>
+<td><p>(LD) A coil should not be followed by a contact</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L5</p></td>
+<td></td>
+<td><p>(LD) Define maximum rung complexity</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L6</p></td>
+<td></td>
+<td><p>(SFC) Closing divergent paths</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L7</p></td>
+<td></td>
+<td><p>(SFC) Do not program an SFC action block in <code class="docutils literal notranslate"><span class="pre">SFC</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L8</p></td>
+<td></td>
+<td><p>(SFC) Define maximum complexity</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L9</p></td>
+<td></td>
+<td><p>(ST) Define general formatting rules</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L10</p></td>
+<td></td>
+<td><p>(ST) Usage of <code class="docutils literal notranslate"><span class="pre">CONTINUE</span></code> and <code class="docutils literal notranslate"><span class="pre">EXIT</span></code> instruction should be avoided</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L11</p></td>
+<td></td>
+<td><p>(ST) Define the maximum line length</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L12</p></td>
+<td><p>SA0072</p></td>
+<td><p>(ST) Loop variables should not be modified inside a <code class="docutils literal notranslate"><span class="pre">FOR</span></code> loop</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L13</p></td>
+<td><p>SA0073</p></td>
+<td><p>(ST) <code class="docutils literal notranslate"><span class="pre">FOR</span></code> loop variable usage should not be used outside the <code class="docutils literal notranslate"><span class="pre">FOR</span></code> loop</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L14</p></td>
+<td></td>
+<td><p>(ST) Passing parameters should be clear</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>L15</p></td>
+<td></td>
+<td><p>(ST) Use parenthesis to explicitly express operation precedence</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>L16</p></td>
+<td></td>
+<td><p>(ST) Define the use of tabs</p></td>
+<td><p>Library developer employed by 3S donât use tabs</p></td>
+</tr>
+<tr class="row-even"><td><p>L17</p></td>
+<td><p>SA0075</p></td>
+<td><p>(ST) Each <code class="docutils literal notranslate"><span class="pre">IF</span></code> instruction should have an <code class="docutils literal notranslate"><span class="pre">ELSE</span></code> clause</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>E1</p></td>
+<td></td>
+<td><p>Dynamic memory allocation shall not be used</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>E2</p></td>
+<td><p>SA0061</p></td>
+<td><p>Pointer arithmetic shall not be used</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>E3</p></td>
+<td><p>SA0061</p></td>
+<td><p>Some comparator instructions shall not be used for pointers or reference manipulation</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="recommended-rules-for-static-analysis">
+<span id="recommendedsa"></span><span id="index-1"></span><h2>Recommended Rules for Static Analysis<a class="headerlink" href="#recommended-rules-for-static-analysis" title="Permalink to this heading">Â¶</a></h2>
+<p class="rubric">Available Rules</p>
+<p>This table shows the set of recommended rules that should be activated or deactivated in CODESYS Static Analysis.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 10.0%" />
+<col style="width: 50.0%" />
+<col style="width: 5.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rule</p></th>
+<th class="head"><p>PLCopen</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Active</p></th>
+<th class="head"><p>Reason</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SA0001</p></td>
+<td><p>CP2</p></td>
+<td><p>Unreachable code</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0002</p></td>
+<td></td>
+<td><p>Empty objects</p></td>
+<td><p>Yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0002" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0003</p></td>
+<td></td>
+<td><p>Empty statements</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0004</p></td>
+<td><p>CP12</p></td>
+<td><p>Multiple write access on output</p></td>
+<td><p>Yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0004" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0005</p></td>
+<td></td>
+<td><p>Check address and data type</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0006</p></td>
+<td><p>CP10</p></td>
+<td><p>Write access from several tasks</p></td>
+<td><p>Yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0006" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0007</p></td>
+<td></td>
+<td><p>Address operator on constants</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0008</p></td>
+<td></td>
+<td><p>Check subrange types</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0009</p></td>
+<td><p>CP7, CP17</p></td>
+<td><p>Unused return values</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0010</p></td>
+<td></td>
+<td><p>Arrays with only one component</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0011</p></td>
+<td><p>CP22, CP24</p></td>
+<td><p>Useless declarations</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0012</p></td>
+<td></td>
+<td><p>Variables which could be declared as constants</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0013</p></td>
+<td><p>N5, N9</p></td>
+<td><p>Declarations with the same variable name</p></td>
+<td><p>not yet</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0013" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0014</p></td>
+<td></td>
+<td><p>Assignment of instances</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0015</p></td>
+<td></td>
+<td><p>Access to global data via  FB_Init</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0016</p></td>
+<td></td>
+<td><p>Gaps in structures</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0017</p></td>
+<td></td>
+<td><p>Non-regular assignments</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0018</p></td>
+<td></td>
+<td><p>Unusual bit access</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0019</p></td>
+<td><p>CP25</p></td>
+<td><p>Implicit pointer conversions</p></td>
+<td><p>not yet</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0020</p></td>
+<td></td>
+<td><p>Possibly assignment of truncated value to REAL variable</p></td>
+<td><p>Yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0020" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0021</p></td>
+<td></td>
+<td><p>Transporting the address of a temporary variable</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0022</p></td>
+<td></td>
+<td><p>(Possibly) unassigned return value</p></td>
+<td><p>Warning</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0023</p></td>
+<td></td>
+<td><p>Too big return values</p></td>
+<td><p>Warning</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0024</p></td>
+<td></td>
+<td><p>Untyped literals / constants</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0025</p></td>
+<td></td>
+<td><p>Unqualified enumeration constants</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0026</p></td>
+<td></td>
+<td><p>Possible truncated strings</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0027</p></td>
+<td><p>N9</p></td>
+<td><p>Multiple uses of identifiers</p></td>
+<td><p>not yet</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0027" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0028</p></td>
+<td><p>CP4</p></td>
+<td><p>Overlapping memory areas</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0029</p></td>
+<td></td>
+<td><p>Notation in code different to declaration</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0030</p></td>
+<td></td>
+<td><p>Unused objects</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0031</p></td>
+<td><p>CP2</p></td>
+<td><p>Unused signatures</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#notapplicable" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0032</p></td>
+<td><p>CP24</p></td>
+<td><p>Unused enumeration constants</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#notapplicable" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0033</p></td>
+<td><p>CP22, CP24</p></td>
+<td><p>Unused variables</p></td>
+<td><p>Warning</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0034</p></td>
+<td></td>
+<td><p>Enumerations with incorrect assignment</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0035</p></td>
+<td><p>CP24</p></td>
+<td><p>Unused input variables</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#notapplicable" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0036</p></td>
+<td><p>CP24</p></td>
+<td><p>Unused output variables</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#notapplicable" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0037</p></td>
+<td></td>
+<td><p>Write access to input variable</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0037" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0038</p></td>
+<td></td>
+<td><p>Read access to output variable</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0038" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0039</p></td>
+<td></td>
+<td><p>Possible null pointer dereferences</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0040</p></td>
+<td></td>
+<td><p>Possible division by zero</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0041</p></td>
+<td></td>
+<td><p>Detect possible loop invariant code</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0042</p></td>
+<td></td>
+<td><p>Usage of different access paths</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0043</p></td>
+<td><p>CP26</p></td>
+<td><p>Use of a global variable in only one POU</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0044</p></td>
+<td></td>
+<td><p>Declarations with reference to interface</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0045</p></td>
+<td></td>
+<td><p>Conversions</p></td>
+<td><p>Yes</p></td>
+<td><p>See: SA0019, SA0130, â¦, SA0134</p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0046</p></td>
+<td></td>
+<td><p>Possible use of not initialised interface</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0047</p></td>
+<td><p>N1, CP1</p></td>
+<td><p>Accesses to direct address</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0048</p></td>
+<td><p>N1, CP1</p></td>
+<td><p>AT-declarations on direct addresses</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0049</p></td>
+<td></td>
+<td><p>Usage of direct addresses</p></td>
+<td><p>Yes</p></td>
+<td><p>See: SA0005, SA0047, SA0048</p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0050</p></td>
+<td></td>
+<td><p>Rules for operators</p></td>
+<td><p>Yes</p></td>
+<td><p>See: SA0051, â¦, SA0066</p></td>
+</tr>
+<tr class="row-even"><td><p>SA0051</p></td>
+<td></td>
+<td><p>Comparison operations on BOOL vairables</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0052</p></td>
+<td></td>
+<td><p>Unusual shift operation</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0053</p></td>
+<td></td>
+<td><p>Too big bitwise shift</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0054</p></td>
+<td><p>CP8</p></td>
+<td><p>Comparisons of <code class="docutils literal notranslate"><span class="pre">REAL</span></code>/<code class="docutils literal notranslate"><span class="pre">LREAL</span></code> for equality / inequality</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0055</p></td>
+<td></td>
+<td><p>Unnecessary comparisons of unsigned operands</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0056</p></td>
+<td></td>
+<td><p>Constant out of valid range</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0057</p></td>
+<td></td>
+<td><p>Possible loss of decimal places</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0057" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0058</p></td>
+<td></td>
+<td><p>Operations on enumeration variables</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0059</p></td>
+<td></td>
+<td><p>Comparison operations always returning <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> or <code class="docutils literal notranslate"><span class="pre">FALSE</span></code></p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0060</p></td>
+<td></td>
+<td><p>Zero used as invalid operand</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0061</p></td>
+<td><p>E2, E3</p></td>
+<td><p>Unusual operation on pointer</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0062</p></td>
+<td></td>
+<td><p>Uses of <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> or <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> in expressions</p></td>
+<td><p>Yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0062" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0063</p></td>
+<td></td>
+<td><p>Possibly not 16-bit-compatible operations</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0064</p></td>
+<td></td>
+<td><p>Addition of pointer</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0065</p></td>
+<td></td>
+<td><p>Incorrect pointer addition to base size</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0066</p></td>
+<td></td>
+<td><p>Uses of temporary results</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0070</p></td>
+<td></td>
+<td><p>Rules for statements</p></td>
+<td><p>Yes</p></td>
+<td><p>See: SA0071, â¦, SA0090</p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0071</p></td>
+<td></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FOR</span></code> statements</p></td>
+<td><p>Yes</p></td>
+<td><p>See: SA0072, SA0073, SA0080, SA0081</p></td>
+</tr>
+<tr class="row-even"><td><p>SA0072</p></td>
+<td><p>L12</p></td>
+<td><p>Invalid uses of counter variable</p></td>
+<td><p>Yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#sa0072" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0073</p></td>
+<td><p>CP21, L13</p></td>
+<td><p>Uses of inadequate counter variable</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0074</p></td>
+<td></td>
+<td><p>CASE statement</p></td>
+<td><p>Yes</p></td>
+<td><p>See: SA0075, â¦, SA0078</p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0075</p></td>
+<td><p>L17</p></td>
+<td><p>Missing <code class="docutils literal notranslate"><span class="pre">ELSE</span></code></p></td>
+<td><p>Warning</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0076</p></td>
+<td></td>
+<td><p>Missing enumeration constant</p></td>
+<td><p>Warning</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0077</p></td>
+<td></td>
+<td><p>Type mismatches with CASE expression</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0078</p></td>
+<td></td>
+<td><p>Missing <code class="docutils literal notranslate"><span class="pre">CASE</span></code> branches</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0080</p></td>
+<td></td>
+<td><p>Loop index variable for array index exeeds array range</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0081</p></td>
+<td></td>
+<td><p>Upper border is not a constant</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0090</p></td>
+<td><p>CP14</p></td>
+<td><p>Return statement before end of function</p></td>
+<td><p>Warning</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0095</p></td>
+<td></td>
+<td><p>Assignments in conditions</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0100</p></td>
+<td></td>
+<td><p>Variables greater than 1024 bytesâ¦</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0101</p></td>
+<td><p>N6</p></td>
+<td><p>Names with invalid length</p></td>
+<td><p>not yet</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0102</p></td>
+<td></td>
+<td><p>Access to program/fb variables from the outside</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0105</p></td>
+<td><p>CP16, CP20</p></td>
+<td><p>Multiple instance calls</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0106</p></td>
+<td></td>
+<td><p>Virtual method calls in <code class="docutils literal notranslate"><span class="pre">FB_INIT</span></code></p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0107</p></td>
+<td></td>
+<td><p>Missing formal parameters</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0110</p></td>
+<td></td>
+<td><p>Check strict IEC rules</p></td>
+<td><p>No</p></td>
+<td><p>See: SA0111, â¦, SA0123</p></td>
+</tr>
+<tr class="row-even"><td><p>SA0111</p></td>
+<td></td>
+<td><p>Pointer variables</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0112</p></td>
+<td></td>
+<td><p>Reference variables</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0113</p></td>
+<td></td>
+<td><p>Variables with data type <code class="docutils literal notranslate"><span class="pre">WSTRING</span></code></p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0114</p></td>
+<td></td>
+<td><p>Variables with data type <code class="docutils literal notranslate"><span class="pre">LTIME</span></code></p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0115</p></td>
+<td></td>
+<td><p>Variables with data type <code class="docutils literal notranslate"><span class="pre">UNION</span></code></p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0117</p></td>
+<td></td>
+<td><p>Variables with data type <code class="docutils literal notranslate"><span class="pre">BIT</span></code></p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0118</p></td>
+<td></td>
+<td><p>Initialisations not using constants</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0119</p></td>
+<td></td>
+<td><p>Object-oriented features</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id24" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0120</p></td>
+<td></td>
+<td><p>Program calls</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0121</p></td>
+<td><p>CP18</p></td>
+<td><p>Missing <code class="docutils literal notranslate"><span class="pre">VAR_EXTERNAL</span></code> declarations</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0122</p></td>
+<td></td>
+<td><p>Array index defined as expression</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id25" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0123</p></td>
+<td></td>
+<td><p>Usages of INI, ADR or BITADR</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#mandatory" id="id26" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0124</p></td>
+<td></td>
+<td><p>Prohibit dereference access in initialisations</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0125</p></td>
+<td></td>
+<td><p>Prohibit references in initialisations</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0130</p></td>
+<td></td>
+<td><p>Implicit expanding conversions</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0131</p></td>
+<td></td>
+<td><p>Implicit narrowing conversions</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0132</p></td>
+<td></td>
+<td><p>Implicit signed/unsigned conversions</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0133</p></td>
+<td></td>
+<td><p>Explicit narrowing conversions</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0134</p></td>
+<td></td>
+<td><p>Explicit signed/unsigned conversions</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0140</p></td>
+<td><p>C4</p></td>
+<td><p>Statements commented out</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0150</p></td>
+<td><p>CP9</p></td>
+<td><p>Violations of lower or upper limits or the metrics</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0160</p></td>
+<td><p>CP13</p></td>
+<td><p>Recursive calls</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0161</p></td>
+<td></td>
+<td><p>Unpacked structure in packed structure</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0162</p></td>
+<td><p>C2</p></td>
+<td><p>Missing comments</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#notapplicable" id="id27" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SA0163</p></td>
+<td><p>C3</p></td>
+<td><p>Nested comments</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SA0164</p></td>
+<td><p>C5</p></td>
+<td><p>Multiline comments</p></td>
+<td><p>Yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0165</p></td>
+<td><p>CP16</p></td>
+<td><p>Tasks calling other POUs than programs</p></td>
+<td><p>No</p></td>
+<td><p><a class="footnote-reference brackets" href="#notapplicable" id="id28" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SA0166</p></td>
+<td><p>CP23</p></td>
+<td><p>Max. number of input/output/in-out variablesâ¦</p></td>
+<td><p>No</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SA0167</p></td>
+<td></td>
+<td><p>Report Temporary FB Instances</p></td>
+<td><p>?</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Reasons for Exceptions</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="sa0002" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Blank methods are common for OO (because the method is implemented by the inherited function block) and blank FB bodies; provide the respective methods and function block bodies with pragmas and comments.</p>
+</aside>
+<aside class="footnote brackets" id="sa0004" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>Unlikely to occur in libraries</p>
+</aside>
+<aside class="footnote brackets" id="sa0006" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>Unlikely to occur in libraries</p>
+</aside>
+<aside class="footnote brackets" id="sa0013" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<p>We need a follow up to <a class="reference external" href="http://jira.3s-software.com/browse/SAN-45">SAN-45</a>, various errors are reported that are not really errors.</p>
+</aside>
+<aside class="footnote brackets" id="sa0020" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
+<p>In specific cases, check the occurrences and deactivate the test.</p>
+</aside>
+<aside class="footnote brackets" id="sa0027" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
+<p>We need a JIRA entry, various errors are reported that are not really errors.</p>
+</aside>
+<aside class="footnote brackets" id="sa0037" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">7</a><span class="fn-bracket">]</span></span>
+<p>The input parameter is an ordinary local variable in the stack.</p>
+</aside>
+<aside class="footnote brackets" id="sa0038" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">8</a><span class="fn-bracket">]</span></span>
+<p>This is not a problem because output variables are initialized.</p>
+</aside>
+<aside class="footnote brackets" id="sa0057" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">9</a><span class="fn-bracket">]</span></span>
+<p>Analogous to LINT-653. Is the warning justified for integer division with assignment to integer variables?</p>
+</aside>
+<aside class="footnote brackets" id="sa0062" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">10</a><span class="fn-bracket">]</span></span>
+<p>Superfluous constructs are detected, such as âIF xBool = TRUE THENâ</p>
+</aside>
+<aside class="footnote brackets" id="sa0072" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id16">11</a><span class="fn-bracket">]</span></span>
+<p>Potential error source; can be reconstructed easily</p>
+</aside>
+<aside class="footnote brackets" id="notapplicable" role="note">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id8">1</a>,<a role="doc-backlink" href="#id9">2</a>,<a role="doc-backlink" href="#id10">3</a>,<a role="doc-backlink" href="#id11">4</a>,<a role="doc-backlink" href="#id27">5</a>,<a role="doc-backlink" href="#id28">6</a>)</span>
+<p>Not applicable to libraries</p>
+</aside>
+<aside class="footnote brackets" id="mandatory" role="note">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id17">1</a>,<a role="doc-backlink" href="#id18">2</a>,<a role="doc-backlink" href="#id19">3</a>,<a role="doc-backlink" href="#id20">4</a>,<a role="doc-backlink" href="#id21">5</a>,<a role="doc-backlink" href="#id22">6</a>,<a role="doc-backlink" href="#id23">7</a>,<a role="doc-backlink" href="#id24">8</a>,<a role="doc-backlink" href="#id25">9</a>,<a role="doc-backlink" href="#id26">10</a>)</span>
+<p>Required for our libraries</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

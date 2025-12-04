@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Suche"></meta><meta name="search.results" content="Suchresultat"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'de';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>OPC UA-Informationsmodelle verwenden</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V4.7.0.0"></meta><link rel="prev" href="_cds_symbolconfiguration.html#UUID-dd7da851-5b1d-09cb-b5ee-8804ac411bcb_section-idm33263601004838" title="Anlegen von Symbolgruppen mit unterschiedlichen Zugriffsrechten für verschiedene Steuerungsclients"></link><link rel="next" href="_cds_opc_ua_map_types_to_iec.html" title="Abbildung von OPC UA-Typen nach IEC-Typen"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=de"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Suche" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS Communication</a></li><li class="breadcrumb-node">OPC UA-Informationsmodelle verwenden</li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_cds_symbolconfiguration.html#UUID-dd7da851-5b1d-09cb-b5ee-8804ac411bcb_section-idm33263601004838">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_cds_opc_ua_map_types_to_iec.html">Weiter</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="UUID-62e557ec-b867-3fd1-2235-82b10d9b9c6a" data-permalink="_cds_using_opc_ua_information_models.html" data-topic-level="1" data-relative-prefix="" data-time-modified="September 23, 2025" data-publication-date="" id="UUID-3e141702-b0b6-04dd-9d3a-67577116b003"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both">OPC UA-Informationsmodelle verwenden</h1></div></div></div><p>Die OPC UA-Informationsmodelle stellen Anlageninformationen gemäß dem OPC UA-Standard zur Verfügung. Diese Anlagendaten beinhalten sowohl Daten als auch Metadaten wie Datenherkunft, Datenqualität und Datenquerverbindungen. OPC UA-basierte Anlagen können somit schneller verbunden oder analysiert werden.</p><p>Im Anlagen- und Maschinenbau gibt es mehrere spartenspezifische OPC UA-Informationsmodelle, beispielsweise ist die "Companion Specificaton EUROMAP77" ein Informationsmodell für Kunststoff- und Gummimaschinen.</p><p>Ein Informationsmodell besteht aus unterschiedlichen Objekten, die Metainformationen, Laufzeitinformationen und Nutzdaten, wie zum Beispiel Prozessvariablen beinhalten.</p><div class="procedure"><p>Voraussetzungen:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Ein <span class="phrase">CODESYS</span>-Projekt ist geöffnet.</p></li><li class="listitem"><p>Eine Steuerung mit integrierter OPC UA Server-Funktionalität wurde dem Projekt hinzugefügt.</p></li></ul></div><ol class="procedure" type="1"><li class="step"><p>Wählen Sie den Befehl <span class="guimenu">Tools → <a class="link linktype-component" href="_cds_cmd_opc_ua_information_model_repository.html" title="Befehl: OPC UA Informationsmodell-Repository">OPC UA-Informationsmodell-Repository</a></span>.</p><div class="result"><p>Der Dialog <span class="guilabel">OPC UA-Informationsmodell</span> öffnet sich.</p><p>Die Informationsmodelle mit der URI <code class="code">http://opcfoundation.org/UA/</code> und <code class="code">http://opcfoundation.org/UA/DI/</code> sind bereits standardmäßig installiert.</p></div></li><li class="step"><p>Um das OPC UA-Informationsmodell zu installieren, das Sie für Ihr Projekt benötigen, und klicken Sie auf <span class="guilabel">Installieren</span>.</p></li><li class="step"><p>Wählen Sie im Dialog <span class="guilabel">OPC UA-Informationsmodell auswählen</span> aus dem Dateiverzeichnis das Informationsmodeldatei <code class="code">*NodeSet2.xml</code> aus und klicken Sie auf <span class="guilabel">Öffnen</span>.</p><div class="result"><p>Das ausgewählte OPC UA-Informationsmodell wird jetzt im <span class="guilabel">OPC UA-Informationsmodell-Repository</span> angezeigt.</p></div></li><li class="step"><p>Fügen Sie der Applikation Ihres <span class="phrase">CODESYS</span>-Projekts ein Objekt <span class="inlinemediaobject"><img src="image/uuid-d01758b3-05f9-80bf-050e-6dfc8b93bca5.png" alt="_cds_icon_communication_manager.png"></img></span> <span class="guilabel">Kommunkationsverwalter</span> hinzu.</p></li><li class="step"><p>Fügen Sie dem <span class="inlinemediaobject"><img src="image/uuid-d01758b3-05f9-80bf-050e-6dfc8b93bca5.png" alt="_cds_icon_communication_manager.png"></img></span> <span class="guilabel">Kommunikationsverwalter</span> ein Objekt <a class="link linktype-component" href="_cds_obj_opc_ua_information_model.html" title="Objekt: OPC UA-Informationsmodell">OPC UA-Informationsmodell</a> (<span class="inlinemediaobject"><img src="image/uuid-4fe488cd-6313-71d7-34fd-62fa2eebf448.png" alt="_cds_icon_cloud.png"></img></span>) hinzu.</p></li><li class="step"><p>Im Dialog <span class="guilabel">OPC UA-Informationsmodell hinzufügen</span> geben Sie für das Informationsmodell einen Namen entsprechend IEC 61131-3 ein und wählen Sie das gewünschte Informationsmodell in der Auswahlliste <span class="guilabel">Informationsmodell-URI</span> aus. Die Auswahlliste zeigt alle OPC UA-Informationsmodelle des OPC UA-Informationsmodell-Repositorys an. Anschließend klicken Sie auf <span class="guilabel">Hinzufügen</span>.</p><div class="result"><p>In der Ansicht <span class="guilabel">Geräte</span> wird das <span class="inlinemediaobject"><img src="image/uuid-4fe488cd-6313-71d7-34fd-62fa2eebf448.png" alt="_cds_icon_cloud.png"></img></span> Veröffentlichungsobjekt, für das Sie im vorigen Schritt einen Namen eingegeben haben, eingefügt und darunter das ausgewählte <span class="inlinemediaobject"><img src="image/uuid-36892b35-9a4f-2301-f9e0-f782184de6e2.png" alt="_cds_icon_information_model.png"></img></span> <span class="guilabel">Informationsmodell</span>.</p><p>Das Veröffentlichungsobjekt wird im Editor geöffnet.</p></div></li><li class="step"><p>In den nächsten Schritten wählen Sie aus dem OPC UA-Informationsmodell diejenigen Objekt- und Datentypen aus, die Sie in Ihrer <span class="phrase">CODESYS</span>-Applikation verwenden wollen. Dazu öffnen Sie zunächst das <span class="inlinemediaobject"><img src="image/uuid-36892b35-9a4f-2301-f9e0-f782184de6e2.png" alt="_cds_icon_information_model.png"></img></span> <span class="guilabel">Informationsmodell</span> im Editor.</p><div class="result"><p>Auf der linken Seite werden die Typendeklarationen des OPC UA-Informationsmodells angezeigt.</p></div></li><li class="step"><p>Fügen Sie die für Ihre <span class="phrase">CODESYS</span>-Applikation gewünschten <a class="link linktype-fork" href="_cds_opc_ua_map_types_to_iec.html" title="Abbildung von OPC UA-Typen nach IEC-Typen">OPC UA-Typendeklarationen</a> per Drag&amp;Drop vom linken Bereich in den rechten Bereich ein. Für alle Typen mit der <span class="guilabel">Modellierungsregel</span> <span class="guilabel">Verpflichtend</span> wird später bei der Erzeugung der IEC-Deklarationen ein entsprechende IEC-Komponente für die Applikation erzeugt. Bei der <span class="guilabel">Modellierungsregel</span> <span class="guilabel">Optional</span> können Sie im rechten Bereich aktivieren, dass für diesen Typ ebenfalls eine IEC-Komponente erzeugt wird.</p></li><li class="step"><p>Für OPC UA-Typen mit der Modellierungsregel <span class="guilabel">Optionaler Platzhalter</span> können Sie im rechten Bereich per Drag&amp;Drop einen anderen entsprechenden IEC-Typ einfügen.</p><div class="result"><p>Beispiel:</p><div class="informalfigure"><div class="mediaobject"><img src="image/uuid-bfe8f822-7fe3-d4ef-d999-4c99930043da.png" style="" alt="_cds_img_opc_information_model_editor.png"></img></div></div></div></li><li class="step"><p>Wenn Sie alle gewünschten OPC UA-Typen auf IEC abgebildet haben, klicken Sie auf die Schaltfläche <span class="guilabel">IEC-Deklarationen erzeugen</span>.</p><div class="result"><p>Die erzeugten IEC-Komponenten sind beispielsweise im Ordner <span class="guilabel">OPC_UA_Symbols Objekte</span> sichtbar und können in der Applikation verwendet werden. Für die Implementierung der Programmierobjekte Ihrer Applikation stehen diese Komponenten in der Eingabehilfe zur Verfügung.</p></div></li><li class="step"><p>Wenn Arrays generiert wurden, müssen Sie für diese Arrays in den Deklarationen nun die Obergrenzen festlegen, da diese Information in der installierten Informationsmodelldatei <code class="code">*NodeSet2.xml</code> nicht enthalten ist.</p></li><li class="step"><p>In den nächsten Schritten konfigurieren Sie die OPC UA-Typen, die in einem OPC UA Client veröffentlicht werden sollen. Dazu doppelklicken Sie in der Geräteansicht auf das OPC UA-Veröffentlichungsobjekt <span class="inlinemediaobject"><img src="image/uuid-4fe488cd-6313-71d7-34fd-62fa2eebf448.png" alt="_cds_icon_cloud.png"></img></span>.</p></li><li class="step"><p>Im soeben geöffneten OPC UA-Veröffentlichungseditor können Sie neue Instanzen für die Programmierobjekte erzeugen, die Sie im <span class="inlinemediaobject"><img src="image/uuid-36892b35-9a4f-2301-f9e0-f782184de6e2.png" alt="_cds_icon_information_model.png"></img></span> <span class="guilabel">nformationsmodell</span> erstellt haben, oder Sie können Instanzen, die Sie in Ihrer Applikation in PRGs und GVLs bereits deklariert haben, als Instanzen verwenden.</p></li><li class="step"><p>Um eine neue Instanz zu erstellen, klicken Sie auf <span class="guilabel">Neue Instanz erzeugen</span>.</p></li><li class="step"><p>Wählen Sie im Dialog <span class="guilabel">Neue Instanz anlegen</span> aus der Auswahlliste den <span class="guilabel">IEC-Typ</span> aus und klicken Sie auf <span class="guilabel">OK</span>.</p><div class="result"><p>Eine Instanz des ausgewählten IEC-Typs wird erzeugt und im Editor eingefügt. Den automatisch vergebenen Namen <span class="guilabel">inst_n</span> können Sie editieren, wenn Sie den Namen doppelklicken.</p></div></li><li class="step"><p>Um nach Instanzen zu suchen, die in der Applikation bereits deklariert wurden, klicken Sie auf <span class="guilabel">Nach abgebildeten Instanzen suchen</span>.</p></li><li class="step"><p>Wählen Sie im Editor in der Auswahlliste <span class="guilabel">Wurzelknoten</span> das Verzeichnis aus, in dem die Instanzen auf dem OPC UA-Client angezeigt werden sollen. Die zur Auswahl stehenden Verzeichnisse sind abhängig von der OPC UA Companion Spezifikation.</p></li><li class="step"><p>Um diese Instanzen auf einem OPC UA Client zu veröffentlichen, wählen Sie zunächst den Befehl <span class="guilabel">Online → Einloggen</span>.</p></li><li class="step"><p>Wenn die Applikation erfolgreich auf die Steuerung geladen wurde, starten Sie die Applikation.</p></li><li class="step"><p>Starten Sie den OPC UA-Client.</p><div class="result"><p>Im OPC UA-Client werden die Instanzen angezeigt, die Sie in den vorherigen Schritten im OPC UA-Veröffentlichungseditor dafür ausgewählt haben.</p></div></li></ol></div></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">In diesem Abschnitt<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Suchresultat</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22OPC%20UA-Informationsmodelle%20verwenden%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22OPC%20UA-Informationsmodelle%20verwenden%22%20in%20the%20publication%20%22CODESYS%20Communication%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Möchten Sie uns Feedback geben? Klicken Sie hier, um Änderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="_cds_symbolconfiguration.html#UUID-dd7da851-5b1d-09cb-b5ee-8804ac411bcb_section-idm33263601004838">Zurück</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_cds_opc_ua_map_types_to_iec.html">Weiter</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-11-06 15:17:56 -->

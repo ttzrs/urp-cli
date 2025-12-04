@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['ja'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "概要 ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ 概要 ", 
+"snippet" : "の CODESYS Base Libraries パッケージには、他のライブラリやアプリケーションの開発を簡素化するライブラリのコレクションが含まれています。これらのライブラリは、 CODESYS Development System バージョン <= 3.5.20.0。 これらの基本ライブラリを使用したいくつかのサンプル プロジェクトの説明を参照してください。 例: 要素コレクション 例: PLC チャット ネット ベース サービス 例:ネットベースサービス...", 
+"body" : "の CODESYS Base Libraries パッケージには、他のライブラリやアプリケーションの開発を簡素化するライブラリのコレクションが含まれています。これらのライブラリは、 CODESYS Development System バージョン <= 3.5.20.0。 これらの基本ライブラリを使用したいくつかのサンプル プロジェクトの説明を参照してください。 例: 要素コレクション 例: PLC チャット ネット ベース サービス 例:ネットベースサービス " }, 
+{ "title" : "パッケージには次のライブラリが付属しています。 ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ パッケージには次のライブラリが付属しています。 ", 
+"snippet" : "Asynchronous Job Manager : ライブラリには、非同期タスクの最適化された処理のための関数ブロックが含まれています。 Common Behaviour Model : ライブラリには、共通動作モデルのオブジェクト指向実装が含まれています。 Element Collections : ライブラリには、リスト、キュー、スタック、ハッシュ テーブル (「コレクション」) などの定義済みデータ構造にオブジェクト参照を保存するための関数ブロックとインターフェイスが含まれています。 Net Base Services : このライブラリは、イーサネットの基本サービスのコレクションとし...", 
+"body" : "Asynchronous Job Manager : ライブラリには、非同期タスクの最適化された処理のための関数ブロックが含まれています。 Common Behaviour Model : ライブラリには、共通動作モデルのオブジェクト指向実装が含まれています。 Element Collections : ライブラリには、リスト、キュー、スタック、ハッシュ テーブル (「コレクション」) などの定義済みデータ構造にオブジェクト参照を保存するための関数ブロックとインターフェイスが含まれています。 Net Base Services : このライブラリは、イーサネットの基本サービスのコレクションとして、TCP サーバー、TCP クライアント、および UDP ピアを実装します。 Segmented Buffer Manager : ライブラリには、大きなバッファのさまざまなセグメントの処理、セグメントの結合、またはバッファのセグメントへの分割を行う関数が含まれています。これは、コンテンツを常にコピーすることなく実行されます。関数は、セグメントをコピーするのではなく参照し、セグメントを二重リンク リストで管理します。 SharedData Utilities for MultiCore : ライブラリには、マルチコア環境でのデータの一貫性を確保するためのデータ構造と関数が含まれています。 " }, 
+{ "title" : "エラーの検出と修正 ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ エラーの検出と修正 ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ エラーの検出と修正 \/ Net Base Services ", 
+"snippet" : "サーバーとクライアント間の既存の接続の中断 (たとえば、イーサネット ケーブルの取り外し) は、コントローラーによって検出されません。TCP\/IP の場合、ケーブルの切断は、クライアントまたはサーバーが、予想されるテレグラムが一定時間 (タイムアウト) 失われていることを検出した場合にのみ検出できます。 したがって、プロトコルは、クライアントとサーバーの間で定期的に電報が交換されるように設計する必要があります。タイムアウトが発生すると、両側は互いに独立して接続を閉じることができます。その後、接続を再度使用して新しい接続を確立できます。...", 
+"body" : "サーバーとクライアント間の既存の接続の中断 (たとえば、イーサネット ケーブルの取り外し) は、コントローラーによって検出されません。TCP\/IP の場合、ケーブルの切断は、クライアントまたはサーバーが、予想されるテレグラムが一定時間 (タイムアウト) 失われていることを検出した場合にのみ検出できます。 したがって、プロトコルは、クライアントとサーバーの間で定期的に電報が交換されるように設計する必要があります。タイムアウトが発生すると、両側は互いに独立して接続を閉じることができます。その後、接続を再度使用して新しい接続を確立できます。 " }
+]
+$(document).trigger('search.ready');
+});

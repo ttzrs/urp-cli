@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['fr'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Description générale ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Description générale ", 
+"snippet" : "Le CODESYS Base Libraries Le package contient une collection de bibliothèques qui simplifient le développement d’autres bibliothèques et applications. Ces bibliothèques ont été installées directement dans CODESYS Development System versions <= 3.5.20.0. Voir la description de quelques exemples de pr...", 
+"body" : "Le CODESYS Base Libraries Le package contient une collection de bibliothèques qui simplifient le développement d’autres bibliothèques et applications. Ces bibliothèques ont été installées directement dans CODESYS Development System versions <= 3.5.20.0. Voir la description de quelques exemples de projets utilisant ces bibliothèques de base : Exemple : collections d'éléments Exemple : Services de base réseau de discussion PLC Exemple : Net Base Services " }, 
+{ "title" : "Les bibliothèques suivantes sont fournies avec le package : ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Les bibliothèques suivantes sont fournies avec le package : ", 
+"snippet" : "Asynchronous Job Manager : La bibliothèque contient des blocs fonctionnels pour un traitement optimisé des tâches asynchrones. Common Behaviour Model : La bibliothèque contient une implémentation orientée objet du Common Behavior Model. Element Collections : La bibliothèque contient des blocs foncti...", 
+"body" : "Asynchronous Job Manager : La bibliothèque contient des blocs fonctionnels pour un traitement optimisé des tâches asynchrones. Common Behaviour Model : La bibliothèque contient une implémentation orientée objet du Common Behavior Model. Element Collections : La bibliothèque contient des blocs fonctionnels et des interfaces pour enregistrer les références d'objets dans des structures de données prédéfinies, telles que des listes, des files d'attente, des piles et des tables de hachage (« collections »). Net Base Services : La bibliothèque implémente un serveur TCP, un client TCP et un homologue UDP en tant qu'ensemble de services de base pour Ethernet. Segmented Buffer Manager : La bibliothèque contient des fonctions permettant de gérer différents segments d'un grand tampon, de fusionner des segments ou de diviser des tampons en segments. Cela se fait sans que le contenu soit constamment copié. Les fonctions tentent de référencer les segments au lieu de les copier et gèrent les segments dans des listes à double lien. SharedData Utilities for MultiCore : La bibliothèque contient des structures de données et des fonctions permettant d'assurer la cohérence des données dans un environnement multicœur. " }, 
+{ "title" : "Détecter et corriger les erreurs ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Détecter et corriger les erreurs ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Détecter et corriger les erreurs \/ Net Base Services ", 
+"snippet" : "L'interruption d'une connexion existante entre le serveur et le client (par exemple en débranchant le câble Ethernet) n'est pas détectée par le contrôleur. Dans le cas de TCP\/IP, la déconnexion d'un câble ne peut être détectée que si le client ou le serveur détecte qu'un télégramme attendu manque pe...", 
+"body" : "L'interruption d'une connexion existante entre le serveur et le client (par exemple en débranchant le câble Ethernet) n'est pas détectée par le contrôleur. Dans le cas de TCP\/IP, la déconnexion d'un câble ne peut être détectée que si le client ou le serveur détecte qu'un télégramme attendu manque pendant un certain temps (timeout). Le protocole doit donc être conçu de manière à ce que des télégrammes soient échangés régulièrement entre le client et le serveur. En cas de dépassement de délai, les deux parties peuvent fermer la connexion indépendamment l'une de l'autre. La connexion peut alors être réutilisée pour établir une nouvelle connexion. " }
+]
+$(document).trigger('search.ready');
+});

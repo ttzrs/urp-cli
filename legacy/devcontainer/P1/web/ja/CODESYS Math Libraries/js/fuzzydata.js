@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['ja'] = [{ "title" : "CODESYS Math Libraries ", 
+"url" : "_mathlib_start_page.html", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "はじめに ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018560416181", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ はじめに ", 
+"snippet" : "CODESYS Math Libraries には以下が含まれます マトリックス ライブラリと内部 浮動小数点ツール ライブラリ。ザ・ Matrix ライブラリは任意の次元の行列とその行列に対する基本的な数学演算をサポートします。次の演算がサポートされています:加算、乗算、線形方程式の求解、反転、行列式の計算です...", 
+"body" : "CODESYS Math Libraries には以下が含まれます マトリックス ライブラリと内部 浮動小数点ツール ライブラリ。ザ・ Matrix ライブラリは任意の次元の行列とその行列に対する基本的な数学演算をサポートします。次の演算がサポートされています:加算、乗算、線形方程式の求解、反転、行列式の計算です " }, 
+{ "title" : "商品説明 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018604946206", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 商品説明 ", 
+"snippet" : "ザル Matrix ライブラリには、任意の次元の行列を定義するデータ型と、行列に対して基本的な操作を実行する関数が用意されています。...", 
+"body" : "ザル Matrix ライブラリには、任意の次元の行列を定義するデータ型と、行列に対して基本的な操作を実行する関数が用意されています。 " }, 
+{ "title" : "データ型と関数 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018606155652", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 商品説明 \/ データ型と関数 ", 
+"snippet" : "マトリックスは以下で定義されます。 mtx.Matrix データタイプ。ザ・ mtx.Matrix データ型は行列を次のように保存します。 ARRAY の LREAL 。配列は行優先形式です 基本的な数学演算は、次のように 3 つの行列をもつ関数として提供されます。 VAR_IN_OUT 引数:結果、ソース、ターゲット。たとえば、行列加算用の関数には次のインターフェースがあります (* Adds two matrices : C := A + B. * A, B, and C must have identical dimensions. * Note: A, B, and C may all...", 
+"body" : "マトリックスは以下で定義されます。 mtx.Matrix データタイプ。ザ・ mtx.Matrix データ型は行列を次のように保存します。 ARRAY の LREAL 。配列は行優先形式です 基本的な数学演算は、次のように 3 つの行列をもつ関数として提供されます。 VAR_IN_OUT 引数:結果、ソース、ターゲット。たとえば、行列加算用の関数には次のインターフェースがあります (* Adds two matrices : C := A + B. \n* A, B, and C must have identical dimensions.\n* Note: A, B, and C may all be the same matrix. *)\nFUNCTION AddM : ResultCode\nVAR_IN_OUT\n C : Matrix ; (* The result *)\n A : Matrix ; (* The first summand *)\n B : Matrix ; (* The second summand *)\nEND_VAR ライブラリには以下の数学演算が用意されています。 行列の加算 (要素単位): AddM 行列の減算 (要素単位): SubM 行列の乗算 (要素単位): TimesM 行列の除算 (要素単位): RDivideM 行列のスカラー乗算: MultMS 行列の乗算: MultM マトリックスの転置: TransposeM また、行列の初期化、コピー、要素へのアクセスを行うための補助関数もいくつかあります。 でマトリックスを初期化します ARRAY 値の: InitMatrix [コピー] ARRAY マトリックスへの要素: CopyElems 同じ次元の行列をコピー: CopyMatrix 単位行列として初期化: IdentityMatrix ゼロ行列として初期化: ZeroMatrix 要素の読み取りと書き込み: Elem 、 SetElem より複雑な操作も提供されています。 線形方程式を解く A * X = B : SolveLU 二次行列を反転: InvertLU 二次行列の行列式の計算: DeterminantLU を決定する LU 分解 (この分解は上記の 3 つの機能の基礎となります): DecomposeLU " }, 
+{ "title" : "メモリー管理 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018653767388", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 商品説明 \/ メモリー管理 ", 
+"snippet" : "ユーザーはメモリ管理を担当します。マトリックスはメモリへのポインタで初期化されます (経由 InitMatrix 関数)。場合によっては、ユーザが適切なメモリを用意できることもあります。さらに、補助機能はブロックします MatrixS 、 ColVectorS 、および RowVectorS 一定サイズの配列で行列を初期化するために使用できます。これらは以下を実装しています。 IMatrixAllocator ユーザーも利用できるインターフェイス。...", 
+"body" : "ユーザーはメモリ管理を担当します。マトリックスはメモリへのポインタで初期化されます (経由 InitMatrix 関数)。場合によっては、ユーザが適切なメモリを用意できることもあります。さらに、補助機能はブロックします MatrixS 、 ColVectorS 、および RowVectorS 一定サイズの配列で行列を初期化するために使用できます。これらは以下を実装しています。 IMatrixAllocator ユーザーも利用できるインターフェイス。 " }
+]
+$(document).trigger('search.ready');
+});

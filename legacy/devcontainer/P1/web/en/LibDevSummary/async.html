@@ -1,0 +1,865 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Asynchronous Job Execution</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Advanced Topicâs" href="advanced.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_model.html">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="static_analysis.html">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="date_time.html">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multicore.html">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varnames.html">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="docScripting.html">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="concepts.html">Concepts and Elements</a> &raquo;</li>
+      
+          <li><a href="advanced.html">Advanced Topicâs</a> &raquo;</li>
+      
+    <li>Asynchronous Job Execution</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <section id="asynchronous-job-execution">
+<span id="async"></span><h1>Asynchronous Job Execution<a class="headerlink" href="#asynchronous-job-execution" title="Permalink to this heading">Â¶</a></h1>
+<p>The critical factor in many applications is the cycle time of a task. The smaller this can be, the more frequently the
+signals of the processes can be checked, which are to be controlled by the program steps of this task.
+This minimizes the applicationâs response time for changes in process signals.
+In particular the Cycle time may be then as short as possible, if the number of instructions processed in one cycle
+corresponds exactly to the number of instructions strictly necessary to meet the given requirements.
+If a particular job does not have to be completed in one cycle, and the transfer of this job to another task with a
+longer cycle time is not an option, the individual calculation steps are assigned to different groups of
+operations (states) and the execution of each group (state) is moved to one of the following cycles.
+This means that only the computing time for one statement group is required in the current cycle.
+This approach reaches its limit when a statement group needs an unpredictable period of time for its calculation,
+or under certain circumstances can even block the complete program execution.
+In this case, such a group of statements must be attached to a background task so that the cycle time of the foreground
+task is not affected.
+A transport mechanism is required so that the parameters, states, and the calculation results
+can be exchanged consistently between the foreground and the background task.</p>
+<section id="applications-in-codesys">
+<h2>Applications in CODESYS<a class="headerlink" href="#applications-in-codesys" title="Permalink to this heading">Â¶</a></h2>
+<section id="distribution-of-work-load-over-more-the-one-cycle">
+<h3>Distribution of Work Load over more the one Cycle<a class="headerlink" href="#distribution-of-work-load-over-more-the-one-cycle" title="Permalink to this heading">Â¶</a></h3>
+<p>The CODESYS Common Behaviour Model provides a set of function blocks based on the <code class="docutils literal notranslate"><span class="pre">CBML.IActionProvider</span></code> interface.
+The typical structure of the <code class="docutils literal notranslate"><span class="pre">CyclicAction</span></code> method for distributing the work load over more the one cycle my be look like this:</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">CyclicAction</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">itfTimingController</span> <span class="p">:</span> <span class="n">CBML.ITimingController</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">xComplete</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+    <span class="n">iErrorID</span> <span class="p">:</span> <span class="kt">INT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">REPEAT</span>
+    <span class="c1">// working to reach the ready condition</span>
+    <span class="c1">// â xComplete := TRUE</span>
+    <span class="c1">// if the maximum invocation time is reached</span>
+    <span class="c1">// â xTimeLimit := TRUE</span>
+    <span class="c1">// if the maximum operating time is reached</span>
+    <span class="c1">// â xTimeOut := TRUE</span>
+    <span class="c1">// if an error condition is reached</span>
+    <span class="c1">// â set iErrorID to a value other than 0 (Zero)</span>
+    <span class="n">itfTimingController.ControllerCheckTiming</span><span class="p">(</span>
+        <span class="n">xTimeOut</span><span class="p">=&gt;</span><span class="n">xTimeOut</span><span class="p">,</span>
+        <span class="n">xTimeLimit</span><span class="p">=&gt;</span><span class="n">xTimeLimit</span>
+    <span class="p">);</span>
+
+    <span class="n">xComplete</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+    <span class="n">iErrorID</span> <span class="p">:=</span> <span class="n">ERROR.NO_ERROR</span><span class="p">;</span>
+
+<span class="k">UNTIL</span> <span class="n">xComplete</span> <span class="k">OR</span>
+      <span class="n">xTimeOut</span> <span class="k">OR</span> <span class="n">xTimeLimit</span> <span class="k">OR</span>
+      <span class="n">iErrorID</span> <span class="p">&lt;&gt;</span> <span class="n">ERROR.NO_ERROR</span>
+<span class="k">END_REPEAT</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">CyclicAction</span></code> is running until either <code class="docutils literal notranslate"><span class="pre">xComplete</span></code> is <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> or <code class="docutils literal notranslate"><span class="pre">iErrorID</span></code> â  0 (Zero).
+This holds the fact that as long as <code class="docutils literal notranslate"><span class="pre">xComplete</span></code> equals <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> and <code class="docutils literal notranslate"><span class="pre">eErrorID</span></code> is zero, the method is called
+in every cycle and can do a little bit of work on a bigger task with every call.
+With <code class="docutils literal notranslate"><span class="pre">itfTimingController</span></code> â   0 (Zero) it is possible to check the current invocation
+time (see: <code class="docutils literal notranslate"><span class="pre">ITimingController.ControllerCheckTiming</span></code>). Function blocks with a <code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code> input variable
+can then be implement in such a way that the current invocation is exited when the consumed time for this invocation
+has exceeded the settings from <code class="docutils literal notranslate"><span class="pre">udiTimeLimit</span></code>.</p>
+<p>This is the recommended procedure if the statements used in relation to the calling program do not have a blocking effect.</p>
+</section>
+<section id="cmpasyncmgr">
+<h3>CmpAsyncMgr<a class="headerlink" href="#cmpasyncmgr" title="Permalink to this heading">Â¶</a></h3>
+<p>The component <code class="docutils literal notranslate"><span class="pre">CmpAsyncMgr</span></code> of the CODESYS runtime system provides the infrastructure for implementing asynchronous
+job execution. It is possible to define the name and the priority of the background task, enqueue a reference to a
+method of an function block instance together with its actual parameter set and a specific job state report variable.</p>
+<p>The <a class="reference download internal" download="" href="_downloads/382be89b342538b8375ec9ccc109078c/AsyncTest.project"><code class="xref download docutils literal notranslate"><span class="pre">attached</span> <span class="pre">CODESYS</span> <span class="pre">project</span></code></a> illustrates how to handle the different
+functions and data structures.</p>
+<p>From a library developers point of view, the current state of the implementation of the <code class="docutils literal notranslate"><span class="pre">CmpAsyncMgr</span></code> has some drawbacks.</p>
+<ul class="simple">
+<li><p>The asynchronous executed method is not executed in the context of an IEC task.</p></li>
+<li><p>It is not possible to remove a pending job from the job queue.</p></li>
+<li><p>Every background task has its own job queue. It is not possible to link more the one task to one job queue</p></li>
+<li><p>It is not possible to assign a background task to a specific task group. So the multi core support is limited.</p></li>
+</ul>
+</section>
+<section id="asyncjobmanager">
+<h3>AsyncJobManager<a class="headerlink" href="#asyncjobmanager" title="Permalink to this heading">Â¶</a></h3>
+<p>To solve these issues the new <code class="docutils literal notranslate"><span class="pre">AsyncJobManager.library</span></code> was specified. The provided infrastructure is completely
+independent of the <code class="docutils literal notranslate"><span class="pre">CmpAsyncMgr</span></code> component. The functionality of the <code class="docutils literal notranslate"><span class="pre">CmpIecTask</span></code> component was utilised to realize
+a background task with an IEC context (<code class="docutils literal notranslate"><span class="pre">IBackGroundTask</span></code>).</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION_BLOCK</span> <span class="n">BackGroundTask</span> <span class="k">EXTENDS</span> <span class="n">CBML.LConC</span> <span class="k">IMPLEMENTS</span> <span class="n">IBackGroundTask</span><span class="p">,</span> <span class="n">FBF.IInstance</span>
+<span class="k">VAR_INPUT</span> <span class="k">CONSTANT</span>
+    <span class="n">tgTaskGroup</span> <span class="p">:</span> <span class="n">TASK_GROUP</span><span class="p">;</span>
+    <span class="n">anAppName</span> <span class="p">:</span> <span class="n">APP_NAME</span><span class="p">;</span>
+    <span class="n">tnTaskName</span> <span class="p">:</span> <span class="n">TASK_NAME</span><span class="p">;</span>
+    <span class="n">usiTaskPrio</span> <span class="p">:</span> <span class="kt">USINT</span><span class="p">;</span>
+    <span class="n">udiTaskInterval</span> <span class="p">:</span> <span class="kt">UDINT</span><span class="p">;</span>
+    <span class="n">xWatchdogEnabled</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+    <span class="n">udiWatchdogTime</span> <span class="p">:</span> <span class="kt">UDINT</span><span class="p">;</span>
+    <span class="n">usiWatchdogSensitivity</span> <span class="p">:</span> <span class="kt">USINT</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">itfParams</span> <span class="p">:</span> <span class="n">SHD.ISharedQueue</span><span class="p">;</span>
+    <span class="n">itfAction</span> <span class="p">:</span> <span class="n">IAsyncActionProvider</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+    <span class="n">itfResults</span> <span class="p">:</span> <span class="n">SHD.ISharedArea</span><span class="p">;</span>
+    <span class="n">dwCurrentCycleTime</span> <span class="p">:</span> <span class="kt">DWORD</span><span class="p">;</span>
+    <span class="n">dwAverageCycleTime</span> <span class="p">:</span> <span class="kt">DWORD</span><span class="p">;</span>
+    <span class="n">dwMaxCycleTime</span> <span class="p">:</span> <span class="kt">DWORD</span><span class="p">;</span>
+    <span class="n">dwMinCycleTime</span> <span class="p">:</span> <span class="kt">DWORD</span><span class="p">;</span>
+    <span class="n">dwCycleCounter</span> <span class="p">:</span> <span class="kt">DWORD</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">INTERFACE</span> <span class="n">IBackGroundTask</span> <span class="k">EXTENDS</span> <span class="nb">__SYSTEM.IQueryInterface</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">TaskDisableScheduling</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">METHOD</span> <span class="n">TaskEnableScheduling</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">METHOD</span> <span class="n">TaskDisableWatchdog</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">METHOD</span> <span class="n">TaskEnableWatchdog</span> <span class="p">:</span> <span class="kt">BOOL</span>
+<span class="k">METHOD</span> <span class="n">TaskResetStatistics</span> <span class="p">:</span> <span class="kt">BOOL</span>
+</pre></div>
+</div>
+<p>Separated from the implementation of a function block for abstracting a background task, a additional interface
+specification for actions (<code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code>) was made.</p>
+<p>The action is modeled as a method of a function block instance (<code class="docutils literal notranslate"><span class="pre">AsyncAction</span></code>)
+and will be cyclically called until the return value <code class="docutils literal notranslate"><span class="pre">xComplete</span></code> indicating a condition that the asynchronous operation
+is now completed and the method needs no further calling. The input parameter <code class="docutils literal notranslate"><span class="pre">itfParam</span></code> is a generic pointer to a data
+structure containing the current parameter values (<code class="docutils literal notranslate"><span class="pre">SHD.IQueueableNode</span></code>).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The implementation of an <code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code> must ensure that the <code class="docutils literal notranslate"><span class="pre">OnlineChange</span></code> is not blocked!</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code>-Instance is to block to fulfill specific requirements,
+then the events <code class="docutils literal notranslate"><span class="pre">PrepareOnlineChange</span></code> and <code class="docutils literal notranslate"><span class="pre">OnlineChangeDone</span></code> must be used
+to ensure that the <code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code>-Instance runs without blocking for the duration of the <code class="docutils literal notranslate"><span class="pre">OnlineChange</span></code>.</p>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">INTERFACE</span> <span class="n">IAsyncActionProvider</span> <span class="k">EXTENDS</span> <span class="nb">__SYSTEM.IQueryInterface</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">AsyncAction</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">itfParam</span> <span class="p">:</span> <span class="n">SHD.IQueueableNode</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">xComplete</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">PROPERTY</span> <span class="n">GET</span> <span class="n">AsyncResult</span> <span class="p">:</span> <span class="n">SHD.ISharedArea</span>
+</pre></div>
+</div>
+<p>The following use cases where in mind while specifying this library.</p>
+</section>
+<section id="simple-one-to-one-relationship">
+<h3>Simple One-To-One Relationship<a class="headerlink" href="#simple-one-to-one-relationship" title="Permalink to this heading">Â¶</a></h3>
+<ul class="simple">
+<li><p>One action (<code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code>) is assigned to one  background task.</p></li>
+<li><p>The current foreground task fills the parameter queue with parameter sets.</p></li>
+<li><p>The result of the background task is available via the <code class="docutils literal notranslate"><span class="pre">AsyncResult</span></code> property.</p></li>
+</ul>
+<a class="reference internal image-reference" href="_images/simple-one-one.png"><img alt="_images/simple-one-one.png" class="align-center" src="_images/simple-one-one.png" style="width: 50%;" /></a>
+</section>
+<section id="some-background-tasks-are-sharing-parameters-and-results">
+<h3>Some Background Tasks are sharing Parameters and Results<a class="headerlink" href="#some-background-tasks-are-sharing-parameters-and-results" title="Permalink to this heading">Â¶</a></h3>
+<ul class="simple">
+<li><p>Every instance of a <code class="docutils literal notranslate"><span class="pre">BackgroundTask</span></code> function block is connected to one and the same instance of an <code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code>.</p></li>
+<li><p>One parameter queue is connected to the group of <code class="docutils literal notranslate"><span class="pre">BackgroundTask</span></code>s.
+Each task will fetch one of the next parameter sets to its context for executing the <code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider.AsyncAction</span></code> with this set of parameters.</p></li>
+<li><p>The results of these joint efforts are available for the foreground task through the common <code class="docutils literal notranslate"><span class="pre">SHD.ISharedArea</span></code>.</p></li>
+</ul>
+<a class="reference internal image-reference" href="_images/multiple-one-n.png"><img alt="_images/multiple-one-n.png" class="align-center" src="_images/multiple-one-n.png" style="width: 50%;" /></a>
+</section>
+<section id="several-background-tasks-are-connected-in-a-row">
+<h3>Several Background Tasks Are Connected In A Row<a class="headerlink" href="#several-background-tasks-are-connected-in-a-row" title="Permalink to this heading">Â¶</a></h3>
+<p>Like on a conveyor belt, the <code class="docutils literal notranslate"><span class="pre">BackgroundTask</span></code>s are connected in series via their parameter/result queues.
+Each task processes a portion of a chain of transformations and passes its result on to its subsequent task.</p>
+<a class="reference internal image-reference" href="_images/multiple-n-n.png"><img alt="_images/multiple-n-n.png" class="align-center" src="_images/multiple-n-n.png" style="width: 90%;" /></a>
+</section>
+<section id="the-parameter-queue-feeding-the-background-task">
+<h3>The Parameter Queue feeding the Background Task<a class="headerlink" href="#the-parameter-queue-feeding-the-background-task" title="Permalink to this heading">Â¶</a></h3>
+<p>The âSharedData Utilitiesâ library provides the interface <code class="docutils literal notranslate"><span class="pre">SHD.ISharedQueue</span></code>.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">INTERFACE</span> <span class="n">ISharedQueue</span> <span class="k">EXTENDS</span> <span class="nb">__SYSTEM.IQueryInterface</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">Dequeue</span> <span class="p">:</span> <span class="n">IQueueableNode</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="cs">/// Insertion point in time</span>
+    <span class="n">ltTimeStamp</span> <span class="p">:</span> <span class="kt">LTIME</span><span class="p">;</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+
+<span class="k">METHOD</span> <span class="n">Enqueue</span> <span class="p">:</span> <span class="n">ERROR</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">itfNode</span> <span class="p">:</span> <span class="n">IQueueableNode</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>A instance of the <code class="docutils literal notranslate"><span class="pre">BackgroundTask</span></code> function block will get out the parameters (via <code class="docutils literal notranslate"><span class="pre">Enqueue</span></code> method) for its <code class="docutils literal notranslate"><span class="pre">IAsyncActionProvider</span></code> instance.
+One possible implementation can be the <code class="docutils literal notranslate"><span class="pre">SHD.SharedQueue</span></code> which is defined in the âSharedData Utilitiesâ library.</p>
+<div class="admonition-example-connecting-parameters-to-a-backgroundtask-function-block admonition">
+<p class="admonition-title">Example: Connecting <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> to a <code class="docutils literal notranslate"><span class="pre">BackgroundTask</span></code> function block</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">sqParameters</span> <span class="p">:</span> <span class="n">SHD.SharedQueue</span><span class="p">;</span>
+    <span class="n">itfActionProvider</span> <span class="p">:</span> <span class="n">AJM.IAsyncActionProvider</span> <span class="cm">(* := myActionProvider *)</span><span class="p">;</span>
+    <span class="n">bgtBackgroundTask</span> <span class="p">:</span> <span class="n">AJM.BackgroundTask</span> <span class="p">:=</span> <span class="p">(</span>
+        <span class="n">tgTaskGroup</span><span class="p">:=</span><span class="s">&#39;IEC-Tasks&#39;</span><span class="p">,</span>
+        <span class="n">anAppName</span><span class="p">:=</span><span class="s">&#39;Application&#39;</span><span class="p">,</span>
+        <span class="n">tnTaskName</span><span class="p">:=</span><span class="s">&#39;BackgroundTask&#39;</span><span class="p">,</span>
+        <span class="n">usiTaskPrio</span><span class="p">:=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">udiTaskInterval</span><span class="p">:=</span><span class="mi">50000</span><span class="p">,</span>
+        <span class="n">itfParams</span> <span class="p">:=</span> <span class="n">sqParameters</span><span class="p">,</span>
+        <span class="n">itfAction</span> <span class="p">:=</span> <span class="n">itfActionProvider</span>
+    <span class="p">);</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+</div>
+<p>To feed the BackgroundTask with new parameters the call of the method <code class="docutils literal notranslate"><span class="pre">ISharedQueue.Enqueue</span></code> is necessary.
+The related paramter structure is behind the itfNode reference.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">INTERFACE</span> <span class="n">IQueueableNode</span> <span class="k">EXTENDS</span> <span class="nb">__SYSTEM.IQueryInterface</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">NodeDispose</span>
+<span class="k">PROPERTY</span> <span class="n">GET</span> <span class="n">IsNodeValid</span> <span class="p">:</span> <span class="kt">BOOL</span>
+</pre></div>
+</div>
+<p>Behind the <code class="docutils literal notranslate"><span class="pre">IQueueableNode</span></code> any proper implementation is possible.
+Thus the parameter structure is freely customizable and can be very well adapted to special requirements.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">FUNCTION_BLOCK</span> <span class="n">Parameter</span> <span class="k">IMPLEMENTS</span> <span class="n">SHD.IQueueableNode</span>
+<span class="k">VAR_INPUT</span>
+    <span class="cm">(* Any required data structure *)</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>The method <code class="docutils literal notranslate"><span class="pre">NodeDispose</span></code> and the property <code class="docutils literal notranslate"><span class="pre">IsNodeValid</span></code> are utilized to handle resource management and provide the
+possibility to mark a parameter set as not valid any more while it is staying in the queue.</p>
+</section>
+<section id="the-background-task-s-result">
+<h3>The Background Taskâs Result<a class="headerlink" href="#the-background-task-s-result" title="Permalink to this heading">Â¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">SHD.ISharedArea</span></code> interface is defined in the âSharedData Utilitiesâ library.
+The implementation behind provides a consistent transport of data structures for example between multiple
+cores of a processor.</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">INTERFACE</span> <span class="n">ISharedArea</span> <span class="k">EXTENDS</span> <span class="nb">__SYSTEM.IQueryInterface</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">METHOD</span> <span class="n">AreaSetObserver</span> <span class="p">:</span> <span class="n">ISharedAreaObserver</span>
+<span class="k">VAR_INPUT</span>
+    <span class="n">itfAreaObserver</span> <span class="p">:</span> <span class="n">ISharedAreaObserver</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+<span class="k">VAR_OUTPUT</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">ERROR</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<p>One possible implementation of <code class="docutils literal notranslate"><span class="pre">SHD.ISharedAreaObserver</span></code> can be the <code class="docutils literal notranslate"><span class="pre">SHD.SharedQueue</span></code> which
+is defined in the âSharedData Utilitiesâ library.</p>
+<div class="admonition-example-handling-the-results-of-a-backgroundtask-function-block admonition">
+<p class="admonition-title">Example: Handling the results of a <code class="docutils literal notranslate"><span class="pre">BackgroundTask</span></code> function block</p>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="k">VAR</span>
+    <span class="n">sqResults</span> <span class="p">:</span> <span class="n">SHD.SharedQueue</span><span class="p">;</span>
+    <span class="n">xObserved</span> <span class="p">:</span> <span class="kt">BOOL</span><span class="p">;</span>
+    <span class="n">itfNode</span> <span class="p">:</span> <span class="n">SHD.IQueueableNode</span><span class="p">;</span>
+    <span class="n">eErrorID</span> <span class="p">:</span> <span class="n">SHD.ERROR</span><span class="p">;</span>
+    <span class="n">bgtBackgroundTask</span> <span class="p">:</span> <span class="n">AJM.BackgroundTask</span><span class="p">;</span>
+<span class="k">END_VAR</span>
+</pre></div>
+</div>
+<div class="highlight-codesys notranslate"><div class="highlight"><pre><span></span><span class="n">bgtBackgroundTask</span><span class="p">();</span>
+
+<span class="k">IF</span> <span class="n">bgtBackgroundTask.xBusy</span> <span class="k">THEN</span>
+    <span class="k">IF</span> <span class="k">NOT</span> <span class="n">xObserved</span> <span class="k">THEN</span>
+        <span class="n">bgtBackgroundTask.itfResult.AreaSetObserver</span><span class="p">(</span><span class="n">sqResult</span><span class="p">);</span>
+        <span class="n">xObserved</span> <span class="p">:=</span> <span class="kc">TRUE</span><span class="p">;</span>
+    <span class="k">END_IF</span>
+
+    <span class="n">itfNode</span> <span class="p">:=</span> <span class="n">sqResult.Dequeue</span><span class="p">(</span><span class="n">eErrorID</span><span class="p">=&gt;</span><span class="n">eErrorID</span><span class="p">);</span>
+    <span class="k">__QUERYINTERFACE</span><span class="p">(</span><span class="n">itfNode</span><span class="p">,</span> <span class="n">itfSharedAreaRef</span><span class="p">);</span>
+    <span class="k">IF</span> <span class="n">itfSharedAreaRef</span> <span class="p">&lt;&gt;</span> <span class="mi">0</span> <span class="k">THEN</span>
+
+        <span class="cm">(* Process the results *)</span>
+
+        <span class="n">itfNode.NodeDispose</span><span class="p">();</span>
+        <span class="n">itfNode</span> <span class="p">:=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">itfSharedAreaRef</span> <span class="p">:=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">END_IF</span>
+<span class="k">END_IF</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>With CODESYS V3.5 SP13 a new operator is available.</p>
+<p><code class="docutils literal notranslate"><span class="pre">__CurrentTask</span></code></p>
+<p>It gives access to a structure containing two members:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TaskIndex</span></code> and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pTaskInfo</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">TaskIndex</span></code> is a zerobased index identifying the task, <code class="docutils literal notranslate"><span class="pre">pTaskInfo</span></code> can be assigned to a <code class="docutils literal notranslate"><span class="pre">POINTER</span> <span class="pre">TO</span> <span class="pre">Task_Info2</span></code>
+from the <code class="docutils literal notranslate"><span class="pre">CmpIecTask</span></code> library to get detailed information about the executing task.</p>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">IecTaskGetCurrent</span></code> function was until today the usual way to get information about the currently running task.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

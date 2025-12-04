@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['es'] = [{ "title" : "CODESYS Base Libraries ", 
+"url" : "_baslib_start_page.html", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Descripción general ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4563869800648033733012917566", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Descripción general ", 
+"snippet" : "El CODESYS Base Libraries El paquete contiene una colección de bibliotecas que simplifican el desarrollo de otras bibliotecas y aplicaciones. Estas bibliotecas se han instalado directamente en CODESYS Development System versiones <= 3.5.20.0. Vea la descripción de algunos proyectos de muestra que ut...", 
+"body" : "El CODESYS Base Libraries El paquete contiene una colección de bibliotecas que simplifican el desarrollo de otras bibliotecas y aplicaciones. Estas bibliotecas se han instalado directamente en CODESYS Development System versiones <= 3.5.20.0. Vea la descripción de algunos proyectos de muestra que utilizan estas bibliotecas base: Ejemplo: colecciones de elementos Ejemplo: Servicios básicos de PLC Chat Net Ejemplo: Net Base Services " }, 
+{ "title" : "Las siguientes bibliotecas se proporcionan con el paquete: ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm4617612702576033867952037642", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Las siguientes bibliotecas se proporcionan con el paquete: ", 
+"snippet" : "Asynchronous Job Manager : La biblioteca contiene bloques de funciones para el procesamiento optimizado de tareas asincrónicas. Common Behaviour Model : La biblioteca contiene una implementación orientada a objetos del modelo de comportamiento común. Element Collections : La biblioteca contiene bloq...", 
+"body" : "Asynchronous Job Manager : La biblioteca contiene bloques de funciones para el procesamiento optimizado de tareas asincrónicas. Common Behaviour Model : La biblioteca contiene una implementación orientada a objetos del modelo de comportamiento común. Element Collections : La biblioteca contiene bloques de funciones e interfaces para guardar referencias de objetos en estructuras de datos predefinidas, como listas, colas, pilas y tablas hash (\"colecciones\"). Net Base Services : La biblioteca implementa un servidor TCP, un cliente TCP y un par UDP como una colección de servicios básicos para Ethernet. Segmented Buffer Manager : La biblioteca contiene funciones para manejar diferentes segmentos de un búfer grande, la combinación de segmentos o la división de búferes en segmentos. Esto se hace sin que el contenido se copie constantemente. Las funciones intentan hacer referencia a los segmentos en lugar de copiarlos y administrar los segmentos en listas de doble enlace. SharedData Utilities for MultiCore : La biblioteca contiene estructuras de datos y funciones para garantizar la coherencia de los datos en un entorno multinúcleo. " }, 
+{ "title" : "Detección y corrección de errores ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm23454673064804", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Detección y corrección de errores ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Net Base Services ", 
+"url" : "_baslib_start_page.html#UUID-8b96ee95-d21f-fa90-edd7-b31eedf7876d_section-idm234548741535293", 
+"breadcrumbs" : "CODESYS Base Libraries \/ CODESYS Base Libraries \/ Detección y corrección de errores \/ Net Base Services ", 
+"snippet" : "El controlador no detecta la interrupción de una conexión existente entre el servidor y el cliente (por ejemplo, al desconectar el cable Ethernet). En el caso de TCP\/IP, la desconexión de un cable solo se puede detectar si el cliente o el servidor detectan que falta un telegrama esperado durante un ...", 
+"body" : "El controlador no detecta la interrupción de una conexión existente entre el servidor y el cliente (por ejemplo, al desconectar el cable Ethernet). En el caso de TCP\/IP, la desconexión de un cable solo se puede detectar si el cliente o el servidor detectan que falta un telegrama esperado durante un tiempo determinado (tiempo de espera). Por lo tanto, el protocolo debe diseñarse de tal manera que los telegramas se intercambien regularmente entre el cliente y el servidor. Cuando se agote el tiempo de espera, ambas partes puedan cerrar la conexión de forma independiente. A continuación, la conexión se puede volver a utilizar para establecer una nueva conexión. " }
+]
+$(document).trigger('search.ready');
+});

@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['zh-CHS'] = [{ "title" : "CODESYS Math Libraries ", 
+"url" : "_mathlib_start_page.html", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "导言 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018560416181", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 导言 ", 
+"snippet" : "CODESYS Math Libraries 包括 矩阵 图书馆和内部 FloatingPointUtils 图书馆。这个 Matrix 库支持任意维度的矩阵和对它们进行基本的数学运算。支持以下运算：加法、乘法、求解线性方程、反演和行列式计算...", 
+"body" : "CODESYS Math Libraries 包括 矩阵 图书馆和内部 FloatingPointUtils 图书馆。这个 Matrix 库支持任意维度的矩阵和对它们进行基本的数学运算。支持以下运算：加法、乘法、求解线性方程、反演和行列式计算 " }, 
+{ "title" : "产品描述 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018604946206", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 产品描述 ", 
+"snippet" : "这个 Matrix 库提供了一种用于定义任意维度的矩阵的数据类型和用于对矩阵执行基本运算的函数。...", 
+"body" : "这个 Matrix 库提供了一种用于定义任意维度的矩阵的数据类型和用于对矩阵执行基本运算的函数。 " }, 
+{ "title" : "数据类型和函数 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018606155652", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 产品描述 \/ 数据类型和函数 ", 
+"snippet" : "矩阵是通过以下方式定义的 mtx.Matrix 数据类型。这个 mtx.Matrix 数据类型将矩阵另存为 ARRAY 的 LREAL 。该数组采用行优先形式。 基本的数学运算以函数的形式提供，这些函数以 3 个矩阵作为 VAR_IN_OUT 参数：结果、来源、目标。例如，矩阵加法函数具有以下接口： (* Adds two matrices : C := A + B. * A, B, and C must have identical dimensions. * Note: A, B, and C may all be the same matrix. *) FUNCTION AddM : R...", 
+"body" : "矩阵是通过以下方式定义的 mtx.Matrix 数据类型。这个 mtx.Matrix 数据类型将矩阵另存为 ARRAY 的 LREAL 。该数组采用行优先形式。 基本的数学运算以函数的形式提供，这些函数以 3 个矩阵作为 VAR_IN_OUT 参数：结果、来源、目标。例如，矩阵加法函数具有以下接口： (* Adds two matrices : C := A + B. \n* A, B, and C must have identical dimensions.\n* Note: A, B, and C may all be the same matrix. *)\nFUNCTION AddM : ResultCode\nVAR_IN_OUT\n C : Matrix ; (* The result *)\n A : Matrix ; (* The first summand *)\n B : Matrix ; (* The second summand *)\nEND_VAR 该库提供以下数学运算： 矩阵的加法（按元素顺序）： AddM 矩阵的减法（按元素计算）： SubM 矩阵乘法（逐元素）： TimesM 矩阵的除法（按元素划分）： RDivideM 矩阵的标量乘法： MultMS 矩阵的乘法： MultM 矩阵的转置： TransposeM 还有一些用于初始化矩阵、复制和访问元素的辅助函数： 使用 a 初始化矩阵 ARRAY 价值观： InitMatrix 复制 ARRAY 将元素转换为矩阵： CopyElems 复制相同维度的矩阵： CopyMatrix 初始化为身份矩阵： IdentityMatrix 初始化为零矩阵： ZeroMatrix 读取和写入元素： Elem ， SetElem 还提供了更复杂的操作： 求解线性方程 A * X = B : SolveLU 反转二次矩阵： InvertLU 计算二次矩阵的行列式： DeterminantLU 确定一个 LU 分解（这种分解是上述三个函数的基础）： DecomposeLU " }, 
+{ "title" : "内存管理 ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018653767388", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ 产品描述 \/ 内存管理 ", 
+"snippet" : "用户负责内存管理。矩阵将使用指向内存的指针进行初始化 InitMatrix 函数）。在某些情况下，用户可以提供合适的内存。此外，辅助功能块 MatrixS ， ColVectorS ，以及 RowVectorS 可用于使用恒定大小的数组初始化矩阵。他们实施 IMatrixAllocator 界面也可供用户使用。...", 
+"body" : "用户负责内存管理。矩阵将使用指向内存的指针进行初始化 InitMatrix 函数）。在某些情况下，用户可以提供合适的内存。此外，辅助功能块 MatrixS ， ColVectorS ，以及 RowVectorS 可用于使用恒定大小的数组初始化矩阵。他们实施 IMatrixAllocator 界面也可供用户使用。 " }
+]
+$(document).trigger('search.ready');
+});

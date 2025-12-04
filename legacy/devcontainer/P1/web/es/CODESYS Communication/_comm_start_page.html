@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Buscar"></meta><meta name="search.results" content="Resultados de la bÃºsqueda"></meta><meta name="no.search.results" content="No se han encontrado resultados"></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'es';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>CODESYS Communication</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V4.7.0.0"></meta><link rel="prev" href="index.html" title="CODESYS Communication"></link><link rel="next" href="_comm_start_page.html#UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d_UUID-d25c9b82-1cdd-498c-a68f-fe32fd17a39e" title="CODESYS Scripting"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=es"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Buscar" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS Communication</a></li><li class="breadcrumb-node">CODESYS Communication</li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">Anterior</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_comm_start_page.html#UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d_UUID-d25c9b82-1cdd-498c-a68f-fe32fd17a39e">Siguiente</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="es" lang="es" dir="ltr" class="section" data-origin-id="UUID-c90d60b8-cdf7-51db-bafb-a4957e002c5e" data-permalink="_comm_start_page.html" data-topic-level="1" data-relative-prefix="" data-time-modified="November 6, 2025" data-publication-date="" id="UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both">CODESYS Communication</h1></div></div></div><p><span class="phrase">CODESYS Communication</span> permite la simple publicaciÃ³n y vinculaciÃ³n de datos en las aplicaciones.</p><p>Los datos se publican a travÃ©s de OPC UA. La funciÃ³n Communication Manager ofrece dos opciones para esto:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Usando <a class="link linktype-component" href="_cds_using_opc_ua_information_models.html" title="Uso de modelos de informaciÃ³n OPC UA">Modelos de informaciÃ³n OPC UA</a></p><p>Estos son compatibles de forma genÃ©rica. Los contenidos del modelo de informaciÃ³n se traducen a los tipos de datos y declaraciones IEC correspondientes.</p></li><li class="listitem"><p>Utilizando el <a class="xref linktype-component" href="_comm_symbol_configuration.html" title="ConfiguraciÃ³n del conjunto de sÃ­mbolos IEC"><span class="xreftitle">ConfiguraciÃ³n del conjunto de sÃ­mbolos IEC</span></a> del Responsable de ComunicaciÃ³n</p><p>Los sÃ­mbolos IEC se pueden publicar rÃ¡pida y fÃ¡cilmente sin tener que crear explÃ­citamente un modelo de informaciÃ³n de antemano.</p></li></ul></div><p>La nueva funciÃ³n Communication Manager proporciona las siguientes ventajas para la publicaciÃ³n de datos:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Puede utilizar sus propios modelos de informaciÃ³n para OPC UA.</p></li><li class="listitem"><p>Son posibles llamadas a mÃ©todos con modelos de informaciÃ³n.</p></li><li class="listitem"><p>Puede definir conjuntos de sÃ­mbolos completamente independientes.</p><p>En la configuraciÃ³n de sÃ­mbolo anterior, es posible ocultar variables globales dependiendo del conjunto de sÃ­mbolos, pero la configuraciÃ³n de tipo siempre tiene que ser idÃ©ntica.</p></li><li class="listitem"><p>AbstracciÃ³n adicional entre aplicaciÃ³n y modelo de informaciÃ³n.</p><p>En el <span class="guilabel">Responsable de ComunicaciÃ³n</span>, los nombres de los clientes se pueden configurar por separado, lo que permite una separaciÃ³n limpia.</p><p>Por el contrario, en la configuraciÃ³n de sÃ­mbolos anterior, los nombres IEC de los sÃ­mbolos tambiÃ©n se transportan hacia afuera, lo que significa que la refactorizaciÃ³n en la aplicaciÃ³n puede dar lugar a que los clientes tengan que adaptarse.</p></li><li class="listitem"><p>GestiÃ³n de derechos simplificada para los conjuntos de sÃ­mbolos.</p><p>Para mÃ¡s informaciÃ³n, ver: <a class="xref linktype-component" href="_comm_obj_iec_symbol_publishing.html" title="Objeto: PublicaciÃ³n de sÃ­mbolos IEC"><span class="xreftitle">PublicaciÃ³n de sÃ­mbolos IEC</span></a></p></li><li class="listitem"><p>Mejor flujo de trabajo: el editor de publicaciones de sÃ­mbolos IEC proporciona la informaciÃ³n de precompilaciÃ³n de la aplicaciÃ³n para su configuraciÃ³n. Esto significa que las variables y tipos disponibles en el proyecto se proporcionan para la configuraciÃ³n de los sÃ­mbolos en el editor sin tener que compilar la aplicaciÃ³n sin errores. Se le comunicarÃ¡n las discrepancias entre el editor y el proyecto, que puedan surgir debido a cambios en el proyecto, y se le ayudarÃ¡ a realizar las correcciones.</p></li><li class="listitem"><p>Salida detallada del recuento de etiquetas para conjuntos de sÃ­mbolos</p><p>El usuario puede comprender mejor quÃ© sÃ­mbolos se liberan efectivamente.</p></li><li class="listitem"><p>Editores fÃ¡ciles de usar, por ejemplo, opciones de filtro para mejorar la claridad.</p></li></ul></div><p>Los datos se reciben a travÃ©s de fuentes de datos. La fuente puede ser otra <span class="phrase">CODESYS</span> aplicaciÃ³n o cualquier <a class="link linktype-component" href="_cds_runtime_opc_ua_server.html" title="Servidor OPCUA">Servidor OPC UA</a>.</p><p>TÃº puedes descargar <span class="phrase">CODESYS Communication</span> desde el <a class="link" href="https://store.codesys.com/en/" target="_blank" rel="noopener"> CODESYS Store International</a> o el <a class="link" href="https://us.store.codesys.com/" target="_blank" rel="noopener">CODESYS Store North America</a>. AllÃ­ tambiÃ©n encontrarÃ¡ la ficha tÃ©cnica del producto.</p><section xml:lang="es" lang="es" dir="ltr" class="section" data-origin-id="" data-time-modified="November 6, 2025" data-publication-date="" id="UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d_UUID-d25c9b82-1cdd-498c-a68f-fe32fd17a39e"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both"><span class="phrase">CODESYS Scripting</span></h2></div></div></div><p><span class="phrase">CODESYS Scripting</span> le permite automatizar comandos u operaciones complejas de programas en <span class="phrase">CODESYS</span>, que de otro modo requieren clics manuales del mouse e ingreso de texto en el <span class="phrase">CODESYS</span> interfaz de usuario. Para ello, se pueden iniciar scripts basados en (Iron)Python desde el <span class="phrase">CODESYS</span> interfaz de usuario (barra de herramientas configurada o de comandos) o desde la lÃ­nea de comandos de Windows.</p><div dir="ltr" class="note"><h3 class="title">Nota</h3><p><a class="link" href="../ScriptingEngine/idx-codesys_communication.html" target="_blank"><span class="phrase">CODESYS Communication</span> Scripting API</a></p></div></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">En esta secciÃ³n<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d">CODESYS Communication</a></li><li><a href="#UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d_UUID-d25c9b82-1cdd-498c-a68f-fe32fd17a39e">CODESYS Scripting</a></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Resultados de la bÃºsqueda</h2><ul class="searchresults"></ul><p class="noresults">No se han encontrado resultados</p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22CODESYS%20Communication%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22CODESYS%20Communication%22%20in%20the%20publication%20%22CODESYS%20Communication%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Â¿Te gustarÃ­a dar tu opiniÃ³n? Simplemente haga clic aquÃ­ para sugerir ediciones.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">Anterior</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_comm_start_page.html#UUID-b70d5e09-d564-53db-2732-dc7c99d08c2d_UUID-d25c9b82-1cdd-498c-a68f-fe32fd17a39e">Siguiente</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-11-06 15:18:07 -->

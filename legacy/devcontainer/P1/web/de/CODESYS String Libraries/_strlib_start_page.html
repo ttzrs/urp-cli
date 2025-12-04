@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="Suche"></meta><meta name="search.results" content="Suchresultat"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'de';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>CODESYS String Libraries</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V4.1.0.0"></meta><link rel="prev" href="index.html" title="CODESYS String Libraries"></link><link rel="next" href="_strlib_start_page.html#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078" title="Einleitung"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=de"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="Suche" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS String Libraries</a></li><li class="breadcrumb-node"><span class="phrase">CODESYS String Libraries</span></li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">ZurÃ¼ck</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_strlib_start_page.html#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078">Weiter</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="de" lang="de" dir="ltr" class="section" data-origin-id="UUID-5dd22f0e-7cbe-0557-1fd6-f5021fc38d30" data-permalink="_strlib_start_page.html" data-topic-level="1" data-relative-prefix="" data-time-modified="April 7, 2025" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both"><span class="phrase">CODESYS String Libraries</span></h1></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Einleitung</h2></div></div></div><p>Die Bibliotheken im Package <span class="phrase">CODESYS String Libraries</span> kÃ¶nnen fÃ¼r die Verarbeitung von Zeichenketten, die UTF-8 kodiert sind, eingesetzt werden. Grundlage ist die SchnittstelleÂ <code class="code">IString</code> aus der Bibliothek <code class="code">String Segments</code>. Mithilfe dieser Schnittstelle kÃ¶nnen die Zeichenketten per Referenz an die jeweiligen Funktionen Ã¼bergeben werden. Zur Erstellung einerÂ <code class="code">IString</code>-Instanz gibt es beispielsweise den FunktionsbausteinÂ <code class="code">GSB.UTF8String</code>Â aus der Bibliothek <code class="code">Generic String Base</code>.</p><div class="table table-responsive" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_table-idm234856461085546"><div class="table-title"><span class="formal-label"><span class="formal-label-text">Tabelle</span><span class="formal-number"> 1</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Folgende Bibliotheken werden mit dem Package ausgeliefert:</span></div><div class="table table-responsive-contents"><table style="width:100%;" class="table table-bordered"><colgroup><col style="width:20%;"></col><col style="width:40%;"></col><col style="width:40%;"></col></colgroup><tbody><tr><td class="td"><p><code class="code">String Segments</code></p></td><td class="td"><p>Basisfunktionen fÃ¼r <code class="code">IString</code>-Instanzen</p></td><td class="td"><p><a class="link" href="../libs/String%20Segments/Current/index.html" target="_blank">String Segments Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">String Builder</code></p></td><td class="td"><p>Effiziente Verwaltung von UTF-8 kodierten String-Segmenten</p></td><td class="td"><p><a class="link" href="../libs/String%20Builder/Current/index.html" target="_blank">String Builder Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">String Conversions</code></p></td><td class="td"><p>Umwandlung von Zeichenketten unterschiedlicher Kodierung von/nach UTF-8</p></td><td class="td"><p><a class="link" href="../libs/String%20Conversions/Current/index.html" target="_blank">String Conversions Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">String Functions</code></p></td><td class="td"><p>Funktionen fÃ¼r die Verarbeitung von UTF-8 kodierten Zeichenketten nach dem Vorbild der herkÃ¶mmlichen Standardbibliothek</p></td><td class="td"><p><a class="link" href="../libs/String%20Functions/Current/index.html" target="_blank">String Functions Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">Unicode Support</code></p></td><td class="td"><p>Funktionen fÃ¼r die Verarbeitung von Unicoce-Zeichenkategorien</p></td><td class="td"><p><a class="link" href="../libs/Unicode%20Support/Current/index.html" target="_blank">Unicode Support Functions Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">UTF-16 Encoding Support</code></p></td><td class="td"><p>Basisfunktion fÃ¼r die Handhabung von UTF-16 kodierten Speicherbereichen</p></td><td class="td"><p><a class="link" href="../libs/UTF-16%20Encoding%20Support/Current/index.html" target="_blank">UTF-16 Encoding Support Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">UTF-8 Encoding Support</code></p></td><td class="td"><p>Basisfunktion fÃ¼r die Handhabung von UTF-8 kodierten Speicherbereichen</p></td><td class="td"><p><a class="link" href="../libs/UTF-8%20Encoding%20Support/Current/index.html" target="_blank">UTF-8 Encoding Support Functions Library Documentation</a></p></td></tr><tr><td class="td"><p><code class="code">Generic String Base</code></p></td><td class="td"><p>Bausteine zur Verarbeitung von UTF-8-kodierten Zeichenketten, die ihren Speicherplatz statisch Ã¼berÂ <code class="code">GENERIC CONSTANT</code>Â verwalten</p></td><td class="td"><p><a class="link" href="../libs/Generic%20String%20Base/Current/index.html" target="_blank">Generic String Base Functions Library Documentation</a></p></td></tr></tbody></table></div></div><br class="table table-responsive-break"></br></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4563869800648033733012917566"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Vorteile der neuen String-Bibliotheken</h2></div></div></div><div dir="ltr" class="important"><h3 class="title">Wichtig</h3><p>Die neuen String-Bibliotheken ersetzenÂ nichtÂ die altbekannten String-Funktionen der Bibliotheken <code class="code">Standard</code> und <code class="code">Standard64</code>. Wir empfehlen dennoch, fÃ¼r neue Projekte die neuen String-Bibliotheken zu verwenden.</p></div><p>Die neuen String-Bibliotheken kÃ¶nnen auch mit groÃen Strings effizient umgehen. Die LÃ¤nge der Strings ist nahezu unbegrenzt. Aus diesem Grund sind die Bibliotheken auch fÃ¼r das Bearbeiten von groÃen Textdateien und Web-Inhalten geeignet.</p><div class="itemizedlist"><div class="itemizedlist-title"><span class="formal-label"><span class="formal-label-text"></span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Weitere Vorteile:</span></div><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>UTF-8 ist eine Kodierung, die den vollstÃ¤ndigen Zeichenumfang gemÃ¤Ã UNICODE darstellen kann.</p></li><li class="listitem"><p>UTF-8 hat im World Wide Web eine weite Verbreitung und wird vom World Wide Web Consortium (W3C) empfohlen.</p></li><li class="listitem"><p>UTF-8 ist aufgrund der ASCII-KompatiblitÃ¤t kompatibel zu Altsystemen.</p></li><li class="listitem"><p>UTF-8 bietet ein hohes MaÃ an InteroperabilitÃ¤t.</p></li><li class="listitem"><p>UTF-8 arbeitet speicherplatzoptimierend.</p></li></ul></div><p>Durch die neuen String-Bibliotheken kÃ¶nnen Sie einen zuvor definierten String Ã¼ber entsprechende Methoden abfragen, so wie Sie es von anderen Hochsprachen kennen.</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4670931898830433733072988086"><div class="example-title"><span class="formal-label"><span class="formal-label-text">Beispiel</span><span class="formal-number"> 1</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Beispiel String Methode: <code class="code">Len()</code></span></div><div class="example-contents"><pre class="programlisting">udiStringLen := myString.Len();
+ifÂ udiStringLen =Â 22Â THEN
+...</pre></div></div><br class="example-break"></br><p>Seit <span class="phrase">CODESYS</span> 3.5.18.0 kÃ¶nnen Sie den Compiler so einzustellen, dass der Inhalt von Variablen vom TypÂ <code class="code">STRING</code>Â als UTF-8-Kodierung interpretiert wird. Die Option <span class="guilabel">UTF-8-Kodierung fÃ¼r STRING</span> aktivieren Sie in den <span class="guilabel">Projekteinstellungen</span> in der Kategorie <span class="guilabel">Compile-Optionen</span>.</p><p>Wenn Sie nicht alleÂ <code class="code">STRING</code>-Variablen eines Projekts als UTF-8 kodiert behandeln wollen, mÃ¼ssen Sie diese Option ausschalten. Danach kÃ¶nnen Sie einzelne Literale vom Typ <code class="code">STRING</code> von Fall zu Fall mit einer UTF-8-Kodierung versehen.</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4593366827534433733083624913"><div class="example-title"><span class="formal-label"><span class="formal-label-text">Beispiel</span><span class="formal-number"> 2</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">UTF-8-Kodierung fÃ¼r Literale</span></div><div class="example-contents"><pre class="programlisting">{attributeÂ 'monitoring_encoding'Â :=Â 'UTF-8'}
+sValue : STRING(140) := UTF8#'ÃÎ± á¹§Ñâ¯â á¸¯á¸â Î·uÎ·, iÂ¢â Î±ÑÐ¼â¯Ò ðÃ¸Òâ¼ á¹²á¾â¾ â­á¸¯Î· ï¼âº á¸±âÏâ Î±Åï¼ Ïââ® áºÏââÒ';</pre></div></div><br class="example-break"></br><p>Durch die MÃ¶glichkeiten der UTF-8-Kodierung mÃ¼ssen Sie in <span class="phrase">CODESYS</span> nicht den Datentyp <code class="code">WSTRING</code> verwenden, um einen erweiterten Zeichenvorrat zu nutzen. Die fÃ¼rÂ <code class="code">WSTRING</code>Â zugrunde liegende UCS-2-Kodierung benÃ¶tigt je nach Anwendung unter UmstÃ¤nden mehr Speicherplatz als eine UTF-8-Kodierung. Die UCS-2-Kodierung verwendet pro Zeichen immer einÂ <code class="code">WORD</code> und kann nur die Zeichen <code class="code">U+0000</code> bis <code class="code">U+D800</code> und <code class="code">U+DFFF</code> bis <code class="code">U+FFFD</code> darstellen. Die UTF-8-Kodierung benÃ¶tigt zwischen ein und vier Bytes pro Zeichen. Es kÃ¶nnen damit alle Unicode-Zeichen verarbeitet werden.</p><p>Wenn Sie bei UTF-8-Kodierung versuchen, ein bestimmtes Zeichen Ã¼ber einen bestimmten Index zu erreichen, fÃ¼hrt dies aufgrund der variablen LÃ¤nge zu unerwarteten Ergebnissen.</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4492202496547233733085442515"><div class="example-title"><span class="formal-label"><span class="formal-label-text">Beispiel</span><span class="formal-number"> 3</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Kodierung variabler LÃ¤nge</span></div><div class="example-contents"><pre class="programlisting">{attribute 'monitoring_encoding' := 'UTF-8'}
+sValue : STRING(140) := UTF8#'ÃÎ± á¹§Ñâ¯â á¸¯á¸â Î·uÎ·, iÂ¢â Î±ÑÐ¼â¯Ò ðÃ¸Òâ¼ á¹²á¾â¾ â­á¸¯Î· ï¼âº á¸±âÏâ Î±Åï¼ Ïââ® áºÏââÒ';
+
+byValue := sValue[13];Â // The 'u' is NOT the 13th character in the string
+xOk := byValue &lt;&gt;Â 16#75;</pre></div></div><br class="example-break"></br><p>Sie mÃ¼ssen denÂ IndexÂ eines Zeichens durch Iteration durch die Zeichenkette bestimmen.</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4531185404761633733086532711"><div class="example-title"><span class="formal-label"><span class="formal-label-text">Beispiel</span><span class="formal-number"> 4</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Iteration Ã¼ber UTF-8-kodierte Zeichenketten</span></div><div class="example-contents"><pre class="programlisting">VAR	
+    {attribute 'monitoring_encoding' := 'UTF-8'}
+    sValue : STRING(140) := UTF8#'ÃÎ± á¹§Ñâ¯â á¸¯á¸â Î·uÎ·, iÂ¢â Î±ÑÐ¼â¯Ò ðÃ¸Òâ¼ á¹²á¾â¾ â­á¸¯Î· ï¼âº á¸±âÏâ Î±Åï¼ Ïââ® áºÏââÒ';
+
+    fbsValue : STR.UTF8Literal := (psValue:=ADR(sValue)); 
+    fbRange : STR.Range := (itfString:=fbsValue);
+    diRune : STR.RUNE;
+    udiIndex, udiLength : UDINT;
+    xOk : BOOL;
+END_VAR
+ 
+WHILE (diRune := fbRange.GetNextRune(udiLength=&gt;udiLength)) &lt;&gt; 0 DO
+    IF diRune = 16#75 (* 'u' *) THEN
+        EXIT;
+    END_IF
+    udiIndex := udiIndex + udiLength;
+END_WHILE
+ 
+xOk := sValue[udiIndex] = 16#75 (* 'u' *);</pre><p></p><div class="mediaobject"><img src="image/uuid-fe8b5777-e8f6-29b6-a2d8-8d6644fcdf9d.png" style="" alt="strlib_iteration_utf8_coded_strings.png"></img></div></div></div><br class="example-break"></br></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4613761597678433733013344138"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Nachteile der etablierten <code class="code">STRING</code>-Funktionen</h2></div></div></div><p>In den bisher etablierten <code class="code">STRING</code>-Funktionen aus der Standardbibliothek werden die Parameter vom TypÂ <code class="code">STRING</code>Â bei der Ãbergabe an die Funktionen kopiert. Der RÃ¼ckgabewert wird mit der Zuweisung ebenfalls an eine Variable kopiert.</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4593367148225633733090629011"><div class="example-title"><span class="formal-label"><span class="formal-label-text">Beispiel</span><span class="formal-number"> 5</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Probleme mit den etablierte STRING-Funktionen</span></div><div class="example-contents"><pre class="programlisting">VAR
+    sValue : STRING;
+END_VAR
+ 
+sValue := CONCAT(CONCAT(CONCAT('Da steh ich nun,', ' ich armer Tor!'), ' Und bin so'), ' klug als wie zu vor');
+//                              -&gt; Copy, LEN       -&gt; Copy, LEN        -&gt; Copy, LEN    -&gt; Copy, LEN
+//        -&gt; 2xCopy, LEN
+//               -&gt; 2xCopy, LEN
+//                      -&gt; 2xCopy, LEN</pre></div></div><br class="example-break"></br><p>Vor der Verarbeitung der Parameter vom TypÂ <code class="code">STRING</code>Â in den jeweiligen Funktionen muss oft deren LÃ¤nge durch Iteration bis zum abschlieÃenden Null-Zeichen ermittelt werden. Bei lÃ¤ngeren Zeichenketten verlÃ¤ngern diese Kopier- und IterationsvorgÃ¤nge die Bearbeitungszeit der Applikation. Die LÃ¤nge der Zeichenketten ist fÃ¼r die Anwendung dieser Funktionen auf eine LÃ¤nge von 255 Zeichen begrenzt.</p></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4598276788502433733013693363"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">Verwendung der Schnittstelle <code class="code">IString</code></h2></div></div></div><p>Die SchnittstelleÂ <code class="code">STR.IString</code>Â  wurde eingefÃ¼hrt, um die Datenstruktur, die die InformationenÂ Ã¼ber einenÂ StringÂ verwaltet, als Referenz weiterreichen zu kÃ¶nnen. Das ist ein groÃer Unterschied zu den bisher etablierten STRING-Funktionen, welche die SchnittstelleÂ <code class="code">STR.IString</code> nicht implementieren.Â </p><p>Des Weiteren darf sichÂ die GrÃ¶ÃeÂ eines Strings (der jeweilige Speicherplatz fÃ¼r die UTF-8-kodierten Zeichen) im ZahlenbereichÂ <code class="code">UDINT</code>Â (<code class="code">4 â¦Â udiSizeÂ â¦ 16#FFFF_FF00</code>) befinden.</p><div class="itemizedlist"><div class="itemizedlist-title"><span class="formal-label"><span class="formal-label-text"></span><span class="formal-label-delimiter">. </span></span><span class="formal-title">In der erwÃ¤hnten Datenstruktur werden folgende Informationen aktuell gehalten und mÃ¼ssen nicht vor einem Verarbeitungsschritt jedesmal neu berechnet werden:</span></div><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Verweis auf das jeweilige Speichersegment</p></li><li class="listitem"><p>AktuelleÂ KapazitÃ¤tÂ (â <code class="code">GetSegment</code>)</p></li><li class="listitem"><p>LÃ¤nge (â <code class="code">Len</code>) in Byte</p></li><li class="listitem"><p>Anzahl der Zeichen (â <code class="code">RuneCount</code>)</p></li></ul></div><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4593366843641633733095420739"><div class="example-title"><span class="formal-label"><span class="formal-label-text">Beispiel</span><span class="formal-number"> 6</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">Eigenschaften von <code class="code">STR.IString</code></span></div><div class="example-contents"><pre class="programlisting">VAR
+    itfString : STR.IString;
+    udiLength, udiSize, udiRuneCount : UDINT;
+    pbySegment : POINTER TO BYTE;
+    xValid : BOOL;
+END_VAR
+ 
+udiLength := itfString.Len(); // Current length in byte
+pbySegment := itfString.GetSegment(udiSize=&gt;udiSize); // Address first byte, capacity of the segment in bytes
+udiRuneCount := STR.RuneCount(itfString); // Current number of "characters" in the segment
+xValid := itfString.IsValid(); // Indication that a valid UTF-8 encoding is present.</pre></div></div><br class="example-break"></br><div dir="ltr" class="note"><h3 class="title">Zusammenhang: "Zeichen" und "Rune"</h3><p>Der Begriff "Rune" kommt in den Bibliotheken und im Quellcode vor und bedeutet genau dasselbe wie "Unicode-Codepunkt", mit einem interessanten Zusatz.</p><p>Die Bibliotheken definieren das WortÂ "Rune"Â als Alias fÃ¼r den TypÂ <code class="code">DINT</code>. Somit kann der Anwender klar erkennen, wann ein Integerwert einen Codepunkt darstellt. AuÃerdem wird das, was als Zeichenkonstante vorstellbar ist, als Runenkonstante bezeichnet.</p><p>Beispiel: Der Typ und Wert des Ausdrucks <code class="code">WSTRING#"â"</code> ist eine Rune mit dem Integerwert <code class="code">DINT#16#2318</code>.</p></div></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">In diesem Abschnitt<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865">CODESYS String Libraries</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078">Einleitung</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4563869800648033733012917566">Vorteile der neuen String-Bibliotheken</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4613761597678433733013344138">Nachteile der etablierten STRING-Funktionen</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4598276788502433733013693363">Verwendung der Schnittstelle IString</a></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>Suchresultat</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22CODESYS%20String%20Libraries%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22CODESYS%20String%20Libraries%22%20in%20the%20publication%20%22CODESYS%20String%20Libraries%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>MÃ¶chten Sie uns Feedback geben? Klicken Sie hier, um Ãnderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">ZurÃ¼ck</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_strlib_start_page.html#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078">Weiter</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-07-25 07:45:15 -->

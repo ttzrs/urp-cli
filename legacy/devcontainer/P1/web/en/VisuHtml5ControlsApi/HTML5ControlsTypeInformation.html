@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>API to obtain the type information to a given variable</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="VisuHtml5ControlsApi V4.2.0.0" href="index.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="https://www.helpme-codesys.com" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="HTML5ControlsInteractIec.html">API that HTML5 controls can call to interact with IEC code</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API to obtain the type information to a given variable</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">VisuHtml5ControlsApi</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>API to obtain the type information to a given variable</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <div class="section" id="api-to-obtain-the-type-information-to-a-given-variable">
+<h1>API to obtain the type information to a given variable<a class="headerlink" href="#api-to-obtain-the-type-information-to-a-given-variable" title="Permalink to this headline">Â¶</a></h1>
+<p>With the API function window.Utils.getTypeDesc(typeid) the type information from a variable with the typeid can be obtained. The result can be one of the following objects.</p>
+<dl class="js class">
+<dt id="IecTypes">
+<em class="property">class </em><code class="sig-name descname">IecTypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#IecTypes" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>enum {number} with all scalar type classes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Arguments</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Bool</strong> (<em>number</em>) â 0</p></li>
+<li><p><strong>Bit</strong> (<em>number</em>) â 1</p></li>
+<li><p><strong>Byte</strong> (<em>number</em>) â 2</p></li>
+<li><p><strong>Word</strong> (<em>number</em>) â 3</p></li>
+<li><p><strong>DWord</strong> (<em>number</em>) â 4</p></li>
+<li><p><strong>LWord</strong> (<em>number</em>) â 5</p></li>
+<li><p><strong>SInt</strong> (<em>number</em>) â 6</p></li>
+<li><p><strong>Int</strong> (<em>number</em>) â 7</p></li>
+<li><p><strong>DInt</strong> (<em>number</em>) â 8</p></li>
+<li><p><strong>LInt</strong> (<em>number</em>) â 9</p></li>
+<li><p><strong>USInt</strong> (<em>number</em>) â 10</p></li>
+<li><p><strong>UInt</strong> (<em>number</em>) â 11</p></li>
+<li><p><strong>UDInt</strong> (<em>number</em>) â 12</p></li>
+<li><p><strong>ULInt</strong> (<em>number</em>) â 13</p></li>
+<li><p><strong>Real</strong> (<em>number</em>) â 14</p></li>
+<li><p><strong>LReal</strong> (<em>number</em>) â 15</p></li>
+<li><p><strong>String</strong> (<em>number</em>) â 16</p></li>
+<li><p><strong>WString</strong> (<em>number</em>) â 17</p></li>
+<li><p><strong>Time</strong> (<em>number</em>) â 18</p></li>
+<li><p><strong>Date</strong> (<em>number</em>) â 19</p></li>
+<li><p><strong>DateAndTime</strong> (<em>number</em>) â 20</p></li>
+<li><p><strong>TimeOfDay</strong> (<em>number</em>) â 21</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="js class">
+<dt id="TypeIds">
+<em class="property">class </em><code class="sig-name descname">TypeIds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TypeIds" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>enum {number} with all specific type ids</p>
+<dl class="field-list simple">
+<dt class="field-odd">Arguments</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Color</strong> (<em>number</em>) â 997</p></li>
+<li><p><strong>Font</strong> (<em>number</em>) â 998</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="js class">
+<dt id="ArrayDimension">
+<em class="property">class </em><code class="sig-name descname">ArrayDimension</code><span class="sig-paren">(</span><em class="sig-param">minRange</em>, <em class="sig-param">maxRange</em><span class="sig-paren">)</span><a class="headerlink" href="#ArrayDimension" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object ArrayDimension.</p>
+<dl class="js attribute">
+<dt id="ArrayDimension.MinRange">
+<code class="sig-prename descclassname">ArrayDimension.</code><code class="sig-name descname">MinRange</code><a class="headerlink" href="#ArrayDimension.MinRange" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The minimum range of the array dimension.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="ArrayDimension.MaxRange">
+<code class="sig-prename descclassname">ArrayDimension.</code><code class="sig-name descname">MaxRange</code><a class="headerlink" href="#ArrayDimension.MaxRange" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The maximum range of the array dimension.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="js class">
+<dt id="StructComponent">
+<em class="property">class </em><code class="sig-name descname">StructComponent</code><span class="sig-paren">(</span><em class="sig-param">typeId</em>, <em class="sig-param">offset</em><span class="sig-paren">)</span><a class="headerlink" href="#StructComponent" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object StructComponent which describes one component of a CODESYS Struct.</p>
+<dl class="js attribute">
+<dt id="StructComponent.TypeId">
+<code class="sig-prename descclassname">StructComponent.</code><code class="sig-name descname">TypeId</code><a class="headerlink" href="#StructComponent.TypeId" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The type id of that component.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="StructComponent.Offset">
+<code class="sig-prename descclassname">StructComponent.</code><code class="sig-name descname">Offset</code><a class="headerlink" href="#StructComponent.Offset" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The offset of that component.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="js class">
+<dt id="TypeDescArray">
+<em class="property">class </em><code class="sig-name descname">TypeDescArray</code><span class="sig-paren">(</span><em class="sig-param">size</em>, <em class="sig-param">baseTypeId</em>, <em class="sig-param">dimensions</em><span class="sig-paren">)</span><a class="headerlink" href="#TypeDescArray" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object TypeDescArray which corresponds to a CODESYS Array.</p>
+<dl class="js attribute">
+<dt id="TypeDescArray.Size">
+<code class="sig-prename descclassname">TypeDescArray.</code><code class="sig-name descname">Size</code><a class="headerlink" href="#TypeDescArray.Size" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The size of the array.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescArray.BaseTypeId">
+<code class="sig-prename descclassname">TypeDescArray.</code><code class="sig-name descname">BaseTypeId</code><a class="headerlink" href="#TypeDescArray.BaseTypeId" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The base type id of the array.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescArray.Dimensions">
+<code class="sig-prename descclassname">TypeDescArray.</code><code class="sig-name descname">Dimensions</code><a class="headerlink" href="#TypeDescArray.Dimensions" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> Array.&lt;ArrayDimension&gt;</p>
+<p>The array dimensions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="js class">
+<dt id="TypeDescStruct">
+<em class="property">class </em><code class="sig-name descname">TypeDescStruct</code><span class="sig-paren">(</span><em class="sig-param">size</em>, <em class="sig-param">components</em><span class="sig-paren">)</span><a class="headerlink" href="#TypeDescStruct" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object TypeDescStruct which corresponds to a CODESYS Struct.</p>
+<dl class="js attribute">
+<dt id="TypeDescStruct.Size">
+<code class="sig-prename descclassname">TypeDescStruct.</code><code class="sig-name descname">Size</code><a class="headerlink" href="#TypeDescStruct.Size" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The size of the struct.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescStruct.Components">
+<code class="sig-prename descclassname">TypeDescStruct.</code><code class="sig-name descname">Components</code><a class="headerlink" href="#TypeDescStruct.Components" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> Array.&lt;StructComponent&gt;</p>
+<p>The components of the struct.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="js class">
+<dt id="TypeDescEnum">
+<em class="property">class </em><code class="sig-name descname">TypeDescEnum</code><span class="sig-paren">(</span><em class="sig-param">baseTypeId</em>, <em class="sig-param">baseTypeSize</em>, <em class="sig-param">enumValues</em><span class="sig-paren">)</span><a class="headerlink" href="#TypeDescEnum" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object TypeDescEnum which corresponds to a CODESYS Enumeration.</p>
+<dl class="js attribute">
+<dt id="TypeDescEnum.BaseTypeId">
+<code class="sig-prename descclassname">TypeDescEnum.</code><code class="sig-name descname">BaseTypeId</code><a class="headerlink" href="#TypeDescEnum.BaseTypeId" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The base type id of the enumeration.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescEnum.EnumValues">
+<code class="sig-prename descclassname">TypeDescEnum.</code><code class="sig-name descname">EnumValues</code><a class="headerlink" href="#TypeDescEnum.EnumValues" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> Array.&lt;string&gt;</p>
+<p>The enumeration values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="js class">
+<dt id="TypeDescNonStandardString">
+<em class="property">class </em><code class="sig-name descname">TypeDescNonStandardString</code><span class="sig-paren">(</span><em class="sig-param">size</em>, <em class="sig-param">typeId</em><span class="sig-paren">)</span><a class="headerlink" href="#TypeDescNonStandardString" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object TypeDescNonStandardString which corresponds to a CODESYS STRING or WSTRING.
+The object is necessary when not STRING(80) or WSTRING(80) is used.</p>
+<dl class="js attribute">
+<dt id="TypeDescNonStandardString.Size">
+<code class="sig-prename descclassname">TypeDescNonStandardString.</code><code class="sig-name descname">Size</code><a class="headerlink" href="#TypeDescNonStandardString.Size" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The size of the string or wstring.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescNonStandardString.TypeId">
+<code class="sig-prename descclassname">TypeDescNonStandardString.</code><code class="sig-name descname">TypeId</code><a class="headerlink" href="#TypeDescNonStandardString.TypeId" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The type id string or wstring.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="js class">
+<dt id="TypeDescSubrange">
+<em class="property">class </em><code class="sig-name descname">TypeDescSubrange</code><span class="sig-paren">(</span><em class="sig-param">typeId</em>, <em class="sig-param">lowerBorder</em>, <em class="sig-param">upperBorder</em><span class="sig-paren">)</span><a class="headerlink" href="#TypeDescSubrange" title="Permalink to this definition">Â¶</a></dt>
+<dd><p>Provides an object TypeDescSubrange which corresponds to a CODESYS Subrange Type.</p>
+<dl class="js attribute">
+<dt id="TypeDescSubrange.TypeId">
+<code class="sig-prename descclassname">TypeDescSubrange.</code><code class="sig-name descname">TypeId</code><a class="headerlink" href="#TypeDescSubrange.TypeId" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The type id of the subrange type.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescSubrange.LowerBorder">
+<code class="sig-prename descclassname">TypeDescSubrange.</code><code class="sig-name descname">LowerBorder</code><a class="headerlink" href="#TypeDescSubrange.LowerBorder" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The lower border of the subrange type.</p>
+</dd></dl>
+
+<dl class="js attribute">
+<dt id="TypeDescSubrange.UpperBorder">
+<code class="sig-prename descclassname">TypeDescSubrange.</code><code class="sig-name descname">UpperBorder</code><a class="headerlink" href="#TypeDescSubrange.UpperBorder" title="Permalink to this definition">Â¶</a></dt>
+<dd><p><strong>type:</strong> number</p>
+<p>The upper border of the subrange type.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.2.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>

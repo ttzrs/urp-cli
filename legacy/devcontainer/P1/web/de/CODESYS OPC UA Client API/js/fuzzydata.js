@@ -1,0 +1,8 @@
+$(document).ready(function () {indexDict['de'] = [{ "title" : "CODESYS OPC UA Client ", 
+"url" : "_uacapi_start_page.html", 
+"breadcrumbs" : "CODESYS OPC UA Client API \/ CODESYS OPC UA Client ", 
+"snippet" : "Das Add-on CODESYS OPC UA Client stellt die Bibliothek OPC UA Client.library zur Verfügung. Die Bibliothek beinhaltet Funktionsbauteine für die Arbeit mit einem von der OPC UA-Foundation definierten Server. Die Bibliothek kann nur auf Steuerungen mit aktiviertem und lizenziertem Feature CODESYS OPC ...", 
+"body" : "Das Add-on CODESYS OPC UA Client stellt die Bibliothek OPC UA Client.library zur Verfügung. Die Bibliothek beinhaltet Funktionsbauteine für die Arbeit mit einem von der OPC UA-Foundation definierten Server. Die Bibliothek kann nur auf Steuerungen mit aktiviertem und lizenziertem Feature CODESYS OPC UA Client verwendet werden. CODESYS OPC UA Client beinhaltet ausschließlich die Funktionsbausteinbibliothek OPC UA Client.library . Ein Konfigurator, wie bei anderen Feldbusprotokollen, ist nicht realisiert. Das Add-on kann mit dem CODESYS Installer heruntergeladen und installiert werden: Download starten . Allgemeine Informationen zur Kommunikation mit einem OPC UA-Server, zu den Inhalten der Bibliothek und zu ihrer Verwendung finden Sie in der Beschreibung des Beispielprojekts . Für weitere Informationen siehe: OPC UA Client Bibliotheksdokumentation und OPC UA Server . " }
+]
+$(document).trigger('search.ready');
+});

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CHS" xml:lang="zh-CHS" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"></meta><meta name="format-detection" content="telephone=no"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><meta name="search" content="default"></meta><meta name="use.ic" content="no"></meta><meta name="tocstandalone" content="yes"></meta><meta name="theme" content="1"></meta><meta name="search.placeholder" content="搜索"></meta><meta name="search.results" content="搜索结果"></meta><meta name="no.search.results" content=""></meta><script type="text/javascript">
+var theme = '1';
+
+			
+			window.versionsfile = '';
+
+
+			window.indexDict = new Array();
+			window.store = {};
+			window.portalLanguage = 'zh-CHS';
+			window.enterKey = 'search';
+			
+			
+				var fuse_threshold = 0.3;
+			
+					var local_csh = false;
+				
+					var anchoroption = true;
+				var instantsearch_minlength = 1;
+						
+			var useanchorlinks = false;
+			
+					var collapseTocSectionOnLinkTitleClick = false;
+				</script><title>CODESYS String Libraries</title><link rel="stylesheet" type="text/css" href="../css/docbook.css"></link><link rel="stylesheet" type="text/css" href="../css/font-awesome.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/theme1-colors.css"></link><link rel="stylesheet" type="text/css" href="../css/content-theme1.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-core-css.css"></link><link rel="stylesheet" type="text/css" href="../css/sm-simple.css"></link><link rel="stylesheet" type="text/css" href="../css/style-print.css"></link><link rel="stylesheet" type="text/css" href="../css/style-common.css"></link><link rel="stylesheet" type="text/css" href="../css/style-modern-tables.css"></link><link rel="stylesheet" type="text/css" href="../css/graphical-lists.css"></link><script src="../js/jquery-3/jquery-3.4.1.min.js" type="text/javascript"></script><script src="../js/materialize.min.js" type="text/javascript"></script><script src="../js/bootstrap.min.js" type="text/javascript"></script><script src="../js/purl.js" type="text/javascript"></script><script src="../js/jquery.smartmenus.js" type="text/javascript"></script><script src="js/toc.js" type="text/javascript"></script><script src="../js/create-toc.js" type="text/javascript"></script><script src="../js/html5-2-mp-common.js" type="text/javascript"></script><script src="../js/html5-2.js" type="text/javascript"></script><script src="../js/checklist.js" type="text/javascript"></script><script src="../js/clipboard.min.js" type="text/javascript"></script><script src="../js/fuse.min.js" type="text/javascript"></script><script src="../js/jquery.mark.min.js" type="text/javascript"></script><script src="../js/html5.fuse.search.js" type="text/javascript"></script><script src="js/fuzzydata.js" type="text/javascript"></script><script src="../js/csh.js" type="text/javascript"></script><script src="../js/jquery.paligocode.js" type="text/javascript"></script><script src="../js/layout-custom-script.js" type="text/javascript"></script><meta name="generator" content="Paligo"></meta><meta name="keywords" content="V4.1.0.0"></meta><link rel="prev" href="index.html" title="CODESYS String Libraries"></link><link rel="next" href="_strlib_start_page.html#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078" title="导言"></link><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async="async"></script><script type="text/javascript">
+				$(document).ready(function () {
+				$(".mediaobject img").addClass('materialboxed');
+				//Exclude images with links
+				$(".mediaobject a img").removeClass('materialboxed');
+				if (!document.documentMode) {
+				$('.materialboxed').materialbox();
+				}});
+			</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/googlecode.min.css"></link><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script type="text/javascript">
+			$(document).on('ready ajaxComplete', function() {
+				
+				hljs.addPlugin(mergeHTMLPlugin);
+				hljs.configure({'ignoreUnescapedHTML': true});
+				
+				$('pre:not(.embedcode)').each(function() {
+					/**
+					 * @type {string}
+					 */
+					var language = $(this).data('language');
+
+					if (language === 'plaintext' || language === 'text') {
+						$(this).addClass(language).addClass('hljs');
+						return true;
+					}
+					else {
+						var clone = this.cloneNode(true);
+						hljs.highlightElement(clone);
+						$(this).empty().append($(clone).contents());
+						$(this).attr("class", $(clone).attr("class"));
+					}
+				});
+			});
+			</script>
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/images/og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/favicon.ico" type="image/x-icon; charset=binary">
+
+<link href="https://www.codesys.com/paligo/cs-el-lib.css" rel="stylesheet">
+
+
+<script type="importmap">
+    { "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+        "vue-i18n": "https://unpkg.com/vue-i18n@11/dist/vue-i18n.esm-browser.js"
+        }
+    }</script>
+<script src="https://www.codesys.com/paligo/cs-el-lib.js" type="module"></script>
+
+</head><body class="theme1 page-toc current-toc-section-focus" data-spy="scroll" data-target=".section-nav-container" data-offset="100" data-link-prefix=""><style type="text/css">
+            div.skipnav {
+            }
+            div.skipnav a {
+                position: fixed;
+                left: -10000px;
+                top: 1.5em;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            }
+            div.skipnav a:focus, div.skipnav a:active, div.skipnav a:hover {
+                background: white;
+                color: black;
+                box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.5);
+                position: fixed;
+                left: 2em;
+                top: 1.5em;
+                width: auto;
+                height: auto;
+                overflow: visible;
+                text-decoration: underline;
+                z-index: 99999; /* has to be higher than the side panel */
+    }
+          </style><div class="skipnav"><a href="#content-wrapper">Skip to main content</a></div>
+<header id="page-header"></header>
+
+<div class="site-body"><div class="site-body-container"><div class="site-body-row"><aside class="site-sidebar"><div class="site-sidebar-header"><button type="button" class="navbar-toggle" aria-controls="nav-site-sidebar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="../index.html?lang=zh-CHS"><img id="logotype-pageheader" src="../css/image/corporate-logo.svg" alt="Corporate logotype" data-role="logotype" class="logo"></img></a></div><form class="site-sidebar-search" autocomplete="off"><input type="text" placeholder="搜索" class="form-control search-field" id="aa-search-input"></input></form><div id="toc-standalone-placeholder"></div></aside><div class="site-content"><div class="toolbar"><div class="toolbar-tools"><div id="navbar" class="navbar-collapse collapse"></div><div class="tool-print"><i class="fa fa-print" aria-hidden="true">print</i></div><div class="tool-search"><i class="fa fa-search" aria-hidden="true"></i></div><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".site-sidebar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button></div><div class="breadcrumb-container"><ul class="breadcrumb"><li class="breadcrumb-link"><a href="index.html">CODESYS String Libraries</a></li><li class="breadcrumb-node"><span class="phrase">CODESYS String Libraries</span></li></ul></div></div><main><div id="top-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">上一页</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_strlib_start_page.html#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078">下一页</a></li></ul></div><article class="topic content-container" id="content-wrapper"><div id="topic-content" class="topic-content"><section xml:lang="zh-CHS" lang="zh-CHS" dir="ltr" class="section" data-origin-id="UUID-5dd22f0e-7cbe-0557-1fd6-f5021fc38d30" data-permalink="_strlib_start_page.html" data-topic-level="1" data-relative-prefix="" data-time-modified="April 7, 2025" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865"><div class="titlepage"><div><div class="title"><h1 class="title" style="clear: both"><span class="phrase">CODESYS String Libraries</span></h1></div></div></div><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">导言</h2></div></div></div><p>中的图书馆 <span class="phrase">CODESYS String Libraries</span> 包可用于处理采用 UTF-8 编码的字符串。基础是 <code class="code">IString</code> 接口来自 <code class="code">String Segments</code> 图书馆。使用此接口，可以通过引用将字符串传递给相应的函数。例如，要创建一个 <code class="code">IString</code> 实例， <code class="code">GSB.UTF8String</code> 中的功能块 <code class="code">Generic String Base</code> 提供了库。</p><div class="table table-responsive" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_table-idm234856461085546"><div class="table-title"><span class="formal-label"><span class="formal-label-text">表</span><span class="formal-number"> 1</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">该软件包提供以下库：</span></div><div class="table table-responsive-contents"><table style="width:100%;" class="table table-bordered"><colgroup><col style="width:20%;"></col><col style="width:40%;"></col><col style="width:40%;"></col></colgroup><tbody><tr><td class="td"><p><code class="code">String Segments</code></p></td><td class="td"><p>的基础函数 <code class="code">IString</code> 实例</p></td><td class="td"><p><a class="link" href="../libs/String%20Segments/Current/index.html" target="_blank">字符串段库文档</a></p></td></tr><tr><td class="td"><p><code class="code">String Builder</code></p></td><td class="td"><p>高效管理 UTF-8 编码的字符串段</p></td><td class="td"><p><a class="link" href="/libs/String%20Builder/Current/index.html" target="_blank">字符串生成器库文档</a></p></td></tr><tr><td class="td"><p><code class="code">String Conversions</code></p></td><td class="td"><p>将不同编码的字符串转换为 UTF-8</p></td><td class="td"><p><a class="link" href="../libs/String%20Conversions/Current/index.html" target="_blank">字符串转换库文档</a></p></td></tr><tr><td class="td"><p><code class="code">String Functions</code></p></td><td class="td"><p>按照传统标准库的示例处理 UTF-8 编码字符串的函数。</p></td><td class="td"><p><a class="link" href="/libs/String%20Functions/Current/index.html" target="_blank">字符串函数库文档</a></p></td></tr><tr><td class="td"><p><code class="code">Unicode Support</code></p></td><td class="td"><p>用于处理 Unicode 字符类别的函数。</p></td><td class="td"><p><a class="link" href="../libs/Unicode%20Support/Current/index.html" target="_blank">Unicode 支持函数库文档</a></p></td></tr><tr><td class="td"><p><code class="code">UTF-16 Encoding Support</code></p></td><td class="td"><p>处理 UTF-16 编码内存区域的基本函数</p></td><td class="td"><p><a class="link" href="../libs/UTF-16%20Encoding%20Support/Current/index.html" target="_blank">UTF-16 编码支持库文档</a></p></td></tr><tr><td class="td"><p><code class="code">UTF-8 Encoding Support</code></p></td><td class="td"><p>处理 UTF-8 编码内存区域的基本函数</p></td><td class="td"><p><a class="link" href="../libs/UTF-8%20Encoding%20Support/Current/index.html" target="_blank">UTF-8 编码支持函数库文档</a></p></td></tr><tr><td class="td"><p><code class="code">Generic String Base</code></p></td><td class="td"><p>用于处理 UTF-8 编码字符串的功能块，这些字符串通过静态管理其内存 <code class="code">GENERIC CONSTANT</code>。</p></td><td class="td"><p><a class="link" href="../libs/Generic%20String%20Base/Current/index.html" target="_blank">通用字符串基础函数库文档</a></p></td></tr></tbody></table></div></div><br class="table table-responsive-break"></br></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4563869800648033733012917566"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">新字符串库的优点</h2></div></div></div><div dir="ltr" class="important"><h3 class="title">重要</h3><p>新的字符串库并不能取代以前熟悉的字符串函数 <code class="code">Standard</code> 和 <code class="code">Standard64</code> 图书馆。不过，我们建议在新项目中使用新的字符串库。</p></div><p>新的字符串库还可以高效地处理大型字符串。字符串的长度几乎是无限的。因此，这些库也适用于编辑大型文本文件和网页内容。</p><div class="itemizedlist"><div class="itemizedlist-title"><span class="formal-label"><span class="formal-label-text"></span><span class="formal-label-delimiter">. </span></span><span class="formal-title">其他优点：</span></div><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>UTF-8 是一种可以根据 UNICODE 表示全部字符范围的编码。</p></li><li class="listitem"><p>UTF-8 在互联网上被广泛使用，由万维网联盟 (W3C) 推荐。</p></li><li class="listitem"><p>由于 ASCII 兼容，UTF-8 与传统系统兼容。</p></li><li class="listitem"><p>UTF-8 提供了高水平的互操作性。</p></li><li class="listitem"><p>UTF-8 用于优化内存。</p></li></ul></div><p>新的字符串库允许您通过相应的方法查询先前定义的字符串，就像您在其他高级语言中知道的那样。</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4670931898830433733072988086"><div class="example-title"><span class="formal-label"><span class="formal-label-text">例</span><span class="formal-number"> 1</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">字符串方法示例： <code class="code">Len()</code></span></div><div class="example-contents"><pre class="programlisting">udiStringLen := myString.Len();
+if udiStringLen = 22 THEN
+...</pre></div></div><br class="example-break"></br><p>截至 <span class="phrase">CODESYS</span> 3.5.18.0，你可以设置编译器来解释类型变量的内容 <code class="code">STRING</code> 作为 UTF-8 编码。你选择 <span class="guilabel">字符串的 UTF8 编码</span> 中的选项 <span class="guilabel">项目设置</span> 在 <span class="guilabel">编译选项</span> 类别。</p><p>如果你不想治疗所有人 <code class="code">STRING</code> 项目中的变量采用 UTF-8 编码，则需要清除此选项。之后，您可以将 UTF-8 编码应用于单个文字 <code class="code">STRING</code> 根据具体情况键入。</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4593366827534433733083624913"><div class="example-title"><span class="formal-label"><span class="formal-label-text">例</span><span class="formal-number"> 2</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">文字的 UTF-8 编码</span></div><div class="example-contents"><pre class="programlisting">{attribute 'monitoring_encoding' := 'UTF-8'}
+sValue : STRING(140) := UTF8#'Ðα ṧтℯ♄ ḯḉℌ ηuη, i¢ℌ αямℯґ 𝕋øґ‼ Ṳᾔⅾ ♭ḯη ＄☺ ḱℓυℊ αł＄ ωⅈ℮ ẕυ√◎ґ';</pre></div></div><br class="example-break"></br><p>由于 UTF-8 编码的功能，您不必使用 <code class="code">WSTRING</code> 中的数据类型 <span class="phrase">CODESYS</span> 使用扩展字符集。UCS-2 编码，其中 <code class="code">WSTRING</code> 是基于，可能需要比 UTF-8 编码更多的内存，具体取决于应用程序。UCS-2 编码始终使用一个 <code class="code">WORD</code> 每个字符，只能代表字符 <code class="code">U+0000</code> 到 <code class="code">U+D800</code> 和 <code class="code">U+DFFF</code> 到 <code class="code">U+FFFD</code>。UTF-8 编码要求每个字符一到四个字节。因此，可以处理所有 Unicode 字符。</p><p>使用 UTF-8 编码，如果你尝试使用特定索引获取特定字符，那么由于长度可变，这将导致意想不到的结果。</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4492202496547233733085442515"><div class="example-title"><span class="formal-label"><span class="formal-label-text">例</span><span class="formal-number"> 3</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">可变长度的编码</span></div><div class="example-contents"><pre class="programlisting">{attribute 'monitoring_encoding' := 'UTF-8'}
+sValue : STRING(140) := UTF8#'Ðα ṧтℯ♄ ḯḉℌ ηuη, i¢ℌ αямℯґ 𝕋øґ‼ Ṳᾔⅾ ♭ḯη ＄☺ ḱℓυℊ αł＄ ωⅈ℮ ẕυ√◎ґ';
+
+byValue := sValue[13]; // The 'u' is NOT the 13th character in the string
+xOk := byValue &lt;&gt; 16#75;</pre></div></div><br class="example-break"></br><p>你需要通过迭代字符串来确定字符的索引。</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4531185404761633733086532711"><div class="example-title"><span class="formal-label"><span class="formal-label-text">例</span><span class="formal-number"> 4</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">对 UTF-8 编码字符串进行迭代</span></div><div class="example-contents"><pre class="programlisting">VAR	
+    {attribute 'monitoring_encoding' := 'UTF-8'}
+    sValue : STRING(140) := UTF8#'Ðα ṧтℯ♄ ḯḉℌ ηuη, i¢ℌ αямℯґ 𝕋øґ‼ Ṳᾔⅾ ♭ḯη ＄☺ ḱℓυℊ αł＄ ωⅈ℮ ẕυ√◎ґ';
+
+    fbsValue : STR.UTF8Literal := (psValue:=ADR(sValue)); 
+    fbRange : STR.Range := (itfString:=fbsValue);
+    diRune : STR.RUNE;
+    udiIndex, udiLength : UDINT;
+    xOk : BOOL;
+END_VAR
+ 
+WHILE (diRune := fbRange.GetNextRune(udiLength=&gt;udiLength)) &lt;&gt; 0 DO
+    IF diRune = 16#75 (* 'u' *) THEN
+        EXIT;
+    END_IF
+    udiIndex := udiIndex + udiLength;
+END_WHILE
+ 
+xOk := sValue[udiIndex] = 16#75 (* 'u' *);</pre><p></p><div class="mediaobject"><img src="image/uuid-fe8b5777-e8f6-29b6-a2d8-8d6644fcdf9d.png" style="" alt="strlib_iteration_utf8_coded_strings.png"></img></div></div></div><br class="example-break"></br></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4613761597678433733013344138"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">既定机构的缺点 <code class="code">STRING</code> 函数</h2></div></div></div><p>在先前建立的 <code class="code">STRING</code> 标准库中的函数，类型的参数 <code class="code">STRING</code> 当它们传递给函数时会被复制。返回值也被复制到带有赋值的变量中。</p><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4593367148225633733090629011"><div class="example-title"><span class="formal-label"><span class="formal-label-text">例</span><span class="formal-number"> 5</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">已建立的 STRING 函数存在问题</span></div><div class="example-contents"><pre class="programlisting">VAR
+    sValue : STRING;
+END_VAR
+ 
+sValue := CONCAT(CONCAT(CONCAT('Da steh ich nun,', ' ich armer Tor!'), ' Und bin so'), ' klug als wie zu vor');
+//                              -&gt; Copy, LEN       -&gt; Copy, LEN        -&gt; Copy, LEN    -&gt; Copy, LEN
+//        -&gt; 2xCopy, LEN
+//               -&gt; 2xCopy, LEN
+//                      -&gt; 2xCopy, LEN</pre></div></div><br class="example-break"></br><p>在处理类型的参数之前 <code class="code">STRING</code> 在相应的函数中，它们的长度通常必须通过迭代来确定，直到终止的空字符。对于较长的字符串，这些复制和迭代操作会增加应用程序的处理时间。为了应用这些函数，字符串的长度限制为 255 个字符。</p></section><section dir="ltr" class="section" data-origin-id="" data-publication-date="" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4598276788502433733013693363"><div class="titlepage"><div><div class="title"><h2 class="title" style="clear: both">使用 <code class="code">IString</code> 接口</h2></div></div></div><p>这个 <code class="code">STR.IString</code> 引入接口是为了传递数据结构，该数据结构通过引用管理有关字符串的信息。这是与之前建立的 STRING 函数的主要区别，后者没有实现 <code class="code">STR.IString</code> 接口。</p><p>此外，字符串的大小（UTF-8 编码字符的相应内存）可能在数字范围内 <code class="code">UDINT</code> <code class="code">4 ≦ udiSize ≦ 16#FFFF_FF00</code>）。</p><div class="itemizedlist"><div class="itemizedlist-title"><span class="formal-label"><span class="formal-label-text"></span><span class="formal-label-delimiter">. </span></span><span class="formal-title">在上述数据结构中，以下信息保持最新状态，不必每次在处理步骤之前都重新计算：</span></div><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>引用相应的存储器段</p></li><li class="listitem"><p>当前容量 (→ <code class="code">GetSegment</code>)</p></li><li class="listitem"><p>长度 (→ <code class="code">Len</code>) 以字节为单位</p></li><li class="listitem"><p>字符数 (→ <code class="code">RuneCount</code>)</p></li></ul></div><div class="example" id="UUID-70ae778c-1f81-2848-ca6a-08b441de0865_example-idm4593366843641633733095420739"><div class="example-title"><span class="formal-label"><span class="formal-label-text">例</span><span class="formal-number"> 6</span><span class="formal-label-delimiter">. </span></span><span class="formal-title">的属性 <code class="code">STR.IString</code></span></div><div class="example-contents"><pre class="programlisting">VAR
+    itfString : STR.IString;
+    udiLength, udiSize, udiRuneCount : UDINT;
+    pbySegment : POINTER TO BYTE;
+    xValid : BOOL;
+END_VAR
+ 
+udiLength := itfString.Len(); // Current length in byte
+pbySegment := itfString.GetSegment(udiSize=&gt;udiSize); // Address first byte, capacity of the segment in bytes
+udiRuneCount := STR.RuneCount(itfString); // Current number of "characters" in the segment
+xValid := itfString.IsValid(); // Indication that a valid UTF-8 encoding is present.</pre></div></div><br class="example-break"></br><div dir="ltr" class="note"><h3 class="title">相关性：“角色” 和 “符文”</h3><p>术语 “rune” 出现在库和源代码中，其含义与 “Unicode 代码点” 完全相同，但有一个有趣的补充。</p><p>这些库将 “rune” 一词定义为该类型的别名 <code class="code">DINT</code>。因此，用户可以清楚地看到整数值何时代表代码点。此外，可以想象为字符常量的东西称为符文常</p><p>示例：表达式的类型和值 <code class="code">WSTRING#"⌘"</code> 是带有整数值的符文 <code class="code">DINT#16#2318</code>。</p></div></section></section><div class="footer-content"><div class="section-toc section-toc-after"><div class="section-toc-title">本节内容如下<span class="section-toc-title-delimiter">: </span></div></div><div class="glossary-definitions"></div></div><!-- empty footer removed from here --></div></article><aside class="section-nav-container"><ul class="section-nav nav"><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865">CODESYS String Libraries</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078">导言</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4563869800648033733012917566">新字符串库的优点</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4613761597678433733013344138">既定机构的缺点 STRING 函数</a></li><li><a href="#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4598276788502433733013693363">使用 IString 接口</a></li></ul></aside><article id="search-result-wrapper"><div class="search-container" style="display: none;"><h2>搜索结果</h2><ul class="searchresults"></ul><p class="noresults"></p></div></article><div class="feedback-panel"><div id="email-feedback" class="no-voting toggle-feedback"><p><a href="mailto:help-feedback@codesys.com?subject=Feedback%20for%20help%20topic%20%22CODESYS%20String%20Libraries%22&amp;body=%0A%09%09%09%09%0A%09%09%09%09%0A%09%09%09%09_______________________%0A%09%09%09%09%0A%09%09%09Please%20add%20your%20feedback%20above%20for%20topic%20%22CODESYS%20String%20Libraries%22%20in%20the%20publication%20%22CODESYS%20String%20Libraries%22."><i aria-hidden="true" class="fa fa-pencil-square-o feedbackicon"></i>Möchten Sie uns Feedback geben? Klicken Sie hier, um Änderungen vorzuschlagen.</a></p></div></div></main><div id="bottom-pager"><ul class="pager"><li class="previous"><a accesskey="p" class="prev pull-left prev visible-lg visible-md" id="header-navigation-prev" href="index.html">上一页</a></li><li class="next"><a accesskey="n" class="pull-right next visible-lg visible-md" id="header-navigation-next" href="_strlib_start_page.html#UUID-70ae778c-1f81-2848-ca6a-08b441de0865_section-idm4664735744121633736389596078">下一页</a></li></ul></div>
+<footer id="page-footer" class="background-dark-blue"></footer>
+
+</div></div></div></div></body></html>
+<!-- last generated: 2025-07-25 07:45:25 -->

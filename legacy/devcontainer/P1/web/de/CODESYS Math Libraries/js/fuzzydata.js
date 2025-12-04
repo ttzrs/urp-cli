@@ -1,0 +1,28 @@
+$(document).ready(function () {indexDict['de'] = [{ "title" : "CODESYS Math Libraries ", 
+"url" : "_mathlib_start_page.html", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries ", 
+"snippet" : "...", 
+"body" : "" }, 
+{ "title" : "Einleitung ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018560416181", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Einleitung ", 
+"snippet" : "CODESYS Math Libraries enthält die Bibliothek Matrix und die interne Bibliothek FloatingPointUtils . Die Bibliothek Matrix kann für die Darstellung von Matrizen beliebiger Dimension sowie für grundlegende mathematische Operationen auf Matrizen verwendet werden. Folgende Operationen werden dabei unte...", 
+"body" : "CODESYS Math Libraries enthält die Bibliothek Matrix und die interne Bibliothek FloatingPointUtils . Die Bibliothek Matrix kann für die Darstellung von Matrizen beliebiger Dimension sowie für grundlegende mathematische Operationen auf Matrizen verwendet werden. Folgende Operationen werden dabei unterstützt: Addition, Multiplikation, Lösung von linearen Gleichungssytemen, Invertieren und Berechnung der Determinante. " }, 
+{ "title" : "Produktbeschreibung ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018604946206", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Produktbeschreibung ", 
+"snippet" : "Die Bibliothek Matrix bietet einen Datentypen für Matrizen beliebiger Dimension sowie grundlegende Operationen auf Matrizen....", 
+"body" : "Die Bibliothek Matrix bietet einen Datentypen für Matrizen beliebiger Dimension sowie grundlegende Operationen auf Matrizen. " }, 
+{ "title" : "Datentypen und Funktionen ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018606155652", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Produktbeschreibung \/ Datentypen und Funktionen ", 
+"snippet" : "Matrizen werden durch den Datentypen mtx.Matrix abgebildet. Der Datentyp mtx.Matrix speichert eine Matrix als ARRAY von LREAL -Werten. Die Werte sind zeilenweise abgelegt. Grundlegende arithmetische Operationen werden als Funktionen angeboten, die 3 Matrizen als VAR_IN_OUT -Argumente haben: Ergebnis...", 
+"body" : "Matrizen werden durch den Datentypen mtx.Matrix abgebildet. Der Datentyp mtx.Matrix speichert eine Matrix als ARRAY von LREAL -Werten. Die Werte sind zeilenweise abgelegt. Grundlegende arithmetische Operationen werden als Funktionen angeboten, die 3 Matrizen als VAR_IN_OUT -Argumente haben: Ergebnis, Quelle, Ziel. Die Funktion zum Addieren von Matrizen hat beispielsweise folgende Schnittstelle: (* Adds two matrices : C := A + B. \n* A, B, and C must have identical dimensions.\n* Note: A, B, and C may all be the same matrix. *)\nFUNCTION AddM : ResultCode\nVAR_IN_OUT\n C : Matrix ; (* The result *)\n A : Matrix ; (* The first summand *)\n B : Matrix ; (* The second summand *)\nEND_VAR Folgende arithmetische Operationen sind enthalten: Addition von Matrizen (elementweise): AddM Subtraktion von Matrizen (elementweise): SubM Multiplikation von Matrizen (elementweise): TimesM Division von Matrizen (elementweise): RDivideM Multiplikation einer Matrix mit einem Skalar: MultMS Multiplikation von Matrizen: MultM Transponieren einer Matrix: TransposeM Außerdem gibt es einige Hilfsfunktionen, um Matrizen zu initialisieren, zu kopieren und auf Elemente zuzugreifen: Initialisierung durch ARRAY von Werten: InitMatrix Kopieren von Elementen aus einem ARRAY : CopyElems Kopieren von Matrizen gleicher Dimension: CopyMatrix Initialisierung zur Einheitsmatrix: IdentityMatrix Initialisierung zur Nullmatrix: ZeroMatrix Elemente lesen und schreiben: Elem , SetElem Zusätzlich gibt es noch einige komplexere Funktionen: Lösung eines linearen Gleichungssystems A * X = B : SolveLU Invertierung einer quadratischen Matrix: InvertLU Berechnung der Determinante einer quadratischen Matrix: DeterminantLU Bestimmung einer LU -Zerlegung (diese Zerlegung dient als Basis für die obigen drei Funktionen): DecomposeLU " }, 
+{ "title" : "Speicherverwaltung ", 
+"url" : "_mathlib_start_page.html#UUID-cdf0d16d-40b5-9e6d-0139-714ff1c30a08_section-idm235018653767388", 
+"breadcrumbs" : "CODESYS Math Libraries \/ CODESYS Math Libraries \/ Produktbeschreibung \/ Speicherverwaltung ", 
+"snippet" : "Die Speicherverwaltung wird dem Nutzer der Bibliothek überlassen. Matrizen werden durch Übergabe eines Zeigers auf den Speicher (über die Funktion InitMatrix ) initialisiert. Je nach Anwendung kann der Anwender den Speicher passend bereitstellen. Darüber hinaus gibt es noch die Hilfsbausteine Matrix...", 
+"body" : "Die Speicherverwaltung wird dem Nutzer der Bibliothek überlassen. Matrizen werden durch Übergabe eines Zeigers auf den Speicher (über die Funktion InitMatrix ) initialisiert. Je nach Anwendung kann der Anwender den Speicher passend bereitstellen. Darüber hinaus gibt es noch die Hilfsbausteine MatrixS , ColVectorS und RowVectorS , die Matrizen über ARRAYs konstanter Größe initialisieren. Sie implementieren die Schnittstelle IMatrixAllocator , die auch dem Anwender offen steht. " }
+]
+$(document).trigger('search.ready');
+});

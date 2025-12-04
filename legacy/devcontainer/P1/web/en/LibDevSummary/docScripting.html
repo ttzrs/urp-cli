@@ -1,0 +1,929 @@
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Script your Documentation</title>
+
+  
+
+  
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="top" title="CODESYS LibDevSummary V3.5.21.0 (Draft)" href="index.html"/>
+    <link rel="up" title="Library Documentation" href="documentation.html"/> 
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODESYS Group">
+<meta property="og:image" content="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Og/CODESYS-default.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta name="geo.region" content="Kempten" />
+<meta name="geo.country" content="Germany" />
+<meta name="geo.placename" content="Memminger Stra&szlig;e 151, 87439 Kempten" />
+<meta name="geo.position" content="47.321;10.573" />
+<meta name="ICBM" content="47.321;10.573" />
+<meta name="robots" content="index, follow, noarchive">
+
+<link rel="shortcut icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/Icons/favicon.ico" type="image/x-icon; charset=binary">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/helpme_library.min.css" rel="stylesheet">
+<link href="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Components/LESS/microsite.min.css" rel="stylesheet">
+
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/solr/Resources/Public/JavaScript/JQuery/jquery.autocomplete.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.focuspoint.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/jquery.waypoints.min.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/helpME.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/custom.js" type="text/javascript"></script>
+<script src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/JavaScripts/suggest_controller.js" type="text/javascript"></script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+<header class="affix-top" id="headerWrapper">
+    <div class="container">
+        <div id="logoWrapper">
+            <figure>
+                <a href="/en/" target="_top">
+                    <img alt="CODESYS GmbH" src="https://www.codesys.com/typo3conf/ext/template87/Resources/Public/Images/CODESYS-online-help-Logo.png">
+                </a>
+            </figure>
+        </div>
+        <div class="languageDropdownWrapper" id="wrapperlangMenuDesktop">
+            <button aria-expanded="false" aria-haspopup="true" class="dropdown-toggle btn" data-toggle="dropdown" id="dropdownTogglelangMenuDesktop" type="button">
+                <span id="LangID"></span>
+                <span class="caret"></span>
+            </button>
+            <ul aria-labelledby="dropdownTogglelangMenuDesktop" class="dropdown-menu dropdownContentlangMenuDesktop">
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="en">English</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                </li>
+                <li class="">
+                    <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                </li>
+            </ul>
+        </div>
+        <div class="" id="menuToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-hc-2x zmdi-menu"></i>
+            </span>
+            <span class="toggle-label">Menu</span>
+        </div>
+        <div id="searchToggle">
+            <span class="toggle-icon">
+                <i class="zmdi zmdi-search zmdi-hc-2x"></i>
+            </span>
+            <span class="toggle-label">Search</span>
+        </div>
+        <div class="" id="siteSearch" style="display: none;">
+            <form accept-charset="utf-8" action="https://www.helpme-codesys.com/search.html" class=""
+                  data-suggest="https://www.helpme-codesys.com/?type=7384" data-suggest-header="Top Results"
+                  enctype="multipart/form-data" method="get" name="searchbox">
+                <div class="tx-indexedsearch-hidden-fields">
+                    <input name="id" type="hidden" value="">
+                </div>
+                <div class="input-group">
+                    <input autocomplete="off"
+                           class="tx-solr-q js-solr-q tx-solr-suggest tx-solr-suggest-focus form-control"
+                           name="tx_solr[q]"
+                           placeholder="Search term" style="position: relative;" type="text">
+                </div>
+            </form>
+        </div>
+    </div>
+    <nav id="mainMenuWrapper">
+        <div id="mainNav">
+            <div class="menu-layout-1 inactive" id="menuFlyout" style="height: 0px;">
+                <div class="languageDropdownWrapper" id="wrapperlangMenuMobile">
+                    <button aria-expanded="true" aria-haspopup="true" class="dropdown-toggle btn"
+                            data-toggle="dropdown" id="dropdownTogglelangMenuMobile" type="button">
+                        <span id="langIDMobile"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul aria-labelledby="dropdownTogglelangMenuMobile"
+                        class="dropdown-menu dropdownContentlangMenuMobile">
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="de">Deutsch</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="en">English</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="fr">Fran&ccedil;ais</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="es">Espa&ntilde;ol</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="it">Italiano</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="ja">&#26085;&#26412;&#35486;</a>
+                        </li>
+                        <li class="">
+                            <a class="changeLangButton" href="#" hreflang="zh-CHS">&#20013;&#25991;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="container">
+                    <div class="menu-main">
+                        <div id="menuRenderContainer" class="flex-menu">
+                            <!-- ############### START Automatic Menu Rendering ################## -->
+                            <!-- ############### END Automatic Menu Rendering ################## -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header> 
+
+    <div class="wy-grid-for-nav">
+
+        
+        <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+            <div class="wy-side-scroll">
+                <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts and Elements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library_types.html">Library Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#common-libraries">Common Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#container-libraries">Container Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#interface-libraries">Interface Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_types.html#end-user-libraries">End-User Libraries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib_changes.html">How to change a library</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="placeholder.html">Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefix.html">Library Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categories.html">Library Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html">Library Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behaviour_model.html">Behaviour Model and Interface Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#edge-triggered-function-blocks">Edge Triggered Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#level-controlled-function-blocks">Level Controlled Function Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#common-properties">Common properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#timing-constraints">Timing constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#sorting-inputs-and-outputs">Sorting Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#cooperation">Cooperation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#tcp-reader-example">TCP Reader Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#extending-the-example-to-a-complete-echoserver">Extending the Example to a Complete EchoServer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="behaviour_model.html#transformation-to-a-multithreaded-echoserver">Transformation to a Multithreaded EchoServer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="behaviour_model.html#library-support">Library Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="static_analysis.html">Static Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#plcopen-coding-guidelines">PLCopen - Coding Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="static_analysis.html#recommended-rules-for-static-analysis">Recommended Rules for Static Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html">Parameterization with parameter lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="var_input_constant.html#library-parameters">Library parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="var_input_constant.html#declarative-parameterization-of-function-blocks">Declarative Parameterization of Function Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input">VAR_INPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-input-constant">VAR_INPUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-output">VAR_OUTPUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out">VAR_IN_OUT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#var-in-out-constant">VAR_IN_OUT CONSTANT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#consistency">Consistency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visibility.html">Visibility Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#attributes-for-controlling-the-visibility">Attributes for Controlling the Visibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visibility.html#keywords-for-controlling-the-visibility">Keywords for Controlling the Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="external.html">External Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optional.html">Working with external optional Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="friends.html">Developers best friends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#specify-the-intended-use">Specify the intended use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#identify">Identify your System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="friends.html#respond-to-specific-situations">Respond to specific Situations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#example-and-demonstration">Example and Demonstration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="friends.html#helper-structures-for-generic-types">Helper Structures for Generic Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html">Advanced Topicâs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="date_time.html">Duration, Date and Time</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#duration">Duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#date-and-time">Date and Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="date_time.html#special-applications">Special Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mem_block_man.html">Application of the Memory Block Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#pool-based-memory-management">Pool based memory management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mem_block_man.html#application-and-management-of-messages">Application and management of messages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fb_factory.html">Dynamic Generation of FB Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segmented_buffers.html">Segmented Buffers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="segmented_buffers.html#beispiele">Beispiele</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="synchronization.html">Synchronization of Concurrent Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#sema">SEMA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#bolt">BOLT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="synchronization.html#task-lock">Task Lock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="async.html">Asynchronous Job Execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="async.html#applications-in-codesys">Applications in CODESYS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multicore.html">Multicore - Tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#introduction">Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#example">Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#measurement">Measurement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multicore.html#atomic-operations">Atomic Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="file_server.html">Providing libraries and device descriptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#libraries">Libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="file_server.html#device-descriptions">Device Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="certificate.html">Usage of client certificates from an external certification authority</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-via-csr">Import of client certificates via CSR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="certificate.html#import-of-client-certificates-with-private-key">Import of client certificates with private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines for Library Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filename.html">Select a meaningful filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespaces.html">Select a pragmatic library namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="projectinfo.html">Enter all project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reuse.html">Apply the correct method for referencing other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html">Design smart interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Implement user-friendly error handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Use the correct method for deployment and licensing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#platform-vendor-dependent-usage-restriction">Platform-/vendor dependent usage restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-for-codesys-store">Licensing for CODESYS Store</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-codesys-security-key">Engineering-License via CODESYS Security Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#engineering-license-via-soft-container">Engineering-License via Soft Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deployment.html#single-controller-license-via-cmpcodemeter">Single-Controller-License via CmpCodemeter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deployment.html#licensing-via-3slicense-library">Licensing via 3SLicense.library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Ensure consistency by using templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#template-types">Template Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="templates.html#function-blocks-design-patterns">Function Blocks Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Use a familiar and uniform project structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varnames.html">Ensure clean code by applying a consistent naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#standard-data-types">Standard Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#scope-marker">Scope Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="varnames.html#safety-data-types">Safety Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">Library Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="docAreas.html">Documentation Areas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#project-information">Project Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#folder">Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#declaration-header">Declaration Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#member-declaration">Member Declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#enums-structures-gvl-s">Enums, Structures, GVLâs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="docAreas.html#actions-and-transitions">Actions and Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html">Formatting Commands (Overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#the-markup-specification">The Markup Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reSTOverview.html#codesys-specific-formatting-commands">CODESYS Specific Formatting Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-win.html">Tool installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#installing-python-on-windows">Installing Python on Windows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#setuptools">Setuptools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#pip">Pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="install-win.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#virtualenv-wrapper-optional">Virtualenv Wrapper (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#notepad">Notepad++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#html-help-workshop">HTML Help Workshop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#tex-live-for-windows">TeX Live for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#po-file-editor">PO File Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#microsoft-visual-c-compiler-for-python-2-7">Microsoft Visual C++ Compiler for Python 2.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#mingw-compiler">MinGW Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install-win.html#libdoc-scripting-collection">LibDoc Scripting Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Script your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="styles.html">Page Layout Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#templates">Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="styles.html#themes">Themes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-html-based-output">Themes for HTML-Based Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="styles.html#themes-for-pdf-output">Themes for PDF Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">Different Output Formats for Library Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#html-output-format">HTML Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#lmd-output-format">LMD Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#chm-output-format">CHM Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pdf-output-format">PDF Output Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="outputs.html#pot-output-format">POT Output Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="localization.html">Documentation in Different Languages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#generating-translations">Generating Translations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#deployment-of-translated-documents">Deployment of Translated Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="localization.html#workflow-for-localising-signed-libraries">Workflow for Localising Signed Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#examples-of-restructuredtext">Examples of âreStructuredTextâ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Package Designer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checklist.html">Library Development Checklist</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+                </div>
+            </div>
+        </nav>
+
+        <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+            
+            <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+                <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+                <a href="index.html">CODESYS LibDevSummary</a>
+            </nav>
+
+
+            
+            <div class="wy-nav-content">
+                <div class="rst-content">
+                    
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="documentation.html">Library Documentation</a> &raquo;</li>
+      
+    <li>Script your Documentation</li>
+  </ul>
+  <hr/>
+</div>
+                    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+                        <div itemprop="articleBody">
+                            
+  <div class="toctree-wrapper compound" id="docscripting">
+</div>
+<section id="script-your-documentation">
+<h1>Script your Documentation<a class="headerlink" href="#script-your-documentation" title="Permalink to this heading">Â¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please install the <code class="docutils literal notranslate"><span class="pre">CODESYS</span> <span class="pre">Library</span> <span class="pre">Documentation</span> <span class="pre">Support</span></code> package.
+Without the installation of this extension it is not possible to use the
+possibilities of the CODESYS LibDoc Scripting Collection.</p>
+</div>
+<p>The term <cite>DocScripting</cite> describes the work flow which is necessary for creating
+a full documentation in various formats from a CODESYS library and the comments
+which are embedded in this library.</p>
+<p>It should be possible to distribute a <a class="reference internal" href="glossary.html#term-Library"><span class="xref std std-term">Library</span></a> with the aid of
+the <a class="reference internal" href="glossary.html#term-Package-Manager"><span class="xref std std-term">Package Manager</span></a> to end customers.
+The <a class="reference internal" href="glossary.html#term-Package"><span class="xref std std-term">Package</span></a> contains the library in the â*.compiled-libraryâ format
+(see <a class="reference internal" href="deployment.html#deployment"><span class="std std-ref">Deployment</span></a>), as well as a â*.chmâ-file for the related
+online help,  in which the documentation for the library is assembled.
+The Package Manager installs these parts of the package in a way that the library can
+be included by the customer in his projects (âAdd Libraryâ) and that the
+context-sensitive help (accessible via F1 key in a CODESYS editor) can find
+the matching page in the library-related online help.</p>
+<p>The source of documentation is a CODESYS library, which contains comments
+for the respective library parts. The concerned elements are described in
+section <a class="reference internal" href="docAreas.html#docareas"><span class="std std-ref">Documentation Areas</span></a>. By a so-called <a class="reference internal" href="glossary.html#term-DocExport"><span class="xref std std-term">DocExport</span></a> the desired
+parts of the CODESYS library get exported to a <a class="reference external" href="http://json.org/index.html">JSON</a>-file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <a class="reference internal" href="glossary.html#term-DocExport"><span class="xref std std-term">DocExport</span></a> is only intended for providing CODESYS project parts
+as JSON-files, which are needed for the further steps in the documentation process.
+It cannot be used to create project elements in CODESYS by an import.
+For this need however you could use the PLCopenXML export-/import commands.</p>
+</div>
+<p>The following elements can be transferred for documentation purposes from a
+CODEYS library to a JSON-file by using the <a class="reference internal" href="glossary.html#term-DocExport"><span class="xref std std-term">DocExport</span></a> command:</p>
+<table class="hlist"><tr><td><ul class="simple">
+<li><p>Project Information</p></li>
+<li><p>Project Structure</p></li>
+<li><p>Library Manager</p></li>
+<li><p>Program Organisation Units</p></li>
+</ul>
+</td><td><ul class="simple">
+<li><p>Data Unit Types</p></li>
+<li><p>Global Variable Lists</p></li>
+<li><p>Interfaces</p></li>
+<li><p>ST-Code Implementation</p></li>
+</ul>
+</td><td><ul class="simple">
+<li><p>Visualization Objects</p></li>
+<li><p>Texlists</p></li>
+<li><p>Application Composer Moduls</p></li>
+<li><p>Image Pools</p></li>
+</ul>
+</td></tr></table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Command <a class="reference internal" href="glossary.html#term-DocExport"><span class="xref std std-term">DocExport</span></a> is in implemented with CODESYS V3.5 SP5.</p>
+</div>
+<p>It is not recommended to copy the concrete texts from the source text elements (<a class="reference internal" href="glossary.html#term-Content"><span class="xref std std-term">Content</span></a>)
+and the comments of a CODESYS project directly to a frame document (<a class="reference internal" href="glossary.html#term-Frame"><span class="xref std std-term">Frame</span></a>).
+It should be possible to adapt the document structure, which is created by
+the script (<a class="reference internal" href="glossary.html#term-Generate"><span class="xref std std-term">Generate</span></a>), independently from the project structure to
+the specific ideas of the technical writer. The source texts and
+comments in the CODESYS project and the enclosing texts in the frame document
+should be developed independently of each other.
+So it is necessary to <a class="reference internal" href="glossary.html#term-Merge"><span class="xref std std-term">merge</span></a> the texts of the frame document and the source
+texts and comments from the CODESYS project at a late as possible point in
+time (<a class="reference internal" href="glossary.html#term-Source"><span class="xref std std-term">Source</span></a>), namely just before the time of generation the
+final formatting of the whole project documentation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Due to the fact that the scripting Collection is now part of the
+<code class="docutils literal notranslate"><span class="pre">CODESYS</span> <span class="pre">Library</span> <span class="pre">Documentation</span> <span class="pre">Support</span></code> package, it is no longer absolutely necessary
+to install additional tools <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By design, CODESYS installs the Scripting Collection into a directory with a
+name consistent with the version number,
+e.g. <code class="docutils literal notranslate"><span class="pre">CODESYS\\DocScripting\\3.5.5.0\libdoc.exe</span></code>, so that you can have multiple
+versions of the CODESYS Scripting Collection on the same system without conflicts.
+CODESYS tries not automatically to modify the <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable,
+so that you always have control over which copy of the CODESYS Scripting Collection
+is your favourite one.</p>
+<p>Typing the full path name for a the <code class="docutils literal notranslate"><span class="pre">libdoc.exe</span></code> each time may get
+tedious, so add the directory for your default <code class="docutils literal notranslate"><span class="pre">libdoc.exe</span></code> version
+to the <code class="docutils literal notranslate"><span class="pre">PATH</span></code>. Assuming that your <code class="docutils literal notranslate"><span class="pre">libdoc.exe</span></code> installation is in
+<code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\3S</span> <span class="pre">CODESYS\CODESYS\DocScripting\3.5.5.0</span></code>,
+add this to your PATH.</p>
+</div>
+<div class="line-block">
+<div class="line">The CODESYS LibDoc Scripting Collection is accessible with a wrapper called <code class="docutils literal notranslate"><span class="pre">libdoc</span></code>.</div>
+<div class="line">After running the CODESYS setup we can call the script:</div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt; libdoc --help
+</pre></div>
+</div>
+<p>This command line should result in the following display:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>CODESYS LibDoc Scripting Collection V3.5.11.0
+
+Usage:
+    libdoc -h | --help | --version
+    libdoc export [&lt;library&gt; [&lt;content&gt;]]
+    libdoc clean [&lt;original-content&gt; [&lt;cleaned-content&gt;]]
+    libdoc generate [-f] [-b] [-c] [-s | --slug=&lt;maxch&gt;] [&lt;content&gt; [&lt;frame&gt;]]
+    libdoc merge [-d] [&lt;content&gt; [&lt;frame&gt; [&lt;source&gt;]]]
+    libdoc transform (chm|html|json|latex|lmd|pdf|pot|xml) [[&lt;struct&gt;] [&lt;language&gt;]]
+    libdoc make [-n] [&lt;input&gt; [&lt;output&gt;]]
+    libdoc fresh [&lt;frame&gt;]
+
+Options:
+    -h --help       Show this screen.
+    --version       Show version.
+    -s              Slugify (ensure readable) names for file names. The length of the name stems is limited to 16.
+    --slug=&lt;maxch&gt;  Specify maximal length for slugified file name stems.
+    &lt;library&gt;       The CODESYS library.
+    &lt;content&gt;       JSON serialized content of a CODESYS library.
+    &lt;frame&gt;         Folder structure which mimics the structure of the library.
+    &lt;source&gt;        The project folder for the sphinx-doc package.
+    &lt;struct&gt;        One of the following structures: &lt;frame&gt; or &lt;source&gt;
+    &lt;language&gt;      The code for the language in which the documentation will be localized.
+    &lt;input&gt;         A file of one of the following types library, json
+    &lt;output&gt;        A file or a folder of one of the following types chm, lmd, html
+
+Commands:
+    export          Using CODESYS and its DocExport functionality to serialize the &lt;content&gt; in a JSON file.
+                    This command needs a CODESYS installation.
+
+    clean           Analyses the &lt;original-content&gt; and generates a cleaned version named &lt;cleaned-content&gt;.
+                    The default behaviour is defined as follows:
+                    * Elements marked with the attributes ``hide`` and ``conditionalshow`` will be removed.
+                    * Elements with the modifiers ``INTERNAL`` and ``PRIVATE`` will be removed.
+                    * All other Elements will not be removed.
+                    This default behaviour can be adapted individually by providing a customized ``clean.conf`` file.
+
+    generate        Parse the library &lt;content&gt; and generates/updates the &lt;frame&gt; folder structure which mimics
+                    the structure of the library.
+                    The option &#39;-f&#39; forces overwriting existing files!
+                    The option &#39;-b&#39; generates a *.bak file before overwriting an existing file.
+                    The option &#39;-c&#39; generates condensed paths inside the &lt;frame&gt; (Only one folder level).
+                    The options &#39;-s&#39; and &#39;--slug&#39; generates slugified filenames inside the &lt;frame&gt;.
+                    The later allows to specify the maximal number of character of file name stem.
+                    Both options work only together with &#39;-c&#39; option.
+                    Note: The file &#39;conf.py&#39; will never be overwritten.
+
+    merge           Replaces the placeholders in the &lt;frame&gt; structure and  generates/updates
+                    a sphinx-doc project structure &lt;source&gt;. (The option &#39;-d&#39; displays the merge cache for debugging)
+
+    transform       Using the sphinx-doc package to transform the &lt;source&gt; structure in a distributable
+                    document in chm, html, json, latex, lmd, pdf, pot or xml format.
+                    This command needs for generating a chm-file the installation of the Microsoft HTML-Workshop software.
+                    The following formats are available:
+                    chm:   Transforms the content of &lt;source&gt; to a compiled Microsoft HTML Help document.
+                    html:  Transforms the content of &lt;source&gt; to a collection of static html pages.
+                    json:  Transforms the content of &lt;source&gt; to a directory with JSON files.
+                    latex: Transforms the content of &lt;source&gt; to a bunch of LaTeX files, basis for pdf transformation.
+                    lmd:   Transforms the content of &lt;source&gt; to a CODESYS compatible library manager documentation element.
+                    pdf:   Transforms the content of &lt;source&gt; to a document in pdf format.
+                    pot:   Transforms the content of &lt;source&gt; to a gettext-style message catalog, basis for localisation.
+                    xml:   Transforms the content of &lt;source&gt; to the Docutils native XML files.
+
+    make            Tries to generate the &lt;output&gt; from the defined &lt;input&gt;.
+                    The option &#39;-n&#39; generates normal paths inside the &lt;frame&gt;.
+                    Generating condensed paths is the default.
+                    Examples:
+                    libdoc make lib.library lib.lmd -&gt; Generates a lib.lmd file from lib.library
+                    libdoc make lib.json lib.lmd -&gt; Generates a lib.lmd file from lib.json
+                    libdoc make lib.library lib.chm -&gt; Generates a lib.chm file from lib.library
+                    libdoc make lib.json lib.chm -&gt; Generates a lib.chm file from lib.json
+                    libdoc make lib.library html -&gt; Generates a lib-html folder from lib.library
+                    libdoc make lib.json html -&gt; Generates a lib-html folder from lib.json
+                    libdoc make po-dir xlf-dir -&gt; Convert the po files to XLIFF files
+                    libdoc make xlf-dir po-dir -&gt; Convert the XLIFF files to po files
+                    libdoc make po-dir -&gt; Convert the po files to mo files
+
+    fresh           Tries to generate a fresh frame documentation folder structure in the current working directory.
+                    The parameter &lt;frame&gt; is optional and defaults to &quot;Frame&quot;.
+</pre></div>
+</div>
+<p>See in the following the description of a tool chain, which can meet all the requirements listed in the paragraph above:</p>
+<a class="reference internal image-reference" href="_images/DocScripting.png"><img alt="_images/DocScripting.png" src="_images/DocScripting.png" style="width: 100%;" /></a>
+<dl id="export">
+<dt><em class="dfn">Export</em></dt><dd><p>The Export command generates a JSON-file. This generated JSON-file is called the <a class="reference internal" href="glossary.html#term-Content"><span class="xref std std-term">content</span></a>.
+It contains all documentation related parts of a CODESYS library file in a special notation.
+Every comment and every attribute pragma will transparently exported from the library
+source code to the JSON-file.
+This means: The library developer can add these things for controlling the future DocScripting processing.
+(please take a look to the <code class="docutils literal notranslate"><span class="pre">Clean</span></code> command.)</p>
+<p>The DocExport can be called with the following command line:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt; libdoc export SML_Basic.library SML_Basic.json
+</pre></div>
+</div>
+<p>The resulting display may be:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>export &lt;lib&gt; to &lt;content&gt; using &lt;codesys&gt;
+&lt;codesys&gt; = &quot;CODESYS.exe&quot; --Profile=&quot;CODESYS V3.5 SP5&quot;
+&lt;lib&gt; = SML_Basic.library
+&lt;content&gt; = SML_Basic.json
+calling: &quot;CODESYS.exe&quot; --Profile=&quot;CODESYS V3.5 SP5&quot; --noUI --docexport=&quot;SML_Basic.library|SML_Basic.json&quot;
+...
+Result: 0 -- Done!
+</pre></div>
+</div>
+<p>After executing this command you will find a JSON file as a sibling of the library file.</p>
+</dd>
+</dl>
+<div class="admonition note" id="index-0">
+<p class="admonition-title">Note</p>
+<p>The export script tries to locate the CODESYS.exe in the file system.
+This search can only be successful if CODESYS was installed in a default location and with a standard name.
+It is possible to define a location other than the default location with the definition of a special environment variable named <code class="docutils literal notranslate"><span class="pre">LIBDOC_CODESYS</span></code>.
+The value of this variable should follow this specification: <code class="docutils literal notranslate"><span class="pre">&quot;&lt;path</span> <span class="pre">to</span> <span class="pre">codesys&gt;&quot;</span> <span class="pre">--Profile=&quot;&lt;codesys</span> <span class="pre">profile&gt;&quot;</span></code></p>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">&quot;C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\Fanta\Common\CODESYS.exe&quot;</span> <span class="pre">--Profile=&quot;Fanta</span> <span class="pre">Development</span> <span class="pre">Build&quot;</span></code></p>
+</div>
+<dl id="generate">
+<dt><em class="dfn">Generate</em></dt><dd><p>This script generates a hierarchy of folders and files representing the
+first version of what we call the <a class="reference internal" href="glossary.html#term-Frame"><span class="xref std std-term">frame</span></a> document basing on the
+library structure described in the JSON-file.
+Each folder in the original CODESYS library will be represented by a
+chapter in the frame document. The other elements of the CODESYS library
+(e.g. POU, GVL, DUT, â¦) get inserted below the respective chapter as
+subchapters. In doing so, not only the concrete content of the elements
+will be transferred, but also references (placeholders) back to the
+particular elements in the JSON file.</p>
+<p>This process step enables the programmer to modify contents and comments
+in the respective library parts, while at the same time the technical
+writer can create and edit texts in the generated extended document
+structure, which are not directly depending on the source code of the
+CODESYS project (e.g. overviews, exercises, background information).
+So the elements <a class="reference internal" href="glossary.html#term-Content"><span class="xref std std-term">content</span></a> and <a class="reference internal" href="glossary.html#term-Frame"><span class="xref std std-term">frame</span></a> can be edited at the
+same time and independently of one another, as long as the references
+on the each other document do not get destroyed/deleted.</p>
+<p>So in the CODESYS project the folder structure (order and hierarchy) can
+be modified, also new folders can be created on the different levels.
+Project elements can be changed or repositioned within the folder structure.</p>
+<p>In the frame document a completely independent chapter structure
+(hierarchy, naming, order) can be used. The elements from the CODESYS
+project can be placed there according to the requirements of the
+technical editor. The CODESYS project structure and the structure of the
+documentation are completely independent from one another. Always when
+the technical editor wants to insert a CODESYS project element at a
+certain position in the frame document he just has to insert the
+corresponding reference.</p>
+<p>Generating the documentation structure in the <code class="docutils literal notranslate"><span class="pre">Frame</span></code> directory can be done with the following command line:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt; libdoc generate SML_Basic.json Frame
+</pre></div>
+</div>
+<p>The resulting display may look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">todo</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">info</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">index</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">DSP402</span>\<span class="n">fld</span><span class="o">-</span><span class="n">DSP402</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">DSP402</span>\<span class="n">SML_DSP402_StateMachine</span><span class="o">.</span><span class="n">rst</span>
+<span class="o">...</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">DSP402</span>\<span class="n">pou</span><span class="o">-</span><span class="n">SML_ControlWordBySDO</span>\<span class="n">SetControlWord</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">DSP402</span>\<span class="n">pou</span><span class="o">-</span><span class="n">SML_ControlWordBySDO</span>\<span class="n">Init</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">fld</span><span class="o">-</span><span class="n">Base</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">Axis_REF_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="o">...</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">Error</span>\<span class="n">fld</span><span class="o">-</span><span class="n">Error</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">Error</span>\<span class="n">SML_LogFBError</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">Error</span>\<span class="n">SML_ClearFBError</span><span class="o">.</span><span class="n">rst</span>
+<span class="o">...</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">SML_Constants</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">SML_FBERROR</span><span class="o">.</span><span class="n">rst</span>
+<span class="o">...</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">Command</span><span class="o">-</span><span class="n">handling</span>\<span class="n">Helper</span><span class="o">-</span><span class="n">functions</span>\<span class="n">SML_Cmd_SendReached</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Base</span>\<span class="n">Command</span><span class="o">-</span><span class="n">handling</span>\<span class="n">Helper</span><span class="o">-</span><span class="n">functions</span>\<span class="n">SML_Cmd_SendError</span><span class="o">.</span><span class="n">rst</span>
+<span class="o">...</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">fld</span><span class="o">-</span><span class="n">PLCopen</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_MoveAbsolute_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_WriteBoolParameter_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_WriteParameter_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_MoveVelocity_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_Power_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_Reset_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_Stop_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">Helpers</span>\<span class="n">fld</span><span class="o">-</span><span class="n">Helpers</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">Helpers</span>\<span class="n">SML_MsgSender</span><span class="o">.</span><span class="n">rst</span>
+<span class="o">...</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">Helpers</span>\<span class="n">SML_LogFBError_TS</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">Helpers</span>\<span class="n">SML_ClearFBError_TS</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_ReadParameter_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">pou</span><span class="o">-</span><span class="n">MC_ReadParameter_SML</span>\<span class="n">CallReadParam</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_ReadBoolParameter_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_Home_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_MoveRelative_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_ReadStatus_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">PLCopen</span>\<span class="n">MC_Halt_SML</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Additional</span>\<span class="n">fld</span><span class="o">-</span><span class="n">Additional</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Additional</span>\<span class="n">SML_ReinitDrive</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Additional</span>\<span class="n">SML_ChangeAxisConfig</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Additional</span>\<span class="n">SML_StartupDrive</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">Generate</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="n">Frame</span>\<span class="n">Additional</span>\<span class="n">SML_SetOpmode</span><span class="o">.</span><span class="n">rst</span>
+</pre></div>
+</div>
+<p>After this procedure you should find the whole project structure
+with its folders and files placed inside the <code class="docutils literal notranslate"><span class="pre">Frame</span></code> folder.</p>
+</dd>
+</dl>
+<dl class="simple" id="merge">
+<dt><em class="dfn">Merge</em></dt><dd><p>In this step the elements <a class="reference internal" href="glossary.html#term-Content"><span class="xref std std-term">content</span></a> and <a class="reference internal" href="glossary.html#term-Frame"><span class="xref std std-term">frame</span></a> get merged to
+another set of documents, this we call <a class="reference internal" href="glossary.html#term-Source"><span class="xref std std-term">source</span></a>.
+For this purpose all references to the elements in the CODESYS project,
+found in the frame document set, will get replaced by their current
+concrete content. The <a class="reference internal" href="glossary.html#term-Source"><span class="xref std std-term">source</span></a> document set will consist of
+pure mark-up (<a class="reference internal" href="glossary.html#term-reStructuredText"><span class="xref std std-term">reStructuredText</span></a>), which then can be processed by
+the <a class="reference internal" href="glossary.html#term-Sphinx"><span class="xref std std-term">Sphinx</span></a> Script Package without the need of any further
+CODESYS-specifc treatment.</p>
+</dd>
+</dl>
+<dl id="transform">
+<dt><em class="dfn">Transform</em></dt><dd><div class="line-block">
+<div class="line">The <a class="reference internal" href="glossary.html#term-Sphinx"><span class="xref std std-term">Sphinx</span></a> Script Package is utilized to transform the set of
+<a class="reference internal" href="glossary.html#term-reStructuredText"><span class="xref std std-term">reStructuredText</span></a> formated <a class="reference internal" href="glossary.html#term-Source"><span class="xref std std-term">source</span></a> files into
+various output formats like CHM or HTML.</div>
+<div class="line">Only the transformation to the HTML format is working out of the box.</div>
+<div class="line">For the other formats like CHM or PDF, some additional software (see: <a class="reference internal" href="install-win.html#install-windows"><span class="std std-ref">Tool installation</span></a>) is needed.</div>
+</div>
+<p>The transformation of the Frame directory to the HTML format can be done with the following command line:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt; libdoc transform html Frame
+</pre></div>
+</div>
+<p>The resulting display may look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Running</span> <span class="n">Sphinx</span> <span class="n">v1</span><span class="mf">.2.1</span>
+<span class="n">loading</span> <span class="n">pickled</span> <span class="n">environment</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">building</span> <span class="p">[</span><span class="n">html</span><span class="p">]:</span> <span class="n">targets</span> <span class="k">for</span> <span class="mi">206</span> <span class="n">source</span> <span class="n">files</span> <span class="n">that</span> <span class="n">are</span> <span class="n">out</span> <span class="n">of</span> <span class="n">date</span>
+<span class="n">updating</span> <span class="n">environment</span><span class="p">:</span> <span class="mi">0</span> <span class="n">added</span><span class="p">,</span> <span class="mi">206</span> <span class="n">changed</span><span class="p">,</span> <span class="mi">0</span> <span class="n">removed</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">0</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_ChangeAxisConfig</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">0</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_ReinitDrive</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">1</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_SetOpmode</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">1</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_StartupDrive</span>
+<span class="o">...</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span> <span class="mi">99</span><span class="o">%</span><span class="p">]</span> <span class="n">index</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span> <span class="mi">99</span><span class="o">%</span><span class="p">]</span> <span class="n">info</span>
+<span class="n">reading</span> <span class="n">sources</span><span class="o">...</span> <span class="p">[</span><span class="mi">100</span><span class="o">%</span><span class="p">]</span> <span class="n">todo</span>
+<span class="n">looking</span> <span class="k">for</span> <span class="n">now</span><span class="o">-</span><span class="n">outdated</span> <span class="n">files</span><span class="o">...</span> <span class="n">none</span> <span class="n">found</span>
+<span class="n">pickling</span> <span class="n">environment</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">checking</span> <span class="n">consistency</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">preparing</span> <span class="n">documents</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">0</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_ChangeAxisConfig</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">0</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_ReinitDrive</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">1</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_SetOpmode</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">1</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">SML_StartupDrive</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">2</span><span class="o">%</span><span class="p">]</span> <span class="n">Additional</span><span class="o">/</span><span class="n">fld</span><span class="o">-</span><span class="n">Additional</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">2</span><span class="o">%</span><span class="p">]</span> <span class="n">Base</span><span class="o">/</span><span class="n">Axis_REF_Base_SML</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span>  <span class="mi">3</span><span class="o">%</span><span class="p">]</span> <span class="n">Base</span><span class="o">/</span><span class="n">Axis_REF_SML</span>
+<span class="o">...</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span> <span class="mi">99</span><span class="o">%</span><span class="p">]</span> <span class="n">index</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span> <span class="mi">99</span><span class="o">%</span><span class="p">]</span> <span class="n">info</span>
+<span class="n">writing</span> <span class="n">output</span><span class="o">...</span> <span class="p">[</span><span class="mi">100</span><span class="o">%</span><span class="p">]</span> <span class="n">todo</span>
+
+<span class="n">writing</span> <span class="n">additional</span> <span class="n">files</span><span class="o">...</span> <span class="n">genindex</span> <span class="n">search</span>
+<span class="n">copying</span> <span class="n">static</span> <span class="n">files</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">copying</span> <span class="n">extra</span> <span class="n">files</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">dumping</span> <span class="n">search</span> <span class="n">index</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">dumping</span> <span class="nb">object</span> <span class="n">inventory</span><span class="o">...</span> <span class="n">done</span>
+<span class="n">build</span> <span class="n">succeeded</span><span class="p">,</span> <span class="mi">0</span> <span class="n">warnings</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>After this you should find a <code class="docutils literal notranslate"><span class="pre">index.html</span></code> file inside the <code class="docutils literal notranslate"><span class="pre">Build/Frame/html</span></code> folder.</p>
+</dd>
+</dl>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference internal" href="install-win.html#install-windows"><span class="std std-ref">Tool installation on a Windows Plattform</span></a></p>
+</aside>
+</aside>
+</section>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<footer id="footerWrapper">
+    <div class="global-top-link to-top affix-top">
+        <a href="#">
+            <i class="zmdi zmdi-chevron-up"><span class="sr-only">top</span></i>
+        </a>
+    </div>
+    <div class="inner-wrapper container-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-footer-claim">
+                    <div class="inner-wrapper">
+                        <p class="claim" style="font-weight: 500;">
+                            CODESYS Group | We <i>software</i> Automation.
+                            <span class="info">
+                                to software <br>
+                                ['s&#594;ftw&#603;&#601;r] <br>
+                                transitive verb <br>
+                                __softwared/softwaring <br>
+                                : to develop software <br>
+                                // to software automation: to develop software for automation purposes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-content">
+                    <div class="frame frame-default frame-type-textmedia frame-layout-0 frame-space-before-none frame-space-after-default"
+                         id="c12115">
+                        <a id="c12116"></a>
+                        <div class="ce-textpic ce-left ce-above fsc-textmedia layout-0">
+                            <div class="ce-bodytext">
+                                <p>The CODESYS Group is the manufacturer of CODESYS, the leading hardware-independent
+                                    IEC 61131-3 automation software for developing and engineering controller
+                                    applications.<br/>
+                                    CODESYS&reg; is a registered trademark.
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <address>
+                        <div class="adr-name">CODESYS GmbH</div>
+                        <div class="adr-responsive">A member of the CODESYS Group</div>
+                        <div class="adr-location">Memminger Stra&szlig;e 151, 87439 Kempten</div>
+                        <div class="adr-country">Germany</div>
+                        <div class="adr-tel">Tel.:
+                            <tcxspan tcxhref="+49831540310" title="Call  +49-831-54031-0 via 3CX"> +49-831-54031-0
+                            </tcxspan>
+                        </div>
+                        <div class="adr-mail"><a href="javascript:linkTo_UnCryptMailto('hvdgoj5diajVxjyzntn9xjh');">info@codesys.com</a>
+                        </div>
+                    </address>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div id="footerMenu">
+                        <ul class="list-inline">
+                            <li>
+                                <a class="default" href="https://www.codesys.com/legal-notice.html">
+                                    <span>Legal Notice</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="default" href="https://www.codesys.com/privacy-policy.html">
+                                    <span>Privacy Policy</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-footer-shortcuts">
+                    <a href="https://www.linkedin.com/company/codesys" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-linkedin-box"><span class="sr-only">LinkedIn</span></i>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UC2hQMrlITlc-JpVanRnuYdA" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-youtube"><span class="sr-only">Youtube</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/news-events/publications/codesys-rss-feeds.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-rss"><span class="sr-only">RSS</span></i>
+                    </a>
+                    <a href="https://www.codesys.com/download.html" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-download"><span class="sr-only">Downloads</span></i>
+                    </a>
+                    <a href="http://customers.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-lock"><span class="sr-only">Login</span></i>
+                    </a>
+                    <a href="https://store.codesys.com/" target="_blank">
+                        <i class="zmdi zmdi-hc-fw zmdi-shopping-cart"><span class="sr-only">CODESYS Store</span></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2022 CODESYS GmbH
+                <small class="text-muted">
+                    | A member of the CODESYS Group
+                </small>
+            </div>
+        </div>
+    </div>
+</footer> 
+
+        </section>
+
+    </div>
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'3.5.21.0 (Draft)',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:false
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+</body>
+</html>
