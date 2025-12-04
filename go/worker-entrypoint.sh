@@ -85,9 +85,21 @@ log "  Project: $URP_PROJECT"
 log "  Caps:    $CAPS"
 
 # ─────────────────────────────────────────────────────────────
-# Execute worker process
+# Stay alive for master instructions via urp ask
 # ─────────────────────────────────────────────────────────────
 
-# Worker run command reads from stdin, writes to stdout
-# Master sends assign_task, worker responds with task_started, progress, complete
-exec "$@"
+# Check if we have a TTY
+if tty -s 2>/dev/null; then
+    # Interactive mode - run command
+    exec "$@"
+else
+    # Daemon mode - stay alive for urp ask commands
+    log "Ready for instructions (daemon mode)"
+    log "  Use: urp ask urp-$URP_PROJECT-w$URP_WORKER_ID \"<instruction>\""
+
+    # Stay alive
+    trap "exit 0" SIGTERM SIGINT
+    while true; do
+        sleep 86400
+    done
+fi

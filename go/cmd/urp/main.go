@@ -1771,23 +1771,17 @@ Examples:
 
 func spawnCmd() *cobra.Command {
 	var background bool
-	var taskID string
-	var planID string
 
 	cmd := &cobra.Command{
 		Use:   "spawn [num]",
 		Short: "Spawn a worker container (from master)",
-		Long: `Spawn a new worker container with write access.
-Use this from inside a master container to create workers.
-
-Default: interactive, ephemeral (--rm). Use -d for background.
-With --task, creates a git branch for the task automatically.
+		Long: `Spawn a worker container with read-write access.
+Run from inside master. Send instructions via urp ask.
 
 Examples:
-  urp spawn           # Interactive worker 1 (exits when done)
-  urp spawn 2         # Interactive worker 2
-  urp spawn -d        # Background worker (stays alive)
-  urp spawn --task task-123 --plan plan-456  # Worker with git branch`,
+  urp spawn              # Create worker 1
+  urp spawn 2            # Create worker 2
+  urp ask urp-proj-w1 "run tests"  # Send instruction`,
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Check if running inside master
@@ -1812,29 +1806,18 @@ Examples:
 			var containerName string
 			var err error
 
-			if background {
-				containerName, err = mgr.SpawnWorkerBackground(path, workerNum)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
-				}
-				fmt.Printf("✓ Worker spawned: %s\n", containerName)
-				fmt.Printf("Attach with: urp attach %s\n", containerName)
-			} else {
-				// Interactive - runs and exits
-				containerName, err = mgr.SpawnWorkerForTask(path, workerNum, planID, taskID)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
-				}
-				fmt.Printf("✓ Worker %s finished\n", containerName)
+			containerName, err = mgr.SpawnWorker(path, workerNum)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
 			}
+			fmt.Printf("✓ Worker spawned: %s\n", containerName)
+			fmt.Printf("  Send tasks: urp ask %s \"<instruction>\"\n", containerName)
+			fmt.Printf("  Attach:     urp attach %s\n", containerName)
 		},
 	}
 
-	cmd.Flags().BoolVarP(&background, "detach", "d", false, "Run in background (stays alive)")
-	cmd.Flags().StringVarP(&taskID, "task", "t", "", "Task ID (creates git branch)")
-	cmd.Flags().StringVarP(&planID, "plan", "p", "", "Plan ID (required with --task)")
+	cmd.Flags().BoolVarP(&background, "detach", "d", false, "Ignored (workers always detached)")
 
 	return cmd
 }

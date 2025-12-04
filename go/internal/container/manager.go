@@ -479,16 +479,9 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	return containerName, nil
 }
 
-// SpawnWorker creates an ephemeral worker from inside a master container.
-// Worker has read-write access and is removed when done (--rm).
-// Communication happens via envelope protocol on stdin/stdout.
+// SpawnWorker creates a worker container from inside a master.
+// Worker has read-write access. Master sends instructions via urp ask.
 func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error) {
-	return m.SpawnWorkerForTask(projectPath, workerNum, "", "")
-}
-
-// SpawnWorkerForTask creates a worker with optional task/plan context.
-// If taskID is provided, creates a git branch for the task.
-func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, taskID string) (string, error) {
 	absPath, err := filepath.Abs(projectPath)
 	if err != nil {
 		return "", fmt.Errorf("invalid path: %w", err)
@@ -499,15 +492,6 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 
 	// Kill existing worker with same name (if any)
 	m.runQuiet("rm", "-f", containerName)
-
-	// Create git branch if task is specified
-	branchName := ""
-	if taskID != "" {
-		branchName = fmt.Sprintf("urp/%s/task-%d", planID, workerNum)
-		if err := m.createGitBranch(absPath, branchName); err != nil {
-			return "", fmt.Errorf("failed to create branch: %w", err)
-		}
-	}
 
 	// Use host home from env (when running inside master) or local home
 	homeDir := os.Getenv("URP_HOST_HOME")
@@ -527,8 +511,14 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 		runMode = "-d" // detached mode for non-TTY (e.g., Claude Code)
 	}
 
-	args := []string{
-		"run", runMode, "--rm",
+	args := []string{"run", runMode}
+
+	// Only use --rm for interactive mode; detached workers stay alive for urp ask
+	if hasTTY {
+		args = append(args, "--rm")
+	}
+
+	args = append(args,
 		"--name", containerName,
 		"--network", NetworkName,
 		// Disable SELinux for container socket access
@@ -546,16 +536,7 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 		"-e", "URP_READ_ONLY=false",
 		"-e", "TERM=xterm-256color",
 		"-w", "/workspace",
-	}
-
-	// Add task context if provided
-	if taskID != "" {
-		args = append(args,
-			"-e", fmt.Sprintf("URP_TASK_ID=%s", taskID),
-			"-e", fmt.Sprintf("URP_PLAN_ID=%s", planID),
-			"-e", fmt.Sprintf("URP_BRANCH=%s", branchName),
-		)
-	}
+	)
 
 	args = append(args, URPWorkerImage)
 
