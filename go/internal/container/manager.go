@@ -63,6 +63,7 @@ const (
 	URPImage         = "urp:latest"
 	URPWorkerImage   = "urp:worker"
 	URPMasterImage   = "urp:master"
+	NeMoImage        = "nvcr.io/nvidia/nemo:24.07"
 	URPConfigDir     = "~/.urp-go"
 	URPEnvFile       = "~/.urp-go/.env"
 )
@@ -564,6 +565,8 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		"--network", NetworkName,
 		// Disable SELinux for container socket access
 		"--security-opt", "label=disable",
+		// Docker socket for NeMo container control
+		"-v", "/var/run/docker.sock:/var/run/docker.sock",
 		// Project: read-write
 		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
 		// Vector store
@@ -572,6 +575,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		// Environment
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
+		"-e", fmt.Sprintf("URP_HOST_PATH=%s", absPath),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
 		"-e", "URP_READ_ONLY=false",
@@ -688,4 +692,66 @@ func (m *Manager) KillAllWorkers(projectName string) error {
 // Logs returns container logs.
 func (m *Manager) Logs(containerName string, tail int) (string, error) {
 	return m.run("logs", "--tail", fmt.Sprintf("%d", tail), containerName)
+}
+
+// LaunchNeMo starts a NeMo GPU container for ML tasks.
+// Called by worker to delegate GPU-intensive operations.
+// Returns container name for subsequent exec commands.
+func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, error) {
+	if m.runtime == RuntimeNone {
+		return "", fmt.Errorf("no container runtime found")
+	}
+
+	absPath, err := filepath.Abs(projectPath)
+	if err != nil {
+		return "", fmt.Errorf("invalid path: %w", err)
+	}
+
+	if containerName == "" {
+		projectName := filepath.Base(absPath)
+		containerName = fmt.Sprintf("urp-nemo-%s", projectName)
+	}
+
+	// Kill existing if any
+	m.runQuiet("rm", "-f", containerName)
+
+	// Get env file path
+	homeDir := os.Getenv("URP_HOST_HOME")
+	if homeDir == "" {
+		homeDir, _ = os.UserHomeDir()
+	}
+	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+
+	args := []string{
+		"run", "-d",
+		"--name", containerName,
+		"--network", NetworkName,
+		"--gpus", "all", // NVIDIA GPU access
+		"--shm-size", "16g", // Shared memory for PyTorch
+		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
+		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-w", "/workspace",
+		NeMoImage,
+		"tail", "-f", "/dev/null", // Stay alive for exec
+	}
+
+	_, err = m.run(args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to launch NeMo: %w", err)
+	}
+
+	return containerName, nil
+}
+
+// ExecNeMo runs a command in the NeMo container.
+func (m *Manager) ExecNeMo(containerName string, command string) (string, error) {
+	return m.run("exec", containerName, "/bin/bash", "-c", command)
+}
+
+// KillNeMo stops and removes a NeMo container.
+func (m *Manager) KillNeMo(containerName string) error {
+	_, err := m.run("rm", "-f", containerName)
+	return err
 }

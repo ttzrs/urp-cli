@@ -375,6 +375,27 @@ urp ask urp-proj-w1 "push and create PR"
 urp kill urp-proj-w1
 ```
 
+### GPU/ML Tasks with NeMo
+
+Workers can spawn NeMo containers for GPU-intensive operations:
+
+```bash
+# Worker launches NeMo for ML tasks
+urp nemo start                    # Starts urp-nemo-<project>
+urp nemo exec "pytest tests/"     # Run tests in NeMo (has torch, etc)
+urp nemo exec "python train.py"   # Run training
+urp nemo stop                     # Clean up
+
+# Full flow from master
+urp ask urp-proj-w1 "start nemo, run ML tests, stop when done"
+```
+
+NeMo container has:
+- Full NVIDIA GPU access (`--gpus all`)
+- PyTorch, NeMo, Optuna stack
+- 16GB shared memory for training
+- Same /workspace mount as worker
+
 ### Configuration
 
 ```bash

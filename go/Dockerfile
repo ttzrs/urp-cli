@@ -172,10 +172,12 @@ CMD ["claude"]
 FROM full AS worker
 
 # Add language runtimes and dev tools for task execution
+# docker-cli needed for NeMo container control
+# shadow needed for usermod (docker group permissions)
 RUN apk add --no-cache \
     go python3 py3-pip \
     make gcc musl-dev \
-    github-cli
+    github-cli docker-cli shadow
 
 # Setup Python virtual environment for pip installs
 RUN python3 -m venv /opt/venv

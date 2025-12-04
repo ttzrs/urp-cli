@@ -7,6 +7,23 @@
 set -e
 
 # ─────────────────────────────────────────────────────────────
+# Docker Socket Permissions (for NeMo control)
+# ─────────────────────────────────────────────────────────────
+
+# Match docker group GID to host socket GID
+if [[ -S /var/run/docker.sock ]]; then
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo "")
+    if [[ -n "$DOCKER_GID" ]]; then
+        # Create docker group with matching GID if needed
+        if ! getent group docker >/dev/null 2>&1; then
+            groupadd -g "$DOCKER_GID" docker 2>/dev/null || true
+        fi
+        # Add urp user to docker group
+        usermod -aG docker urp 2>/dev/null || true
+    fi
+fi
+
+# ─────────────────────────────────────────────────────────────
 # Environment Setup
 # ─────────────────────────────────────────────────────────────
 

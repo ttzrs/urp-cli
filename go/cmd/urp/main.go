@@ -116,6 +116,10 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	ask.GroupID = "infra"
 	rootCmd.AddCommand(ask)
 
+	nemo := nemoCmd()
+	nemo.GroupID = "infra"
+	rootCmd.AddCommand(nemo)
+
 	// Analysis commands
 	code := codeCmd()
 	code.GroupID = "analysis"
@@ -1974,6 +1978,95 @@ Examples:
 
 	cmd.Flags().BoolVarP(&all, "all", "a", false, "Kill all workers")
 
+	return cmd
+}
+
+func nemoCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "nemo",
+		Short: "NeMo GPU container control",
+		Long: `Control NeMo GPU container for ML/training tasks.
+
+Workers can launch NeMo to delegate GPU-intensive operations.
+The NeMo container has full NVIDIA GPU access and PyTorch/NeMo stack.
+
+Examples:
+  urp nemo start           # Launch NeMo container
+  urp nemo exec "pytest"   # Run command in NeMo
+  urp nemo stop            # Stop NeMo container`,
+	}
+
+	// urp nemo start
+	startCmd := &cobra.Command{
+		Use:   "start",
+		Short: "Start NeMo GPU container",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			// Use host path from env or workspace
+			projectPath := os.Getenv("URP_HOST_PATH")
+			if projectPath == "" {
+				projectPath = getCwd()
+			}
+
+			name, err := mgr.LaunchNeMo(projectPath, "")
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("✓ NeMo started: %s\n", name)
+			fmt.Printf("  Run commands: urp nemo exec \"python train.py\"\n")
+		},
+	}
+
+	// urp nemo exec <command>
+	execCmd := &cobra.Command{
+		Use:   "exec <command>",
+		Short: "Execute command in NeMo container",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			projectName := os.Getenv("URP_PROJECT")
+			if projectName == "" {
+				projectName = filepath.Base(getCwd())
+			}
+			containerName := fmt.Sprintf("urp-nemo-%s", projectName)
+
+			output, err := mgr.ExecNeMo(containerName, args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println(output)
+		},
+	}
+
+	// urp nemo stop
+	stopCmd := &cobra.Command{
+		Use:   "stop",
+		Short: "Stop NeMo container",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+
+			projectName := os.Getenv("URP_PROJECT")
+			if projectName == "" {
+				projectName = filepath.Base(getCwd())
+			}
+			containerName := fmt.Sprintf("urp-nemo-%s", projectName)
+
+			if err := mgr.KillNeMo(containerName); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Printf("✓ NeMo stopped: %s\n", containerName)
+		},
+	}
+
+	cmd.AddCommand(startCmd, execCmd, stopCmd)
 	return cmd
 }
 
