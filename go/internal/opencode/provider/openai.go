@@ -287,6 +287,13 @@ type openaiUsage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// toolCallAccumulator holds streaming tool call data
+type toolCallAccumulator struct {
+	id      string
+	name    string
+	argsStr strings.Builder // accumulate raw JSON string
+}
+
 func (o *OpenAI) streamResponse(body io.ReadCloser, events chan<- domain.StreamEvent) {
 	defer close(events)
 	defer body.Close()
@@ -294,7 +301,8 @@ func (o *OpenAI) streamResponse(body io.ReadCloser, events chan<- domain.StreamE
 	scanner := bufio.NewScanner(body)
 	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
 
-	toolCalls := make(map[int]*domain.ToolCallPart)
+	// Accumulate tool calls with raw argument strings
+	toolCalls := make(map[int]*toolCallAccumulator)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -335,31 +343,43 @@ func (o *OpenAI) streamResponse(body io.ReadCloser, events chan<- domain.StreamE
 
 				for _, tc := range choice.Delta.ToolCalls {
 					if tc.ID != "" {
-						toolCalls[tc.Index] = &domain.ToolCallPart{
-							ToolID: tc.ID,
-							Name:   tc.Function.Name,
+						toolCalls[tc.Index] = &toolCallAccumulator{
+							id:   tc.ID,
+							name: tc.Function.Name,
 						}
 					}
+					// Accumulate argument string chunks (don't parse yet)
 					if tc.Function.Arguments != "" {
 						if call, ok := toolCalls[tc.Index]; ok {
-							if call.Args == nil {
-								call.Args = make(map[string]any)
-							}
-							// Accumulate arguments
-							var args map[string]any
-							json.Unmarshal([]byte(tc.Function.Arguments), &args)
-							for k, v := range args {
-								call.Args[k] = v
-							}
+							call.argsStr.WriteString(tc.Function.Arguments)
+						}
+					}
+					// Also accumulate name if streamed separately
+					if tc.Function.Name != "" && tc.ID == "" {
+						if call, ok := toolCalls[tc.Index]; ok && call.name == "" {
+							call.name = tc.Function.Name
 						}
 					}
 				}
 
 				if choice.FinishReason == "tool_calls" {
-					for _, call := range toolCalls {
+					// Now parse complete argument strings
+					for _, acc := range toolCalls {
+						part := domain.ToolCallPart{
+							ToolID: acc.id,
+							Name:   acc.name,
+							Args:   make(map[string]any),
+						}
+						argsJSON := acc.argsStr.String()
+						if argsJSON != "" {
+							if err := json.Unmarshal([]byte(argsJSON), &part.Args); err != nil {
+								// Log parse error but still emit with empty args
+								part.Args = map[string]any{"_parse_error": err.Error(), "_raw": argsJSON}
+							}
+						}
 						events <- domain.StreamEvent{
 							Type: domain.StreamEventToolCall,
-							Part: *call,
+							Part: part,
 						}
 					}
 				}
