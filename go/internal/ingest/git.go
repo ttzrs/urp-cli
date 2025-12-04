@@ -119,12 +119,30 @@ func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats,
 	return stats, nil
 }
 
+const batchChunkSize = 500 // Process in chunks to avoid memory issues
+
 // storeBatch inserts all commits in a single transaction using UNWIND.
+// For large repos, processes in chunks of 500 commits.
 func (g *GitLoader) storeBatch(ctx context.Context, batches []commitBatch) error {
 	if len(batches) == 0 {
 		return nil
 	}
 
+	// Process in chunks for large repos
+	for i := 0; i < len(batches); i += batchChunkSize {
+		end := i + batchChunkSize
+		if end > len(batches) {
+			end = len(batches)
+		}
+		if err := g.storeChunk(ctx, batches[i:end]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// storeChunk inserts a chunk of commits using UNWIND.
+func (g *GitLoader) storeChunk(ctx context.Context, batches []commitBatch) error {
 	// Build commits list for UNWIND
 	commits := make([]map[string]any, 0, len(batches))
 	for _, b := range batches {

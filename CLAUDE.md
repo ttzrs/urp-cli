@@ -52,6 +52,16 @@ urp think learn "<description>"  # crystallize Solution node
 # future wisdom queries will find YOUR solution
 ```
 
+### on_commit(task_complete):
+```python
+# MANDATORY: after every commit or completed task
+urp think learn "<what_solved>: <key_insight>"
+# Examples:
+# "Batch queries: UNWIND pattern for N+1 elimination"
+# "Memgraph: 'directory' is reserved, use 'workdir'"
+# "Cobra: check len(args) before accessing args[0]"
+```
+
 ## Immune System (⊥)
 
 ```python
@@ -83,6 +93,15 @@ urp mem add|recall|list|stats|clear
 # KNOWLEDGE (persistent, multi-scope)
 urp kb store|query|list|reject|promote|stats
 
+# SKILLS (categorized capabilities)
+urp skill list|show|run|load|search|add|delete|stats|categories
+# Categories: dev, security, content, data, growth, business, core
+
+# OPENCODE (session management)
+urp oc session list|new|show|fork|delete
+urp oc msg list|add
+urp oc usage session|total
+
 # FOCUS
 urp focus <target> [-d depth]
 
@@ -94,6 +113,9 @@ urp events run|list|errors
 
 # VECTOR
 urp vec stats|search|add
+
+# AUDIT
+urp audit status|recent|stats
 ```
 
 ## Memory Architecture

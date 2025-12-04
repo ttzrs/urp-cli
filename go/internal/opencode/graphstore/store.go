@@ -125,27 +125,14 @@ func (s *Store) UpdateSession(ctx context.Context, sess *domain.Session) error {
 }
 
 func (s *Store) DeleteSession(ctx context.Context, id string) error {
-	// Delete messages first
-	if err := s.db.ExecuteWrite(ctx, `
-		MATCH (m:Message:OpenCode {sessionID: $id})
-		DETACH DELETE m
-	`, map[string]any{"id": id}); err != nil {
-		return err
-	}
-
-	// Delete usage
-	if err := s.db.ExecuteWrite(ctx, `
-		MATCH (u:Usage:OpenCode {sessionID: $id})
-		DETACH DELETE u
-	`, map[string]any{"id": id}); err != nil {
-		return err
-	}
-
-	// Delete session
-	return s.db.ExecuteWrite(ctx, `
-		MATCH (s:Session:OpenCode {id: $id})
-		DETACH DELETE s
-	`, map[string]any{"id": id})
+	// Single query to delete session and all related nodes
+	query := `
+		MATCH (sess:Session:OpenCode {id: $id})
+		OPTIONAL MATCH (sess)-[:HAS_MESSAGE]->(m:Message:OpenCode)
+		OPTIONAL MATCH (u:Usage:OpenCode {sessionID: $id})
+		DETACH DELETE sess, m, u
+	`
+	return s.db.ExecuteWrite(ctx, query, map[string]any{"id": id})
 }
 
 // --- MessageStore ---

@@ -18,24 +18,23 @@ func NewStore(db graph.Driver) *Store {
 	return &Store{db: db}
 }
 
-// Create adds a new skill.
+// Create adds or updates a skill (upsert by name).
 func (s *Store) Create(ctx context.Context, skill *Skill) error {
 	query := `
-		CREATE (sk:Skill {
-			id: $id,
-			name: $name,
-			category: $category,
-			description: $description,
-			version: $version,
-			source: $source,
-			source_type: $source_type,
-			context_files: $context_files,
-			agent: $agent,
-			tags: $tags,
-			created_at: $created_at,
-			updated_at: $updated_at,
-			usage_count: 0
-		})
+		MERGE (sk:Skill {name: $name})
+		ON CREATE SET
+			sk.id = $id,
+			sk.created_at = $created_at,
+			sk.usage_count = 0
+		SET sk.category = $category,
+			sk.description = $description,
+			sk.version = $version,
+			sk.source = $source,
+			sk.source_type = $source_type,
+			sk.context_files = $context_files,
+			sk.agent = $agent,
+			sk.tags = $tags,
+			sk.updated_at = $updated_at
 	`
 	return s.db.ExecuteWrite(ctx, query, map[string]any{
 		"id":            skill.ID,

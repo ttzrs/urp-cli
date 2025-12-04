@@ -21,6 +21,8 @@ type QueryCache struct {
 	entries map[string]CacheEntry
 	maxSize int
 	ttl     time.Duration
+	hits    int64
+	misses  int64
 }
 
 // NewQueryCache creates a cache with given max entries and TTL.
@@ -51,16 +53,23 @@ func (c *QueryCache) Get(query string, params map[string]any) ([]Record, bool) {
 	c.mu.RUnlock()
 
 	if !ok {
+		c.mu.Lock()
+		c.misses++
+		c.mu.Unlock()
 		return nil, false
 	}
 
 	if time.Now().After(entry.ExpiresAt) {
 		c.mu.Lock()
 		delete(c.entries, key)
+		c.misses++
 		c.mu.Unlock()
 		return nil, false
 	}
 
+	c.mu.Lock()
+	c.hits++
+	c.mu.Unlock()
 	return entry.Records, true
 }
 
@@ -96,11 +105,33 @@ func (c *QueryCache) Clear() {
 	c.mu.Unlock()
 }
 
+// CacheStats holds cache statistics.
+type CacheStats struct {
+	Size     int     `json:"size"`
+	Capacity int     `json:"capacity"`
+	Hits     int64   `json:"hits"`
+	Misses   int64   `json:"misses"`
+	HitRate  float64 `json:"hit_rate"`
+}
+
 // Stats returns cache statistics.
-func (c *QueryCache) Stats() (size int, capacity int) {
+func (c *QueryCache) Stats() CacheStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	return len(c.entries), c.maxSize
+
+	total := c.hits + c.misses
+	hitRate := 0.0
+	if total > 0 {
+		hitRate = float64(c.hits) / float64(total)
+	}
+
+	return CacheStats{
+		Size:     len(c.entries),
+		Capacity: c.maxSize,
+		Hits:     c.hits,
+		Misses:   c.misses,
+		HitRate:  hitRate,
+	}
 }
 
 // CachedDriver wraps a Driver with query caching.
