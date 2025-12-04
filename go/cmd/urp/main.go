@@ -179,6 +179,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	sk.GroupID = "cognitive"
 	rootCmd.AddCommand(sk)
 
+	// Backup management
+	bak := backupCmd()
+	bak.GroupID = "cognitive"
+	rootCmd.AddCommand(bak)
+
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
 

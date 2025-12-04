@@ -116,6 +116,13 @@ urp vec stats|search|add
 
 # AUDIT
 urp audit status|recent|stats
+
+# BACKUP (knowledge persistence)
+urp backup export [-o file] [-t types] [-d desc]
+urp backup import <file> [--merge] [-t types]
+urp backup list <file>
+urp backup stats
+# Types: solutions, memories, knowledge, skills, sessions, vectors, all
 ```
 
 ## Memory Architecture
