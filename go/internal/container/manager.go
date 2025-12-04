@@ -50,6 +50,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joss/urp/internal/logging"
 	"golang.org/x/term"
 )
 
@@ -525,6 +526,8 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 // SpawnWorker creates a worker container from inside a master.
 // Worker has read-write access. Master sends instructions via urp ask.
 func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error) {
+	startTime := time.Now()
+
 	absPath, err := filepath.Abs(projectPath)
 	if err != nil {
 		return "", fmt.Errorf("invalid path: %w", err)
@@ -633,6 +636,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	if !hasTTY {
 		health := m.VerifyWorkerHealth(containerName, 10*time.Second)
 		if !health.Running {
+			logging.SpawnEvent(containerName, projectName, false, time.Since(startTime), fmt.Errorf("failed to start: %s", health.Error))
 			return "", fmt.Errorf("worker failed to start: %s", health.Error)
 		}
 		if !health.DockerAccess {
@@ -641,6 +645,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		}
 	}
 
+	logging.SpawnEvent(containerName, projectName, true, time.Since(startTime), nil)
 	return containerName, nil
 }
 
@@ -736,6 +741,8 @@ func (m *Manager) Logs(containerName string, tail int) (string, error) {
 // GPU support is auto-detected; falls back to CPU mode if unavailable.
 // Returns container name for subsequent exec commands.
 func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, error) {
+	startTime := time.Now()
+
 	if m.runtime == RuntimeNone {
 		return "", fmt.Errorf("no container runtime found")
 	}
@@ -795,11 +802,14 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 		"tail", "-f", "/dev/null", // Stay alive for exec
 	)
 
+	projectName := filepath.Base(absPath)
 	_, runErr := m.run(args...)
 	if runErr != nil {
+		logging.NeMoEvent("launch", containerName, projectName, time.Since(startTime), runErr)
 		return "", fmt.Errorf("failed to launch NeMo: %w", runErr)
 	}
 
+	logging.NeMoEvent("launch", containerName, projectName, time.Since(startTime), nil)
 	return containerName, nil
 }
 
@@ -821,6 +831,8 @@ func (m *Manager) ExecNeMo(containerName string, command string) (string, error)
 
 // KillNeMo stops and removes a NeMo container.
 func (m *Manager) KillNeMo(containerName string) error {
+	startTime := time.Now()
 	_, err := m.run("rm", "-f", containerName)
+	logging.NeMoEvent("kill", containerName, "", time.Since(startTime), err)
 	return err
 }
