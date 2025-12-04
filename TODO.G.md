@@ -53,11 +53,15 @@ Tests pasan. Spec cumplido: `/health` → `{"status":"ok"}` en puerto 8080.
 - [x] `urp status` muestra estado de infraestructura (antiguo default).
 - [x] Comandos legacy organizados en grupos (infra, analysis, cognitive, runtime).
 
-### Fase 6: En Progreso
+### Fase 6: Completada
 - [x] TUI interactivo con Bubble Tea (`urp tui`).
 - [x] Histórico de sesiones navegable (tecla `s`).
 - [x] Panel de estado con actualizaciones en tiempo real.
-- [ ] Integración con GitHub Actions.
+- [x] GitHub Actions CI (test, build, lint, docker).
+- [x] GitHub Actions Release (GoReleaser).
+
+## 🎉 Proyecto Completo
+El orquestador URP está listo para producción.
 
 ## 🔧 Configuración Requerida
 ```bash
