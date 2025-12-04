@@ -140,6 +140,21 @@ func (i *Ingester) storeEntity(ctx context.Context, e domain.Entity) error {
 }
 
 func (i *Ingester) storeRelationship(ctx context.Context, r domain.Relationship) error {
+	// For CALLS relationships, create Reference node if target doesn't exist
+	// This allows LinkCalls() to resolve them later
+	if r.Type == "CALLS" {
+		query := `
+			MATCH (from {id: $from})
+			MERGE (ref:Reference {name: $to})
+			MERGE (from)-[:CALLS]->(ref)
+		`
+		return i.db.ExecuteWrite(ctx, query, map[string]any{
+			"from": r.From,
+			"to":   r.To,
+		})
+	}
+
+	// Standard relationship - both nodes must exist
 	query := fmt.Sprintf(`
 		MATCH (from {id: $from})
 		MATCH (to {id: $to})
@@ -154,15 +169,38 @@ func (i *Ingester) storeRelationship(ctx context.Context, r domain.Relationship)
 
 // LinkCalls resolves call references to actual definitions.
 func (i *Ingester) LinkCalls(ctx context.Context) error {
-	// Find CALLS relationships pointing to unresolved names
-	// and link them to actual Function/Method nodes
-	query := `
-		MATCH (caller)-[c:CALLS]->(name)
-		WHERE name:Reference
+	// First, link to Function nodes (exact name match or after dot)
+	// e.g., "NewQuerier" matches "NewQuerier", "query.NewQuerier" matches "NewQuerier"
+	queryFuncs := `
+		MATCH (caller)-[c:CALLS]->(ref:Reference)
+		WITH caller, c, ref,
+		     CASE WHEN ref.name CONTAINS '.'
+		          THEN split(ref.name, '.')[-1]
+		          ELSE ref.name END AS funcName
 		MATCH (target:Function)
-		WHERE target.name = name.name OR target.name ENDS WITH '.' + name.name
+		WHERE target.name = funcName
 		MERGE (caller)-[:CALLS]->(target)
-		DELETE c
 	`
-	return i.db.ExecuteWrite(ctx, query, nil)
+	if err := i.db.ExecuteWrite(ctx, queryFuncs, nil); err != nil {
+		return fmt.Errorf("linking functions: %w", err)
+	}
+
+	// Also link to Method nodes
+	queryMethods := `
+		MATCH (caller)-[c:CALLS]->(ref:Reference)
+		WITH caller, c, ref,
+		     CASE WHEN ref.name CONTAINS '.'
+		          THEN split(ref.name, '.')[-1]
+		          ELSE ref.name END AS methodName
+		MATCH (target:Method)
+		WHERE target.name = methodName
+		MERGE (caller)-[:CALLS]->(target)
+	`
+	if err := i.db.ExecuteWrite(ctx, queryMethods, nil); err != nil {
+		return fmt.Errorf("linking methods: %w", err)
+	}
+
+	// Clean up resolved references (optional - keep for debugging)
+	// DELETE is commented out to allow inspection
+	return nil
 }

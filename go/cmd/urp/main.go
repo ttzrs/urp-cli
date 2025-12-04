@@ -443,6 +443,12 @@ func codeCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
+			// Resolve call references to actual functions/methods
+			if err := ingester.LinkCalls(context.Background()); err != nil {
+				// Non-fatal: log warning but continue
+				fmt.Fprintf(os.Stderr, "Warning: LinkCalls failed: %v\n", err)
+			}
+
 			out, _ := json.MarshalIndent(stats, "", "  ")
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
