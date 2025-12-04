@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -99,23 +102,10 @@ func specCmd() *cobra.Command {
 				store = graphstore.New(db)
 			}
 
-			// 2. Initialize provider (prefer Anthropic, fallback to OpenAI)
-			var p llm.Provider
-			if apiKey := os.Getenv("ANTHROPIC_API_KEY"); apiKey != "" {
-				baseURL := os.Getenv("ANTHROPIC_BASE_URL")
-				p = provider.NewAnthropic(apiKey, baseURL)
-				fmt.Println("🔌 Using Anthropic provider")
-			} else if authToken := os.Getenv("ANTHROPIC_AUTH_TOKEN"); authToken != "" {
-				// Support proxy with dummy auth token
-				baseURL := os.Getenv("ANTHROPIC_BASE_URL")
-				p = provider.NewAnthropic(authToken, baseURL)
-				fmt.Println("🔌 Using Anthropic provider (via proxy)")
-			} else if apiKey := os.Getenv("OPENAI_API_KEY"); apiKey != "" {
-				baseURL := os.Getenv("OPENAI_BASE_URL")
-				p = provider.NewOpenAI(apiKey, baseURL)
-				fmt.Println("🔌 Using OpenAI provider")
-			} else {
-				fmt.Fprintln(os.Stderr, "Error: No API key found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY")
+			// 2. Initialize provider with fallback support
+			p, err := initProviderWithFallback()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
@@ -250,4 +240,107 @@ Start by reading specs/%s/spec.md
 
 	cmd.AddCommand(initCmd, listCmd, runCmd)
 	return cmd
+}
+
+// Backup provider configuration (loaded from comments in .env or hardcoded)
+type backupConfig struct {
+	APIKey  string
+	BaseURL string
+	Model   string
+}
+
+// initProviderWithFallback tries primary provider, prompts for backup on failure
+func initProviderWithFallback() (llm.Provider, error) {
+	// Try primary OpenAI-compatible provider first
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	baseURL := os.Getenv("OPENAI_BASE_URL")
+
+	if apiKey != "" && baseURL != "" {
+		// Test connection to primary
+		if testProviderConnection(baseURL) {
+			fmt.Println("🔌 Using primary provider:", baseURL)
+			return provider.NewOpenAI(apiKey, baseURL), nil
+		}
+
+		// Primary failed, check for backup
+		fmt.Printf("⚠️  Primary provider unavailable: %s\n", baseURL)
+		backup := loadBackupConfig()
+
+		if backup != nil {
+			if askUserConfirmation(fmt.Sprintf("Switch to backup provider (%s)?", backup.BaseURL)) {
+				// Apply backup config
+				os.Setenv("OPENAI_API_KEY", backup.APIKey)
+				os.Setenv("OPENAI_BASE_URL", backup.BaseURL)
+				if backup.Model != "" {
+					os.Setenv("URP_MODEL", backup.Model)
+				}
+				fmt.Println("🔌 Using backup provider:", backup.BaseURL)
+				return provider.NewOpenAI(backup.APIKey, backup.BaseURL), nil
+			}
+			return nil, fmt.Errorf("user declined backup provider")
+		}
+	}
+
+	// Try Anthropic direct
+	if apiKey := os.Getenv("ANTHROPIC_API_KEY"); apiKey != "" {
+		baseURL := os.Getenv("ANTHROPIC_BASE_URL")
+		fmt.Println("🔌 Using Anthropic provider")
+		return provider.NewAnthropic(apiKey, baseURL), nil
+	}
+
+	// Try Anthropic via proxy token
+	if authToken := os.Getenv("ANTHROPIC_AUTH_TOKEN"); authToken != "" {
+		baseURL := os.Getenv("ANTHROPIC_BASE_URL")
+		fmt.Println("🔌 Using Anthropic provider (via proxy)")
+		return provider.NewAnthropic(authToken, baseURL), nil
+	}
+
+	// Fallback: try OpenAI without testing
+	if apiKey != "" {
+		fmt.Println("🔌 Using OpenAI provider")
+		return provider.NewOpenAI(apiKey, baseURL), nil
+	}
+
+	return nil, fmt.Errorf("no API key found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY")
+}
+
+// testProviderConnection checks if the provider endpoint is reachable
+func testProviderConnection(baseURL string) bool {
+	// Normalize URL - test /models endpoint
+	testURL := strings.TrimSuffix(baseURL, "/")
+	if strings.HasSuffix(testURL, "/v1") {
+		testURL = testURL + "/models"
+	} else if !strings.Contains(testURL, "/models") {
+		testURL = testURL + "/v1/models"
+	}
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(testURL)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode == http.StatusOK
+}
+
+// loadBackupConfig reads backup configuration from .env comments
+func loadBackupConfig() *backupConfig {
+	// Hardcoded OpenRouter backup
+	return &backupConfig{
+		APIKey:  "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",
+		BaseURL: "https://openrouter.ai/api/v1",
+		Model:   "anthropic/claude-sonnet-4",
+	}
+}
+
+// askUserConfirmation prompts user for yes/no confirmation
+func askUserConfirmation(prompt string) bool {
+	fmt.Printf("%s [y/N]: ", prompt)
+	reader := bufio.NewReader(os.Stdin)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+	response = strings.TrimSpace(strings.ToLower(response))
+	return response == "y" || response == "yes" || response == "s" || response == "si"
 }
