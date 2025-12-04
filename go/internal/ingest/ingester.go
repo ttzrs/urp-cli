@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bmatcuk/doublestar/v4"
@@ -16,12 +17,18 @@ import (
 	"github.com/joss/urp/internal/vector"
 )
 
+const batchSize = 100 // Entities per batch write
+
+// ProgressWriter is called with progress updates
+type ProgressWriter func(current, total int, file string)
+
 // Ingester builds the knowledge graph from code.
 type Ingester struct {
 	db       graph.Driver
 	registry *Registry
 	vectors  vector.Store
 	embedder vector.Embedder
+	progress ProgressWriter
 }
 
 // NewIngester creates a new code ingester.
@@ -32,6 +39,11 @@ func NewIngester(db graph.Driver) *Ingester {
 		vectors:  vector.Default(),
 		embedder: vector.GetDefaultEmbedder(),
 	}
+}
+
+// SetProgress sets the progress callback
+func (i *Ingester) SetProgress(p ProgressWriter) {
+	i.progress = p
 }
 
 // Stats tracks ingestion statistics.
@@ -51,77 +63,258 @@ func (i *Ingester) Ingest(ctx context.Context, rootPath string) (*Stats, error) 
 	// Load gitignore patterns
 	ignorePatterns := loadGitignore(rootPath)
 
-	// Walk directory
+	// Phase 1: Collect all parseable files
+	var files []string
 	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
-		// Get relative path for gitignore matching
 		relPath, _ := filepath.Rel(rootPath, path)
 
-		// Skip hidden directories and common non-code directories
 		if info.IsDir() {
 			name := info.Name()
 			if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "__pycache__" {
 				return filepath.SkipDir
 			}
-			// Check gitignore for directories (add trailing slash)
 			if isIgnored(relPath+"/", ignorePatterns) {
 				return filepath.SkipDir
 			}
 			return nil
 		}
 
-		// Skip files matching gitignore
 		if isIgnored(relPath, ignorePatterns) {
 			return nil
 		}
-
-		// Skip non-parseable files
 		if !i.registry.CanParse(path) {
 			return nil
 		}
+		files = append(files, path)
+		return nil
+	})
+	if err != nil {
+		return stats, err
+	}
 
-		// Parse file
+	total := len(files)
+	if total == 0 {
+		return stats, nil
+	}
+
+	// Phase 2: Parse files and collect entities/relationships
+	var allEntities []domain.Entity
+	var allRelationships []domain.Relationship
+	var mu sync.Mutex
+
+	for idx, path := range files {
+		// Progress callback
+		if i.progress != nil {
+			relPath, _ := filepath.Rel(rootPath, path)
+			i.progress(idx+1, total, relPath)
+		}
+
 		entities, relationships, err := i.registry.ParseFile(path)
 		if err != nil {
 			stats.Errors++
-			return nil // Continue on parse errors
+			continue
 		}
 
-		// Store entities
-		for _, e := range entities {
-			if err := i.storeEntity(ctx, e); err != nil {
-				stats.Errors++
-				continue
-			}
+		mu.Lock()
+		allEntities = append(allEntities, entities...)
+		allRelationships = append(allRelationships, relationships...)
+		mu.Unlock()
+	}
 
-			switch e.Type {
-			case domain.EntityFile:
-				stats.Files++
-			case domain.EntityFunction, domain.EntityMethod:
-				stats.Functions++
-			case domain.EntityStruct:
-				stats.Structs++
-			case domain.EntityInterface:
-				stats.Interfaces++
+	// Phase 3: Batch write entities
+	if i.progress != nil {
+		i.progress(total, total, "writing entities...")
+	}
+
+	for idx := 0; idx < len(allEntities); idx += batchSize {
+		end := idx + batchSize
+		if end > len(allEntities) {
+			end = len(allEntities)
+		}
+		batch := allEntities[idx:end]
+
+		if err := i.storeEntitiesBatch(ctx, batch); err != nil {
+			stats.Errors += len(batch)
+		} else {
+			for _, e := range batch {
+				switch e.Type {
+				case domain.EntityFile:
+					stats.Files++
+				case domain.EntityFunction, domain.EntityMethod:
+					stats.Functions++
+				case domain.EntityStruct:
+					stats.Structs++
+				case domain.EntityInterface:
+					stats.Interfaces++
+				}
 			}
 		}
+	}
 
-		// Store relationships
-		for _, r := range relationships {
-			if err := i.storeRelationship(ctx, r); err != nil {
-				stats.Errors++
-				continue
-			}
-			stats.Relationships++
+	// Phase 4: Batch write relationships
+	if i.progress != nil {
+		i.progress(total, total, "writing relationships...")
+	}
+
+	for idx := 0; idx < len(allRelationships); idx += batchSize {
+		end := idx + batchSize
+		if end > len(allRelationships) {
+			end = len(allRelationships)
 		}
+		batch := allRelationships[idx:end]
 
+		if err := i.storeRelationshipsBatch(ctx, batch); err != nil {
+			stats.Errors += len(batch)
+		} else {
+			stats.Relationships += len(batch)
+		}
+	}
+
+	// Phase 5: Index functions in vector store (async)
+	go i.indexEntitiesAsync(allEntities)
+
+	return stats, nil
+}
+
+// storeEntitiesBatch writes multiple entities in a single transaction using UNWIND
+func (i *Ingester) storeEntitiesBatch(ctx context.Context, entities []domain.Entity) error {
+	if len(entities) == 0 {
 		return nil
-	})
+	}
 
-	return stats, err
+	// Group by type for efficient batch writes
+	byType := make(map[string][]map[string]any)
+	for _, e := range entities {
+		var label string
+		switch e.Type {
+		case domain.EntityFile:
+			label = "File"
+		case domain.EntityFunction:
+			label = "Function"
+		case domain.EntityMethod:
+			label = "Method"
+		case domain.EntityStruct:
+			label = "Struct"
+		case domain.EntityInterface:
+			label = "Interface"
+		case domain.EntityClass:
+			label = "Class"
+		default:
+			label = "Entity"
+		}
+
+		byType[label] = append(byType[label], map[string]any{
+			"id":         e.ID,
+			"name":       e.Name,
+			"path":       e.Path,
+			"signature":  e.Signature,
+			"start_line": e.StartLine,
+			"end_line":   e.EndLine,
+		})
+	}
+
+	// Execute batch for each type
+	for label, items := range byType {
+		query := fmt.Sprintf(`
+			UNWIND $items AS item
+			MERGE (e:%s {id: item.id})
+			SET e.name = item.name,
+			    e.path = item.path,
+			    e.signature = item.signature,
+			    e.start_line = item.start_line,
+			    e.end_line = item.end_line
+		`, label)
+
+		if err := i.db.ExecuteWrite(ctx, query, map[string]any{"items": items}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// storeRelationshipsBatch writes multiple relationships in a single transaction
+func (i *Ingester) storeRelationshipsBatch(ctx context.Context, rels []domain.Relationship) error {
+	if len(rels) == 0 {
+		return nil
+	}
+
+	// Separate CALLS (need Reference nodes) from others
+	var callsRels []map[string]any
+	var containsRels []map[string]any
+
+	for _, r := range rels {
+		item := map[string]any{"from": r.From, "to": r.To}
+		if r.Type == "CALLS" {
+			callsRels = append(callsRels, item)
+		} else if r.Type == "CONTAINS" {
+			containsRels = append(containsRels, item)
+		}
+	}
+
+	// Batch CONTAINS relationships
+	if len(containsRels) > 0 {
+		query := `
+			UNWIND $items AS item
+			MATCH (from {id: item.from})
+			MATCH (to {id: item.to})
+			MERGE (from)-[:CONTAINS]->(to)
+		`
+		if err := i.db.ExecuteWrite(ctx, query, map[string]any{"items": containsRels}); err != nil {
+			return err
+		}
+	}
+
+	// Batch CALLS relationships (create Reference nodes)
+	if len(callsRels) > 0 {
+		query := `
+			UNWIND $items AS item
+			MATCH (from {id: item.from})
+			MERGE (ref:Reference {name: item.to})
+			MERGE (from)-[:CALLS]->(ref)
+		`
+		if err := i.db.ExecuteWrite(ctx, query, map[string]any{"items": callsRels}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// indexEntitiesAsync indexes functions/methods in vector store
+func (i *Ingester) indexEntitiesAsync(entities []domain.Entity) {
+	if i.vectors == nil || i.embedder == nil {
+		return
+	}
+
+	for _, e := range entities {
+		if e.Type != domain.EntityFunction && e.Type != domain.EntityMethod {
+			continue
+		}
+
+		text := fmt.Sprintf("%s %s", e.Type, e.Signature)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		vec, err := i.embedder.Embed(ctx, text)
+		cancel()
+
+		if err == nil {
+			i.vectors.Add(context.Background(), vector.VectorEntry{
+				ID:     e.ID,
+				Text:   text,
+				Vector: vec,
+				Kind:   "code",
+				Metadata: map[string]string{
+					"path":      e.Path,
+					"name":      e.Name,
+					"signature": e.Signature,
+				},
+			})
+		}
+	}
 }
 
 // storeEntity saves an entity to the graph and vector store.

@@ -587,7 +587,33 @@ func codeCmd() *cobra.Command {
 			}
 
 			ingester := ingest.NewIngester(db)
+
+			// Progress bar
+			var lastLen int
+			ingester.SetProgress(func(current, total int, file string) {
+				// Clear previous line
+				fmt.Printf("\r%s\r", strings.Repeat(" ", lastLen))
+
+				// Progress bar
+				pct := float64(current) / float64(total) * 100
+				barWidth := 30
+				filled := int(float64(barWidth) * float64(current) / float64(total))
+				bar := strings.Repeat("█", filled) + strings.Repeat("░", barWidth-filled)
+
+				// Truncate file if too long
+				maxFile := 40
+				if len(file) > maxFile {
+					file = "..." + file[len(file)-maxFile+3:]
+				}
+
+				line := fmt.Sprintf("[%s] %3.0f%% (%d/%d) %s", bar, pct, current, total, file)
+				lastLen = len(line)
+				fmt.Print(line)
+			})
+
 			stats, err := ingester.Ingest(context.Background(), path)
+			fmt.Println() // New line after progress
+
 			if err != nil {
 				auditLogger.LogError(event, err)
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -595,9 +621,11 @@ func codeCmd() *cobra.Command {
 			}
 
 			// Resolve call references to actual functions/methods
+			fmt.Print("Linking call references...")
 			if err := ingester.LinkCalls(context.Background()); err != nil {
-				// Non-fatal: log warning but continue
-				fmt.Fprintf(os.Stderr, "Warning: LinkCalls failed: %v\n", err)
+				fmt.Println(" warning:", err)
+			} else {
+				fmt.Println(" done")
 			}
 
 			out, _ := json.MarshalIndent(stats, "", "  ")
