@@ -105,8 +105,13 @@ func (e *Environment) CanLaunchMaster() bool {
 	return e.IsHealthy() && e.ImagesExist["urp:master"]
 }
 
-// CanLaunchWorker returns true if worker containers can be launched.
-func (e *Environment) CanLaunchWorker() bool {
+// CanSpawnWorker returns true if worker containers can be spawned from master.
+func (e *Environment) CanSpawnWorker() bool {
+	return e.IsHealthy() && e.ImagesExist["urp:worker"]
+}
+
+// CanLaunchStandalone returns true if standalone containers can be launched.
+func (e *Environment) CanLaunchStandalone() bool {
 	return e.IsHealthy() && e.ImagesExist["urp:latest"]
 }
 

@@ -1749,9 +1749,9 @@ Examples:
 					fmt.Printf("  Stop:              docker rm -f %s\n", containerName)
 				}
 			} else {
-				// Worker mode: background container
-				fmt.Printf("Launching worker for %s...\n", path)
-				containerName, err = mgr.LaunchWorker(path, readOnly)
+				// Standalone mode: background container (no master/worker flow)
+				fmt.Printf("Launching standalone for %s...\n", path)
+				containerName, err = mgr.LaunchStandalone(path, readOnly)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 					os.Exit(1)
@@ -1763,7 +1763,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().BoolVarP(&worker, "worker", "w", false, "Launch as background worker instead of master")
+	cmd.Flags().BoolVarP(&worker, "worker", "w", false, "Launch as standalone daemon (no master/worker flow)")
 	cmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "Read-only access (only with --worker)")
 
 	return cmd

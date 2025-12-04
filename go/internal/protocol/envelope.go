@@ -1,5 +1,28 @@
 // Package protocol defines the Master↔Worker communication protocol.
 // Messages use JSON envelope format over stdin/stdout.
+//
+// # Usage Mode: Programmatic Automation
+//
+// This protocol is for direct process-to-process communication via pipes.
+// It's an alternative to the primary Claude CLI-based flow.
+//
+// Primary flow (recommended):
+//
+//	urp ask urp-proj-w1 "run tests"
+//	  → docker exec worker claude --print "..."
+//	  → Claude CLI executes, human-readable output
+//
+// Protocol flow (automation):
+//
+//	urp orchestrate run "task1" "task2"
+//	  → spawns workers with stdin/stdout pipes
+//	  → sends JSON messages via protocol
+//	  → structured progress/result payloads
+//
+// Use protocol mode for:
+//   - CI/CD automation without human interaction
+//   - Parallel task execution with progress tracking
+//   - Custom orchestration tooling
 package protocol
 
 import (

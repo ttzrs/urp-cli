@@ -154,7 +154,25 @@ func TestCanLaunchMaster(t *testing.T) {
 	}
 }
 
-func TestCanLaunchWorker(t *testing.T) {
+func TestCanSpawnWorker(t *testing.T) {
+	env := &Environment{
+		Runtime: "docker",
+		ImagesExist: map[string]bool{
+			"urp:worker": true,
+		},
+	}
+
+	if !env.CanSpawnWorker() {
+		t.Error("Should be able to spawn worker when image exists")
+	}
+
+	env.ImagesExist["urp:worker"] = false
+	if env.CanSpawnWorker() {
+		t.Error("Should not be able to spawn worker when image missing")
+	}
+}
+
+func TestCanLaunchStandalone(t *testing.T) {
 	env := &Environment{
 		Runtime: "docker",
 		ImagesExist: map[string]bool{
@@ -162,12 +180,12 @@ func TestCanLaunchWorker(t *testing.T) {
 		},
 	}
 
-	if !env.CanLaunchWorker() {
-		t.Error("Should be able to launch worker when image exists")
+	if !env.CanLaunchStandalone() {
+		t.Error("Should be able to launch standalone when image exists")
 	}
 
 	env.ImagesExist["urp:latest"] = false
-	if env.CanLaunchWorker() {
-		t.Error("Should not be able to launch worker when image missing")
+	if env.CanLaunchStandalone() {
+		t.Error("Should not be able to launch standalone when image missing")
 	}
 }

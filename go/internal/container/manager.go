@@ -1,4 +1,43 @@
 // Package container manages Docker/Podman infrastructure for URP.
+//
+// # Architecture
+//
+// URP supports two container modes:
+//
+// ## Master/Worker Flow (Primary)
+//
+// User launches master container (read-only workspace):
+//
+//	urp launch /path/to/project
+//	  → LaunchMaster() → urp:master container
+//	  → Opens Claude CLI for user interaction
+//
+// Master spawns workers (read-write workspace):
+//
+//	urp spawn        # from inside master
+//	  → SpawnWorker() → urp:worker container
+//	  → Worker enters daemon mode (stays alive)
+//
+// Master sends instructions via Claude CLI:
+//
+//	urp ask urp-proj-w1 "run tests and fix failures"
+//	  → docker exec worker claude --print "..."
+//	  → Worker's Claude CLI executes, reports to stdout
+//
+// All git/code operations happen in worker via Claude instructions.
+// Master NEVER writes to workspace.
+//
+// ## Standalone Mode (Simple)
+//
+//	urp launch --worker /path/to/project
+//	  → LaunchStandalone() → urp:latest container
+//	  → For simple CLI access without orchestration
+//
+// # Images
+//
+//   - urp:master - Full + Claude CLI + docker-cli (spawns workers)
+//   - urp:worker - Full + Claude CLI + dev tools (executes tasks)
+//   - urp:latest - Full image (standalone use)
 package container
 
 import (
@@ -289,8 +328,10 @@ func (m *Manager) CleanInfra() error {
 	return nil
 }
 
-// LaunchWorker starts a worker container for a project.
-func (m *Manager) LaunchWorker(projectPath string, readOnly bool) (string, error) {
+// LaunchStandalone starts a standalone URP container (no master/worker flow).
+// Use this for simple CLI access or background daemon.
+// For master/worker flow, use LaunchMaster() + SpawnWorker().
+func (m *Manager) LaunchStandalone(projectPath string, readOnly bool) (string, error) {
 	if m.runtime == RuntimeNone {
 		return "", fmt.Errorf("no container runtime found")
 	}
@@ -562,69 +603,6 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	return containerName, nil
 }
 
-// createGitBranch creates and checks out a new branch from current HEAD.
-func (m *Manager) createGitBranch(repoPath, branchName string) error {
-	// Check if branch exists
-	cmd := exec.Command("git", "-C", repoPath, "rev-parse", "--verify", branchName)
-	if err := cmd.Run(); err == nil {
-		// Branch exists, just checkout
-		cmd = exec.Command("git", "-C", repoPath, "checkout", branchName)
-		return cmd.Run()
-	}
-
-	// Create new branch from current HEAD
-	cmd = exec.Command("git", "-C", repoPath, "checkout", "-b", branchName)
-	return cmd.Run()
-}
-
-// SpawnWorkerBackground creates a detached worker (for automation).
-func (m *Manager) SpawnWorkerBackground(projectPath string, workerNum int) (string, error) {
-	absPath, err := filepath.Abs(projectPath)
-	if err != nil {
-		return "", fmt.Errorf("invalid path: %w", err)
-	}
-
-	projectName := filepath.Base(absPath)
-	containerName := fmt.Sprintf("urp-%s-w%d", projectName, workerNum)
-
-	// Check if exists
-	out, _ := m.run("ps", "-q", "--filter", fmt.Sprintf("name=^%s$", containerName))
-	if out != "" {
-		return containerName, nil
-	}
-
-	// Use host home from env (when running inside master) or local home
-	homeDir := os.Getenv("URP_HOST_HOME")
-	if homeDir == "" {
-		homeDir, _ = os.UserHomeDir()
-	}
-	envFile := filepath.Join(homeDir, ".urp-go", ".env")
-
-	args := []string{
-		"run", "-d",
-		"--name", containerName,
-		"--network", NetworkName,
-		// Disable SELinux for container socket access
-		"--security-opt", "label=disable",
-		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
-		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
-		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
-		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
-		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
-		"-e", "URP_READ_ONLY=false",
-		"-w", "/workspace",
-		URPWorkerImage,
-		"tail", "-f", "/dev/null", // Keep alive
-	}
-
-	_, err = m.run(args...)
-	if err != nil {
-		return "", fmt.Errorf("failed to spawn worker: %w", err)
-	}
-
-	return containerName, nil
-}
 
 // ListWorkers returns all worker containers for a project.
 func (m *Manager) ListWorkers(projectName string) []ContainerStatus {
