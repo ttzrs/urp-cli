@@ -232,117 +232,147 @@ URP_SESSION_ID=auto
 
 ## Orchestration Architecture (Master/Worker)
 
+### Core Principle
+
+```
+Master NEVER writes to workspace.
+Master sends instructions to Worker's Claude CLI.
+Worker executes, reports back to Master.
+```
+
 ### Flow
 
 ```
 urp launch [path]
     │
-    ├─► Create MASTER container (project:ro, SELinux :z)
+    ├─► Create MASTER container (project:ro)
     ├─► Auto-ingest: urp code ingest && urp git ingest
-    ├─► Open Claude CLI (interactive, user controls)
+    ├─► Open Claude CLI (user interacts here)
     │
     └─► User ↔ Claude (master)
             │
-            ├─► Claude analyzes, plans → graph (:Plan)-[:HAS_TASK]->(:Task)
-            ├─► Claude spawns WORKERS via `urp spawn`
-            │       └─► Worker: ephemeral (docker --rm), project:rw
-            │       └─► Worker runs Claude CLI with instructions from master
-            │       └─► Worker can install tools, modify code, debug
-            ├─► Master monitors workers via graph + envelope protocol
-            └─► On task complete: worker dies, result in graph
+            ├─► Master analyzes, plans
+            ├─► Master spawns WORKER via `urp spawn`
+            │       └─► Worker: daemon mode, project:rw
+            │       └─► Worker has its own Claude CLI
+            │
+            ├─► Master sends instructions via `urp ask`:
+            │       urp ask urp-proj-w1 "create branch feature-x"
+            │       urp ask urp-proj-w1 "run tests"
+            │       urp ask urp-proj-w1 "fix failing tests"
+            │       urp ask urp-proj-w1 "commit and push"
+            │
+            └─► When done: urp kill urp-proj-w1
+```
+
+### Communication Pattern
+
+```
+┌─────────────────┐                    ┌─────────────────┐
+│  MASTER         │                    │  WORKER         │
+│  (read-only)    │                    │  (read-write)   │
+│                 │                    │                 │
+│  Claude CLI ◄───┼── user input       │  Claude CLI     │
+│       │         │                    │       ▲         │
+│       ▼         │                    │       │         │
+│  urp ask ───────┼─► docker exec ─────┼─► claude --print│
+│                 │                    │       │         │
+│  (reads stdout) │◄────── output ─────┼───────┘         │
+└─────────────────┘                    └─────────────────┘
+```
+
+### Master Can Optimize Worker
+
+Before sending complex instructions, master can:
+
+```bash
+# Write custom CLAUDE.md for worker's task
+urp exec urp-proj-w1 "cat > /workspace/.claude/CLAUDE.md << 'EOF'
+# Task: Fix authentication bug
+Focus: auth.go, middleware.go
+Tests: go test ./auth/...
+EOF"
+
+# Install tools worker needs
+urp exec urp-proj-w1 "apk add --no-cache postgresql-client"
+urp exec urp-proj-w1 "pip install pytest-cov"
+
+# Then send the instruction
+urp ask urp-proj-w1 "Fix the OAuth token refresh bug. Run tests when done."
 ```
 
 ### Container Topology
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  HOST (SELinux, X11)                                        │
-│  ~/.urp-go/                                                 │
-│    ├── .env          # ANTHROPIC_API_KEY, ANTHROPIC_BASE_URL│
-│    ├── data/         # persistent data                      │
-│    └── config/       # claude cli config                    │
-└──────────────┬──────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  HOST                                                      │
+│  ~/.urp-go/.env   # ANTHROPIC_API_KEY                      │
+└──────────────┬─────────────────────────────────────────────┘
                │
     ┌──────────┴──────────┐
     │                     │
     ▼                     ▼
 ┌─────────────┐    ┌─────────────────────────────────┐
 │ urp-memgraph│    │ urp-master-<project>            │
-│ (persistent)│◄───│  - /workspace:ro:z              │
-│ bolt:7687   │    │  - ~/.urp-go/.env:ro:Z          │
-└─────────────┘    │  - Claude CLI (user interactive)│
-                   │  - Can spawn workers            │
-                   │  - Reads worker output          │
+│ (graph db)  │◄───│  - /workspace:ro                │
+│ bolt:7687   │    │  - docker socket (spawn workers)│
+└─────────────┘    │  - Claude CLI (user session)    │
                    └──────────────┬──────────────────┘
-                                  │ docker socket
+                                  │ urp spawn
                    ┌──────────────┼──────────────┐
                    ▼              ▼              ▼
             ┌───────────┐  ┌───────────┐  ┌───────────┐
             │ worker-1  │  │ worker-2  │  │ worker-n  │
-            │ --rm      │  │ --rm      │  │ --rm      │
-            │ rw:z      │  │ rw:z      │  │ rw:z      │
+            │ daemon    │  │ daemon    │  │ daemon    │
+            │ :rw       │  │ :rw       │  │ :rw       │
             │ Claude CLI│  │ Claude CLI│  │ Claude CLI│
             └───────────┘  └───────────┘  └───────────┘
-                 │              │              │
-                 └──────────────┴──────────────┘
-                          results → graph
 ```
 
-### Envelope Protocol (Master ↔ Worker)
-
-JSON-lines over stdin/stdout:
-
-```json
-// Master → Worker (instruction)
-{"id":"t-001","type":"instruction","task":"Fix bug in auth.go","context":{"files":["auth.go"]}}
-
-// Worker → Master (status)
-{"id":"t-001","type":"status","state":"running","progress":0.3}
-
-// Worker → Master (result)
-{"id":"t-001","type":"result","success":true,"changes":["auth.go:42"],"summary":"Fixed null check"}
-
-// Worker → Master (error)
-{"id":"t-001","type":"error","code":"BLOCKED","reason":"Immune system blocked rm -rf"}
-```
-
-Envelope wrapper intercepts Claude CLI stdin/stdout, parses, logs to graph.
-
-### Graph Schema (Orchestration)
-
-```cypher
-// Plan nodes
-(:Plan {id, project, created_at, status})
-(:Task {id, description, status, worker_id, started_at, completed_at})
-(:TaskResult {id, success, changes, summary, error})
-
-// Relationships
-(:Plan)-[:HAS_TASK]->(:Task)
-(:Task)-[:EXECUTED_BY]->(:Container)
-(:Task)-[:PRODUCED]->(:TaskResult)
-(:Task)-[:DEPENDS_ON]->(:Task)
-(:TaskResult)-[:MODIFIED]->(:File)
-
-// Learning from failures
-(:Task)-[:FAILED_WITH]->(:Error)
-(:Error)-[:RESOLVED_BY]->(:Solution)
-```
-
-### X11 Browser Worker
-
-On-demand when master needs visual testing:
+### Commands
 
 ```bash
-# Master requests browser
-urp spawn --type=browser
+# START SESSION
+urp launch [path]        # Master + ingest + Claude CLI
 
-# Spawns worker with X11 forwarding
-docker run --rm \
-  -e DISPLAY=$DISPLAY \
-  -v /tmp/.X11-unix:/tmp/.X11-unix:z \
-  -v ~/.urp-go/.env:/etc/urp/.env:ro:Z \
-  --network urp-network \
-  urp:browser firefox
+# WORKER MANAGEMENT
+urp spawn [num]          # Create worker (daemon mode)
+urp workers              # List active workers
+urp kill <name>          # Stop worker
+
+# COMMUNICATION (master → worker)
+urp ask <worker> "prompt"    # Send to worker's Claude CLI
+urp exec <worker> "cmd"      # Run shell command in worker
+
+# PLANNING
+urp plan create "description"  # Create plan in graph
+urp plan show                  # View current plan
+urp plan add "task"            # Add task to plan
+```
+
+### Example Session
+
+```bash
+# 1. Launch master
+urp launch /path/to/project
+
+# 2. Inside master, spawn worker
+urp spawn
+
+# 3. Optimize worker for task
+urp exec urp-proj-w1 "pip install black isort"
+
+# 4. Send instructions
+urp ask urp-proj-w1 "create branch fix-auth-bug"
+urp ask urp-proj-w1 "fix the token expiration bug in auth.go"
+urp ask urp-proj-w1 "run tests: go test ./..."
+urp ask urp-proj-w1 "format with black and commit"
+urp ask urp-proj-w1 "push and create PR"
+
+# 5. Review PR URL from worker output
+
+# 6. Clean up
+urp kill urp-proj-w1
 ```
 
 ### Configuration
@@ -352,31 +382,4 @@ docker run --rm \
 ANTHROPIC_API_KEY=<key>
 ANTHROPIC_BASE_URL=http://100.105.212.98:8317/
 NEO4J_URI=bolt://urp-memgraph:7687
-URP_ENVELOPE_MODE=json  # json | delimiter | raw
-```
-
-### Commands (Extended)
-
-```bash
-# ORCHESTRATION
-urp launch [path]      # Create master, ingest, open Claude
-urp spawn [--type=T]   # Spawn ephemeral worker (default|browser|test)
-urp workers            # List active workers
-urp plan show          # Show current plan from graph
-urp plan status        # Task completion status
-
-# ENVELOPE (internal, used by wrapper)
-urp envelope send <worker> <json>   # Send instruction to worker
-urp envelope recv <worker>          # Read worker output
-urp envelope log <json>             # Log envelope to graph
-```
-
-### Implementation Priority
-
-```
-P1: urp launch (master + auto-ingest + claude)
-P2: urp spawn (ephemeral workers with envelope)
-P3: Graph schema for Plan/Task/Result
-P4: Envelope wrapper for Claude CLI
-P5: X11 browser worker type
 ```
