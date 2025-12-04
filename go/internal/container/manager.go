@@ -785,10 +785,12 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 		"--user", "1000:1000", // Run as non-root
 	}
 
-	// Auto-detect GPU availability
+	// Auto-detect GPU availability with graceful fallback
+	gpuMode := "cpu"
 	if m.hasNvidiaGPU() {
 		args = append(args, "--gpus", "all")
 		args = append(args, "--shm-size", "16g") // Shared memory for PyTorch
+		gpuMode = "gpu"
 	}
 
 	// Volumes and environment
@@ -797,6 +799,7 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-e", fmt.Sprintf("URP_GPU_MODE=%s", gpuMode), // Expose GPU mode to container
 		"-w", "/workspace",
 		NeMoImage,
 		"tail", "-f", "/dev/null", // Stay alive for exec
@@ -813,15 +816,45 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 	return containerName, nil
 }
 
+// GPUStatus represents GPU availability information
+type GPUStatus struct {
+	Available   bool
+	DeviceCount int
+	Reason      string
+}
+
+// CheckGPU returns detailed GPU availability status
+func (m *Manager) CheckGPU() *GPUStatus {
+	status := &GPUStatus{}
+
+	// Try nvidia-smi first (most reliable)
+	out, err := exec.Command("nvidia-smi", "--query-gpu=count", "--format=csv,noheader").Output()
+	if err == nil {
+		status.Available = true
+		// Parse device count
+		var count int
+		if _, err := fmt.Sscanf(strings.TrimSpace(string(out)), "%d", &count); err == nil {
+			status.DeviceCount = count
+		} else {
+			status.DeviceCount = 1 // At least one if nvidia-smi works
+		}
+		return status
+	}
+
+	// nvidia-smi failed, check why
+	if _, err := exec.LookPath("nvidia-smi"); err != nil {
+		status.Reason = "nvidia-smi not found (NVIDIA drivers not installed)"
+		return status
+	}
+
+	// nvidia-smi exists but failed - likely no GPU
+	status.Reason = "no NVIDIA GPU detected"
+	return status
+}
+
 // hasNvidiaGPU checks if NVIDIA GPU drivers are available
 func (m *Manager) hasNvidiaGPU() bool {
-	// Try nvidia-smi first (most reliable)
-	if err := exec.Command("nvidia-smi").Run(); err == nil {
-		return true
-	}
-	// Fallback: check if docker supports --gpus
-	out, _ := m.run("info", "--format", "{{.Runtimes}}")
-	return strings.Contains(out, "nvidia")
+	return m.CheckGPU().Available
 }
 
 // ExecNeMo runs a command in the NeMo container.

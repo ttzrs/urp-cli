@@ -1419,7 +1419,26 @@ func sysCmd() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(vitalsCmd, topologyCmd, healthCmd, runtimeCmd)
+	// urp sys gpu - check GPU availability
+	gpuCmd := &cobra.Command{
+		Use:   "gpu",
+		Short: "Check GPU availability for NeMo",
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+			status := mgr.CheckGPU()
+
+			if status.Available {
+				fmt.Printf("GPU: available (%d device(s))\n", status.DeviceCount)
+				fmt.Println("NeMo will use GPU acceleration")
+			} else {
+				fmt.Printf("GPU: not available\n")
+				fmt.Printf("Reason: %s\n", status.Reason)
+				fmt.Println("NeMo will run in CPU-only mode (slower)")
+			}
+		},
+	}
+
+	cmd.AddCommand(vitalsCmd, topologyCmd, healthCmd, runtimeCmd, gpuCmd)
 	return cmd
 }
 
