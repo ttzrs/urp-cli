@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 
 	"github.com/joss/urp/internal/audit"
 	"github.com/joss/urp/internal/cognitive"
@@ -26,6 +27,7 @@ import (
 	"github.com/joss/urp/internal/render"
 	"github.com/joss/urp/internal/runner"
 	"github.com/joss/urp/internal/runtime"
+	"github.com/joss/urp/internal/selftest"
 	"github.com/joss/urp/internal/vector"
 )
 
@@ -184,6 +186,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	bak.GroupID = "cognitive"
 	rootCmd.AddCommand(bak)
 
+	// Doctor command (environment diagnostics)
+	doctor := doctorCmd()
+	doctor.GroupID = "infra"
+	rootCmd.AddCommand(doctor)
+
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
 
@@ -200,6 +207,39 @@ func versionCmd() *cobra.Command {
 			fmt.Printf("urp version %s\n", version)
 		},
 	}
+}
+
+func doctorCmd() *cobra.Command {
+	var verbose bool
+
+	cmd := &cobra.Command{
+		Use:   "doctor",
+		Short: "Check environment health",
+		Long: `Diagnose the URP runtime environment.
+
+Checks:
+  - Container runtime (docker/podman)
+  - TTY availability
+  - Network configuration
+  - Required images
+  - Memgraph connectivity`,
+		Run: func(cmd *cobra.Command, args []string) {
+			env := selftest.Check()
+
+			if verbose {
+				fmt.Print(env.Summary())
+			} else {
+				fmt.Println(env.QuickCheck())
+			}
+
+			if !env.IsHealthy() {
+				os.Exit(1)
+			}
+		},
+	}
+
+	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Show detailed diagnostics")
+	return cmd
 }
 
 func eventsCmd() *cobra.Command {
@@ -1649,6 +1689,21 @@ Examples:
   urp launch --readonly   # Launch read-only worker`,
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			// Pre-flight environment check
+			env := selftest.Check()
+			if !env.IsHealthy() {
+				fmt.Fprintf(os.Stderr, "Environment check failed:\n")
+				for _, e := range env.Errors {
+					fmt.Fprintf(os.Stderr, "  ✗ %s\n", e)
+				}
+				fmt.Fprintf(os.Stderr, "\nRun 'urp doctor -v' for details.\n")
+				os.Exit(1)
+			}
+			// Show warnings but continue
+			for _, w := range env.Warnings {
+				fmt.Fprintf(os.Stderr, "⚠ %s\n", w)
+			}
+
 			path := "."
 			if len(args) > 0 {
 				path = args[0]
@@ -1660,15 +1715,25 @@ Examples:
 			var err error
 
 			if !worker {
-				// Default: launch master (interactive)
-				// No output - master entrypoint handles everything
+				// Default: launch master (interactive or detached)
 				containerName, err = mgr.LaunchMaster(path)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 					os.Exit(1)
 				}
-				// Master runs interactively, exits cleanly
-				fmt.Println("\n✓ Master session ended")
+				// Check if TTY mode (interactive) or detached
+				if term.IsTerminal(int(os.Stdin.Fd())) {
+					// Interactive mode - session ended
+					fmt.Println("\n✓ Master session ended")
+				} else {
+					// Detached mode - container running in background
+					fmt.Printf("✓ Master started: %s\n", containerName)
+					fmt.Println()
+					fmt.Println("Container is running in detached mode (no TTY).")
+					fmt.Printf("  Execute commands:  urp exec %s <command>\n", containerName)
+					fmt.Printf("  View logs:         docker logs -f %s\n", containerName)
+					fmt.Printf("  Stop:              docker rm -f %s\n", containerName)
+				}
 			} else {
 				// Worker mode: background container
 				fmt.Printf("Launching worker for %s...\n", path)

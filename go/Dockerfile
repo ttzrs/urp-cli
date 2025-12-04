@@ -5,7 +5,7 @@
 # ═══════════════════════════════════════════════════════════════
 # Build stage
 # ═══════════════════════════════════════════════════════════════
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /build
 COPY go.mod go.sum ./
@@ -176,13 +176,52 @@ RUN apk add --no-cache \
     make gcc musl-dev \
     github-cli
 
+# Setup Python virtual environment for pip installs
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Pre-install common dev packages in venv
+RUN pip install --no-cache-dir pytest httpx
+
 # Worker entrypoint that communicates via protocol
 COPY worker-entrypoint.sh /worker-entrypoint.sh
 RUN chmod 755 /worker-entrypoint.sh
 
 ENV URP_WORKER=1 \
-    URP_READ_ONLY=false
+    URP_READ_ONLY=false \
+    VIRTUAL_ENV=/opt/venv
 
+ENTRYPOINT ["/worker-entrypoint.sh"]
+CMD ["urp", "worker", "run"]
+
+# ═══════════════════════════════════════════════════════════════
+# Target: gpu - NVIDIA NeMo for ML/AutoML training
+# ═══════════════════════════════════════════════════════════════
+FROM nvcr.io/nvidia/nemo:24.07 AS gpu
+
+# Copy URP binary from builder
+COPY --from=builder /build/urp /usr/local/bin/urp
+
+# Install additional tools
+RUN pip install --no-cache-dir \
+    pytest httpx \
+    optuna \
+    pytorch-lightning \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    git jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Shell configuration
+COPY shell_hooks.sh /etc/profile.d/urp.sh
+COPY worker-entrypoint.sh /worker-entrypoint.sh
+RUN chmod 755 /worker-entrypoint.sh /etc/profile.d/urp.sh
+
+ENV URP_WORKER=1 \
+    URP_READ_ONLY=false \
+    URP_GPU=1 \
+    NEO4J_URI=bolt://urp-memgraph:7687
+
+WORKDIR /workspace
 ENTRYPOINT ["/worker-entrypoint.sh"]
 CMD ["urp", "worker", "run"]
 

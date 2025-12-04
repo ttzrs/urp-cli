@@ -19,6 +19,38 @@ T  Tensor     := context(Branch, Env, Session)
 
 ## Protocol
 
+### on_project(any_task):
+```python
+# MANDATORY: Always use master/worker architecture
+urp doctor                           # pre-flight check
+if not healthy:
+    urp_repair()                     # trigger self-repair
+
+urp launch <project_path>            # start master container
+# Master: read-only, orchestrates
+# Workers: spawned for write operations
+
+for task in plan.tasks:
+    urp spawn                        # ephemeral worker
+    worker.execute(task)
+    if worker.failed:
+        urp_repair(worker.error)     # self-repair on failure
+```
+
+### urp_repair(error):
+```python
+# Self-healing system: launches Claude Code with URP repo access
+docker run -it --rm \
+    -v ~/.urp-go:/urp:rw \
+    -v <urp-cli-repo>:/workspace:rw \
+    urp:master claude \
+    --prompt "Fix URP error: {error}. Run tests after fix."
+
+# Repair worker has full write access to URP codebase
+# Must: diagnose, fix, test, commit
+# Then: retry original operation
+```
+
 ### on_error(red_output):
 ```python
 PAUSE()                              # ¬guess
@@ -27,7 +59,10 @@ if result.similarity > 0.8:
     apply(result.solution)           # reuse
 else:  # PIONEER
     analyze(urp events errors)
-    solve()
+    if is_urp_bug(error):
+        urp_repair(error)            # self-repair URP itself
+    else:
+        solve()
 ```
 
 ### on_task(complex):
@@ -169,7 +204,23 @@ DEBUG:     urp events errors       # causal trace
 cd go && go build -o urp ./cmd/urp && go test ./...
 ```
 
-## Env
+## Environment
+
+### Check
+
+```bash
+urp doctor       # quick status
+urp doctor -v    # full diagnostics
+```
+
+### Requirements
+
+- Docker (preferred) or Podman
+- urp-network created
+- urp-memgraph running
+- Images: urp:latest, urp:master, urp:worker
+
+### Variables
 
 ```
 NEO4J_URI=bolt://localhost:7687
