@@ -53,9 +53,10 @@ Tests pasan. Spec cumplido: `/health` → `{"status":"ok"}` en puerto 8080.
 - [x] `urp status` muestra estado de infraestructura (antiguo default).
 - [x] Comandos legacy organizados en grupos (infra, analysis, cognitive, runtime).
 
-## 🎯 Próximos Pasos (Fase 6: Polish)
-- [ ] TUI interactivo con Bubble Tea.
-- [ ] Histórico de sesiones navegable.
+### Fase 6: En Progreso
+- [x] TUI interactivo con Bubble Tea (`urp tui`).
+- [x] Histórico de sesiones navegable (tecla `s`).
+- [x] Panel de estado con actualizaciones en tiempo real.
 - [ ] Integración con GitHub Actions.
 
 ## 🔧 Configuración Requerida

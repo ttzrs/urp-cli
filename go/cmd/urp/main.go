@@ -30,6 +30,7 @@ import (
 	"github.com/joss/urp/internal/runner"
 	"github.com/joss/urp/internal/runtime"
 	"github.com/joss/urp/internal/selftest"
+	"github.com/joss/urp/internal/tui"
 	"github.com/joss/urp/internal/vector"
 )
 
@@ -242,6 +243,7 @@ Use 'urp help' for full command list.`,
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
 	rootCmd.AddCommand(statusCmd())
+	rootCmd.AddCommand(tuiCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -255,6 +257,21 @@ func statusCmd() *cobra.Command {
 		Short: "Show URP infrastructure status",
 		Run: func(cmd *cobra.Command, args []string) {
 			showStatus()
+		},
+	}
+}
+
+// tuiCmd launches the interactive TUI
+func tuiCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "tui",
+		Short: "Launch interactive terminal UI",
+		Long:  "Start the Bubble Tea powered interactive terminal interface",
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := tui.Run(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
 		},
 	}
 }
