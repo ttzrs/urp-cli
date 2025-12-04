@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/pkg/llm"
@@ -20,21 +21,39 @@ const (
 )
 
 type Anthropic struct {
-	apiKey string
-	client HTTPClient
+	apiKey  string
+	baseURL string
+	client  HTTPClient
 }
 
-func NewAnthropic(apiKey string) *Anthropic {
-	return NewAnthropicWithClient(apiKey, &http.Client{})
+func NewAnthropic(apiKey string, baseURLOverride string) *Anthropic {
+	return NewAnthropicWithClient(apiKey, baseURLOverride, &http.Client{})
 }
 
-func NewAnthropicWithClient(apiKey string, client HTTPClient) *Anthropic {
+func NewAnthropicWithClient(apiKey string, baseURLOverride string, client HTTPClient) *Anthropic {
 	if apiKey == "" {
 		apiKey = os.Getenv("ANTHROPIC_API_KEY")
 	}
+	baseURL := baseURLOverride
+	if baseURL == "" {
+		baseURL = os.Getenv("ANTHROPIC_BASE_URL")
+	}
+	if baseURL == "" {
+		baseURL = anthropicAPIURL
+	} else {
+		// Normalize: remove trailing slash
+		if baseURL[len(baseURL)-1] == '/' {
+			baseURL = baseURL[:len(baseURL)-1]
+		}
+		// Ensure it ends with /messages (Anthropic API, not /v1 like OpenAI)
+		if !strings.HasSuffix(baseURL, "/messages") {
+			baseURL = baseURL + "/messages"
+		}
+	}
 	return &Anthropic{
-		apiKey: apiKey,
-		client: client,
+		apiKey:  apiKey,
+		baseURL: baseURL,
+		client:  client,
 	}
 }
 
@@ -43,10 +62,10 @@ func (a *Anthropic) Name() string { return "Anthropic" }
 
 func (a *Anthropic) Models() []domain.Model {
 	return []domain.Model{
-		{ID: "claude-sonnet-4-20250514", Name: "Claude Sonnet 4", ContextSize: 200000, InputCost: 3, OutputCost: 15},
-		{ID: "claude-opus-4-20250514", Name: "Claude Opus 4", ContextSize: 200000, InputCost: 15, OutputCost: 75},
-		{ID: "claude-3-5-sonnet-20241022", Name: "Claude 3.5 Sonnet", ContextSize: 200000, InputCost: 3, OutputCost: 15},
-		{ID: "claude-3-5-haiku-20241022", Name: "Claude 3.5 Haiku", ContextSize: 200000, InputCost: 0.8, OutputCost: 4},
+		{ID: "claude-sonnet-4-20250514", Name: "Claude Sonnet 4", ShortCode: "sn4", ContextSize: 200000, InputCost: 3, OutputCost: 15},
+		{ID: "claude-opus-4-20250514", Name: "Claude Opus 4", ShortCode: "op4", ContextSize: 200000, InputCost: 15, OutputCost: 75},
+		{ID: "claude-3-5-sonnet-20241022", Name: "Claude 3.5 Sonnet", ShortCode: "s35", ContextSize: 200000, InputCost: 3, OutputCost: 15},
+		{ID: "claude-3-5-haiku-20241022", Name: "Claude 3.5 Haiku", ShortCode: "h35", ContextSize: 200000, InputCost: 0.8, OutputCost: 4},
 	}
 }
 
@@ -235,7 +254,7 @@ func (a *Anthropic) Chat(ctx context.Context, req *llm.ChatRequest) (<-chan doma
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", anthropicAPIURL, bytes.NewReader(jsonBody))
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", a.baseURL, bytes.NewReader(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}

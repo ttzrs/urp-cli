@@ -48,3 +48,4 @@ htmlcov/
 
 # Scraper test output
 devcontainer/P1/
+legacy/reference/

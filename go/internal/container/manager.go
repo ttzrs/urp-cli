@@ -50,16 +50,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joss/urp/internal/logging"
+	"github.com/joss/urp/internal/audit"
 	"golang.org/x/term"
 )
 
 const (
-	NetworkName      = "urp-network"
-	MemgraphName     = "urp-memgraph"
-	SessionsVolume   = "urp_sessions"
-	ChromaVolume     = "urp_chroma"
-	VectorVolume     = "urp_vector"
 	MemgraphImage    = "memgraph/memgraph-platform:latest"
 	URPImage         = "urp:latest"
 	URPWorkerImage   = "urp:worker"
@@ -68,6 +63,36 @@ const (
 	URPConfigDir     = "~/.urp-go"
 	URPEnvFile       = "~/.urp-go/.env"
 )
+
+// NetworkName returns the project-specific network name.
+// Each project gets its own isolated network: urp-<project>-net
+func NetworkName(project string) string {
+	if project == "" {
+		return "urp-default-net"
+	}
+	return fmt.Sprintf("urp-%s-net", project)
+}
+
+// MemgraphName returns the project-specific memgraph container name.
+func MemgraphName(project string) string {
+	if project == "" {
+		return "urp-memgraph"
+	}
+	return fmt.Sprintf("urp-%s-memgraph", project)
+}
+
+// VolumeName returns a project-specific volume name.
+func VolumeName(project, suffix string) string {
+	if project == "" {
+		return fmt.Sprintf("urp_%s", suffix)
+	}
+	return fmt.Sprintf("urp_%s_%s", project, suffix)
+}
+
+// Volume name helpers for common volumes
+func SessionsVolume(project string) string { return VolumeName(project, "sessions") }
+func ChromaVolume(project string) string   { return VolumeName(project, "chroma") }
+func VectorVolume(project string) string   { return VolumeName(project, "vector") }
 
 // Runtime represents detected container engine.
 type Runtime string
@@ -82,6 +107,7 @@ const (
 type Manager struct {
 	runtime Runtime
 	ctx     context.Context
+	project string // Project name for scoped resources
 }
 
 // ContainerStatus represents a running container.
@@ -110,6 +136,25 @@ func NewManager(ctx context.Context) *Manager {
 		runtime: detectRuntime(),
 		ctx:     ctx,
 	}
+}
+
+// NewManagerForProject creates a manager for a specific project.
+func NewManagerForProject(ctx context.Context, project string) *Manager {
+	return &Manager{
+		runtime: detectRuntime(),
+		ctx:     ctx,
+		project: project,
+	}
+}
+
+// Project returns the project name (empty string if not set).
+func (m *Manager) Project() string {
+	return m.project
+}
+
+// SetProject sets the project name for scoped resources.
+func (m *Manager) SetProject(project string) {
+	m.project = project
 }
 
 func detectRuntime() Runtime {
@@ -153,7 +198,7 @@ func (m *Manager) runQuiet(args ...string) string {
 	return out
 }
 
-// Status returns current infrastructure status.
+// Status returns current infrastructure status for the manager's project.
 func (m *Manager) Status() *InfraStatus {
 	status := &InfraStatus{
 		Runtime: m.runtime,
@@ -166,12 +211,15 @@ func (m *Manager) Status() *InfraStatus {
 		return status
 	}
 
+	networkName := NetworkName(m.project)
+	memgraphName := MemgraphName(m.project)
+
 	// Check network
 	out, _ := m.run("network", "ls", "--format", "{{.Name}}")
-	status.Network = strings.Contains(out, NetworkName)
+	status.Network = strings.Contains(out, networkName)
 
 	// Check memgraph
-	out, _ = m.run("ps", "-a", "--filter", fmt.Sprintf("name=%s", MemgraphName),
+	out, _ = m.run("ps", "-a", "--filter", fmt.Sprintf("name=%s", memgraphName),
 		"--format", "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}")
 	if out != "" {
 		parts := strings.Split(out, "\t")
@@ -188,10 +236,14 @@ func (m *Manager) Status() *InfraStatus {
 		}
 	}
 
-	// Check volumes
+	// Check volumes (project-specific prefix)
 	out, _ = m.run("volume", "ls", "--format", "{{.Name}}")
+	prefix := "urp_"
+	if m.project != "" {
+		prefix = fmt.Sprintf("urp_%s_", m.project)
+	}
 	for _, name := range strings.Split(out, "\n") {
-		if strings.HasPrefix(name, "urp_") {
+		if strings.HasPrefix(name, prefix) {
 			status.Volumes = append(status.Volumes, name)
 		}
 	}
@@ -203,7 +255,7 @@ func (m *Manager) Status() *InfraStatus {
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Split(line, "\t")
-		if len(parts) < 4 || parts[1] == MemgraphName {
+		if len(parts) < 4 || parts[1] == memgraphName {
 			continue
 		}
 		worker := ContainerStatus{
@@ -222,40 +274,42 @@ func (m *Manager) Status() *InfraStatus {
 }
 
 // StartInfra starts shared infrastructure (network, memgraph, volumes).
+// All resources are project-scoped. No ports are exposed to host.
 func (m *Manager) StartInfra() error {
 	if m.runtime == RuntimeNone {
 		return fmt.Errorf("no container runtime found")
 	}
 
-	// Create network
-	m.runQuiet("network", "create", NetworkName)
+	networkName := NetworkName(m.project)
+	memgraphName := MemgraphName(m.project)
 
-	// Create volumes
-	m.runQuiet("volume", "create", SessionsVolume)
-	m.runQuiet("volume", "create", ChromaVolume)
-	m.runQuiet("volume", "create", VectorVolume)
+	// Create network
+	m.runQuiet("network", "create", networkName)
+
+	// Create volumes (project-scoped)
+	m.runQuiet("volume", "create", SessionsVolume(m.project))
+	m.runQuiet("volume", "create", ChromaVolume(m.project))
+	m.runQuiet("volume", "create", VectorVolume(m.project))
 
 	// Start memgraph if not running
-	out, _ := m.run("ps", "-q", "--filter", fmt.Sprintf("name=%s", MemgraphName))
+	out, _ := m.run("ps", "-q", "--filter", fmt.Sprintf("name=%s", memgraphName))
 	if out == "" {
 		// Check if exists but stopped
-		out, _ = m.run("ps", "-aq", "--filter", fmt.Sprintf("name=%s", MemgraphName))
+		out, _ = m.run("ps", "-aq", "--filter", fmt.Sprintf("name=%s", memgraphName))
 		if out != "" {
 			// Start existing
-			_, err := m.run("start", MemgraphName)
+			_, err := m.run("start", memgraphName)
 			if err != nil {
 				return fmt.Errorf("failed to start memgraph: %w", err)
 			}
 		} else {
-			// Create and run
+			// Create and run - NO PORT MAPPINGS (network-only access)
 			args := []string{
 				"run", "-d",
-				"--name", MemgraphName,
-				"--network", NetworkName,
-				"-p", "7687:7687",
-				"-p", "7444:7444",
-				"-p", "3000:3000",
-				"-v", fmt.Sprintf("%s:/var/lib/memgraph", SessionsVolume),
+				"--name", memgraphName,
+				"--network", networkName,
+				// No -p flags: containers access via network name, not host ports
+				"-v", fmt.Sprintf("%s:/var/lib/memgraph", SessionsVolume(m.project)),
 				"--restart", "unless-stopped",
 				MemgraphImage,
 			}
@@ -271,10 +325,11 @@ func (m *Manager) StartInfra() error {
 }
 
 func (m *Manager) waitForMemgraph(timeout time.Duration) error {
+	memgraphName := MemgraphName(m.project)
 	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {
 		// Try to connect via bolt
-		out, err := m.run("exec", MemgraphName, "bash", "-c", "echo 'RETURN 1;' | mgconsole")
+		out, err := m.run("exec", memgraphName, "bash", "-c", "echo 'RETURN 1;' | mgconsole")
 		if err == nil && strings.Contains(out, "1") {
 			return nil
 		}
@@ -302,14 +357,20 @@ func (m *Manager) StopInfra() error {
 	return nil
 }
 
-// CleanInfra removes all URP containers, volumes, and network.
+// CleanInfra removes all URP containers, volumes, and network for this project.
 func (m *Manager) CleanInfra() error {
 	if m.runtime == RuntimeNone {
 		return fmt.Errorf("no container runtime found")
 	}
 
-	// Stop and remove containers
-	out, _ := m.run("ps", "-aq", "--filter", "name=urp-")
+	networkName := NetworkName(m.project)
+
+	// Stop and remove containers for this project
+	filter := "name=urp-"
+	if m.project != "" {
+		filter = fmt.Sprintf("name=urp-%s", m.project)
+	}
+	out, _ := m.run("ps", "-aq", "--filter", filter)
 	if out != "" {
 		ids := strings.Split(out, "\n")
 		for _, id := range ids {
@@ -319,13 +380,13 @@ func (m *Manager) CleanInfra() error {
 		}
 	}
 
-	// Remove volumes
-	m.runQuiet("volume", "rm", "-f", SessionsVolume)
-	m.runQuiet("volume", "rm", "-f", ChromaVolume)
-	m.runQuiet("volume", "rm", "-f", VectorVolume)
+	// Remove volumes (project-scoped)
+	m.runQuiet("volume", "rm", "-f", SessionsVolume(m.project))
+	m.runQuiet("volume", "rm", "-f", ChromaVolume(m.project))
+	m.runQuiet("volume", "rm", "-f", VectorVolume(m.project))
 
 	// Remove network
-	m.runQuiet("network", "rm", NetworkName)
+	m.runQuiet("network", "rm", networkName)
 
 	return nil
 }
@@ -374,17 +435,22 @@ func (m *Manager) LaunchStandalone(projectPath string, readOnly bool) (string, e
 	homeDir, _ := os.UserHomeDir()
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
+	// Set project for scoped resources
+	m.project = projectName
+	networkName := NetworkName(m.project)
+	memgraphName := MemgraphName(m.project)
+
 	args := []string{
 		"run", "-d",
 		"--name", containerName,
-		"--network", NetworkName,
+		"--network", networkName,
 		"--security-opt", "label=disable",
 		"--security-opt", "no-new-privileges", // Prevent privilege escalation
 		"-v", fmt.Sprintf("%s:/workspace:%s", absPath, mountOpt),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume(m.project)),
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
-		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", memgraphName),
 		"-e", fmt.Sprintf("URP_READ_ONLY=%v", readOnly),
 		"-w", "/workspace",
 		"--restart", "unless-stopped",
@@ -402,17 +468,10 @@ func (m *Manager) LaunchStandalone(projectPath string, readOnly bool) (string, e
 
 // LaunchMaster starts a master container (read-only, can spawn workers).
 // Now runs interactively with auto-ingest and Claude CLI.
+// Master includes Firefox for web GUI access to services.
 func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	if m.runtime == RuntimeNone {
 		return "", fmt.Errorf("no container runtime found")
-	}
-
-	// Ensure infra
-	status := m.Status()
-	if status.Memgraph == nil || !strings.Contains(status.Memgraph.Status, "Up") {
-		if err := m.StartInfra(); err != nil {
-			return "", err
-		}
 	}
 
 	absPath, err := filepath.Abs(projectPath)
@@ -422,6 +481,19 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 
 	projectName := filepath.Base(absPath)
 	containerName := fmt.Sprintf("urp-master-%s", projectName)
+
+	// Set project for scoped resources
+	m.project = projectName
+	networkName := NetworkName(m.project)
+	memgraphName := MemgraphName(m.project)
+
+	// Ensure infra
+	status := m.Status()
+	if status.Memgraph == nil || !strings.Contains(status.Memgraph.Status, "Up") {
+		if err := m.StartInfra(); err != nil {
+			return "", err
+		}
+	}
 
 	// Stop existing if running
 	m.runQuiet("rm", "-f", containerName)
@@ -464,7 +536,7 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 
 	args = append(args,
 		"--name", containerName,
-		"--network", NetworkName,
+		"--network", networkName,
 		// Disable SELinux for docker socket access
 		"--security-opt", "label=disable",
 		// Project: read-only
@@ -472,19 +544,24 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		// Docker socket for spawning workers
 		"-v", fmt.Sprintf("%s:/var/run/docker.sock", socketPath),
 		// Vector store
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume(m.project)),
 		// Alerts directory for Claude hooks
 		"-v", fmt.Sprintf("%s:/var/lib/urp/alerts", alertsDir),
 		// Env file
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
+		// X11 socket for Firefox GUI (if available)
+		"-v", "/tmp/.X11-unix:/tmp/.X11-unix:ro",
 		// Environment
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("URP_HOST_PATH=%s", absPath),
 		"-e", fmt.Sprintf("URP_HOST_HOME=%s", homeDir),
-		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", memgraphName),
+		"-e", fmt.Sprintf("URP_NETWORK=%s", networkName),
 		"-e", "URP_MASTER=1",
 		"-e", "URP_READ_ONLY=true",
 		"-e", "TERM=xterm-256color",
+		// X11 display for Firefox
+		"-e", fmt.Sprintf("DISPLAY=%s", os.Getenv("DISPLAY")),
 		"-w", "/workspace",
 	)
 
@@ -542,6 +619,11 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	projectName := filepath.Base(absPath)
 	containerName := fmt.Sprintf("urp-%s-w%d", projectName, workerNum)
 
+	// Set project for scoped resources
+	m.project = projectName
+	networkName := NetworkName(m.project)
+	memgraphName := MemgraphName(m.project)
+
 	// Validate requirements before spawning
 	req := m.ValidateSpawnRequirements(projectPath)
 	if !req.IsValid() {
@@ -578,7 +660,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 
 	args = append(args,
 		"--name", containerName,
-		"--network", NetworkName,
+		"--network", networkName,
 	)
 
 	// Security: prevent privilege escalation
@@ -590,7 +672,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		args = append(args,
 			"-v", "/var/run/docker.sock:/var/run/docker.sock:Z",
 			"-v", fmt.Sprintf("%s:/workspace:rw:Z", absPath),
-			"-v", fmt.Sprintf("%s:/var/lib/urp/vector:Z", VectorVolume),
+			"-v", fmt.Sprintf("%s:/var/lib/urp/vector:Z", VectorVolume(m.project)),
 			"-v", fmt.Sprintf("%s:/etc/urp/.env:ro:Z", envFile),
 		)
 	} else {
@@ -599,7 +681,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 			"--security-opt", "label=disable",
 			"-v", "/var/run/docker.sock:/var/run/docker.sock",
 			"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
-			"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+			"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume(m.project)),
 			"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		)
 	}
@@ -609,7 +691,8 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("URP_HOST_PATH=%s", absPath),
 		"-e", fmt.Sprintf("URP_HOST_HOME=%s", homeDir),
-		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", memgraphName),
+		"-e", fmt.Sprintf("URP_NETWORK=%s", networkName),
 		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
 		"-e", fmt.Sprintf("URP_SELINUX=%s", req.SELinux),
 		"-e", "URP_READ_ONLY=false",
@@ -642,7 +725,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	if !hasTTY {
 		health := m.VerifyWorkerHealth(containerName, 10*time.Second)
 		if !health.Running {
-			logging.SpawnEvent(containerName, projectName, false, time.Since(startTime), fmt.Errorf("failed to start: %s", health.Error))
+			audit.SpawnEvent(containerName, projectName, false, time.Since(startTime), fmt.Errorf("failed to start: %s", health.Error))
 			return "", fmt.Errorf("worker failed to start: %s", health.Error)
 		}
 		if !health.DockerAccess {
@@ -651,7 +734,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		}
 	}
 
-	logging.SpawnEvent(containerName, projectName, true, time.Since(startTime), nil)
+	audit.SpawnEvent(containerName, projectName, true, time.Since(startTime), nil)
 	return containerName, nil
 }
 
@@ -664,6 +747,7 @@ func (m *Manager) ListWorkers(projectName string) []ContainerStatus {
 	if projectName != "" {
 		filter = fmt.Sprintf("name=urp-%s", projectName)
 	}
+	memgraphName := MemgraphName(projectName)
 
 	out, _ := m.run("ps", "-a", "--filter", filter,
 		"--format", "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}")
@@ -672,7 +756,7 @@ func (m *Manager) ListWorkers(projectName string) []ContainerStatus {
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Split(line, "\t")
-		if len(parts) < 4 || parts[1] == MemgraphName {
+		if len(parts) < 4 || parts[1] == memgraphName {
 			continue
 		}
 		// Skip master containers
@@ -765,11 +849,16 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 	}
 
 	absPath := hostPath
+	projectName := filepath.Base(absPath)
 
 	if containerName == "" {
-		projectName := filepath.Base(absPath)
 		containerName = fmt.Sprintf("urp-nemo-%s", projectName)
 	}
+
+	// Set project for scoped resources
+	m.project = projectName
+	networkName := NetworkName(m.project)
+	memgraphName := MemgraphName(m.project)
 
 	// Kill existing if any
 	m.runQuiet("rm", "-f", containerName)
@@ -784,7 +873,7 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 	args := []string{
 		"run", "-d",
 		"--name", containerName,
-		"--network", NetworkName,
+		"--network", networkName,
 		"--security-opt", "label=disable", // SELinux compatibility
 		"--security-opt", "no-new-privileges", // Prevent privilege escalation
 		"--cap-drop", "ALL", // Drop all capabilities (NeMo doesn't need them)
@@ -802,23 +891,22 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 	// Volumes and environment
 	args = append(args,
 		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume(m.project)),
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
-		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
+		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", memgraphName),
 		"-e", fmt.Sprintf("URP_GPU_MODE=%s", gpuMode), // Expose GPU mode to container
 		"-w", "/workspace",
 		NeMoImage,
 		"tail", "-f", "/dev/null", // Stay alive for exec
 	)
 
-	projectName := filepath.Base(absPath)
 	_, runErr := m.run(args...)
 	if runErr != nil {
-		logging.NeMoEvent("launch", containerName, projectName, time.Since(startTime), runErr)
+		audit.NeMoEvent("launch", containerName, projectName, time.Since(startTime), runErr)
 		return "", fmt.Errorf("failed to launch NeMo: %w", runErr)
 	}
 
-	logging.NeMoEvent("launch", containerName, projectName, time.Since(startTime), nil)
+	audit.NeMoEvent("launch", containerName, projectName, time.Since(startTime), nil)
 	return containerName, nil
 }
 
@@ -872,6 +960,6 @@ func (m *Manager) ExecNeMo(containerName string, command string) (string, error)
 func (m *Manager) KillNeMo(containerName string) error {
 	startTime := time.Now()
 	_, err := m.run("rm", "-f", containerName)
-	logging.NeMoEvent("kill", containerName, "", time.Since(startTime), err)
+	audit.NeMoEvent("kill", containerName, "", time.Since(startTime), err)
 	return err
 }

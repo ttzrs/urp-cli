@@ -31,10 +31,10 @@ func (v VolumeSpec) StringWithSELinux() string {
 }
 
 // StandardVolumes returns the common volume mounts for URP containers
-func StandardVolumes(projectPath, envFile string, readOnly bool) []VolumeSpec {
+func StandardVolumes(projectPath, projectName, envFile string, readOnly bool) []VolumeSpec {
 	return []VolumeSpec{
 		{Source: projectPath, Target: "/workspace", ReadOnly: readOnly},
-		{Source: VectorVolume, Target: "/var/lib/urp/vector", ReadOnly: false},
+		{Source: VectorVolume(projectName), Target: "/var/lib/urp/vector", ReadOnly: false},
 		{Source: envFile, Target: "/etc/urp/.env", ReadOnly: true},
 	}
 }

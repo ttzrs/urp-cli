@@ -20,7 +20,6 @@ import (
 	"github.com/joss/urp/internal/container"
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/ingest"
-	"github.com/joss/urp/internal/logging"
 	"github.com/joss/urp/internal/memory"
 	urpmetrics "github.com/joss/urp/internal/metrics"
 	"github.com/joss/urp/internal/orchestrator"
@@ -63,7 +62,9 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 
 			// Configure logging to persist events to graph
 			if db != nil {
-				logging.SetGraphDriver(db)
+				audit.SetGraphDriver(db)
+				// Initialize Memgraph vector store
+				vector.SetDefaultStore(vector.NewMemgraphStore(db))
 			}
 
 			// Initialize audit logger
@@ -205,6 +206,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	bak := backupCmd()
 	bak.GroupID = "cognitive"
 	rootCmd.AddCommand(bak)
+
+	// Spec-Driven Development
+	spec := specCmd()
+	spec.GroupID = "cognitive"
+	rootCmd.AddCommand(spec)
 
 	// Doctor command (environment diagnostics)
 	doctor := doctorCmd()
@@ -1652,11 +1658,13 @@ func infraCmd() *cobra.Command {
 			}
 			fmt.Printf("  Runtime:  %s\n", status.Runtime)
 
-			// Network
+			// Network (show project-scoped name)
+			project := os.Getenv("URP_PROJECT")
+			networkName := container.NetworkName(project)
 			if status.Network {
-				fmt.Printf("  Network:  %s ✓\n", container.NetworkName)
+				fmt.Printf("  Network:  %s ✓\n", networkName)
 			} else {
-				fmt.Printf("  Network:  %s (not created)\n", container.NetworkName)
+				fmt.Printf("  Network:  %s (not created)\n", networkName)
 			}
 
 			// Memgraph
@@ -1688,47 +1696,60 @@ func infraCmd() *cobra.Command {
 		Use:   "start",
 		Short: "Start infrastructure (network, memgraph)",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
+			project := os.Getenv("URP_PROJECT")
+			mgr := container.NewManagerForProject(context.Background(), project)
 
-			fmt.Println("Starting URP infrastructure...")
+			if project != "" {
+				fmt.Printf("Starting URP infrastructure for project: %s\n", project)
+			} else {
+				fmt.Println("Starting URP infrastructure (default)...")
+			}
 
 			if err := mgr.StartInfra(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
-			fmt.Println("✓ Network created")
+			networkName := container.NetworkName(project)
+			memgraphName := container.MemgraphName(project)
+			fmt.Printf("✓ Network: %s\n", networkName)
 			fmt.Println("✓ Volumes created")
-			fmt.Println("✓ Memgraph running")
+			fmt.Printf("✓ Memgraph: %s (no host ports)\n", memgraphName)
 			fmt.Println()
-			fmt.Println("Infrastructure ready. Use 'urp launch' to start a worker.")
+			fmt.Println("Infrastructure ready. Use 'urp launch' to start a master.")
 		},
 	}
 
 	// urp infra stop
 	stopCmd := &cobra.Command{
 		Use:   "stop",
-		Short: "Stop all URP containers",
+		Short: "Stop all URP containers for current project",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
+			project := os.Getenv("URP_PROJECT")
+			mgr := container.NewManagerForProject(context.Background(), project)
 
-			fmt.Println("Stopping URP containers...")
+			if project != "" {
+				fmt.Printf("Stopping URP containers for project: %s\n", project)
+			} else {
+				fmt.Println("Stopping URP containers (all)...")
+			}
 
 			if err := mgr.StopInfra(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 
-			fmt.Println("✓ All containers stopped")
+			fmt.Println("✓ Containers stopped")
 		},
 	}
 
 	// urp infra clean
 	cleanCmd := &cobra.Command{
 		Use:   "clean",
-		Short: "Remove all URP containers, volumes, and network",
+		Short: "Remove all URP containers, volumes, and network for current project",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
+			project := os.Getenv("URP_PROJECT")
+			mgr := container.NewManagerForProject(context.Background(), project)
 
 			fmt.Println("Cleaning URP infrastructure...")
 
@@ -1752,7 +1773,9 @@ func infraCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			mgr := container.NewManager(context.Background())
 
-			containerName := container.MemgraphName
+			// Default to project memgraph (use URP_PROJECT env or empty for default)
+			project := os.Getenv("URP_PROJECT")
+			containerName := container.MemgraphName(project)
 			if len(args) > 0 {
 				containerName = args[0]
 			}

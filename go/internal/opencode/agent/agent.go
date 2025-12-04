@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,27 +15,50 @@ import (
 	"github.com/joss/urp/pkg/llm"
 )
 
+// MessageCallback is called when a message should be persisted
+type MessageCallback func(ctx context.Context, msg *domain.Message) error
+
+// AutocorrectionConfig defines behavior for automatic retry on test failures
+type AutocorrectionConfig struct {
+	Enabled    bool     // Enable autocorrection loop
+	MaxRetries int      // Maximum retry attempts (default: 3)
+	Patterns   []string // Patterns that trigger retry (e.g., "FAIL", "error:", "panic:")
+}
+
+// DefaultAutocorrection returns sensible defaults for autocorrection
+func DefaultAutocorrection() AutocorrectionConfig {
+	return AutocorrectionConfig{
+		Enabled:    true,
+		MaxRetries: 3,
+		Patterns:   []string{"FAIL", "--- FAIL:", "panic:", "error:", "Error:", "failed"},
+	}
+}
+
 // Agent orchestrates conversations with an LLM
 type Agent struct {
-	config         domain.Agent
-	provider       llm.Provider
-	tools          tool.ToolRegistry
-	executor       *ToolExecutor
-	hooks          *hook.Registry
-	workDir        string
-	thinkingBudget int // Extended thinking token budget (0 = disabled)
+	config          domain.Agent
+	provider        llm.Provider
+	tools           tool.ToolRegistry
+	executor        *ToolExecutor
+	hooks           *hook.Registry
+	workDir         string
+	thinkingBudget  int                  // Extended thinking token budget (0 = disabled)
+	onMessage       MessageCallback      // Called to persist messages
+	autocorrection  AutocorrectionConfig // Autocorrection settings
+	retryCount      int                  // Current retry counter
 }
 
 // New creates an Agent with its dependencies (uses interfaces)
 func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry) *Agent {
+	hooks := hook.NewRegistry()
 	a := &Agent{
 		config:   config,
 		provider: provider,
 		tools:    tools,
-		hooks:    hook.NewRegistry(),
+		hooks:    hooks,
 	}
 	// Initialize executor with default permissions and shared hooks
-	a.executor = NewToolExecutor(tools, nil).WithHooks(a.hooks)
+	a.executor = NewToolExecutor(tools, nil).WithHooks(hooks)
 	return a
 }
 
@@ -60,6 +84,23 @@ func (a *Agent) SetWorkDir(workDir string) {
 // SetThinkingBudget sets the extended thinking token budget
 func (a *Agent) SetThinkingBudget(budget int) {
 	a.thinkingBudget = budget
+}
+
+// OnMessage sets the callback for message persistence
+func (a *Agent) OnMessage(cb MessageCallback) {
+	a.onMessage = cb
+}
+
+// EnableAutocorrection configures the autocorrection loop
+func (a *Agent) EnableAutocorrection(config AutocorrectionConfig) {
+	a.autocorrection = config
+}
+
+// persistMessage calls the callback if set
+func (a *Agent) persistMessage(ctx context.Context, msg *domain.Message) {
+	if a.onMessage != nil {
+		a.onMessage(ctx, msg)
+	}
 }
 
 // Run processes a message and streams the response
@@ -98,6 +139,9 @@ func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*do
 		}
 	}
 
+	// Persist user message
+	a.persistMessage(ctx, userMsg)
+
 	// Build conversation
 	allMessages := make([]domain.Message, 0, len(messages)+1)
 	for _, m := range messages {
@@ -121,6 +165,10 @@ func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*do
 		SystemPrompt:   a.buildSystemPrompt(session),
 		MaxTokens:      16384,
 		ThinkingBudget: a.thinkingBudget,
+	}
+
+	if a.provider == nil {
+		return nil, fmt.Errorf("provider is nil")
 	}
 
 	// Start streaming
@@ -195,6 +243,9 @@ func (a *Agent) processEventsLoop(
 					Timestamp: time.Now(),
 				}
 
+				// Persist assistant message
+				a.persistMessage(ctx, &assistantMsg)
+
 				// Execute tools in parallel and collect results
 				toolResults := a.executeToolsParallel(ctx, pendingToolCalls, assistantMsg.Timestamp, events)
 
@@ -206,6 +257,36 @@ func (a *Agent) processEventsLoop(
 					Parts:     toolResults,
 					Timestamp: time.Now(),
 				}
+
+				// Check for failures and trigger autocorrection
+				if failed, reason := a.detectFailure(toolResults); failed && a.shouldRetry() {
+					a.retryCount++
+
+					// Emit autocorrection event for visibility
+					events <- domain.StreamEvent{
+						Type:    domain.StreamEventText,
+						Content: fmt.Sprintf("\n\n🔄 [AUTOCORRECTION %d/%d] %s\n\n", a.retryCount, a.autocorrection.MaxRetries, reason),
+					}
+
+					// Add correction instruction to tool message
+					correctionPart := domain.TextPart{
+						Text: fmt.Sprintf(`
+⚠️ FAILURE DETECTED - AUTOCORRECTION ATTEMPT %d/%d
+
+The previous command failed. Please:
+1. Analyze the error output above
+2. Identify the root cause
+3. Fix the issue
+4. Run the tests again to verify
+
+Do not give up - fix the error and retry.
+`, a.retryCount, a.autocorrection.MaxRetries),
+					}
+					toolMsg.Parts = append(toolMsg.Parts, correctionPart)
+				}
+
+				// Persist tool results
+				a.persistMessage(ctx, &toolMsg)
 
 				// Continue conversation with tool results
 				newMessages := append(messages, assistantMsg, toolMsg)
@@ -232,6 +313,18 @@ func (a *Agent) processEventsLoop(
 				// Process next round (recursive but doesn't close channel)
 				a.processEventsLoop(ctx, session, newMessages, tools, nextEvents, events)
 				return
+			}
+
+			// No tool calls - persist final assistant message if there's text
+			if textBuffer != "" {
+				finalMsg := domain.Message{
+					ID:        ulid.Make().String(),
+					SessionID: session.ID,
+					Role:      domain.RoleAssistant,
+					Parts:     []domain.Part{domain.TextPart{Text: textBuffer}},
+					Timestamp: time.Now(),
+				}
+				a.persistMessage(ctx, &finalMsg)
 			}
 
 			events <- event
@@ -349,6 +442,52 @@ func (a *Agent) getConflictKey(tc domain.ToolCallPart) string {
 
 	// Read-only tools can run fully parallel - unique key per call
 	return fmt.Sprintf("parallel:%s:%s", tc.Name, tc.ToolID)
+}
+
+// detectFailure checks if any tool result contains failure patterns
+func (a *Agent) detectFailure(parts []domain.Part) (bool, string) {
+	if !a.autocorrection.Enabled {
+		return false, ""
+	}
+
+	for _, part := range parts {
+		tc, ok := part.(domain.ToolCallPart)
+		if !ok {
+			continue
+		}
+
+		// Check both result and error
+		output := tc.Result
+		if tc.Error != "" {
+			output += "\n" + tc.Error
+		}
+
+		for _, pattern := range a.autocorrection.Patterns {
+			if strings.Contains(output, pattern) {
+				// Extract a snippet around the failure
+				idx := strings.Index(output, pattern)
+				start := idx - 100
+				if start < 0 {
+					start = 0
+				}
+				end := idx + 200
+				if end > len(output) {
+					end = len(output)
+				}
+				snippet := output[start:end]
+				return true, fmt.Sprintf("Detected '%s' in output: ...%s...", pattern, snippet)
+			}
+		}
+	}
+	return false, ""
+}
+
+// shouldRetry checks if we should trigger autocorrection
+func (a *Agent) shouldRetry() bool {
+	if !a.autocorrection.Enabled {
+		return false
+	}
+	return a.retryCount < a.autocorrection.MaxRetries
 }
 
 func (a *Agent) buildSystemPrompt(session *domain.Session) string {

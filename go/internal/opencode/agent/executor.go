@@ -30,6 +30,9 @@ func NewToolExecutor(tools tool.ToolRegistry, perms *permission.Manager) *ToolEx
 
 // WithHooks sets the hook registry
 func (e *ToolExecutor) WithHooks(hooks *hook.Registry) *ToolExecutor {
+	if e == nil {
+		return nil
+	}
 	e.hooks = hooks
 	return e
 }

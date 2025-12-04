@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/pkg/llm"
@@ -37,12 +38,19 @@ func NewOpenAIWithClient(apiKey string, baseURLOverride string, client HTTPClien
 	if baseURL == "" {
 		baseURL = openaiAPIURL
 	} else {
-		// Ensure it ends with /chat/completions
+		// Normalize: remove trailing slash
 		if baseURL[len(baseURL)-1] == '/' {
 			baseURL = baseURL[:len(baseURL)-1]
 		}
-		if len(baseURL) < 17 || baseURL[len(baseURL)-17:] != "/chat/completions" {
-			baseURL = baseURL + "/chat/completions"
+		// Ensure it ends with /v1/chat/completions
+		if !strings.HasSuffix(baseURL, "/chat/completions") {
+			// If baseURL ends with /v1, append /chat/completions
+			if strings.HasSuffix(baseURL, "/v1") {
+				baseURL = baseURL + "/chat/completions"
+			} else {
+				// Otherwise, append /v1/chat/completions
+				baseURL = baseURL + "/v1/chat/completions"
+			}
 		}
 	}
 	return &OpenAI{
@@ -69,11 +77,11 @@ func (o *OpenAI) Name() string { return "OpenAI" }
 
 func (o *OpenAI) Models() []domain.Model {
 	return []domain.Model{
-		{ID: "gpt-4o", Name: "GPT-4o", ContextSize: 128000, InputCost: 2.5, OutputCost: 10},
-		{ID: "gpt-4o-mini", Name: "GPT-4o Mini", ContextSize: 128000, InputCost: 0.15, OutputCost: 0.6},
-		{ID: "gpt-4-turbo", Name: "GPT-4 Turbo", ContextSize: 128000, InputCost: 10, OutputCost: 30},
-		{ID: "o1", Name: "o1", ContextSize: 200000, InputCost: 15, OutputCost: 60},
-		{ID: "o1-mini", Name: "o1 Mini", ContextSize: 128000, InputCost: 3, OutputCost: 12},
+		{ID: "gpt-4o", Name: "GPT-4o", ShortCode: "4o", ContextSize: 128000, InputCost: 2.5, OutputCost: 10},
+		{ID: "gpt-4o-mini", Name: "GPT-4o Mini", ShortCode: "4om", ContextSize: 128000, InputCost: 0.15, OutputCost: 0.6},
+		{ID: "gpt-4-turbo", Name: "GPT-4 Turbo", ShortCode: "4tb", ContextSize: 128000, InputCost: 10, OutputCost: 30},
+		{ID: "o1", Name: "o1", ShortCode: "o1", ContextSize: 200000, InputCost: 15, OutputCost: 60},
+		{ID: "o1-mini", Name: "o1 Mini", ShortCode: "o1m", ContextSize: 128000, InputCost: 3, OutputCost: 12},
 	}
 }
 
@@ -210,22 +218,30 @@ func (o *OpenAI) Chat(ctx context.Context, req *llm.ChatRequest) (<-chan domain.
 		tools = append(tools, tool)
 	}
 
-	maxTokens := req.MaxTokens
-	if maxTokens == 0 {
-		maxTokens = 4096
+	reqBody := map[string]interface{}{
+		"model":    req.Model,
+		"messages": msgs,
+		"stream":   true,
 	}
 
-	body := openaiRequest{
-		Model:         req.Model,
-		Messages:      msgs,
-		Tools:         tools,
-		Stream:        true,
-		StreamOptions: &openaiStreamOpts{IncludeUsage: true},
-		MaxTokens:     maxTokens,
-		Temperature:   req.Temperature,
+	if len(tools) > 0 {
+		reqBody["tools"] = tools
 	}
 
-	jsonBody, err := json.Marshal(body)
+	if req.MaxTokens > 0 {
+		// Newer O1/GPT-5 models require max_completion_tokens
+		if strings.HasPrefix(req.Model, "o1") || strings.HasPrefix(req.Model, "gpt-5") {
+			reqBody["max_completion_tokens"] = req.MaxTokens
+		} else {
+			reqBody["max_tokens"] = req.MaxTokens
+		}
+	}
+
+	if req.Temperature > 0 {
+		reqBody["temperature"] = req.Temperature
+	}
+
+	jsonBody, err := json.Marshal(reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}

@@ -43,10 +43,10 @@ func (g *Google) Name() string { return "Google" }
 
 func (g *Google) Models() []domain.Model {
 	return []domain.Model{
-		{ID: "gemini-2.0-flash-exp", Name: "Gemini 2.0 Flash", ContextSize: 1000000, InputCost: 0, OutputCost: 0},
-		{ID: "gemini-1.5-pro", Name: "Gemini 1.5 Pro", ContextSize: 2000000, InputCost: 1.25, OutputCost: 5},
-		{ID: "gemini-1.5-flash", Name: "Gemini 1.5 Flash", ContextSize: 1000000, InputCost: 0.075, OutputCost: 0.3},
-		{ID: "gemini-1.5-flash-8b", Name: "Gemini 1.5 Flash 8B", ContextSize: 1000000, InputCost: 0.0375, OutputCost: 0.15},
+		{ID: "gemini-2.0-flash-exp", Name: "Gemini 2.0 Flash", ShortCode: "g2f", ContextSize: 1000000, InputCost: 0, OutputCost: 0},
+		{ID: "gemini-1.5-pro", Name: "Gemini 1.5 Pro", ShortCode: "g1p", ContextSize: 2000000, InputCost: 1.25, OutputCost: 5},
+		{ID: "gemini-1.5-flash", Name: "Gemini 1.5 Flash", ShortCode: "g1f", ContextSize: 1000000, InputCost: 0.075, OutputCost: 0.3},
+		{ID: "gemini-1.5-flash-8b", Name: "Gemini 1.5 Flash 8B", ShortCode: "g8b", ContextSize: 1000000, InputCost: 0.0375, OutputCost: 0.15},
 	}
 }
 

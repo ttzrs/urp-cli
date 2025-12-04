@@ -2,7 +2,8 @@
 # Smoke test script for URP post-deploy verification
 # Usage: ./scripts/smoke-test.sh [--quick]
 
-set -e
+# No set -e so we can report all failures
+# set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,11 +39,13 @@ log_info() {
 # Find urp binary
 URP="${URP:-./urp}"
 if [[ ! -x "$URP" ]]; then
-    URP="$(dirname "$0")/../urp"
+    # If not in current dir, check relative to script
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    URP="$SCRIPT_DIR/../urp"
 fi
 
 if [[ ! -x "$URP" ]]; then
-    echo "Error: urp binary not found. Build with 'go build -o urp ./cmd/urp'"
+    echo "Error: urp binary not found. Build with 'make build'"
     exit 1
 fi
 
@@ -60,11 +63,11 @@ else
     log_fail "version command failed"
 fi
 
-# Test 2: Help (use -h which doesn't trigger PersistentPreRun)
-if timeout 3 $URP -h 2>&1 | head -1 | grep -q "URP\|urp"; then
+# Test 2: Help
+if $URP -h 2>&1 | head -1 | grep -q "URP\|urp"; then
     log_pass "help accessible"
 else
-    log_skip "help (timeout - may need db connection)"
+    log_fail "help command failed"
 fi
 
 # Test 3: Selftest

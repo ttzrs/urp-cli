@@ -1,0 +1,137 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# URP Stack: Dev container + Graph database
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   docker-compose up -d              # Start stack
+#   docker-compose exec urp bash      # Enter dev container
+#   docker-compose down               # Stop stack
+#
+# Mount your codebase:
+#   CODEBASE_PATH=/path/to/repo docker-compose up -d
+#
+# Note: security_opt: label:disable is set for docker socket access on SELinux systems
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Graph Database (Memgraph - Neo4j compatible)
+  # ─────────────────────────────────────────────────────────────────────────────
+  memgraph:
+    image: memgraph/memgraph:latest
+    ports:
+      - "7687:7687"   # Bolt protocol
+      - "7444:7444"   # Monitoring
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+      - memgraph_log:/var/log/memgraph
+    command: ["--log-level=WARNING"]
+    healthcheck:
+      test: ["CMD", "echo", ">", "/dev/tcp/localhost/7687"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Memgraph Lab (Optional UI)
+  # ─────────────────────────────────────────────────────────────────────────────
+  lab:
+    image: memgraph/lab:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - memgraph
+    environment:
+      - QUICK_CONNECT_MG_HOST=memgraph
+      - QUICK_CONNECT_MG_PORT=7687
+    profiles:
+      - ui  # Only start with: docker-compose --profile ui up
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # URP Dev Container
+  # ─────────────────────────────────────────────────────────────────────────────
+  urp:
+    build: .
+    depends_on:
+      memgraph:
+        condition: service_started
+    # Add docker group for socket access (GID from host)
+    group_add:
+      - ${DOCKER_GID:-961}
+    # Disable SELinux label for docker socket access
+    security_opt:
+      - label:disable
+    environment:
+      - NEO4J_URI=bolt://memgraph:7687
+      - NEO4J_USER=
+      - NEO4J_PASSWORD=
+      - URP_ENABLED=1
+    volumes:
+      # Docker socket for container observation
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount codebase (set CODEBASE_PATH env var)
+      - ${CODEBASE_PATH:-.}:/codebase:ro
+      # Persist session data
+      - urp_sessions:/app/sessions
+      # Vector DB persistence
+      - urp_chroma:/app/chroma
+    working_dir: /codebase
+    stdin_open: true
+    tty: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # URP with write access (for development)
+  # ─────────────────────────────────────────────────────────────────────────────
+  urp-dev:
+    build: .
+    depends_on:
+      memgraph:
+        condition: service_started
+    group_add:
+      - ${DOCKER_GID:-961}
+    security_opt:
+      - label:disable
+    environment:
+      - NEO4J_URI=bolt://memgraph:7687
+      - NEO4J_USER=
+      - NEO4J_PASSWORD=
+      - URP_ENABLED=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Writable codebase
+      - ${CODEBASE_PATH:-.}:/codebase
+      - urp_sessions:/app/sessions
+      - urp_chroma:/app/chroma
+    working_dir: /codebase
+    stdin_open: true
+    tty: true
+    profiles:
+      - dev  # Only start with: docker-compose --profile dev up
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Dreamer (Background Maintenance Daemon)
+  # ─────────────────────────────────────────────────────────────────────────────
+  dreamer:
+    build: .
+    depends_on:
+      memgraph:
+        condition: service_started
+    environment:
+      - NEO4J_URI=bolt://memgraph:7687
+      - NEO4J_USER=
+      - NEO4J_PASSWORD=
+      - CODEBASE_PATH=/codebase
+      - DREAMER_CPU_THRESHOLD=15
+      - DREAMER_INTERVAL=60
+      - DREAMER_PRUNE_DAYS=7
+    volumes:
+      - ${CODEBASE_PATH:-.}:/codebase:ro
+    command: ["python3", "/app/dreamer.py"]
+    restart: unless-stopped
+    profiles:
+      - full  # Only start with: docker-compose --profile full up
+
+volumes:
+  memgraph_data:
+  memgraph_log:
+  urp_sessions:
+  urp_chroma:

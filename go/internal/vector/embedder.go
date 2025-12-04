@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"math"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -184,7 +185,16 @@ var (
 // DefaultEmbedder returns the default embedder.
 func GetDefaultEmbedder() Embedder {
 	if defaultEmbedder == nil {
-		defaultEmbedder = NewLocalEmbedder(384)
+		provider := os.Getenv("URP_EMBEDDING_PROVIDER")
+		apiKey := os.Getenv("OPENAI_API_KEY")
+
+		if provider == "local" {
+			defaultEmbedder = NewLocalEmbedder(384)
+		} else if apiKey != "" {
+			defaultEmbedder = NewOpenAIEmbedder(apiKey)
+		} else {
+			defaultEmbedder = NewLocalEmbedder(384)
+		}
 	}
 	return defaultEmbedder
 }
