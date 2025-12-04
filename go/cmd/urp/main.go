@@ -19,6 +19,7 @@ import (
 	"github.com/joss/urp/internal/container"
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/ingest"
+	"github.com/joss/urp/internal/logging"
 	"github.com/joss/urp/internal/memory"
 	"github.com/joss/urp/internal/orchestrator"
 	"github.com/joss/urp/internal/planning"
@@ -56,6 +57,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 			if err != nil {
 				// Silent fail for status command
 				db = nil
+			}
+
+			// Configure logging to persist events to graph
+			if db != nil {
+				logging.SetGraphDriver(db)
 			}
 
 			// Initialize audit logger

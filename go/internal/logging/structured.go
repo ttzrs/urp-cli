@@ -137,13 +137,18 @@ func SpawnEvent(workerName, project string, success bool, duration time.Duration
 		},
 	}
 
+	errMsg := ""
 	if err != nil {
 		e.Level = LevelError
 		e.Error = err.Error()
+		errMsg = err.Error()
 	}
 
 	data, _ := json.Marshal(e)
 	fmt.Fprintln(os.Stderr, string(data))
+
+	// Persist to graph (best effort)
+	PersistWorkerSpawn(workerName, project, success, duration.Milliseconds(), errMsg)
 }
 
 // NeMoEvent logs a NeMo container event
@@ -160,13 +165,18 @@ func NeMoEvent(event, containerName, project string, duration time.Duration, err
 		},
 	}
 
+	errMsg := ""
 	if err != nil {
 		e.Level = LevelError
 		e.Error = err.Error()
+		errMsg = err.Error()
 	}
 
 	data, _ := json.Marshal(e)
 	fmt.Fprintln(os.Stderr, string(data))
+
+	// Persist to graph (best effort)
+	PersistNeMoEvent(event, containerName, project, duration.Milliseconds(), errMsg)
 }
 
 // HealthEvent logs a health check event
@@ -190,4 +200,7 @@ func HealthEvent(workerName, status string, healthy bool) {
 
 	data, _ := json.Marshal(e)
 	fmt.Fprintln(os.Stderr, string(data))
+
+	// Persist to graph (best effort)
+	PersistHealthCheck(workerName, status, healthy)
 }
