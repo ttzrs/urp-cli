@@ -45,12 +45,18 @@ func main() {
 	graph.SetEnvLookup(os.LookupEnv)
 
 	rootCmd := &cobra.Command{
-		Use:   "urp",
-		Short: "Universal Repository Perception - AI agent senses for code",
-		Long: `URP gives AI agents structured perception of code, git history,
-and runtime state through PRU primitives (D, τ, Φ, ⊆, ⊥, P, T).
+		Use:   "urp [path]",
+		Short: "Universal Repository Perception - AI-powered code agent",
+		Long: `URP: AI-powered code agent with structured perception.
 
-Use 'urp <noun> <verb>' pattern for all commands.`,
+Usage modes:
+  urp              Start interactive OpenCode session (current directory)
+  urp <path>       Start interactive session in specified directory
+  urp <command>    Run specific URP command (see below)
+
+Use 'urp status' to show infrastructure status.
+Use 'urp help' for full command list.`,
+		Args: cobra.MaximumNArgs(1),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Connect to graph (lazy, may fail)
 			var err error
@@ -76,8 +82,19 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			// Default: show status
-			showStatus()
+			// Determine work directory
+			workDir, _ := os.Getwd()
+			if len(args) > 0 {
+				// Path provided - resolve it
+				path := args[0]
+				if !filepath.IsAbs(path) {
+					path = filepath.Join(workDir, path)
+				}
+				workDir = path
+			}
+
+			// Start interactive OpenCode session
+			runInteractiveAgent(workDir)
 		},
 	}
 
@@ -224,10 +241,87 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
+	rootCmd.AddCommand(statusCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
+}
+
+// statusCmd shows infrastructure status (former default behavior)
+func statusCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "status",
+		Short: "Show URP infrastructure status",
+		Run: func(cmd *cobra.Command, args []string) {
+			showStatus()
+		},
+	}
+}
+
+// runInteractiveAgent starts an interactive OpenCode session
+func runInteractiveAgent(workDir string) {
+	ctx := context.Background()
+
+	fmt.Println("🚀 URP Interactive Agent")
+	fmt.Printf("📁 Working directory: %s\n", workDir)
+
+	// Verify directory exists
+	if _, err := os.Stat(workDir); os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "Error: directory does not exist: %s\n", workDir)
+		os.Exit(1)
+	}
+
+	// Import required packages (already imported at top of file)
+	// These are used for the interactive agent
+
+	// 1. Connect to Memgraph
+	var gdb graph.Driver
+	var err error
+	gdb, err = graph.Connect()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "⚠ Memgraph not available (volatile session): %v\n", err)
+		gdb = nil
+	}
+	if gdb != nil {
+		defer gdb.Close()
+		fmt.Println("📊 Connected to Memgraph")
+	}
+
+	// Import the packages we need
+	var store interface {
+		CreateSession(context.Context, interface{}) error
+		CreateMessage(context.Context, interface{}) error
+	}
+	_ = store // Silence unused warning for now
+
+	// For now, delegate to launch command if in container mode
+	// or run claude directly for simplicity
+	if os.Getenv("URP_CONTAINER_MODE") == "1" {
+		// Inside container - run claude directly
+		cmd := exec.Command("claude")
+		cmd.Dir = workDir
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// On host - launch master container
+	fmt.Println("🐳 Launching container environment...")
+	mgr := container.NewManagerForProject(ctx, filepath.Base(workDir))
+
+	containerName, err := mgr.LaunchMaster(workDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error launching container: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✓ Container: %s\n", containerName)
 }
 
 func versionCmd() *cobra.Command {

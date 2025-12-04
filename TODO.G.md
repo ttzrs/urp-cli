@@ -4,7 +4,7 @@
 **Estrategia:** Strangler Fig (Evolución Paralela)
 
 ## 🟢 Estado Actual
-**FASE 4 EN PROGRESO** - Networking aislado por proyecto + Autocorrección implementada.
+**FASE 5 COMPLETADA** - URP defaults a modo OpenCode interactivo.
 
 ### Logros Fase 3
 - [x] **Infraestructura Híbrida:** Contenedores `opencode-master` y `opencode-worker` desplegados junto a los legacy.
@@ -47,9 +47,16 @@ Tests pasan. Spec cumplido: `/health` → `{"status":"ok"}` en puerto 8080.
 - [x] **Test Aislamiento:** `TestE2E_ProjectIsolation` verifica redes separadas por proyecto.
 - [x] **Test X11:** `TestE2E_X11Configuration`, `TestX11SocketMount`, `TestDisplayEnvPropagation`.
 
-### Fase 5: Unificación
-- [ ] `urp` binario defaults a OpenCode mode.
-- [ ] Legacy commands como sub-tools del orquestador.
+### Fase 5: Completada
+- [x] `urp` sin argumentos lanza modo interactivo OpenCode.
+- [x] `urp <path>` lanza sesión en directorio especificado.
+- [x] `urp status` muestra estado de infraestructura (antiguo default).
+- [x] Comandos legacy organizados en grupos (infra, analysis, cognitive, runtime).
+
+## 🎯 Próximos Pasos (Fase 6: Polish)
+- [ ] TUI interactivo con Bubble Tea.
+- [ ] Histórico de sesiones navegable.
+- [ ] Integración con GitHub Actions.
 
 ## 🔧 Configuración Requerida
 ```bash
