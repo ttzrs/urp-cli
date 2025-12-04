@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/joss/urp/internal/metrics"
 )
 
 // Level represents log severity
@@ -147,6 +149,9 @@ func SpawnEvent(workerName, project string, success bool, duration time.Duration
 	data, _ := json.Marshal(e)
 	fmt.Fprintln(os.Stderr, string(data))
 
+	// Update metrics
+	metrics.Global().RecordSpawn(success, duration.Milliseconds())
+
 	// Persist to graph (best effort)
 	PersistWorkerSpawn(workerName, project, success, duration.Milliseconds(), errMsg)
 }
@@ -175,6 +180,11 @@ func NeMoEvent(event, containerName, project string, duration time.Duration, err
 	data, _ := json.Marshal(e)
 	fmt.Fprintln(os.Stderr, string(data))
 
+	// Update metrics (only for launch events)
+	if event == "launch" {
+		metrics.Global().RecordNeMo(errMsg == "", duration.Milliseconds())
+	}
+
 	// Persist to graph (best effort)
 	PersistNeMoEvent(event, containerName, project, duration.Milliseconds(), errMsg)
 }
@@ -200,6 +210,9 @@ func HealthEvent(workerName, status string, healthy bool) {
 
 	data, _ := json.Marshal(e)
 	fmt.Fprintln(os.Stderr, string(data))
+
+	// Update metrics
+	metrics.Global().RecordHealthCheck(healthy)
 
 	// Persist to graph (best effort)
 	PersistHealthCheck(workerName, status, healthy)

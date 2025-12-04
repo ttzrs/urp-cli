@@ -21,6 +21,7 @@ import (
 	"github.com/joss/urp/internal/ingest"
 	"github.com/joss/urp/internal/logging"
 	"github.com/joss/urp/internal/memory"
+	urpmetrics "github.com/joss/urp/internal/metrics"
 	"github.com/joss/urp/internal/orchestrator"
 	"github.com/joss/urp/internal/planning"
 	"github.com/joss/urp/internal/protocol"
@@ -1438,7 +1439,51 @@ func sysCmd() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(vitalsCmd, topologyCmd, healthCmd, runtimeCmd, gpuCmd)
+	// urp sys metrics - show or serve metrics
+	metricsCmd := &cobra.Command{
+		Use:   "metrics",
+		Short: "Show current metrics or start metrics server",
+		Long: `Display current URP metrics in Prometheus format.
+
+Use --serve to start a metrics server on port 9090 (or custom port).
+The /metrics endpoint can be scraped by Prometheus.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			serve, _ := cmd.Flags().GetBool("serve")
+			port, _ := cmd.Flags().GetInt("port")
+
+			m := urpmetrics.Global()
+
+			if serve {
+				srv := urpmetrics.NewServer(port)
+				fmt.Printf("Starting metrics server on :%d\n", port)
+				fmt.Println("Endpoints: /metrics, /health")
+				fmt.Println("Press Ctrl+C to stop")
+				if err := srv.Start(); err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to start server: %v\n", err)
+					os.Exit(1)
+				}
+				// Block forever
+				select {}
+			}
+
+			// Just print current metrics
+			fmt.Printf("URP Metrics (current session):\n\n")
+			fmt.Printf("Container Operations:\n")
+			fmt.Printf("  Worker spawns:     %d (errors: %d)\n", m.WorkerSpawns.Load(), m.WorkerSpawnErrors.Load())
+			fmt.Printf("  NeMo launches:     %d (errors: %d)\n", m.NeMoLaunches.Load(), m.NeMoLaunchErrors.Load())
+			fmt.Printf("\nHealth Checks:\n")
+			fmt.Printf("  Total checks:      %d (failures: %d)\n", m.HealthChecks.Load(), m.HealthCheckFailures.Load())
+			fmt.Printf("\nGraph Operations:\n")
+			fmt.Printf("  Writes:            %d (errors: %d)\n", m.GraphWrites.Load(), m.GraphWriteErrors.Load())
+			fmt.Printf("\nTiming (last operation):\n")
+			fmt.Printf("  Last spawn:        %dms\n", m.LastSpawnDurationMs.Load())
+			fmt.Printf("  Last NeMo launch:  %dms\n", m.LastNeMoDurationMs.Load())
+		},
+	}
+	metricsCmd.Flags().Bool("serve", false, "Start metrics HTTP server")
+	metricsCmd.Flags().Int("port", 9090, "Port for metrics server")
+
+	cmd.AddCommand(vitalsCmd, topologyCmd, healthCmd, runtimeCmd, gpuCmd, metricsCmd)
 	return cmd
 }
 
