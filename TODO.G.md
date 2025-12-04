@@ -42,9 +42,10 @@ Tests pasan. Spec cumplido: `/health` → `{"status":"ok"}` en puerto 8080.
 
 ## 📋 Tareas Pendientes (Roadmap)
 
-### Fase 4: Completar
-- [ ] **Test E2E:** Probar flujo completo master→spawn→ask→kill.
-- [ ] **Firefox Integration Test:** Verificar X11 funciona desde master.
+### Fase 4: Completada
+- [x] **Test E2E:** `TestE2E_OrchestrationFlow` en `container_test.go` (spawn→exec→kill).
+- [x] **Test Aislamiento:** `TestE2E_ProjectIsolation` verifica redes separadas por proyecto.
+- [x] **Test X11:** `TestE2E_X11Configuration`, `TestX11SocketMount`, `TestDisplayEnvPropagation`.
 
 ### Fase 5: Unificación
 - [ ] `urp` binario defaults a OpenCode mode.
