@@ -2,6 +2,7 @@
 package ingest
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bmatcuk/doublestar/v4"
 	"github.com/joss/urp/internal/domain"
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/vector"
@@ -46,11 +48,17 @@ type Stats struct {
 func (i *Ingester) Ingest(ctx context.Context, rootPath string) (*Stats, error) {
 	stats := &Stats{}
 
+	// Load gitignore patterns
+	ignorePatterns := loadGitignore(rootPath)
+
 	// Walk directory
 	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
+
+		// Get relative path for gitignore matching
+		relPath, _ := filepath.Rel(rootPath, path)
 
 		// Skip hidden directories and common non-code directories
 		if info.IsDir() {
@@ -58,6 +66,15 @@ func (i *Ingester) Ingest(ctx context.Context, rootPath string) (*Stats, error) 
 			if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "__pycache__" {
 				return filepath.SkipDir
 			}
+			// Check gitignore for directories (add trailing slash)
+			if isIgnored(relPath+"/", ignorePatterns) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// Skip files matching gitignore
+		if isIgnored(relPath, ignorePatterns) {
 			return nil
 		}
 
@@ -250,4 +267,87 @@ func (i *Ingester) LinkCalls(ctx context.Context) error {
 	// Clean up resolved references (optional - keep for debugging)
 	// DELETE is commented out to allow inspection
 	return nil
+}
+
+// loadGitignore reads .gitignore patterns from the root path.
+func loadGitignore(rootPath string) []string {
+	var patterns []string
+
+	// Default patterns for common data/binary files
+	defaults := []string{
+		"*.csv", "*.tsv", "*.parquet", "*.arrow",
+		"*.json", "*.jsonl", "*.ndjson",
+		"*.pkl", "*.pickle", "*.joblib",
+		"*.h5", "*.hdf5", "*.npy", "*.npz",
+		"*.db", "*.sqlite", "*.sqlite3",
+		"*.tar", "*.tar.gz", "*.tgz", "*.zip", "*.gz", "*.bz2", "*.xz",
+		"*.bin", "*.dat", "*.model", "*.ckpt", "*.pt", "*.pth",
+		"*.png", "*.jpg", "*.jpeg", "*.gif", "*.ico", "*.svg",
+		"*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx",
+		"data/", "datasets/", "models/", "checkpoints/", "logs/",
+	}
+	patterns = append(patterns, defaults...)
+
+	// Read .gitignore if exists
+	gitignorePath := filepath.Join(rootPath, ".gitignore")
+	f, err := os.Open(gitignorePath)
+	if err != nil {
+		return patterns
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		// Skip comments and empty lines
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		patterns = append(patterns, line)
+	}
+
+	return patterns
+}
+
+// isIgnored checks if a path matches any gitignore pattern.
+func isIgnored(path string, patterns []string) bool {
+	for _, pattern := range patterns {
+		// Handle directory patterns (ending with /)
+		if strings.HasSuffix(pattern, "/") {
+			dirPattern := strings.TrimSuffix(pattern, "/")
+			if strings.HasPrefix(path, dirPattern+"/") || path == dirPattern+"/" {
+				return true
+			}
+			// Also match as glob
+			if matched, _ := doublestar.Match("**/"+dirPattern+"/**", path); matched {
+				return true
+			}
+			continue
+		}
+
+		// Handle glob patterns
+		if strings.Contains(pattern, "*") || strings.Contains(pattern, "?") {
+			// Try direct match
+			if matched, _ := doublestar.Match(pattern, path); matched {
+				return true
+			}
+			// Try with **/ prefix for patterns without path separator
+			if !strings.Contains(pattern, "/") {
+				if matched, _ := doublestar.Match("**/"+pattern, path); matched {
+					return true
+				}
+			}
+			continue
+		}
+
+		// Exact match or prefix match
+		if path == pattern || strings.HasPrefix(path, pattern+"/") {
+			return true
+		}
+		// Check if pattern matches anywhere in path
+		if strings.Contains(path, "/"+pattern) || strings.HasPrefix(path, pattern) {
+			return true
+		}
+	}
+	return false
 }
