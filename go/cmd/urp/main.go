@@ -169,6 +169,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	auditCmd.GroupID = "runtime"
 	rootCmd.AddCommand(auditCmd)
 
+	// OpenCode integration
+	oc := opencodeCmd()
+	oc.GroupID = "cognitive"
+	rootCmd.AddCommand(oc)
+
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
 

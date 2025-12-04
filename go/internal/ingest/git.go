@@ -35,7 +35,14 @@ type GitStats struct {
 	Branches int `json:"branches"`
 }
 
+// commitBatch holds commits for batch insertion.
+type commitBatch struct {
+	commit *domain.Commit
+	files  []string
+}
+
 // LoadHistory ingests git commit history.
+// Optimized: batches commits and uses UNWIND for bulk insertion.
 func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats, error) {
 	stats := &GitStats{}
 	authors := make(map[string]bool)
@@ -52,6 +59,8 @@ func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats,
 		return nil, fmt.Errorf("git log failed: %w", err)
 	}
 
+	// Parse all commits first
+	var batches []commitBatch
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	var currentCommit *domain.Commit
 	var files []string
@@ -62,10 +71,8 @@ func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats,
 		if strings.Contains(line, "|") && strings.Count(line, "|") >= 4 {
 			// Save previous commit
 			if currentCommit != nil {
-				if err := g.storeCommit(ctx, currentCommit, files); err == nil {
-					stats.Commits++
-					authors[currentCommit.Author] = true
-				}
+				batches = append(batches, commitBatch{commit: currentCommit, files: files})
+				authors[currentCommit.Author] = true
 			}
 
 			// Parse new commit
@@ -85,19 +92,22 @@ func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats,
 			files = nil
 
 		} else if line != "" && currentCommit != nil {
-			// File changed in this commit
 			files = append(files, line)
 		}
 	}
 
 	// Save last commit
 	if currentCommit != nil {
-		if err := g.storeCommit(ctx, currentCommit, files); err == nil {
-			stats.Commits++
-			authors[currentCommit.Author] = true
-		}
+		batches = append(batches, commitBatch{commit: currentCommit, files: files})
+		authors[currentCommit.Author] = true
 	}
 
+	// Batch insert all commits
+	if err := g.storeBatch(ctx, batches); err != nil {
+		return nil, err
+	}
+
+	stats.Commits = len(batches)
 	stats.Authors = len(authors)
 
 	// Load branches
@@ -109,45 +119,68 @@ func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats,
 	return stats, nil
 }
 
-func (g *GitLoader) storeCommit(ctx context.Context, c *domain.Commit, files []string) error {
-	// Create commit node
-	query := `
-		MERGE (c:Commit {hash: $hash})
-		SET c.message = $message,
-		    c.timestamp = $timestamp,
-		    c.datetime = $datetime
-
-		MERGE (a:Author {email: $email})
-		SET a.name = $author
-
-		MERGE (a)-[:AUTHORED]->(c)
-	`
-
-	err := g.db.ExecuteWrite(ctx, query, map[string]any{
-		"hash":      c.Hash,
-		"message":   truncate(c.Message, 200),
-		"timestamp": c.Timestamp.Unix(),
-		"datetime":  c.Timestamp.Format(time.RFC3339),
-		"author":    c.Author,
-		"email":     c.Email,
-	})
-	if err != nil {
-		return err
+// storeBatch inserts all commits in a single transaction using UNWIND.
+func (g *GitLoader) storeBatch(ctx context.Context, batches []commitBatch) error {
+	if len(batches) == 0 {
+		return nil
 	}
 
-	// Link to files
-	for _, file := range files {
-		fileQuery := `
-			MATCH (c:Commit {hash: $hash})
-			MERGE (f:File {path: $path})
-			SET f.name = $name
-			MERGE (c)-[:TOUCHED]->(f)
-		`
-		_ = g.db.ExecuteWrite(ctx, fileQuery, map[string]any{
-			"hash": c.Hash,
-			"path": file,
-			"name": lastSegment(file),
+	// Build commits list for UNWIND
+	commits := make([]map[string]any, 0, len(batches))
+	for _, b := range batches {
+		commits = append(commits, map[string]any{
+			"hash":      b.commit.Hash,
+			"message":   truncate(b.commit.Message, 200),
+			"timestamp": b.commit.Timestamp.Unix(),
+			"datetime":  b.commit.Timestamp.Format(time.RFC3339),
+			"author":    b.commit.Author,
+			"email":     b.commit.Email,
 		})
+	}
+
+	// Single query for all commits + authors
+	query := `
+		UNWIND $commits AS c
+		MERGE (commit:Commit {hash: c.hash})
+		SET commit.message = c.message,
+		    commit.timestamp = c.timestamp,
+		    commit.datetime = c.datetime
+		MERGE (author:Author {email: c.email})
+		SET author.name = c.author
+		MERGE (author)-[:AUTHORED]->(commit)
+	`
+
+	if err := g.db.ExecuteWrite(ctx, query, map[string]any{"commits": commits}); err != nil {
+		return fmt.Errorf("batch commit insert: %w", err)
+	}
+
+	// Build file touches list
+	var touches []map[string]any
+	for _, b := range batches {
+		for _, file := range b.files {
+			touches = append(touches, map[string]any{
+				"hash": b.commit.Hash,
+				"path": file,
+				"name": lastSegment(file),
+			})
+		}
+	}
+
+	if len(touches) == 0 {
+		return nil
+	}
+
+	// Single query for all file touches
+	fileQuery := `
+		UNWIND $touches AS t
+		MATCH (c:Commit {hash: t.hash})
+		MERGE (f:File {path: t.path})
+		SET f.name = t.name
+		MERGE (c)-[:TOUCHED]->(f)
+	`
+
+	if err := g.db.ExecuteWrite(ctx, fileQuery, map[string]any{"touches": touches}); err != nil {
+		return fmt.Errorf("batch file touches: %w", err)
 	}
 
 	return nil
@@ -160,21 +193,31 @@ func (g *GitLoader) loadBranches(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	count := 0
+	// Collect all branches
+	var branches []map[string]any
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	for scanner.Scan() {
 		branch := strings.TrimSpace(scanner.Text())
 		if branch == "" {
 			continue
 		}
-
-		query := `MERGE (b:Branch {name: $name})`
-		if err := g.db.ExecuteWrite(ctx, query, map[string]any{"name": branch}); err == nil {
-			count++
-		}
+		branches = append(branches, map[string]any{"name": branch})
 	}
 
-	return count, nil
+	if len(branches) == 0 {
+		return 0, nil
+	}
+
+	// Single UNWIND query for all branches
+	query := `
+		UNWIND $branches AS b
+		MERGE (:Branch {name: b.name})
+	`
+	if err := g.db.ExecuteWrite(ctx, query, map[string]any{"branches": branches}); err != nil {
+		return 0, err
+	}
+
+	return len(branches), nil
 }
 
 func truncate(s string, n int) string {
