@@ -35,10 +35,11 @@ type Alert struct {
 
 // Manager handles alert creation and persistence
 type Manager struct {
-	mu        sync.RWMutex
-	alertDir  string
-	alerts    []Alert
-	maxAlerts int
+	mu           sync.RWMutex
+	alertDir     string
+	alerts       []Alert
+	maxAlerts    int
+	maxAlertFiles int // Maximum number of alert JSON files to keep
 }
 
 var (
@@ -63,11 +64,13 @@ func Global() *Manager {
 func NewManager(alertDir string) *Manager {
 	os.MkdirAll(alertDir, 0755)
 	m := &Manager{
-		alertDir:  alertDir,
-		alerts:    make([]Alert, 0),
-		maxAlerts: 100,
+		alertDir:      alertDir,
+		alerts:        make([]Alert, 0),
+		maxAlerts:     100,
+		maxAlertFiles: 100, // Keep max 100 alert JSON files
 	}
 	m.loadFromDisk()
+	m.rotateOldFiles() // Clean up old files on startup
 	return m
 }
 
@@ -164,6 +167,64 @@ func (m *Manager) persistAlert(alert *Alert) {
 	filename := filepath.Join(m.alertDir, fmt.Sprintf("%s.json", alert.ID))
 	data, _ := json.MarshalIndent(alert, "", "  ")
 	os.WriteFile(filename, data, 0644)
+
+	// Rotate old files periodically (every 10 alerts)
+	if len(m.alerts)%10 == 0 {
+		m.rotateOldFiles()
+	}
+}
+
+// rotateOldFiles removes old alert JSON files beyond maxAlertFiles
+func (m *Manager) rotateOldFiles() {
+	entries, err := os.ReadDir(m.alertDir)
+	if err != nil {
+		return
+	}
+
+	// Collect alert files (alert-*.json)
+	type alertFile struct {
+		name    string
+		modTime time.Time
+	}
+	var alertFiles []alertFile
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		// Only process alert-*.json files, skip active.json and claude-alerts.md
+		if len(name) > 6 && name[:6] == "alert-" && filepath.Ext(name) == ".json" {
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			alertFiles = append(alertFiles, alertFile{
+				name:    name,
+				modTime: info.ModTime(),
+			})
+		}
+	}
+
+	// If within limits, nothing to do
+	if len(alertFiles) <= m.maxAlertFiles {
+		return
+	}
+
+	// Sort by modification time (oldest first)
+	for i := 0; i < len(alertFiles)-1; i++ {
+		for j := i + 1; j < len(alertFiles); j++ {
+			if alertFiles[i].modTime.After(alertFiles[j].modTime) {
+				alertFiles[i], alertFiles[j] = alertFiles[j], alertFiles[i]
+			}
+		}
+	}
+
+	// Remove oldest files until within limit
+	toRemove := len(alertFiles) - m.maxAlertFiles
+	for i := 0; i < toRemove; i++ {
+		os.Remove(filepath.Join(m.alertDir, alertFiles[i].name))
+	}
 }
 
 // updateActiveAlerts writes active alerts to a summary file for hooks

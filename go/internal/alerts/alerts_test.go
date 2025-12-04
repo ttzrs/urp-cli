@@ -173,6 +173,34 @@ func TestConvenienceFunctions(t *testing.T) {
 	t.Skip("convenience functions use sync.Once, tested via Manager")
 }
 
+func TestLogRotation(t *testing.T) {
+	dir := t.TempDir()
+	m := NewManager(dir)
+	m.maxAlertFiles = 5 // Low limit for testing
+
+	// Create 10 alerts - should trigger rotation
+	for i := 0; i < 10; i++ {
+		m.Send(LevelInfo, "test", "Test", "Message", nil)
+	}
+
+	// Force rotation
+	m.rotateOldFiles()
+
+	// Count remaining alert files
+	entries, _ := os.ReadDir(dir)
+	var alertCount int
+	for _, e := range entries {
+		name := e.Name()
+		if len(name) > 6 && name[:6] == "alert-" && filepath.Ext(name) == ".json" {
+			alertCount++
+		}
+	}
+
+	if alertCount > m.maxAlertFiles {
+		t.Errorf("expected max %d alert files, got %d", m.maxAlertFiles, alertCount)
+	}
+}
+
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsHelper(s, substr))
 }
