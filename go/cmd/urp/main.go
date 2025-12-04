@@ -842,7 +842,7 @@ func thinkCmd() *cobra.Command {
 			}
 
 			if !result.Success {
-				auditLogger.LogError(event, fmt.Errorf(result.Error))
+				auditLogger.LogError(event, fmt.Errorf("%s", result.Error))
 				fmt.Printf("Learning failed: %s\n", result.Error)
 				os.Exit(1)
 			}

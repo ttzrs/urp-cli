@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
 )
 
 const (
@@ -391,9 +393,23 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	homeDir, _ := os.UserHomeDir()
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
-	// Build args for interactive master with SELinux labels
+	// Check if we have a TTY available
+	hasTTY := term.IsTerminal(int(os.Stdin.Fd()))
+
 	args := []string{
-		"run", "-it", "--rm",
+		"run",
+	}
+
+	if hasTTY {
+		// Interactive mode with TTY
+		args = append(args, "-it", "--rm")
+	} else {
+		// Detached mode for non-TTY (e.g., Claude Code)
+		// Don't use --rm so container persists for urp attach
+		args = append(args, "-d")
+	}
+
+	args = append(args,
 		"--name", containerName,
 		"--network", NetworkName,
 		// Project: read-only, shared SELinux label (:z)
@@ -411,24 +427,49 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		"-e", "URP_READ_ONLY=true",
 		"-e", "TERM=xterm-256color",
 		"-w", "/workspace",
-		URPMasterImage,
+	)
+
+	if hasTTY {
+		args = append(args, URPMasterImage)
+	} else {
+		// In non-TTY mode, run sleep to keep container alive
+		// Claude Code can then use 'urp attach' or send commands
+		args = append(args, URPMasterImage, "sleep", "infinity")
 	}
 
-	// Run interactively (attach stdin/stdout/stderr)
 	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 
-	err = cmd.Run()
-	if err != nil {
-		// Exit code from claude is normal
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			if exitErr.ExitCode() == 0 {
-				return containerName, nil
+	if hasTTY {
+		// Interactive mode: attach stdin/stdout/stderr
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err = cmd.Run()
+		if err != nil {
+			// Exit code from claude is normal
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				if exitErr.ExitCode() == 0 {
+					return containerName, nil
+				}
 			}
+			return "", fmt.Errorf("master exited: %w", err)
 		}
-		return "", fmt.Errorf("master exited: %w", err)
+	} else {
+		// Detached mode: capture output to get container ID
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return "", fmt.Errorf("failed to start master: %w (output: %s)", err, string(output))
+		}
+		// Verify container is running
+		time.Sleep(500 * time.Millisecond)
+		checkCmd := exec.Command(string(m.runtime), "ps", "--filter", fmt.Sprintf("name=%s", containerName), "--format", "{{.Names}}")
+		checkOutput, _ := checkCmd.Output()
+		if !strings.Contains(string(checkOutput), containerName) {
+			// Container didn't stay running, check logs
+			logsCmd := exec.Command(string(m.runtime), "logs", containerName)
+			logs, _ := logsCmd.CombinedOutput()
+			return "", fmt.Errorf("master container exited immediately (logs: %s)", string(logs))
+		}
 	}
 
 	return containerName, nil
@@ -468,8 +509,19 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 	homeDir, _ := os.UserHomeDir()
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
+	// Check if we have a TTY available
+	hasTTY := term.IsTerminal(int(os.Stdin.Fd()))
+
+	// Build args - use -it only if TTY available, otherwise -d for detached
+	var runMode string
+	if hasTTY {
+		runMode = "-it"
+	} else {
+		runMode = "-d" // detached mode for non-TTY (e.g., Claude Code)
+	}
+
 	args := []string{
-		"run", "-it", "--rm",
+		"run", runMode, "--rm",
 		"--name", containerName,
 		"--network", NetworkName,
 		// Project: read-write with SELinux shared label
@@ -498,11 +550,14 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 
 	args = append(args, URPImage)
 
-	// Run interactively
 	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
+	if hasTTY {
+		// Interactive mode: attach stdin/stdout/stderr
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 
 	err = cmd.Run()
 	if err != nil {
