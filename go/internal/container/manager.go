@@ -532,6 +532,12 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	projectName := filepath.Base(absPath)
 	containerName := fmt.Sprintf("urp-%s-w%d", projectName, workerNum)
 
+	// Validate requirements before spawning
+	req := m.ValidateSpawnRequirements(projectPath)
+	if !req.IsValid() {
+		return "", fmt.Errorf("spawn requirements not met: %s", strings.Join(req.Errors, "; "))
+	}
+
 	// Kill existing worker with same name (if any)
 	m.runQuiet("rm", "-f", containerName)
 
@@ -563,21 +569,36 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	args = append(args,
 		"--name", containerName,
 		"--network", NetworkName,
-		// Disable SELinux for container socket access
-		"--security-opt", "label=disable",
-		// Docker socket for NeMo container control
-		"-v", "/var/run/docker.sock:/var/run/docker.sock",
-		// Project: read-write
-		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
-		// Vector store
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
-		// Env file
-		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
-		// Environment
+	)
+
+	// SELinux handling: use appropriate security options based on runtime and SELinux mode
+	if m.NeedsSELinuxWorkaround() {
+		// Podman with SELinux enforcing: use :Z labels instead of disabling
+		args = append(args,
+			"-v", "/var/run/docker.sock:/var/run/docker.sock:Z",
+			"-v", fmt.Sprintf("%s:/workspace:rw:Z", absPath),
+			"-v", fmt.Sprintf("%s:/var/lib/urp/vector:Z", VectorVolume),
+			"-v", fmt.Sprintf("%s:/etc/urp/.env:ro:Z", envFile),
+		)
+	} else {
+		// Docker or SELinux permissive/disabled: disable labels for socket access
+		args = append(args,
+			"--security-opt", "label=disable",
+			"-v", "/var/run/docker.sock:/var/run/docker.sock",
+			"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
+			"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+			"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
+		)
+	}
+
+	// Environment variables
+	args = append(args,
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("URP_HOST_PATH=%s", absPath),
+		"-e", fmt.Sprintf("URP_HOST_HOME=%s", homeDir),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
+		"-e", fmt.Sprintf("URP_SELINUX=%s", req.SELinux),
 		"-e", "URP_READ_ONLY=false",
 		"-e", "TERM=xterm-256color",
 		"-w", "/workspace",
@@ -602,6 +623,18 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 			}
 		}
 		return "", fmt.Errorf("worker exited: %w", err)
+	}
+
+	// Post-spawn health check (only for detached mode)
+	if !hasTTY {
+		health := m.VerifyWorkerHealth(containerName, 10*time.Second)
+		if !health.Running {
+			return "", fmt.Errorf("worker failed to start: %s", health.Error)
+		}
+		if !health.DockerAccess {
+			// Warn but don't fail - worker might not need NeMo
+			fmt.Fprintf(os.Stderr, "Warning: worker %s started but docker access unavailable (NeMo disabled)\n", containerName)
+		}
 	}
 
 	return containerName, nil
