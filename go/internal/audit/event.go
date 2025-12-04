@@ -19,6 +19,8 @@ const (
 	CategorySystem      Category = "system"
 	CategoryGit         Category = "git"
 	CategoryInfra       Category = "infra"
+	CategoryCognitive   Category = "cognitive"
+	CategorySkills      Category = "skills"
 )
 
 // Status represents the outcome of an operation.

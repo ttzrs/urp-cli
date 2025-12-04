@@ -174,6 +174,11 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	oc.GroupID = "cognitive"
 	rootCmd.AddCommand(oc)
 
+	// Skills management
+	sk := skillsCmd()
+	sk.GroupID = "cognitive"
+	rootCmd.AddCommand(sk)
+
 	// Ungrouped
 	rootCmd.AddCommand(versionCmd())
 
