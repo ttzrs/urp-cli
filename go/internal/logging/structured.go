@@ -2,6 +2,7 @@
 package logging
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -23,6 +24,7 @@ const (
 // Event represents a structured log event
 type Event struct {
 	Timestamp string                 `json:"ts"`
+	RequestID string                 `json:"request_id,omitempty"`
 	Level     Level                  `json:"level"`
 	Component string                 `json:"component"`
 	Event     string                 `json:"event"`
@@ -38,6 +40,7 @@ type Logger struct {
 	component string
 	project   string
 	worker    string
+	requestID string
 }
 
 // New creates a new logger for a component
@@ -55,6 +58,7 @@ func (l *Logger) WithProject(project string) *Logger {
 		component: l.component,
 		project:   project,
 		worker:    l.worker,
+		requestID: l.requestID,
 	}
 }
 
@@ -64,6 +68,27 @@ func (l *Logger) WithWorker(worker string) *Logger {
 		component: l.component,
 		project:   l.project,
 		worker:    worker,
+		requestID: l.requestID,
+	}
+}
+
+// WithContext extracts request ID from context
+func (l *Logger) WithContext(ctx context.Context) *Logger {
+	return &Logger{
+		component: l.component,
+		project:   l.project,
+		worker:    l.worker,
+		requestID: GetRequestID(ctx),
+	}
+}
+
+// WithRequestID sets request ID directly
+func (l *Logger) WithRequestID(id string) *Logger {
+	return &Logger{
+		component: l.component,
+		project:   l.project,
+		worker:    l.worker,
+		requestID: id,
 	}
 }
 
@@ -71,6 +96,7 @@ func (l *Logger) WithWorker(worker string) *Logger {
 func (l *Logger) log(level Level, event string, extra map[string]interface{}, err error) {
 	e := Event{
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		RequestID: l.requestID,
 		Level:     level,
 		Component: l.component,
 		Event:     event,
@@ -126,8 +152,14 @@ func (l *Logger) TimedEvent(event string, start time.Time, extra map[string]inte
 
 // SpawnEvent logs a container spawn event
 func SpawnEvent(workerName, project string, success bool, duration time.Duration, err error) {
+	SpawnEventCtx(context.Background(), workerName, project, success, duration, err)
+}
+
+// SpawnEventCtx logs a container spawn event with request ID from context
+func SpawnEventCtx(ctx context.Context, workerName, project string, success bool, duration time.Duration, err error) {
 	e := Event{
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		RequestID: GetRequestID(ctx),
 		Level:     LevelInfo,
 		Component: "container",
 		Event:     "spawn",
@@ -158,8 +190,14 @@ func SpawnEvent(workerName, project string, success bool, duration time.Duration
 
 // NeMoEvent logs a NeMo container event
 func NeMoEvent(event, containerName, project string, duration time.Duration, err error) {
+	NeMoEventCtx(context.Background(), event, containerName, project, duration, err)
+}
+
+// NeMoEventCtx logs a NeMo container event with request ID from context
+func NeMoEventCtx(ctx context.Context, event, containerName, project string, duration time.Duration, err error) {
 	e := Event{
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		RequestID: GetRequestID(ctx),
 		Level:     LevelInfo,
 		Component: "nemo",
 		Event:     event,
@@ -191,6 +229,11 @@ func NeMoEvent(event, containerName, project string, duration time.Duration, err
 
 // HealthEvent logs a health check event
 func HealthEvent(workerName, status string, healthy bool) {
+	HealthEventCtx(context.Background(), workerName, status, healthy)
+}
+
+// HealthEventCtx logs a health check event with request ID from context
+func HealthEventCtx(ctx context.Context, workerName, status string, healthy bool) {
 	level := LevelInfo
 	if !healthy {
 		level = LevelWarn
@@ -198,6 +241,7 @@ func HealthEvent(workerName, status string, healthy bool) {
 
 	e := Event{
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		RequestID: GetRequestID(ctx),
 		Level:     level,
 		Component: "health",
 		Event:     "check",
