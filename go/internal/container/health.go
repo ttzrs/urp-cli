@@ -129,3 +129,91 @@ func (m *Manager) NeedsSELinuxWorkaround() bool {
 	// Docker with --security-opt label=disable works
 	return m.runtime == RuntimePodman && IsSELinuxEnforcing()
 }
+
+// WorkerHealth represents the health status of a worker container
+type WorkerHealth struct {
+	Name    string
+	Status  string // "healthy", "unhealthy", "starting", "exited"
+	Health  string // Docker HEALTHCHECK status if available
+	Running bool
+}
+
+// CheckWorkerHealth returns the health status of a specific worker
+func (m *Manager) CheckWorkerHealth(containerName string) *WorkerHealth {
+	wh := &WorkerHealth{Name: containerName}
+
+	// Check if running
+	out, err := m.run("ps", "-a", "--filter", fmt.Sprintf("name=^%s$", containerName), "--format", "{{.Status}}")
+	if err != nil || strings.TrimSpace(out) == "" {
+		wh.Status = "not_found"
+		return wh
+	}
+
+	status := strings.TrimSpace(out)
+	wh.Running = strings.HasPrefix(status, "Up")
+
+	// Parse health status from docker ps output
+	if strings.Contains(status, "(healthy)") {
+		wh.Status = "healthy"
+		wh.Health = "healthy"
+	} else if strings.Contains(status, "(unhealthy)") {
+		wh.Status = "unhealthy"
+		wh.Health = "unhealthy"
+	} else if strings.Contains(status, "(starting)") {
+		wh.Status = "starting"
+		wh.Health = "starting"
+	} else if strings.HasPrefix(status, "Exited") {
+		wh.Status = "exited"
+	} else if wh.Running {
+		wh.Status = "running" // No healthcheck defined
+	}
+
+	return wh
+}
+
+// ListUnhealthyWorkers returns workers that are unhealthy or exited
+func (m *Manager) ListUnhealthyWorkers(projectName string) []*WorkerHealth {
+	var unhealthy []*WorkerHealth
+
+	// List all workers for this project
+	out, err := m.run("ps", "-a", "--filter", fmt.Sprintf("name=urp-%s-w", projectName), "--format", "{{.Names}}")
+	if err != nil {
+		return unhealthy
+	}
+
+	for _, name := range strings.Split(strings.TrimSpace(out), "\n") {
+		if name == "" {
+			continue
+		}
+		health := m.CheckWorkerHealth(name)
+		if health.Status == "unhealthy" || health.Status == "exited" {
+			unhealthy = append(unhealthy, health)
+		}
+	}
+
+	return unhealthy
+}
+
+// RestartWorker stops and starts a worker container
+func (m *Manager) RestartWorker(containerName string) error {
+	_, err := m.run("restart", containerName)
+	if err != nil {
+		return fmt.Errorf("failed to restart worker %s: %w", containerName, err)
+	}
+	return nil
+}
+
+// MonitorAndRestartUnhealthy checks for unhealthy workers and restarts them
+// Returns the names of workers that were restarted
+func (m *Manager) MonitorAndRestartUnhealthy(projectName string) []string {
+	var restarted []string
+
+	unhealthy := m.ListUnhealthyWorkers(projectName)
+	for _, w := range unhealthy {
+		if err := m.RestartWorker(w.Name); err == nil {
+			restarted = append(restarted, w.Name)
+		}
+	}
+
+	return restarted
+}

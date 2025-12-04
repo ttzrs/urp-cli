@@ -163,6 +163,10 @@ RUN chmod 755 /master-entrypoint.sh
 ENV URP_MASTER=1 \
     URP_READ_ONLY=true
 
+# Health check - verifies container is functional
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD urp doctor --quick || exit 1
+
 ENTRYPOINT ["/master-entrypoint.sh"]
 CMD ["claude"]
 
@@ -193,6 +197,10 @@ RUN chmod 755 /worker-entrypoint.sh
 ENV URP_WORKER=1 \
     URP_READ_ONLY=false \
     VIRTUAL_ENV=/opt/venv
+
+# Health check - verifies worker is functional and docker access maintained
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD urp doctor --quick || exit 1
 
 ENTRYPOINT ["/worker-entrypoint.sh"]
 CMD ["urp", "worker", "run"]

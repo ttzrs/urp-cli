@@ -204,3 +204,44 @@ func (e *Environment) QuickCheck() string {
 
 	return fmt.Sprintf("runtime:%s mode:%s %s", e.Runtime, mode, infra)
 }
+
+// QuickHealthCheck performs a fast health check suitable for Docker HEALTHCHECK.
+// Returns nil if healthy, error otherwise.
+// Checks:
+//   - URP binary is executable
+//   - Docker socket accessible (if URP_DOCKER_HEALTHY=true expected)
+//   - Basic filesystem access
+func QuickHealthCheck() error {
+	// Check URP binary works
+	cmd := exec.Command("urp", "--version")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("urp binary not functional: %w", err)
+	}
+
+	// Check docker access if expected
+	dockerHealthy := os.Getenv("URP_DOCKER_HEALTHY")
+	if dockerHealthy == "true" {
+		cmd := exec.Command("docker", "ps", "-q")
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("docker access lost: %w", err)
+		}
+	}
+
+	// Check workspace accessible
+	if _, err := os.Stat("/workspace"); err != nil {
+		return fmt.Errorf("workspace not accessible: %w", err)
+	}
+
+	return nil
+}
+
+// RunQuickHealthCheck runs the quick health check and exits with appropriate code.
+// Suitable for Docker HEALTHCHECK CMD.
+func RunQuickHealthCheck() int {
+	if err := QuickHealthCheck(); err != nil {
+		fmt.Fprintf(os.Stderr, "UNHEALTHY: %v\n", err)
+		return 1
+	}
+	fmt.Println("OK")
+	return 0
+}

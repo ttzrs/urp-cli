@@ -223,6 +223,7 @@ func versionCmd() *cobra.Command {
 
 func doctorCmd() *cobra.Command {
 	var verbose bool
+	var quick bool
 
 	cmd := &cobra.Command{
 		Use:   "doctor",
@@ -234,8 +235,15 @@ Checks:
   - TTY availability
   - Network configuration
   - Required images
-  - Memgraph connectivity`,
+  - Memgraph connectivity
+
+Use --quick for Docker HEALTHCHECK (fast, minimal checks inside container).`,
 		Run: func(cmd *cobra.Command, args []string) {
+			// Quick mode for Docker HEALTHCHECK
+			if quick {
+				os.Exit(selftest.RunQuickHealthCheck())
+			}
+
 			env := selftest.Check()
 
 			if verbose {
@@ -251,6 +259,7 @@ Checks:
 	}
 
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Show detailed diagnostics")
+	cmd.Flags().BoolVarP(&quick, "quick", "q", false, "Fast health check for Docker HEALTHCHECK")
 	return cmd
 }
 
@@ -1850,6 +1859,55 @@ func workersCmd() *cobra.Command {
 			}
 		},
 	}
+
+	// Subcommand: workers health
+	var restart bool
+	healthCmd := &cobra.Command{
+		Use:   "health",
+		Short: "Check worker health status",
+		Long: `Check health status of all workers.
+
+With --restart flag, automatically restarts unhealthy workers.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			mgr := container.NewManager(context.Background())
+			project := os.Getenv("URP_PROJECT")
+			workers := mgr.ListWorkers(project)
+
+			if len(workers) == 0 {
+				fmt.Println("No workers to check")
+				return
+			}
+
+			var unhealthyCount int
+			for _, w := range workers {
+				health := mgr.CheckWorkerHealth(w.Name)
+				status := health.Status
+				if health.Health != "" {
+					status = health.Health
+				}
+
+				icon := "✓"
+				if health.Status == "unhealthy" || health.Status == "exited" {
+					icon = "✗"
+					unhealthyCount++
+				} else if health.Status == "starting" {
+					icon = "…"
+				}
+
+				fmt.Printf("%s %s: %s\n", icon, w.Name, status)
+			}
+
+			if restart && unhealthyCount > 0 {
+				fmt.Println()
+				restarted := mgr.MonitorAndRestartUnhealthy(project)
+				for _, name := range restarted {
+					fmt.Printf("↻ Restarted: %s\n", name)
+				}
+			}
+		},
+	}
+	healthCmd.Flags().BoolVarP(&restart, "restart", "r", false, "Restart unhealthy workers")
+	cmd.AddCommand(healthCmd)
 
 	return cmd
 }
