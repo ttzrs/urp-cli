@@ -378,6 +378,7 @@ func (m *Manager) LaunchStandalone(projectPath string, readOnly bool) (string, e
 		"--name", containerName,
 		"--network", NetworkName,
 		"--security-opt", "label=disable",
+		"--security-opt", "no-new-privileges", // Prevent privilege escalation
 		"-v", fmt.Sprintf("%s:/workspace:%s", absPath, mountOpt),
 		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
@@ -570,6 +571,9 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 		"--name", containerName,
 		"--network", NetworkName,
 	)
+
+	// Security: prevent privilege escalation
+	args = append(args, "--security-opt", "no-new-privileges")
 
 	// SELinux handling: use appropriate security options based on runtime and SELinux mode
 	if m.NeedsSELinuxWorkaround() {
@@ -769,6 +773,9 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 		"--name", containerName,
 		"--network", NetworkName,
 		"--security-opt", "label=disable", // SELinux compatibility
+		"--security-opt", "no-new-privileges", // Prevent privilege escalation
+		"--cap-drop", "ALL", // Drop all capabilities (NeMo doesn't need them)
+		"--user", "1000:1000", // Run as non-root
 	}
 
 	// Auto-detect GPU availability
