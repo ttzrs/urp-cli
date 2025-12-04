@@ -148,12 +148,13 @@ ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash", "-l"]
 
 # ═══════════════════════════════════════════════════════════════
-# Target: master - Full + orchestration + gh CLI
+# Target: master - Full + orchestration + gh CLI + docker CLI
 # ═══════════════════════════════════════════════════════════════
 FROM full AS master
 
-# Add GitHub CLI for PR creation
-RUN apk add --no-cache github-cli
+# Add GitHub CLI for PR creation and Docker CLI for spawning workers
+# Create docker group - GID will be matched at runtime via entrypoint
+RUN apk add --no-cache github-cli docker-cli shadow
 
 # Master-specific entrypoint that runs ingest + claude
 COPY master-entrypoint.sh /master-entrypoint.sh
@@ -166,13 +167,13 @@ ENTRYPOINT ["/master-entrypoint.sh"]
 CMD ["claude"]
 
 # ═══════════════════════════════════════════════════════════════
-# Target: worker - Dev tools + protocol communication
+# Target: worker - Full + dev tools (has Claude CLI for master instructions)
 # ═══════════════════════════════════════════════════════════════
-FROM dev AS worker
+FROM full AS worker
 
 # Add language runtimes and dev tools for task execution
 RUN apk add --no-cache \
-    go python3 py3-pip nodejs npm \
+    go python3 py3-pip \
     make gcc musl-dev \
     github-cli
 

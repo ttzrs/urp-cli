@@ -104,9 +104,17 @@ Use 'urp <noun> <verb>' pattern for all commands.`,
 	attach.GroupID = "infra"
 	rootCmd.AddCommand(attach)
 
+	execC := execCmd()
+	execC.GroupID = "infra"
+	rootCmd.AddCommand(execC)
+
 	kill := killCmd()
 	kill.GroupID = "infra"
 	rootCmd.AddCommand(kill)
+
+	ask := askCmd()
+	ask.GroupID = "infra"
+	rootCmd.AddCommand(ask)
 
 	// Analysis commands
 	code := codeCmd()
@@ -1689,7 +1697,7 @@ Master mode (default): Interactive session with auto-ingest and Claude CLI.
 Worker mode: Background container for code changes.
 
 Examples:
-  urp launch              # Launch master for current directory (interactive)
+  urp launch              # Launch master for current directory
   urp launch ~/project    # Launch master for specific path
   urp launch --worker     # Launch background worker instead
   urp launch --readonly   # Launch read-only worker`,
@@ -1794,7 +1802,11 @@ Examples:
 				fmt.Sscanf(args[0], "%d", &workerNum)
 			}
 
-			path := getCwd()
+			// Inside master, use HOST path for worker volume mounts
+			path := os.Getenv("URP_HOST_PATH")
+			if path == "" {
+				path = getCwd()
+			}
 			mgr := container.NewManager(context.Background())
 
 			var containerName string
@@ -1869,6 +1881,66 @@ Examples:
 			mgr := container.NewManager(context.Background())
 
 			if err := mgr.AttachWorker(args[0]); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		},
+	}
+
+	return cmd
+}
+
+func execCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "exec <container> <command>",
+		Short: "Execute command in a container",
+		Long: `Execute a command inside a running URP container.
+
+Examples:
+  urp exec urp-master-myproject "pytest tests/ -v"
+  urp exec urp-myproject-w1 "pip install httpx"`,
+		Args: cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			containerName := args[0]
+			command := strings.Join(args[1:], " ")
+
+			mgr := container.NewManager(context.Background())
+
+			if err := mgr.Exec(containerName, command); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		},
+	}
+
+	return cmd
+}
+
+func askCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "ask <master> <prompt>",
+		Short: "Send a prompt to the master's Claude CLI",
+		Long: `Send a prompt to the Claude CLI running in a master container.
+
+This is the primary way to interact with the master when running
+without a TTY (e.g., from Claude Code).
+
+Examples:
+  urp ask urp-master-myproject "Run tests and report results"
+  urp ask urp-master-postllm "Spawn a worker to fix the auth bug"`,
+		Args: cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			containerName := args[0]
+			prompt := strings.Join(args[1:], " ")
+
+			mgr := container.NewManager(context.Background())
+
+			// Source .env and execute claude -p as non-root user
+			// Use --dangerously-skip-permissions for batch execution
+			escapedPrompt := strings.ReplaceAll(prompt, `"`, `\"`)
+			escapedPrompt = strings.ReplaceAll(escapedPrompt, `$`, `\$`)
+			command := fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && su -c 'claude -p --dangerously-skip-permissions "%s"' urp`, escapedPrompt)
+			if err := mgr.Exec(containerName, command); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}

@@ -22,6 +22,7 @@ const (
 	VectorVolume     = "urp_vector"
 	MemgraphImage    = "memgraph/memgraph-platform:latest"
 	URPImage         = "urp:latest"
+	URPWorkerImage   = "urp:worker"
 	URPMasterImage   = "urp:master"
 	URPConfigDir     = "~/.urp-go"
 	URPEnvFile       = "~/.urp-go/.env"
@@ -334,9 +335,10 @@ func (m *Manager) LaunchWorker(projectPath string, readOnly bool) (string, error
 		"run", "-d",
 		"--name", containerName,
 		"--network", NetworkName,
-		"-v", fmt.Sprintf("%s:/workspace:%s,z", absPath, mountOpt),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
-		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
+		"--security-opt", "label=disable",
+		"-v", fmt.Sprintf("%s:/workspace:%s", absPath, mountOpt),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", fmt.Sprintf("URP_READ_ONLY=%v", readOnly),
@@ -389,8 +391,11 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		}
 	}
 
-	// Expand home directory for env file
+	// Expand home directory for env file (resolve symlinks for Silverblue /var/home)
 	homeDir, _ := os.UserHomeDir()
+	if realHome, err := filepath.EvalSymlinks(homeDir); err == nil {
+		homeDir = realHome
+	}
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
 	// Check if we have a TTY available
@@ -412,16 +417,20 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	args = append(args,
 		"--name", containerName,
 		"--network", NetworkName,
-		// Project: read-only, shared SELinux label (:z)
-		"-v", fmt.Sprintf("%s:/workspace:ro,z", absPath),
+		// Disable SELinux for docker socket access
+		"--security-opt", "label=disable",
+		// Project: read-only
+		"-v", fmt.Sprintf("%s:/workspace:ro", absPath),
 		// Docker socket for spawning workers
 		"-v", fmt.Sprintf("%s:/var/run/docker.sock", socketPath),
-		// Vector store: shared
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
-		// Env file: private SELinux label (:Z)
-		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
+		// Vector store
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		// Env file
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		// Environment
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
+		"-e", fmt.Sprintf("URP_HOST_PATH=%s", absPath),
+		"-e", fmt.Sprintf("URP_HOST_HOME=%s", homeDir),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", "URP_MASTER=1",
 		"-e", "URP_READ_ONLY=true",
@@ -429,13 +438,8 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		"-w", "/workspace",
 	)
 
-	if hasTTY {
-		args = append(args, URPMasterImage)
-	} else {
-		// In non-TTY mode, run sleep to keep container alive
-		// Claude Code can then use 'urp attach' or send commands
-		args = append(args, URPMasterImage, "sleep", "infinity")
-	}
+	// Image - entrypoint handles TTY vs daemon mode
+	args = append(args, URPMasterImage)
 
 	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
 
@@ -505,8 +509,11 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 		}
 	}
 
-	// Expand home directory for env file
-	homeDir, _ := os.UserHomeDir()
+	// Use host home from env (when running inside master) or local home
+	homeDir := os.Getenv("URP_HOST_HOME")
+	if homeDir == "" {
+		homeDir, _ = os.UserHomeDir()
+	}
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
 	// Check if we have a TTY available
@@ -524,12 +531,14 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 		"run", runMode, "--rm",
 		"--name", containerName,
 		"--network", NetworkName,
-		// Project: read-write with SELinux shared label
-		"-v", fmt.Sprintf("%s:/workspace:rw,z", absPath),
-		// Vector store: shared
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
-		// Env file: private SELinux label
-		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
+		// Disable SELinux for container socket access
+		"--security-opt", "label=disable",
+		// Project: read-write
+		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
+		// Vector store
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		// Env file
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		// Environment
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
@@ -548,7 +557,7 @@ func (m *Manager) SpawnWorkerForTask(projectPath string, workerNum int, planID, 
 		)
 	}
 
-	args = append(args, URPImage)
+	args = append(args, URPWorkerImage)
 
 	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
 
@@ -603,23 +612,28 @@ func (m *Manager) SpawnWorkerBackground(projectPath string, workerNum int) (stri
 		return containerName, nil
 	}
 
-	// Expand home directory for env file
-	homeDir, _ := os.UserHomeDir()
+	// Use host home from env (when running inside master) or local home
+	homeDir := os.Getenv("URP_HOST_HOME")
+	if homeDir == "" {
+		homeDir, _ = os.UserHomeDir()
+	}
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
 	args := []string{
 		"run", "-d",
 		"--name", containerName,
 		"--network", NetworkName,
-		"-v", fmt.Sprintf("%s:/workspace:rw,z", absPath),
-		"-v", fmt.Sprintf("%s:/var/lib/urp/vector:z", VectorVolume),
-		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro,Z", envFile),
+		// Disable SELinux for container socket access
+		"--security-opt", "label=disable",
+		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
+		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
+		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
 		"-e", fmt.Sprintf("URP_PROJECT=%s", projectName),
 		"-e", fmt.Sprintf("NEO4J_URI=bolt://%s:7687", MemgraphName),
 		"-e", fmt.Sprintf("URP_WORKER_ID=%d", workerNum),
 		"-e", "URP_READ_ONLY=false",
 		"-w", "/workspace",
-		URPImage,
+		URPWorkerImage,
 		"tail", "-f", "/dev/null", // Keep alive
 	}
 
@@ -682,6 +696,19 @@ func (m *Manager) AttachWorker(containerName string) error {
 func (m *Manager) ExecInWorker(containerName string, command []string) (string, error) {
 	args := append([]string{"exec", containerName}, command...)
 	return m.run(args...)
+}
+
+// Exec runs a command in a container with live output.
+func (m *Manager) Exec(containerName string, command string) error {
+	if m.runtime == RuntimeNone {
+		return fmt.Errorf("no container runtime found")
+	}
+
+	cmd := exec.Command(string(m.runtime), "exec", containerName, "/bin/bash", "-c", command)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 // KillWorker stops and removes a worker container.

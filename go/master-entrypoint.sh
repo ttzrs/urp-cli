@@ -9,6 +9,23 @@
 set -e
 
 # ─────────────────────────────────────────────────────────────
+# Docker Socket Permissions (for urp spawn)
+# ─────────────────────────────────────────────────────────────
+
+# Match docker group GID to host socket GID
+if [[ -S /var/run/docker.sock ]]; then
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo "")
+    if [[ -n "$DOCKER_GID" ]]; then
+        # Create docker group with matching GID if needed
+        if ! getent group docker >/dev/null 2>&1; then
+            groupadd -g "$DOCKER_GID" docker 2>/dev/null || true
+        fi
+        # Add urp user to docker group
+        usermod -aG docker urp 2>/dev/null || true
+    fi
+fi
+
+# ─────────────────────────────────────────────────────────────
 # Environment Setup
 # ─────────────────────────────────────────────────────────────
 
@@ -113,5 +130,26 @@ echo ""
 echo "───────────────────────────────────────────────────────"
 echo ""
 
-# Execute command (default: claude)
-exec "$@"
+# Check if we have a prompt to execute (batch mode via env var)
+if [[ -n "$URP_PROMPT" ]]; then
+    echo "[BATCH MODE] Executing prompt..."
+    exec claude --print "$URP_PROMPT"
+fi
+
+# Check if we have a TTY (using tty command which works in containers)
+if tty -s 2>/dev/null; then
+    # Interactive mode - run Claude CLI
+    exec "$@"
+else
+    # Daemon mode (no TTY) - stay alive for urp ask/exec commands
+    echo "[DAEMON MODE] Master ready for commands"
+    echo "  Use: urp ask urp-master-$URP_PROJECT \"<prompt>\""
+    echo "  Or:  urp exec urp-master-$URP_PROJECT \"<command>\""
+    echo ""
+
+    # Stay alive - trap signals for clean shutdown
+    trap "exit 0" SIGTERM SIGINT
+    while true; do
+        sleep 86400
+    done
+fi
