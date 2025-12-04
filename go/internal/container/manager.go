@@ -729,16 +729,25 @@ func (m *Manager) Logs(containerName string, tail int) (string, error) {
 
 // LaunchNeMo starts a NeMo GPU container for ML tasks.
 // Called by worker to delegate GPU-intensive operations.
+// GPU support is auto-detected; falls back to CPU mode if unavailable.
 // Returns container name for subsequent exec commands.
 func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, error) {
 	if m.runtime == RuntimeNone {
 		return "", fmt.Errorf("no container runtime found")
 	}
 
-	absPath, err := filepath.Abs(projectPath)
-	if err != nil {
-		return "", fmt.Errorf("invalid path: %w", err)
+	// When running inside a worker container, use URP_HOST_PATH for the actual host path
+	// Otherwise filepath.Abs("/workspace") returns container path, not host path
+	hostPath := os.Getenv("URP_HOST_PATH")
+	if hostPath == "" {
+		var err error
+		hostPath, err = filepath.Abs(projectPath)
+		if err != nil {
+			return "", fmt.Errorf("invalid path: %w", err)
+		}
 	}
+
+	absPath := hostPath
 
 	if containerName == "" {
 		projectName := filepath.Base(absPath)
@@ -759,8 +768,17 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 		"run", "-d",
 		"--name", containerName,
 		"--network", NetworkName,
-		"--gpus", "all", // NVIDIA GPU access
-		"--shm-size", "16g", // Shared memory for PyTorch
+		"--security-opt", "label=disable", // SELinux compatibility
+	}
+
+	// Auto-detect GPU availability
+	if m.hasNvidiaGPU() {
+		args = append(args, "--gpus", "all")
+		args = append(args, "--shm-size", "16g") // Shared memory for PyTorch
+	}
+
+	// Volumes and environment
+	args = append(args,
 		"-v", fmt.Sprintf("%s:/workspace:rw", absPath),
 		"-v", fmt.Sprintf("%s:/var/lib/urp/vector", VectorVolume),
 		"-v", fmt.Sprintf("%s:/etc/urp/.env:ro", envFile),
@@ -768,14 +786,25 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 		"-w", "/workspace",
 		NeMoImage,
 		"tail", "-f", "/dev/null", // Stay alive for exec
-	}
+	)
 
-	_, err = m.run(args...)
-	if err != nil {
-		return "", fmt.Errorf("failed to launch NeMo: %w", err)
+	_, runErr := m.run(args...)
+	if runErr != nil {
+		return "", fmt.Errorf("failed to launch NeMo: %w", runErr)
 	}
 
 	return containerName, nil
+}
+
+// hasNvidiaGPU checks if NVIDIA GPU drivers are available
+func (m *Manager) hasNvidiaGPU() bool {
+	// Try nvidia-smi first (most reliable)
+	if err := exec.Command("nvidia-smi").Run(); err == nil {
+		return true
+	}
+	// Fallback: check if docker supports --gpus
+	out, _ := m.run("info", "--format", "{{.Runtimes}}")
+	return strings.Contains(out, "nvidia")
 }
 
 // ExecNeMo runs a command in the NeMo container.
