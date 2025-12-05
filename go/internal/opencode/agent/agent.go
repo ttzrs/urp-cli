@@ -31,6 +31,9 @@ type Agent struct {
 	autocorrector *Autocorrector
 	promptBuilder *PromptBuilder
 	cognitive     *cognitive.Engine
+
+	// Structured logging
+	logger *AgentLogger
 }
 
 // New creates an Agent with its dependencies (uses interfaces)
@@ -45,6 +48,7 @@ func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry) *A
 		autocorrector: NewAutocorrector(),
 		promptBuilder: NewPromptBuilder(),
 		cognitive:     cognitive.NewEngine(cognitive.DefaultEngineConfig()),
+		logger:        defaultLogger,
 	}
 	// Set custom prompt from config
 	if config.Prompt != "" {
@@ -82,12 +86,25 @@ func (a *Agent) WithHooks(hooks *hook.Registry) *Agent {
 func (a *Agent) SetWorkDir(workDir string) {
 	a.workDir = workDir
 	perms := permission.NewManager(a.config.Permissions, workDir)
-	a.executor = NewToolExecutor(a.tools, perms).WithHooks(a.hooks)
+	a.executor = NewToolExecutor(a.tools, perms).WithHooks(a.hooks).WithLogger(a.logger)
 }
 
 // SetThinkingBudget sets the extended thinking token budget
 func (a *Agent) SetThinkingBudget(budget int) {
 	a.thinkingBudget = budget
+}
+
+// SetLogger sets a custom structured logger
+func (a *Agent) SetLogger(logger *AgentLogger) {
+	a.logger = logger
+	if a.executor != nil {
+		a.executor = a.executor.WithLogger(logger)
+	}
+}
+
+// Logger returns the agent's structured logger
+func (a *Agent) Logger() *AgentLogger {
+	return a.logger
 }
 
 // OnMessage sets the callback for message persistence
@@ -127,6 +144,11 @@ func (a *Agent) persistMessage(ctx context.Context, msg *domain.Message) {
 
 // Run processes a message and streams the response
 func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*domain.Message, input string) (<-chan domain.StreamEvent, error) {
+	// Log session start
+	if a.logger != nil && len(messages) == 0 {
+		a.logger.SessionStart(ctx, session.ID, a.config.Model.ModelID)
+	}
+
 	// Run session start hook (only if this is the first message)
 	if len(messages) == 0 && a.hooks != nil {
 		hctx := &hook.Context{
@@ -228,11 +250,26 @@ func (a *Agent) processEventsLoop(
 ) {
 	var pendingToolCalls []domain.ToolCallPart
 	var textBuffer string
+	var thinkingTokens int
+	startTime := time.Now()
 
 	for event := range providerEvents {
 		switch event.Type {
 		case domain.StreamEventThinking:
 			// Pass thinking events through to UI
+			if event.Usage != nil {
+				thinkingTokens += event.Usage.OutputTokens
+			}
+			events <- event
+
+		case domain.StreamEventUsage:
+			// Log LLM call with usage stats
+			if a.logger != nil && event.Usage != nil {
+				durationMs := time.Since(startTime).Milliseconds()
+				a.logger.LLMCall(ctx, a.config.Model.ModelID, durationMs,
+					event.Usage.InputTokens, event.Usage.OutputTokens, thinkingTokens,
+					event.Usage.CacheRead, event.Usage.CacheWrite, event.Usage.TotalCost, nil)
+			}
 			events <- event
 
 		case domain.StreamEventText:

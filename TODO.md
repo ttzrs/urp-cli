@@ -586,7 +586,7 @@ Cobertura mínima: 70%
 - [ ] Soporte para múltiples workers en paralelo
 - [ ] Dashboard de estado de workers activos
 - [ ] Reintentos automáticos con backoff exponencial
-- [ ] Logs estructurados (JSON) para análisis
+- [x] Logs estructurados (JSON) para análisis (AgentLogger)
 - [ ] Métricas de uso de tokens por sesión/proyecto
 
 ### Spec-Kit

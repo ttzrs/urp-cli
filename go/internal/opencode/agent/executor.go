@@ -15,6 +15,7 @@ type ToolExecutor struct {
 	tools       tool.ToolRegistry
 	permissions *permission.Manager
 	hooks       *hook.Registry
+	logger      *AgentLogger
 }
 
 // NewToolExecutor creates a new executor
@@ -32,6 +33,15 @@ func (e *ToolExecutor) WithHooks(hooks *hook.Registry) *ToolExecutor {
 		return nil
 	}
 	e.hooks = hooks
+	return e
+}
+
+// WithLogger sets the structured logger
+func (e *ToolExecutor) WithLogger(logger *AgentLogger) *ToolExecutor {
+	if e == nil {
+		return nil
+	}
+	e.logger = logger
 	return e
 }
 
@@ -148,6 +158,11 @@ func (e *ToolExecutor) Execute(
 	if result != nil {
 		tc.Result = result.Output
 		images = result.Images
+	}
+
+	// Log tool execution
+	if e.logger != nil {
+		e.logger.ToolCall(ctx, tc.Name, tc.Args, tc.Duration.Milliseconds(), tc.Result, err)
 	}
 
 	// Run post-tool hooks
