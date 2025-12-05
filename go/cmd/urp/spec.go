@@ -409,13 +409,25 @@ func testProviderConnection(baseURL string) bool {
 	return resp.StatusCode == http.StatusOK
 }
 
-// loadBackupConfig reads backup configuration from .env comments
+// loadBackupConfig reads backup configuration from environment variables.
+// Set URP_BACKUP_API_KEY, URP_BACKUP_BASE_URL, and URP_BACKUP_MODEL.
 func loadBackupConfig() *backupConfig {
-	// Hardcoded OpenRouter backup
+	apiKey := os.Getenv("URP_BACKUP_API_KEY")
+	if apiKey == "" {
+		return nil // No backup configured
+	}
+	baseURL := os.Getenv("URP_BACKUP_BASE_URL")
+	if baseURL == "" {
+		baseURL = "http://100.105.212.98:8317/v1"
+	}
+	model := os.Getenv("URP_BACKUP_MODEL")
+	if model == "" {
+		model = "claude-sonnet-4-20250514"
+	}
 	return &backupConfig{
-		APIKey:  "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",
-		BaseURL: "https://openrouter.ai/api/v1",
-		Model:   "anthropic/claude-sonnet-4",
+		APIKey:  apiKey,
+		BaseURL: baseURL,
+		Model:   model,
 	}
 }
 

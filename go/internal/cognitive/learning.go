@@ -81,7 +81,7 @@ func (l *LearningService) ConsolidateLearning(ctx context.Context, description s
 	// Link events to solution
 	linkedCount := 0
 	for _, r := range records {
-		nodeID := getInt64(r, "node_id")
+		nodeID := graph.GetInt64(r, "node_id")
 		linkQuery := `
 			MATCH (e:TerminalEvent) WHERE id(e) = $eid
 			MATCH (s:Solution {id: $sol_id})
@@ -114,7 +114,7 @@ func (l *LearningService) ConsolidateLearning(ctx context.Context, description s
 
 	resolvedCount := 0
 	for _, cr := range conflictRecords {
-		nodeID := getInt64(cr, "node_id")
+		nodeID := graph.GetInt64(cr, "node_id")
 		resolveQuery := `
 			MATCH (c:Conflict) WHERE id(c) = $cid
 			MATCH (s:Solution {id: $sol_id})
@@ -135,18 +135,4 @@ func (l *LearningService) ConsolidateLearning(ctx context.Context, description s
 		CommandsLinked:    linkedCount,
 		ConflictsResolved: resolvedCount,
 	}, nil
-}
-
-func getInt64(r graph.Record, key string) int64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return n
-		case int:
-			return int64(n)
-		case float64:
-			return int64(n)
-		}
-	}
-	return 0
 }

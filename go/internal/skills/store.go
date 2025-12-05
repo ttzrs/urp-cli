@@ -260,24 +260,12 @@ func recordToSkill(r graph.Record) *Skill {
 		Version:      graph.GetString(r, "sk.version"),
 		Source:       graph.GetString(r, "sk.source"),
 		SourceType:   graph.GetString(r, "sk.source_type"),
-		ContextFiles: getStringSlice(r, "sk.context_files"),
+		ContextFiles: graph.GetStringSlice(r, "sk.context_files"),
 		Agent:        graph.GetString(r, "sk.agent"),
-		Tags:         getStringSlice(r, "sk.tags"),
+		Tags:         graph.GetStringSlice(r, "sk.tags"),
 		CreatedAt:    time.Unix(graph.GetInt64(r, "sk.created_at"), 0),
 		UpdatedAt:    time.Unix(graph.GetInt64(r, "sk.updated_at"), 0),
 		UsageCount:   graph.GetInt(r, "sk.usage_count"),
 	}
 }
 
-func getStringSlice(r graph.Record, key string) []string {
-	if v, ok := r[key].([]any); ok {
-		result := make([]string, 0, len(v))
-		for _, item := range v {
-			if s, ok := item.(string); ok {
-				result = append(result, s)
-			}
-		}
-		return result
-	}
-	return nil
-}
