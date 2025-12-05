@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
+
+	"github.com/joss/urp/internal/graph"
 )
 
 func TestSessionStruct(t *testing.T) {
@@ -163,23 +165,23 @@ func TestRecordHelpers(t *testing.T) {
 		"other": int(100),
 	}
 
-	if getString(record, "name") != "test" {
+	if graph.GetString(record, "name") != "test" {
 		t.Error("getString failed")
 	}
-	if getString(record, "missing") != "" {
+	if graph.GetString(record, "missing") != "" {
 		t.Error("getString should return empty for missing")
 	}
 
-	if getInt64(record, "count") != 42 {
+	if graph.GetInt64(record, "count") != 42 {
 		t.Error("getInt64 failed for int64")
 	}
-	if getInt64(record, "other") != 100 {
+	if graph.GetInt64(record, "other") != 100 {
 		t.Error("getInt64 failed for int")
 	}
-	if getInt64(record, "price") != 19 {
+	if graph.GetInt64(record, "price") != 19 {
 		t.Error("getInt64 failed for float64")
 	}
-	if getInt64(record, "missing") != 0 {
+	if graph.GetInt64(record, "missing") != 0 {
 		t.Error("getInt64 should return 0 for missing")
 	}
 }

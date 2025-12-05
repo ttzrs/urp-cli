@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/joss/urp/internal/graph"
+	"github.com/joss/urp/internal/strings"
 )
 
 // MemoryEntry represents a session memory item.
@@ -87,7 +88,7 @@ func (s *SessionMemory) Add(ctx context.Context, text, kind string, importance i
 		"path":        s.ctx.Path,
 		"memory_id":   memoryID,
 		"kind":        kind,
-		"text":        truncate(text, 500),
+		"text":        strings.TruncateNoEllipsis(text, 500),
 		"importance":  importance,
 		"tags":        allTags,
 		"now":         now,
@@ -142,12 +143,12 @@ func (s *SessionMemory) Recall(ctx context.Context, queryText string, limit int,
 
 	for _, r := range records {
 		entry := MemoryEntry{
-			MemoryID:   getString(r, "memory_id"),
-			Kind:       getString(r, "kind"),
-			Text:       getString(r, "text"),
-			Importance: getInt(r, "importance"),
+			MemoryID:   graph.GetString(r, "memory_id"),
+			Kind:       graph.GetString(r, "kind"),
+			Text:       graph.GetString(r, "text"),
+			Importance: graph.GetInt(r, "importance"),
 			SessionID:  s.ctx.SessionID,
-			CreatedAt:  getString(r, "created_at"),
+			CreatedAt:  graph.GetString(r, "created_at"),
 		}
 
 		if len(queryWords) > 0 {
@@ -189,12 +190,12 @@ func (s *SessionMemory) List(ctx context.Context) ([]MemoryEntry, error) {
 	var results []MemoryEntry
 	for _, r := range records {
 		results = append(results, MemoryEntry{
-			MemoryID:   getString(r, "memory_id"),
-			Kind:       getString(r, "kind"),
-			Text:       getString(r, "text"),
-			Importance: getInt(r, "importance"),
+			MemoryID:   graph.GetString(r, "memory_id"),
+			Kind:       graph.GetString(r, "kind"),
+			Text:       graph.GetString(r, "text"),
+			Importance: graph.GetInt(r, "importance"),
 			SessionID:  sessionID,
-			CreatedAt:  getString(r, "created_at"),
+			CreatedAt:  graph.GetString(r, "created_at"),
 		})
 	}
 
@@ -235,7 +236,7 @@ func (s *SessionMemory) Clear(ctx context.Context) (int, error) {
 
 	count := 0
 	if len(records) > 0 {
-		count = getInt(records[0], "count")
+		count = graph.GetInt(records[0], "count")
 	}
 
 	// Delete all
@@ -270,8 +271,8 @@ func (s *SessionMemory) Stats(ctx context.Context) (map[string]any, error) {
 	byKind := make(map[string]int)
 	total := 0
 	for _, r := range records {
-		kind := getString(r, "kind")
-		count := getInt(r, "count")
+		kind := graph.GetString(r, "kind")
+		count := graph.GetInt(r, "count")
 		byKind[kind] = count
 		total += count
 	}
@@ -311,7 +312,7 @@ func (s *SessionMemory) resolveSessionID(ctx context.Context) (string, error) {
 	}
 
 	// Session exists - check path
-	existingPath := getString(records[0], "path")
+	existingPath := graph.GetString(records[0], "path")
 	if existingPath == s.ctx.Path || existingPath == "" {
 		// Same path or no path recorded - use existing session
 		return s.ctx.SessionID, nil
@@ -329,36 +330,6 @@ func (s *SessionMemory) getResolvedSessionID(ctx context.Context) string {
 		return s.ctx.SessionID
 	}
 	return resolved
-}
-
-func truncate(s string, max int) string {
-	if len(s) <= max {
-		return s
-	}
-	return s[:max]
-}
-
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return int(n)
-		case int:
-			return n
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
 }
 
 // tokenize splits text into lowercase words.

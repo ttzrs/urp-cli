@@ -17,6 +17,7 @@ import (
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/opencode/graphstore"
 	"github.com/joss/urp/internal/opencode/session"
+	urpstrings "github.com/joss/urp/internal/strings"
 )
 
 var db graph.Driver
@@ -356,7 +357,7 @@ func (m Model) viewSessions() string {
 
 			line := fmt.Sprintf("%s%-20s %s (%d msgs)",
 				cursor,
-				truncate(s.Title, 20),
+				urpstrings.Truncate(s.Title, 20),
 				s.UpdatedAt.Format("Jan 02 15:04"),
 				s.Messages,
 			)
@@ -470,13 +471,6 @@ func tickCmd() tea.Cmd {
 	return tea.Tick(5*time.Second, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
-}
-
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n-3] + "..."
 }
 
 // Run starts the TUI

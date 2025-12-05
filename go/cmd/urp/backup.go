@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -62,19 +61,13 @@ func backupExportCmd() *cobra.Command {
 		Short: "Export knowledge to compressed backup",
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryKnowledge, "backup.export")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			// Default output path
 			if output == "" {
-				home, _ := os.UserHomeDir()
-				dataDir := filepath.Join(home, ".urp-go", "backups")
+				dataDir := urpBackupsPath()
 				os.MkdirAll(dataDir, 0755)
-				output = filepath.Join(dataDir, fmt.Sprintf("urp-backup-%s.tar.gz", time.Now().Format("20060102-150405")))
+				output = urpPath("backups", fmt.Sprintf("urp-backup-%s.tar.gz", time.Now().Format("20060102-150405")))
 			}
 
 			// Parse types
@@ -87,16 +80,10 @@ func backupExportCmd() *cobra.Command {
 				}
 			}
 
-			// Get data dir
-			home, _ := os.UserHomeDir()
-			dataDir := filepath.Join(home, ".urp-go", "data")
-
-			mgr := backup.NewBackupManager(db, dataDir)
+			mgr := backup.NewBackupManager(db, urpDataPath())
 			meta, err := mgr.Export(context.Background(), knowledgeTypes, output, description)
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -133,12 +120,7 @@ func backupImportCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryKnowledge, "backup.import")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			// Parse types
 			knowledgeTypes := []backup.KnowledgeType{}
@@ -146,15 +128,10 @@ func backupImportCmd() *cobra.Command {
 				knowledgeTypes = append(knowledgeTypes, backup.KnowledgeType(t))
 			}
 
-			home, _ := os.UserHomeDir()
-			dataDir := filepath.Join(home, ".urp-go", "data")
-
-			mgr := backup.NewBackupManager(db, dataDir)
+			mgr := backup.NewBackupManager(db, urpDataPath())
 			meta, err := mgr.Import(context.Background(), args[0], knowledgeTypes, merge)
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -189,10 +166,7 @@ func backupListCmd() *cobra.Command {
 		Short: "Show backup contents without importing",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			home, _ := os.UserHomeDir()
-			dataDir := filepath.Join(home, ".urp-go", "data")
-
-			mgr := backup.NewBackupManager(nil, dataDir)
+			mgr := backup.NewBackupManager(nil, urpDataPath())
 			meta, err := mgr.List(args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -230,12 +204,7 @@ func backupStatsCmd() *cobra.Command {
 		Short: "Show current knowledge statistics",
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryKnowledge, "backup.stats")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			ctx := context.Background()
 			stats := make(map[string]int)

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/joss/urp/internal/graph"
+	urpstrings "github.com/joss/urp/internal/strings"
 )
 
 // KnowledgeEntry represents a knowledge item.
@@ -71,7 +72,7 @@ func (k *KnowledgeStore) Store(ctx context.Context, text, kind, scope string) (s
 		"ctx_sig":      k.ctx.ContextSignature,
 		"knowledge_id": knowledgeID,
 		"kind":         kind,
-		"text":         truncate(text, 1000),
+		"text":         urpstrings.TruncateNoEllipsis(text, 1000),
 		"scope":        scope,
 		"now":          now,
 	})
@@ -116,7 +117,7 @@ func (k *KnowledgeStore) GetRejected(ctx context.Context) (map[string]bool, erro
 
 	rejected := make(map[string]bool)
 	for _, r := range records {
-		if id := getString(r, "id"); id != "" {
+		if id := graph.GetString(r, "id"); id != "" {
 			rejected[id] = true
 		}
 	}
@@ -272,13 +273,13 @@ func (k *KnowledgeStore) queryLevel(ctx context.Context, scope, sessionID, insta
 	var results []KnowledgeEntry
 	for _, r := range records {
 		results = append(results, KnowledgeEntry{
-			KnowledgeID:      getString(r, "knowledge_id"),
-			Kind:             getString(r, "kind"),
-			Scope:            getString(r, "scope"),
-			Text:             getString(r, "text"),
-			ContextSignature: getString(r, "context_signature"),
-			CreatedAt:        getString(r, "created_at"),
-			SessionID:        getString(r, "session_id"),
+			KnowledgeID:      graph.GetString(r, "knowledge_id"),
+			Kind:             graph.GetString(r, "kind"),
+			Scope:            graph.GetString(r, "scope"),
+			Text:             graph.GetString(r, "text"),
+			ContextSignature: graph.GetString(r, "context_signature"),
+			CreatedAt:        graph.GetString(r, "created_at"),
+			SessionID:        graph.GetString(r, "session_id"),
 		})
 	}
 
@@ -305,7 +306,7 @@ func (k *KnowledgeStore) ExportMemory(ctx context.Context, memoryID, kind, scope
 		return "", fmt.Errorf("memory %s not found in session", memoryID)
 	}
 
-	text := getString(records[0], "text")
+	text := graph.GetString(records[0], "text")
 
 	// Store as knowledge
 	knowledgeID, err := k.Store(ctx, text, kind, scope)
@@ -384,11 +385,11 @@ func (k *KnowledgeStore) List(ctx context.Context, kind, scope string, limit int
 	var results []KnowledgeEntry
 	for _, r := range records {
 		results = append(results, KnowledgeEntry{
-			KnowledgeID: getString(r, "knowledge_id"),
-			Kind:        getString(r, "kind"),
-			Scope:       getString(r, "scope"),
-			Text:        getString(r, "text"),
-			CreatedAt:   getString(r, "created_at"),
+			KnowledgeID: graph.GetString(r, "knowledge_id"),
+			Kind:        graph.GetString(r, "kind"),
+			Scope:       graph.GetString(r, "scope"),
+			Text:        graph.GetString(r, "text"),
+			CreatedAt:   graph.GetString(r, "created_at"),
 		})
 	}
 
@@ -410,8 +411,8 @@ func (k *KnowledgeStore) Stats(ctx context.Context) (map[string]any, error) {
 	byScope := make(map[string]int)
 	total := 0
 	for _, r := range records {
-		scope := getString(r, "scope")
-		count := getInt(r, "count")
+		scope := graph.GetString(r, "scope")
+		count := graph.GetInt(r, "count")
 		byScope[scope] = count
 		total += count
 	}
@@ -451,10 +452,10 @@ func (k *KnowledgeStore) Provenance(ctx context.Context, knowledgeID string) (ma
 
 	return map[string]any{
 		"knowledge_id": knowledgeID,
-		"kind":         getString(records[0], "kind"),
-		"scope":        getString(records[0], "scope"),
-		"created_at":   getString(records[0], "created_at"),
-		"context":      getString(records[0], "context"),
+		"kind":         graph.GetString(records[0], "kind"),
+		"scope":        graph.GetString(records[0], "scope"),
+		"created_at":   graph.GetString(records[0], "created_at"),
+		"context":      graph.GetString(records[0], "context"),
 		"created_by":   records[0]["created_by"],
 		"used_by":      records[0]["used_by"],
 		"rejected_by":  records[0]["rejected_by"],

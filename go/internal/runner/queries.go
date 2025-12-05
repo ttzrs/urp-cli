@@ -51,14 +51,14 @@ func (s *EventStore) ListRecent(ctx context.Context, limit int, project string) 
 	events := make([]domain.Event, 0, len(records))
 	for _, r := range records {
 		event := domain.Event{
-			Command:     getString(r, "command"),
-			CmdBase:     getString(r, "cmd_base"),
-			ExitCode:    getInt(r, "exit_code"),
-			DurationSec: getFloat(r, "duration_sec"),
-			Cwd:         getString(r, "cwd"),
-			Project:     getString(r, "project"),
+			Command:     graph.GetString(r, "command"),
+			CmdBase:     graph.GetString(r, "cmd_base"),
+			ExitCode:    graph.GetInt(r, "exit_code"),
+			DurationSec: graph.GetFloat(r, "duration_sec"),
+			Cwd:         graph.GetString(r, "cwd"),
+			Project:     graph.GetString(r, "project"),
 		}
-		if dt := getString(r, "datetime"); dt != "" {
+		if dt := graph.GetString(r, "datetime"); dt != "" {
 			if t, err := time.Parse(time.RFC3339, dt); err == nil {
 				event.Timestamp = t
 			}
@@ -103,16 +103,16 @@ func (s *EventStore) ListErrors(ctx context.Context, minutes int, project string
 	for _, r := range records {
 		conflict := domain.Conflict{
 			Event: domain.Event{
-				Command:       getString(r, "command"),
-				CmdBase:       getString(r, "cmd_base"),
-				ExitCode:      getInt(r, "exit_code"),
-				StderrPreview: getString(r, "stderr_preview"),
-				Cwd:           getString(r, "cwd"),
-				Project:       getString(r, "project"),
+				Command:       graph.GetString(r, "command"),
+				CmdBase:       graph.GetString(r, "cmd_base"),
+				ExitCode:      graph.GetInt(r, "exit_code"),
+				StderrPreview: graph.GetString(r, "stderr_preview"),
+				Cwd:           graph.GetString(r, "cwd"),
+				Project:       graph.GetString(r, "project"),
 				IsConflict:    true,
 			},
 		}
-		if dt := getString(r, "datetime"); dt != "" {
+		if dt := graph.GetString(r, "datetime"); dt != "" {
 			if t, err := time.Parse(time.RFC3339, dt); err == nil {
 				conflict.Timestamp = t
 			}
@@ -123,40 +123,3 @@ func (s *EventStore) ListErrors(ctx context.Context, minutes int, project string
 	return conflicts, nil
 }
 
-// Helper functions for type conversion
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int:
-			return n
-		case int64:
-			return int(n)
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
-}
-
-func getFloat(r graph.Record, key string) float64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case float64:
-			return n
-		case int64:
-			return float64(n)
-		case int:
-			return float64(n)
-		}
-	}
-	return 0
-}

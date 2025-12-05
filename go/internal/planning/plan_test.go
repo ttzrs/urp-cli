@@ -2,6 +2,8 @@ package planning
 
 import (
 	"testing"
+
+	"github.com/joss/urp/internal/graph"
 )
 
 func TestPlanStatus(t *testing.T) {
@@ -106,15 +108,15 @@ func TestGetStringHelper(t *testing.T) {
 		"key2": 123,
 	}
 
-	if getString(record, "key1") != "value1" {
+	if graph.GetString(record, "key1") != "value1" {
 		t.Error("expected value1")
 	}
 
-	if getString(record, "key2") != "" {
+	if graph.GetString(record, "key2") != "" {
 		t.Error("expected empty string for non-string")
 	}
 
-	if getString(record, "missing") != "" {
+	if graph.GetString(record, "missing") != "" {
 		t.Error("expected empty string for missing")
 	}
 }
@@ -127,19 +129,19 @@ func TestGetIntHelper(t *testing.T) {
 		"string":  "not a number",
 	}
 
-	if getInt(record, "int") != 42 {
+	if graph.GetInt(record, "int") != 42 {
 		t.Error("expected 42 for int")
 	}
 
-	if getInt(record, "int64") != 64 {
+	if graph.GetInt(record, "int64") != 64 {
 		t.Error("expected 64 for int64")
 	}
 
-	if getInt(record, "float64") != 99 {
+	if graph.GetInt(record, "float64") != 99 {
 		t.Error("expected 99 for float64")
 	}
 
-	if getInt(record, "string") != 0 {
+	if graph.GetInt(record, "string") != 0 {
 		t.Error("expected 0 for string")
 	}
 }

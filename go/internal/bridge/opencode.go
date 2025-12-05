@@ -368,17 +368,17 @@ func (s *GraphStore) GetTotalUsage(ctx context.Context) (*Usage, error) {
 
 func recordToSession(r graph.Record) (*Session, error) {
 	sess := &Session{
-		ID:        getString(r, "id"),
-		ProjectID: getString(r, "projectID"),
-		Directory: getString(r, "directory"),
-		ParentID:  getString(r, "parentID"),
-		Title:     getString(r, "title"),
-		Version:   getString(r, "version"),
-		CreatedAt: time.Unix(getInt64(r, "createdAt"), 0),
-		UpdatedAt: time.Unix(getInt64(r, "updatedAt"), 0),
+		ID:        graph.GetString(r, "id"),
+		ProjectID: graph.GetString(r, "projectID"),
+		Directory: graph.GetString(r, "directory"),
+		ParentID:  graph.GetString(r, "parentID"),
+		Title:     graph.GetString(r, "title"),
+		Version:   graph.GetString(r, "version"),
+		CreatedAt: time.Unix(graph.GetInt64(r, "createdAt"), 0),
+		UpdatedAt: time.Unix(graph.GetInt64(r, "updatedAt"), 0),
 	}
 
-	if summaryStr := getString(r, "summary"); summaryStr != "" {
+	if summaryStr := graph.GetString(r, "summary"); summaryStr != "" {
 		var summary Summary
 		if json.Unmarshal([]byte(summaryStr), &summary) == nil {
 			sess.Summary = &summary
@@ -390,13 +390,13 @@ func recordToSession(r graph.Record) (*Session, error) {
 
 func recordToMessage(r graph.Record) (*Message, error) {
 	msg := &Message{
-		ID:        getString(r, "id"),
-		SessionID: getString(r, "sessionID"),
-		Role:      getString(r, "role"),
-		Timestamp: time.Unix(getInt64(r, "timestamp"), 0),
+		ID:        graph.GetString(r, "id"),
+		SessionID: graph.GetString(r, "sessionID"),
+		Role:      graph.GetString(r, "role"),
+		Timestamp: time.Unix(graph.GetInt64(r, "timestamp"), 0),
 	}
 
-	if partsStr := getString(r, "parts"); partsStr != "" {
+	if partsStr := graph.GetString(r, "parts"); partsStr != "" {
 		var parts []Part
 		if json.Unmarshal([]byte(partsStr), &parts) == nil {
 			msg.Parts = parts
@@ -408,40 +408,18 @@ func recordToMessage(r graph.Record) (*Message, error) {
 
 func recordToUsage(r graph.Record) (*SessionUsage, error) {
 	su := &SessionUsage{
-		SessionID:    getString(r, "sessionID"),
-		ProviderID:   getString(r, "providerID"),
-		ModelID:      getString(r, "modelID"),
-		MessageCount: int(getInt64(r, "messageCount")),
-		ToolCalls:    int(getInt64(r, "toolCalls")),
-		UpdatedAt:    time.Unix(getInt64(r, "updatedAt"), 0),
+		SessionID:    graph.GetString(r, "sessionID"),
+		ProviderID:   graph.GetString(r, "providerID"),
+		ModelID:      graph.GetString(r, "modelID"),
+		MessageCount: int(graph.GetInt64(r, "messageCount")),
+		ToolCalls:    int(graph.GetInt64(r, "toolCalls")),
+		UpdatedAt:    time.Unix(graph.GetInt64(r, "updatedAt"), 0),
 	}
 
-	if usageStr := getString(r, "usage"); usageStr != "" {
+	if usageStr := graph.GetString(r, "usage"); usageStr != "" {
 		json.Unmarshal([]byte(usageStr), &su.Usage)
 	}
 
 	return su, nil
 }
 
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt64(r graph.Record, key string) int64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return n
-		case int:
-			return int64(n)
-		case float64:
-			return int64(n)
-		}
-	}
-	return 0
-}

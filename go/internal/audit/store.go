@@ -161,32 +161,32 @@ func (s *Store) Query(ctx context.Context, filter QueryFilter) ([]AuditEvent, er
 	var events []AuditEvent
 	for _, r := range records {
 		event := AuditEvent{
-			EventID:      getString(r, "event_id"),
-			Category:     Category(getString(r, "category")),
-			Operation:    getString(r, "operation"),
-			Command:      getString(r, "command"),
-			Status:       Status(getString(r, "status")),
-			ExitCode:     getInt(r, "exit_code"),
-			ErrorMessage: getString(r, "error_message"),
-			OutputSize:   getInt(r, "output_size"),
-			DurationMs:   getInt64(r, "duration_ms"),
-			Project:      getString(r, "project"),
-			WorkerID:     getString(r, "worker_id"),
+			EventID:      graph.GetString(r, "event_id"),
+			Category:     Category(graph.GetString(r, "category")),
+			Operation:    graph.GetString(r, "operation"),
+			Command:      graph.GetString(r, "command"),
+			Status:       Status(graph.GetString(r, "status")),
+			ExitCode:     graph.GetInt(r, "exit_code"),
+			ErrorMessage: graph.GetString(r, "error_message"),
+			OutputSize:   graph.GetInt(r, "output_size"),
+			DurationMs:   graph.GetInt64(r, "duration_ms"),
+			Project:      graph.GetString(r, "project"),
+			WorkerID:     graph.GetString(r, "worker_id"),
 			Git: GitContext{
-				CommitHash:  getString(r, "commit_hash"),
-				CommitShort: getString(r, "commit_short"),
-				Branch:      getString(r, "branch"),
-				IsDirty:     getBool(r, "is_dirty"),
+				CommitHash:  graph.GetString(r, "commit_hash"),
+				CommitShort: graph.GetString(r, "commit_short"),
+				Branch:      graph.GetString(r, "branch"),
+				IsDirty:     graph.GetBool(r, "is_dirty"),
 			},
 		}
 
 		// Parse times
-		if started := getString(r, "started_at"); started != "" {
+		if started := graph.GetString(r, "started_at"); started != "" {
 			if t, err := time.Parse(time.RFC3339, started); err == nil {
 				event.StartedAt = t
 			}
 		}
-		if completed := getString(r, "completed_at"); completed != "" {
+		if completed := graph.GetString(r, "completed_at"); completed != "" {
 			if t, err := time.Parse(time.RFC3339, completed); err == nil {
 				event.CompletedAt = t
 			}
@@ -242,15 +242,15 @@ func (s *Store) GetStats(ctx context.Context) (map[string]any, error) {
 
 	r := records[0]
 	return map[string]any{
-		"total":           getInt(r, "total"),
-		"success":         getInt(r, "success"),
-		"errors":          getInt(r, "errors"),
-		"warnings":        getInt(r, "warnings"),
-		"timeouts":        getInt(r, "timeouts"),
-		"avg_duration_ms": getFloat(r, "avg_duration_ms"),
-		"max_duration_ms": getInt64(r, "max_duration_ms"),
-		"first_event":     getString(r, "first_event"),
-		"last_event":      getString(r, "last_event"),
+		"total":           graph.GetInt(r, "total"),
+		"success":         graph.GetInt(r, "success"),
+		"errors":          graph.GetInt(r, "errors"),
+		"warnings":        graph.GetInt(r, "warnings"),
+		"timeouts":        graph.GetInt(r, "timeouts"),
+		"avg_duration_ms": graph.GetFloat(r, "avg_duration_ms"),
+		"max_duration_ms": graph.GetInt64(r, "max_duration_ms"),
+		"first_event":     graph.GetString(r, "first_event"),
+		"last_event":      graph.GetString(r, "last_event"),
 	}, nil
 }
 
@@ -275,15 +275,15 @@ func (s *Store) GetStatsByCategory(ctx context.Context) (map[string]map[string]a
 
 	stats := make(map[string]map[string]any)
 	for _, r := range records {
-		cat := getString(r, "category")
+		cat := graph.GetString(r, "category")
 		if cat == "" {
 			continue
 		}
 		stats[cat] = map[string]any{
-			"total":           getInt(r, "total"),
-			"success":         getInt(r, "success"),
-			"errors":          getInt(r, "errors"),
-			"avg_duration_ms": getFloat(r, "avg_duration_ms"),
+			"total":           graph.GetInt(r, "total"),
+			"success":         graph.GetInt(r, "success"),
+			"errors":          graph.GetInt(r, "errors"),
+			"avg_duration_ms": graph.GetFloat(r, "avg_duration_ms"),
 		}
 	}
 
@@ -298,63 +298,3 @@ func (s *Store) GetEventsByCommit(ctx context.Context, commitHash string) ([]Aud
 	})
 }
 
-// Helper functions
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return int(n)
-		case int:
-			return n
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
-}
-
-func getInt64(r graph.Record, key string) int64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return n
-		case int:
-			return int64(n)
-		case float64:
-			return int64(n)
-		}
-	}
-	return 0
-}
-
-func getFloat(r graph.Record, key string) float64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case float64:
-			return n
-		case int64:
-			return float64(n)
-		case int:
-			return float64(n)
-		}
-	}
-	return 0
-}
-
-func getBool(r graph.Record, key string) bool {
-	if v, ok := r[key]; ok {
-		if b, ok := v.(bool); ok {
-			return b
-		}
-	}
-	return false
-}

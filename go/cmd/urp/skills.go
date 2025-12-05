@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -53,19 +52,12 @@ func skillListCmd() *cobra.Command {
 		Short: "List available skills",
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.list")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			list, err := store.List(context.Background(), skills.Category(category))
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -101,7 +93,7 @@ func skillListCmd() *cobra.Command {
 					if sk.Agent != "" {
 						agent = fmt.Sprintf(" [agent:%s]", sk.Agent)
 					}
-					fmt.Printf("  %-20s %s%s\n", sk.Name, truncateDesc(sk.Description, 40), agent)
+					fmt.Printf("  %-20s %s%s\n", sk.Name, truncateStr(sk.Description, 40), agent)
 				}
 			}
 			fmt.Println()
@@ -120,19 +112,12 @@ func skillShowCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.show")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			sk, err := store.GetByName(context.Background(), args[0])
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -172,12 +157,7 @@ func skillRunCmd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.run")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			executor := skills.NewExecutor(store, os.Getenv("URP_SESSION_ID"))
@@ -189,9 +169,7 @@ func skillRunCmd() *cobra.Command {
 
 			result, err := executor.Execute(context.Background(), args[0], input)
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			event.OutputSize = len(result.Output)
@@ -230,12 +208,7 @@ Directory structure:
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.load")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			loader := skills.NewLoader(store)
@@ -253,8 +226,7 @@ Directory structure:
 			if len(args) > 0 {
 				dir = args[0]
 			} else {
-				home, _ := os.UserHomeDir()
-				dir = filepath.Join(home, ".urp-go", "skills")
+				dir = urpSkillsPath()
 			}
 
 			if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -268,9 +240,7 @@ Directory structure:
 
 			count, err := loader.LoadFromDirectory(context.Background(), dir)
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -290,19 +260,12 @@ func skillSearchCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.search")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			results, err := store.Search(context.Background(), args[0])
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -315,7 +278,7 @@ func skillSearchCmd() *cobra.Command {
 			fmt.Printf("Found %d skills:\n\n", len(results))
 			for _, sk := range results {
 				info := skills.Categories[sk.Category]
-				fmt.Printf("%s %-20s %s\n", info.Icon, sk.Name, truncateDesc(sk.Description, 50))
+				fmt.Printf("%s %-20s %s\n", info.Icon, sk.Name, truncateStr(sk.Description, 50))
 			}
 		},
 	}
@@ -327,19 +290,12 @@ func skillStatsCmd() *cobra.Command {
 		Short: "Show skill statistics",
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.stats")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			stats, err := store.Stats(context.Background())
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -383,12 +339,7 @@ func skillAddCmd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.add")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 			loader := skills.NewLoader(store)
@@ -410,9 +361,7 @@ func skillAddCmd() *cobra.Command {
 			}
 
 			if err := store.Create(context.Background(), sk); err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -434,27 +383,18 @@ func skillDeleteCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			event := auditLogger.Start(audit.CategoryCognitive, "skill.delete")
-
-			if db == nil {
-				auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDB(event)
 
 			store := skills.NewStore(db)
 
 			// Get skill first to get ID
 			sk, err := store.GetByName(context.Background(), args[0])
 			if err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			if err := store.Delete(context.Background(), sk.ID); err != nil {
-				auditLogger.LogError(event, err)
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				exitOnError(event, err)
 			}
 
 			auditLogger.LogSuccess(event)
@@ -463,9 +403,3 @@ func skillDeleteCmd() *cobra.Command {
 	}
 }
 
-func truncateDesc(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n-3] + "..."
-}

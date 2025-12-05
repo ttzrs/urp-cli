@@ -116,7 +116,7 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -126,7 +126,7 @@ func ocSessionCmd() *cobra.Command {
 			sessions, err := mgr.List(context.Background(), dir, 20)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			if len(sessions) == 0 {
@@ -138,7 +138,7 @@ func ocSessionCmd() *cobra.Command {
 			for _, s := range sessions {
 				fmt.Printf("%-26s %-30s %-20s\n",
 					s.ID[:26],
-					truncate(s.Title, 30),
+					truncateStr(s.Title, 30),
 					s.UpdatedAt.Format("2006-01-02 15:04"),
 				)
 			}
@@ -152,7 +152,7 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -162,7 +162,7 @@ func ocSessionCmd() *cobra.Command {
 			sess, err := mgr.Create(context.Background(), dir)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			if len(args) > 0 {
@@ -182,7 +182,7 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -191,7 +191,7 @@ func ocSessionCmd() *cobra.Command {
 			sess, err := mgr.Get(context.Background(), args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Printf("ID:        %s\n", sess.ID)
@@ -222,7 +222,7 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -231,7 +231,7 @@ func ocSessionCmd() *cobra.Command {
 			forked, err := mgr.Fork(context.Background(), args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Printf("Forked session: %s\n", forked.ID)
@@ -246,7 +246,7 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -254,7 +254,7 @@ func ocSessionCmd() *cobra.Command {
 
 			if err := mgr.Delete(context.Background(), args[0]); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Println("Deleted")
@@ -270,7 +270,7 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -279,7 +279,7 @@ func ocSessionCmd() *cobra.Command {
 			data, err := mgr.Export(context.Background(), args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			if outputFile != "" {
@@ -303,13 +303,13 @@ func ocSessionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			data, err := os.ReadFile(args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -319,7 +319,7 @@ func ocSessionCmd() *cobra.Command {
 			sess, err := mgr.Import(context.Background(), data, dir)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Printf("Imported session: %s\n", sess.ID)
@@ -346,7 +346,7 @@ func ocMessageCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -355,7 +355,7 @@ func ocMessageCmd() *cobra.Command {
 			messages, err := mgr.GetMessages(context.Background(), args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			for _, m := range messages {
@@ -363,11 +363,11 @@ func ocMessageCmd() *cobra.Command {
 				for _, p := range m.Parts {
 					switch pt := p.(type) {
 					case domain.TextPart:
-						fmt.Printf("  %s\n", truncate(pt.Text, 100))
+						fmt.Printf("  %s\n", truncateStr(pt.Text, 100))
 					case domain.ToolCallPart:
 						fmt.Printf("  🔧 %s\n", pt.Name)
 					case domain.ReasoningPart:
-						fmt.Printf("  💭 %s\n", truncate(pt.Text, 50))
+						fmt.Printf("  💭 %s\n", truncateStr(pt.Text, 50))
 					}
 				}
 			}
@@ -382,7 +382,7 @@ func ocMessageCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -398,7 +398,7 @@ func ocMessageCmd() *cobra.Command {
 
 			if err := mgr.AddMessage(context.Background(), msg); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Printf("Added message: %s\n", msg.ID)
@@ -425,7 +425,7 @@ func ocUsageCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -434,7 +434,7 @@ func ocUsageCmd() *cobra.Command {
 			usage, err := mgr.GetUsage(context.Background(), args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Printf("Session:  %s\n", usage.SessionID)
@@ -461,7 +461,7 @@ func ocUsageCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if db == nil {
 				fmt.Fprintln(os.Stderr, "Database not connected")
-				return
+				os.Exit(1)
 			}
 
 			store := graphstore.New(db)
@@ -470,7 +470,7 @@ func ocUsageCmd() *cobra.Command {
 			usage, err := mgr.GetTotalUsage(context.Background())
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				return
+				os.Exit(1)
 			}
 
 			fmt.Printf("Total Usage\n")
@@ -491,11 +491,4 @@ func ocUsageCmd() *cobra.Command {
 
 	cmd.AddCommand(sessionCmd, totalCmd)
 	return cmd
-}
-
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n-3] + "..."
 }

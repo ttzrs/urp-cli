@@ -45,12 +45,13 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
+	osexec "os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/joss/urp/internal/audit"
+	urpexec "github.com/joss/urp/internal/exec"
 	"golang.org/x/term"
 )
 
@@ -108,6 +109,7 @@ type Manager struct {
 	runtime Runtime
 	ctx     context.Context
 	project string // Project name for scoped resources
+	runner  urpexec.Runner
 }
 
 // ContainerStatus represents a running container.
@@ -135,6 +137,7 @@ func NewManager(ctx context.Context) *Manager {
 	return &Manager{
 		runtime: detectRuntime(),
 		ctx:     ctx,
+		runner:  urpexec.NewOSRunner(),
 	}
 }
 
@@ -144,6 +147,16 @@ func NewManagerForProject(ctx context.Context, project string) *Manager {
 		runtime: detectRuntime(),
 		ctx:     ctx,
 		project: project,
+		runner:  urpexec.NewOSRunner(),
+	}
+}
+
+// NewManagerWithRunner creates a manager with a custom runner (for testing).
+func NewManagerWithRunner(ctx context.Context, runner urpexec.Runner) *Manager {
+	return &Manager{
+		runtime: detectRuntime(),
+		ctx:     ctx,
+		runner:  runner,
 	}
 }
 
@@ -168,10 +181,10 @@ func detectRuntime() Runtime {
 		}
 	}
 	// Prefer docker (more common), fall back to podman
-	if _, err := exec.LookPath("docker"); err == nil {
+	if _, err := osexec.LookPath("docker"); err == nil {
 		return RuntimeDocker
 	}
-	if _, err := exec.LookPath("podman"); err == nil {
+	if _, err := osexec.LookPath("podman"); err == nil {
 		return RuntimePodman
 	}
 	return RuntimeNone
@@ -187,8 +200,7 @@ func (m *Manager) run(args ...string) (string, error) {
 	if m.runtime == RuntimeNone {
 		return "", fmt.Errorf("no container runtime found")
 	}
-	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
-	out, err := cmd.CombinedOutput()
+	out, err := m.runner.Run(m.ctx, string(m.runtime), args...)
 	return strings.TrimSpace(string(out)), err
 }
 
@@ -568,7 +580,7 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	// Image - entrypoint handles TTY vs daemon mode
 	args = append(args, URPMasterImage)
 
-	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
+	cmd := osexec.CommandContext(m.ctx, string(m.runtime), args...)
 
 	if hasTTY {
 		// Interactive mode: attach stdin/stdout/stderr
@@ -578,7 +590,7 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		err = cmd.Run()
 		if err != nil {
 			// Exit code from claude is normal
-			if exitErr, ok := err.(*exec.ExitError); ok {
+			if exitErr, ok := err.(*osexec.ExitError); ok {
 				if exitErr.ExitCode() == 0 {
 					return containerName, nil
 				}
@@ -593,13 +605,11 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 		}
 		// Verify container is running
 		time.Sleep(500 * time.Millisecond)
-		checkCmd := exec.Command(string(m.runtime), "ps", "--filter", fmt.Sprintf("name=%s", containerName), "--format", "{{.Names}}")
-		checkOutput, _ := checkCmd.Output()
-		if !strings.Contains(string(checkOutput), containerName) {
+		checkOutput, _ := m.run("ps", "--filter", fmt.Sprintf("name=%s", containerName), "--format", "{{.Names}}")
+		if !strings.Contains(checkOutput, containerName) {
 			// Container didn't stay running, check logs
-			logsCmd := exec.Command(string(m.runtime), "logs", containerName)
-			logs, _ := logsCmd.CombinedOutput()
-			return "", fmt.Errorf("master container exited immediately (logs: %s)", string(logs))
+			logs, _ := m.run("logs", containerName)
+			return "", fmt.Errorf("master container exited immediately (logs: %s)", logs)
 		}
 	}
 
@@ -702,7 +712,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 
 	args = append(args, URPWorkerImage)
 
-	cmd := exec.CommandContext(m.ctx, string(m.runtime), args...)
+	cmd := osexec.CommandContext(m.ctx, string(m.runtime), args...)
 
 	if hasTTY {
 		// Interactive mode: attach stdin/stdout/stderr
@@ -713,7 +723,7 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 
 	err = cmd.Run()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
+		if exitErr, ok := err.(*osexec.ExitError); ok {
 			if exitErr.ExitCode() == 0 {
 				return containerName, nil
 			}
@@ -780,7 +790,7 @@ func (m *Manager) AttachWorker(containerName string) error {
 		return fmt.Errorf("no container runtime found")
 	}
 
-	cmd := exec.Command(string(m.runtime), "exec", "-it", containerName, "/bin/bash")
+	cmd := osexec.Command(string(m.runtime), "exec", "-it", containerName, "/bin/bash")
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -799,7 +809,7 @@ func (m *Manager) Exec(containerName string, command string) error {
 		return fmt.Errorf("no container runtime found")
 	}
 
-	cmd := exec.Command(string(m.runtime), "exec", containerName, "/bin/bash", "-c", command)
+	cmd := osexec.Command(string(m.runtime), "exec", containerName, "/bin/bash", "-c", command)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -922,7 +932,7 @@ func (m *Manager) CheckGPU() *GPUStatus {
 	status := &GPUStatus{}
 
 	// Try nvidia-smi first (most reliable)
-	out, err := exec.Command("nvidia-smi", "--query-gpu=count", "--format=csv,noheader").Output()
+	out, err := m.runner.Run(m.ctx, "nvidia-smi", "--query-gpu=count", "--format=csv,noheader")
 	if err == nil {
 		status.Available = true
 		// Parse device count
@@ -936,7 +946,7 @@ func (m *Manager) CheckGPU() *GPUStatus {
 	}
 
 	// nvidia-smi failed, check why
-	if _, err := exec.LookPath("nvidia-smi"); err != nil {
+	if _, err := osexec.LookPath("nvidia-smi"); err != nil {
 		status.Reason = "nvidia-smi not found (NVIDIA drivers not installed)"
 		return status
 	}

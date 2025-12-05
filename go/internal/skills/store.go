@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/joss/urp/internal/graph"
+	"github.com/joss/urp/internal/strings"
 )
 
 // Store manages skills in the graph database.
@@ -188,8 +189,8 @@ func (s *Store) LogExecution(ctx context.Context, exec *SkillExecution) error {
 		"id":         exec.ID,
 		"skill_id":   exec.SkillID,
 		"session_id": exec.SessionID,
-		"input":      truncate(exec.Input, 1000),
-		"output":     truncate(exec.Output, 2000),
+		"input":      strings.TruncateNoEllipsis(exec.Input, 1000),
+		"output":     strings.TruncateNoEllipsis(exec.Output, 2000),
 		"duration":   exec.Duration,
 		"success":    exec.Success,
 		"error":      exec.Error,
@@ -240,8 +241,8 @@ func (s *Store) Stats(ctx context.Context) (map[string]any, error) {
 	if err == nil {
 		categories := make(map[string]int)
 		for _, r := range catRecords {
-			cat := getString(r, "category")
-			cnt := getInt(r, "count")
+			cat := graph.GetString(r, "category")
+			cnt := graph.GetInt(r, "count")
 			categories[cat] = cnt
 		}
 		stats["by_category"] = categories
@@ -252,41 +253,20 @@ func (s *Store) Stats(ctx context.Context) (map[string]any, error) {
 
 func recordToSkill(r graph.Record) *Skill {
 	return &Skill{
-		ID:           getString(r, "sk.id"),
-		Name:         getString(r, "sk.name"),
-		Category:     Category(getString(r, "sk.category")),
-		Description:  getString(r, "sk.description"),
-		Version:      getString(r, "sk.version"),
-		Source:       getString(r, "sk.source"),
-		SourceType:   getString(r, "sk.source_type"),
+		ID:           graph.GetString(r, "sk.id"),
+		Name:         graph.GetString(r, "sk.name"),
+		Category:     Category(graph.GetString(r, "sk.category")),
+		Description:  graph.GetString(r, "sk.description"),
+		Version:      graph.GetString(r, "sk.version"),
+		Source:       graph.GetString(r, "sk.source"),
+		SourceType:   graph.GetString(r, "sk.source_type"),
 		ContextFiles: getStringSlice(r, "sk.context_files"),
-		Agent:        getString(r, "sk.agent"),
+		Agent:        graph.GetString(r, "sk.agent"),
 		Tags:         getStringSlice(r, "sk.tags"),
-		CreatedAt:    time.Unix(getInt64(r, "sk.created_at"), 0),
-		UpdatedAt:    time.Unix(getInt64(r, "sk.updated_at"), 0),
-		UsageCount:   getInt(r, "sk.usage_count"),
+		CreatedAt:    time.Unix(graph.GetInt64(r, "sk.created_at"), 0),
+		UpdatedAt:    time.Unix(graph.GetInt64(r, "sk.updated_at"), 0),
+		UsageCount:   graph.GetInt(r, "sk.usage_count"),
 	}
-}
-
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key].(string); ok {
-		return v
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key].(int64); ok {
-		return int(v)
-	}
-	return 0
-}
-
-func getInt64(r graph.Record, key string) int64 {
-	if v, ok := r[key].(int64); ok {
-		return v
-	}
-	return 0
 }
 
 func getStringSlice(r graph.Record, key string) []string {
@@ -300,11 +280,4 @@ func getStringSlice(r graph.Record, key string) []string {
 		return result
 	}
 	return nil
-}
-
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n]
 }

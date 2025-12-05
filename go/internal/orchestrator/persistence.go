@@ -168,15 +168,15 @@ func (p *PersistenceStore) GetRun(ctx context.Context, runID string) (*Orchestra
 
 	r := records[0]
 	run := &OrchestratorRun{
-		RunID:       getString(r, "run_id"),
-		Description: getString(r, "description"),
-		Status:      getString(r, "status"),
-		TaskCount:   getInt(r, "task_count"),
-		Succeeded:   getInt(r, "succeeded"),
-		Failed:      getInt(r, "failed"),
-		DurationMs:  getInt64(r, "duration_ms"),
-		CreatedAt:   getString(r, "created_at"),
-		CompletedAt: getString(r, "completed_at"),
+		RunID:       graph.GetString(r, "run_id"),
+		Description: graph.GetString(r, "description"),
+		Status:      graph.GetString(r, "status"),
+		TaskCount:   graph.GetInt(r, "task_count"),
+		Succeeded:   graph.GetInt(r, "succeeded"),
+		Failed:      graph.GetInt(r, "failed"),
+		DurationMs:  graph.GetInt64(r, "duration_ms"),
+		CreatedAt:   graph.GetString(r, "created_at"),
+		CompletedAt: graph.GetString(r, "completed_at"),
 	}
 
 	// Parse results
@@ -229,15 +229,15 @@ func (p *PersistenceStore) ListRuns(ctx context.Context, limit int) ([]Orchestra
 	var runs []OrchestratorRun
 	for _, r := range records {
 		runs = append(runs, OrchestratorRun{
-			RunID:       getString(r, "run_id"),
-			Description: getString(r, "description"),
-			Status:      getString(r, "status"),
-			TaskCount:   getInt(r, "task_count"),
-			Succeeded:   getInt(r, "succeeded"),
-			Failed:      getInt(r, "failed"),
-			DurationMs:  getInt64(r, "duration_ms"),
-			CreatedAt:   getString(r, "created_at"),
-			CompletedAt: getString(r, "completed_at"),
+			RunID:       graph.GetString(r, "run_id"),
+			Description: graph.GetString(r, "description"),
+			Status:      graph.GetString(r, "status"),
+			TaskCount:   graph.GetInt(r, "task_count"),
+			Succeeded:   graph.GetInt(r, "succeeded"),
+			Failed:      graph.GetInt(r, "failed"),
+			DurationMs:  graph.GetInt64(r, "duration_ms"),
+			CreatedAt:   graph.GetString(r, "created_at"),
+			CompletedAt: graph.GetString(r, "completed_at"),
 		})
 	}
 
@@ -278,67 +278,16 @@ func (p *PersistenceStore) GetStats(ctx context.Context) (map[string]any, error)
 
 	r := records[0]
 	return map[string]any{
-		"total_runs":      getInt(r, "total_runs"),
-		"completed_runs":  getInt(r, "completed_runs"),
-		"failed_runs":     getInt(r, "failed_runs"),
-		"total_tasks":     getInt(r, "total_tasks"),
-		"total_succeeded": getInt(r, "total_succeeded"),
-		"total_failed":    getInt(r, "total_failed"),
-		"avg_duration_ms": getFloat(r, "avg_duration_ms"),
+		"total_runs":      graph.GetInt(r, "total_runs"),
+		"completed_runs":  graph.GetInt(r, "completed_runs"),
+		"failed_runs":     graph.GetInt(r, "failed_runs"),
+		"total_tasks":     graph.GetInt(r, "total_tasks"),
+		"total_succeeded": graph.GetInt(r, "total_succeeded"),
+		"total_failed":    graph.GetInt(r, "total_failed"),
+		"avg_duration_ms": graph.GetFloat(r, "avg_duration_ms"),
 	}, nil
 }
 
-// Helper functions
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return int(n)
-		case int:
-			return n
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
-}
-
-func getInt64(r graph.Record, key string) int64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return n
-		case int:
-			return int64(n)
-		case float64:
-			return int64(n)
-		}
-	}
-	return 0
-}
-
-func getFloat(r graph.Record, key string) float64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case float64:
-			return n
-		case int64:
-			return float64(n)
-		case int:
-			return float64(n)
-		}
-	}
-	return 0
-}
 
 func getStringFrom(m map[string]any, key string) string {
 	if v, ok := m[key]; ok {

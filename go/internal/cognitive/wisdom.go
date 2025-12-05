@@ -139,7 +139,7 @@ func (w *WisdomService) jaccardSearch(ctx context.Context, errorMsg string, thre
 	errorWords := tokenize(errorMsg)
 
 	for _, r := range records {
-		pastError := getString(r, "error")
+		pastError := graph.GetString(r, "error")
 		if pastError == "" {
 			continue
 		}
@@ -150,10 +150,10 @@ func (w *WisdomService) jaccardSearch(ctx context.Context, errorMsg string, thre
 
 		if sim >= threshold {
 			matches = append(matches, Match{
-				Command:    getString(r, "command"),
+				Command:    graph.GetString(r, "command"),
 				Error:      pastError,
-				Time:       getString(r, "time"),
-				Project:    getString(r, "project"),
+				Time:       graph.GetString(r, "time"),
+				Project:    graph.GetString(r, "project"),
 				Similarity: math.Round(sim*1000) / 1000,
 			})
 		}
@@ -217,7 +217,7 @@ func (w *WisdomService) findSolution(ctx context.Context, match *Match) {
 		return
 	}
 
-	if sol := getString(records[0], "solution"); sol != "" {
+	if sol := graph.GetString(records[0], "solution"); sol != "" {
 		match.Solution = sol
 	}
 }
@@ -281,15 +281,6 @@ func jaccardSimilarity(a, b map[string]bool) float64 {
 	}
 
 	return float64(intersection) / float64(union)
-}
-
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
 }
 
 func min(a, b int) int {

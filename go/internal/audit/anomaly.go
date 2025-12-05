@@ -430,19 +430,19 @@ func (s *AnomalyStore) GetRecent(ctx context.Context, limit int) ([]Anomaly, err
 	var anomalies []Anomaly
 	for _, r := range records {
 		a := Anomaly{
-			ID:          getString(r, "anomaly_id"),
-			Level:       AnomalyLevel(getString(r, "level")),
-			Type:        MetricType(getString(r, "type")),
-			Category:    Category(getString(r, "category")),
-			Operation:   getString(r, "operation"),
-			Value:       getFloat(r, "value"),
-			Expected:    getFloat(r, "expected"),
-			StdDev:      getFloat(r, "std_dev"),
-			ZScore:      getFloat(r, "z_score"),
-			Description: getString(r, "description"),
+			ID:          graph.GetString(r, "anomaly_id"),
+			Level:       AnomalyLevel(graph.GetString(r, "level")),
+			Type:        MetricType(graph.GetString(r, "type")),
+			Category:    Category(graph.GetString(r, "category")),
+			Operation:   graph.GetString(r, "operation"),
+			Value:       graph.GetFloat(r, "value"),
+			Expected:    graph.GetFloat(r, "expected"),
+			StdDev:      graph.GetFloat(r, "std_dev"),
+			ZScore:      graph.GetFloat(r, "z_score"),
+			Description: graph.GetString(r, "description"),
 		}
 
-		if detected := getString(r, "detected_at"); detected != "" {
+		if detected := graph.GetString(r, "detected_at"); detected != "" {
 			if t, err := time.Parse(time.RFC3339, detected); err == nil {
 				a.DetectedAt = t
 			}
@@ -488,17 +488,17 @@ func (s *AnomalyStore) GetByLevel(ctx context.Context, level AnomalyLevel, limit
 	var anomalies []Anomaly
 	for _, r := range records {
 		a := Anomaly{
-			ID:          getString(r, "anomaly_id"),
-			Level:       AnomalyLevel(getString(r, "level")),
-			Type:        MetricType(getString(r, "type")),
-			Category:    Category(getString(r, "category")),
-			Operation:   getString(r, "operation"),
-			Value:       getFloat(r, "value"),
-			Expected:    getFloat(r, "expected"),
-			Description: getString(r, "description"),
+			ID:          graph.GetString(r, "anomaly_id"),
+			Level:       AnomalyLevel(graph.GetString(r, "level")),
+			Type:        MetricType(graph.GetString(r, "type")),
+			Category:    Category(graph.GetString(r, "category")),
+			Operation:   graph.GetString(r, "operation"),
+			Value:       graph.GetFloat(r, "value"),
+			Expected:    graph.GetFloat(r, "expected"),
+			Description: graph.GetString(r, "description"),
 		}
 
-		if detected := getString(r, "detected_at"); detected != "" {
+		if detected := graph.GetString(r, "detected_at"); detected != "" {
 			if t, err := time.Parse(time.RFC3339, detected); err == nil {
 				a.DetectedAt = t
 			}

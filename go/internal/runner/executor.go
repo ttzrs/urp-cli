@@ -11,6 +11,7 @@ import (
 
 	"github.com/joss/urp/internal/domain"
 	"github.com/joss/urp/internal/graph"
+	urpstrings "github.com/joss/urp/internal/strings"
 )
 
 // Executor runs commands and logs them to the graph.
@@ -164,12 +165,12 @@ func (e *Executor) logToGraph(ctx context.Context, event domain.Event) {
 	`, labelStr)
 
 	params := map[string]any{
-		"command":        truncate(event.Command, 500),
+		"command":        urpstrings.TruncateNoEllipsis(event.Command, 500),
 		"cmd_base":       event.CmdBase,
 		"exit_code":      event.ExitCode,
 		"duration_sec":   event.DurationSec,
 		"cwd":            event.Cwd,
-		"stderr_preview": truncate(event.StderrPreview, 200),
+		"stderr_preview": urpstrings.TruncateNoEllipsis(event.StderrPreview, 200),
 		"timestamp":      event.Timestamp.Unix(),
 		"datetime":       event.Timestamp.Format(time.RFC3339),
 		"project":        event.Project,
@@ -186,9 +187,3 @@ func getCwd() string {
 	return cwd
 }
 
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n]
-}

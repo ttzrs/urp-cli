@@ -285,13 +285,13 @@ func (s *Store) GetTotalUsage(ctx context.Context) (*domain.Usage, error) {
 
 	r := records[0]
 	return &domain.Usage{
-		InputTokens:  getInt(r, "inputTokens"),
-		OutputTokens: getInt(r, "outputTokens"),
-		CacheRead:    getInt(r, "cacheRead"),
-		CacheWrite:   getInt(r, "cacheWrite"),
-		InputCost:    getFloat(r, "inputCost"),
-		OutputCost:   getFloat(r, "outputCost"),
-		TotalCost:    getFloat(r, "totalCost"),
+		InputTokens:  graph.GetInt(r, "inputTokens"),
+		OutputTokens: graph.GetInt(r, "outputTokens"),
+		CacheRead:    graph.GetInt(r, "cacheRead"),
+		CacheWrite:   graph.GetInt(r, "cacheWrite"),
+		InputCost:    graph.GetFloat(r, "inputCost"),
+		OutputCost:   graph.GetFloat(r, "outputCost"),
+		TotalCost:    graph.GetFloat(r, "totalCost"),
 	}, nil
 }
 
@@ -299,17 +299,17 @@ func (s *Store) GetTotalUsage(ctx context.Context) (*domain.Usage, error) {
 
 func recordToSession(r graph.Record) (*domain.Session, error) {
 	sess := &domain.Session{
-		ID:        getString(r, "id"),
-		ProjectID: getString(r, "projectID"),
-		Directory: getString(r, "workdir"),
-		ParentID:  getString(r, "parentID"),
-		Title:     getString(r, "title"),
-		Version:   getString(r, "version"),
-		CreatedAt: time.Unix(int64(getInt(r, "createdAt")), 0),
-		UpdatedAt: time.Unix(int64(getInt(r, "updatedAt")), 0),
+		ID:        graph.GetString(r, "id"),
+		ProjectID: graph.GetString(r, "projectID"),
+		Directory: graph.GetString(r, "workdir"),
+		ParentID:  graph.GetString(r, "parentID"),
+		Title:     graph.GetString(r, "title"),
+		Version:   graph.GetString(r, "version"),
+		CreatedAt: time.Unix(int64(graph.GetInt(r, "createdAt")), 0),
+		UpdatedAt: time.Unix(int64(graph.GetInt(r, "updatedAt")), 0),
 	}
 
-	if summaryStr := getString(r, "summary"); summaryStr != "" {
+	if summaryStr := graph.GetString(r, "summary"); summaryStr != "" {
 		var summary domain.Summary
 		if json.Unmarshal([]byte(summaryStr), &summary) == nil {
 			sess.Summary = &summary
@@ -320,13 +320,13 @@ func recordToSession(r graph.Record) (*domain.Session, error) {
 
 func recordToMessage(r graph.Record) (*domain.Message, error) {
 	msg := &domain.Message{
-		ID:        getString(r, "id"),
-		SessionID: getString(r, "sessionID"),
-		Role:      domain.Role(getString(r, "role")),
-		Timestamp: time.Unix(int64(getInt(r, "timestamp")), 0),
+		ID:        graph.GetString(r, "id"),
+		SessionID: graph.GetString(r, "sessionID"),
+		Role:      domain.Role(graph.GetString(r, "role")),
+		Timestamp: time.Unix(int64(graph.GetInt(r, "timestamp")), 0),
 	}
 
-	if partsStr := getString(r, "parts"); partsStr != "" {
+	if partsStr := graph.GetString(r, "parts"); partsStr != "" {
 		parts, err := domain.UnmarshalParts([]byte(partsStr))
 		if err == nil {
 			msg.Parts = parts
@@ -337,57 +337,21 @@ func recordToMessage(r graph.Record) (*domain.Message, error) {
 
 func recordToUsage(r graph.Record) *domain.SessionUsage {
 	return &domain.SessionUsage{
-		SessionID:    getString(r, "sessionID"),
-		ProviderID:   getString(r, "providerID"),
-		ModelID:      getString(r, "modelID"),
-		MessageCount: getInt(r, "messageCount"),
-		ToolCalls:    getInt(r, "toolCalls"),
-		UpdatedAt:    time.Unix(int64(getInt(r, "updatedAt")), 0),
+		SessionID:    graph.GetString(r, "sessionID"),
+		ProviderID:   graph.GetString(r, "providerID"),
+		ModelID:      graph.GetString(r, "modelID"),
+		MessageCount: graph.GetInt(r, "messageCount"),
+		ToolCalls:    graph.GetInt(r, "toolCalls"),
+		UpdatedAt:    time.Unix(int64(graph.GetInt(r, "updatedAt")), 0),
 		Usage: domain.Usage{
-			InputTokens:  getInt(r, "inputTokens"),
-			OutputTokens: getInt(r, "outputTokens"),
-			CacheRead:    getInt(r, "cacheRead"),
-			CacheWrite:   getInt(r, "cacheWrite"),
-			InputCost:    getFloat(r, "inputCost"),
-			OutputCost:   getFloat(r, "outputCost"),
-			TotalCost:    getFloat(r, "totalCost"),
+			InputTokens:  graph.GetInt(r, "inputTokens"),
+			OutputTokens: graph.GetInt(r, "outputTokens"),
+			CacheRead:    graph.GetInt(r, "cacheRead"),
+			CacheWrite:   graph.GetInt(r, "cacheWrite"),
+			InputCost:    graph.GetFloat(r, "inputCost"),
+			OutputCost:   graph.GetFloat(r, "outputCost"),
+			TotalCost:    graph.GetFloat(r, "totalCost"),
 		},
 	}
 }
 
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int:
-			return n
-		case int64:
-			return int(n)
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
-}
-
-func getFloat(r graph.Record, key string) float64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case float64:
-			return n
-		case int64:
-			return float64(n)
-		case int:
-			return float64(n)
-		}
-	}
-	return 0
-}

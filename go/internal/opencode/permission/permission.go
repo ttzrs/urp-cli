@@ -10,6 +10,7 @@ import (
 
 	"github.com/joss/urp/internal/opencode/config"
 	"github.com/joss/urp/internal/opencode/domain"
+	urpstrings "github.com/joss/urp/internal/strings"
 )
 
 // Request represents a permission request
@@ -80,7 +81,7 @@ func (m *Manager) Check(req Request) (domain.Permission, string) {
 
 func (m *Manager) checkBash(command string) (domain.Permission, string) {
 	if m.permissions.Bash == nil {
-		return domain.PermissionAsk, "bash command: " + truncate(command, 60)
+		return domain.PermissionAsk, "bash command: " + urpstrings.Truncate(command, 60)
 	}
 
 	// Check specific patterns first, then wildcards
@@ -95,10 +96,10 @@ func (m *Manager) checkBash(command string) (domain.Permission, string) {
 
 	// Check wildcard
 	if perm, ok := m.permissions.Bash["*"]; ok {
-		return perm, "bash command: " + truncate(command, 60)
+		return perm, "bash command: " + urpstrings.Truncate(command, 60)
 	}
 
-	return domain.PermissionAsk, "bash command: " + truncate(command, 60)
+	return domain.PermissionAsk, "bash command: " + urpstrings.Truncate(command, 60)
 }
 
 func (m *Manager) checkEdit(path string) (domain.Permission, string) {
@@ -290,13 +291,6 @@ func matchCommand(command, pattern string) bool {
 	}
 	// Exact match
 	return command == pattern
-}
-
-func truncate(s string, max int) string {
-	if len(s) <= max {
-		return s
-	}
-	return s[:max-3] + "..."
 }
 
 // checkComputer handles permission for computer interaction tool

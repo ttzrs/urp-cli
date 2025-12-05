@@ -86,11 +86,11 @@ func (f *FocusService) Focus(ctx context.Context, target string, depth int) (*Fo
 	// Add target entities
 	for _, r := range records {
 		result.Entities = append(result.Entities, FocusEntity{
-			Name:      getString(r, "name"),
-			Type:      getString(r, "type"),
-			Path:      getString(r, "path"),
-			Signature: getString(r, "signature"),
-			LineStart: getInt(r, "line_start"),
+			Name:      graph.GetString(r, "name"),
+			Type:      graph.GetString(r, "type"),
+			Path:      graph.GetString(r, "path"),
+			Signature: graph.GetString(r, "signature"),
+			LineStart: graph.GetInt(r, "line_start"),
 		})
 		result.Summary["targets"]++
 	}
@@ -115,19 +115,19 @@ func (f *FocusService) Focus(ctx context.Context, target string, depth int) (*Fo
 
 	for _, r := range outRecords {
 		result.Edges = append(result.Edges, FocusEdge{
-			From: getString(r, "from_name"),
-			To:   getString(r, "to_name"),
-			Type: getString(r, "rel_type"),
+			From: graph.GetString(r, "from_name"),
+			To:   graph.GetString(r, "to_name"),
+			Type: graph.GetString(r, "rel_type"),
 		})
 
 		// Add target entity if not already present
-		toName := getString(r, "to_name")
+		toName := graph.GetString(r, "to_name")
 		if toName != "" && !hasEntity(result.Entities, toName) {
 			result.Entities = append(result.Entities, FocusEntity{
 				Name:      toName,
-				Type:      getString(r, "to_type"),
-				Path:      getString(r, "to_path"),
-				Signature: getString(r, "to_signature"),
+				Type:      graph.GetString(r, "to_type"),
+				Path:      graph.GetString(r, "to_path"),
+				Signature: graph.GetString(r, "to_signature"),
 			})
 		}
 		result.Summary["outgoing"]++
@@ -152,18 +152,18 @@ func (f *FocusService) Focus(ctx context.Context, target string, depth int) (*Fo
 
 	for _, r := range inRecords {
 		result.Edges = append(result.Edges, FocusEdge{
-			From: getString(r, "from_name"),
-			To:   getString(r, "to_name"),
-			Type: getString(r, "rel_type"),
+			From: graph.GetString(r, "from_name"),
+			To:   graph.GetString(r, "to_name"),
+			Type: graph.GetString(r, "rel_type"),
 		})
 
 		// Add source entity
-		fromName := getString(r, "from_name")
+		fromName := graph.GetString(r, "from_name")
 		if fromName != "" && !hasEntity(result.Entities, fromName) {
 			result.Entities = append(result.Entities, FocusEntity{
 				Name: fromName,
-				Type: getString(r, "from_type"),
-				Path: getString(r, "from_path"),
+				Type: graph.GetString(r, "from_type"),
+				Path: graph.GetString(r, "from_path"),
 			})
 		}
 		result.Summary["incoming"]++
@@ -203,17 +203,17 @@ func (f *FocusService) expandEntity(ctx context.Context, entities *[]FocusEntity
 
 	for _, r := range records {
 		*edges = append(*edges, FocusEdge{
-			From: getString(r, "from_name"),
-			To:   getString(r, "to_name"),
-			Type: getString(r, "rel_type"),
+			From: graph.GetString(r, "from_name"),
+			To:   graph.GetString(r, "to_name"),
+			Type: graph.GetString(r, "rel_type"),
 		})
 
-		toName := getString(r, "to_name")
+		toName := graph.GetString(r, "to_name")
 		if toName != "" && !hasEntity(*entities, toName) {
 			*entities = append(*entities, FocusEntity{
 				Name: toName,
-				Type: getString(r, "to_type"),
-				Path: getString(r, "to_path"),
+				Type: graph.GetString(r, "to_type"),
+				Path: graph.GetString(r, "to_path"),
 			})
 			summary["expanded"]++
 		}

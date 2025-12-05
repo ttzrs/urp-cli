@@ -155,47 +155,45 @@ func specCmd() *cobra.Command {
 				})
 			}
 
-			// 4. Read spec content
+			// 4. Parse spec with frontmatter + graph enrichment
 			engine := specs.NewEngine(cwd)
-			specContent, err := engine.ReadSpec(ctx, specName)
+			if db != nil {
+				engine.WithDB(db)
+			}
+
+			spec, err := engine.ParseSpec(ctx, specName)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Warning: could not read spec: %v\n", err)
-				specContent = ""
+				fmt.Fprintf(os.Stderr, "Warning: could not parse spec: %v\n", err)
+				spec = nil
 			}
 
 			constitution, _ := engine.ReadConstitution(ctx)
 
-			// 5. Construct prompt with actual spec content
+			// 5. Build structured prompt with parsed spec
 			var prompt string
-			if specContent != "" {
-				prompt = fmt.Sprintf(`# SPECIFICATION: %s
+			if spec != nil {
+				// Show spec metadata
+				if spec.Title != "" {
+					fmt.Printf("📋 Title: %s\n", spec.Title)
+				}
+				if spec.Status != "" {
+					fmt.Printf("📊 Status: %s\n", spec.Status)
+				}
+				if len(spec.Requirements) > 0 {
+					fmt.Printf("✅ Requirements: %d (%.0f%% complete)\n", len(spec.Requirements), spec.Progress())
+				}
+				if len(spec.Context) > 0 {
+					fmt.Printf("📁 Context files: %d\n", len(spec.Context))
+				}
 
-%s
-
----
-
-# CONSTITUTION (Project Rules)
-
-%s
-
----
-
-# TASK
-
-Implement the feature described above. Follow these steps:
-1. Analyze the current codebase structure
-2. Create a plan based on the specification
-3. Implement the feature
-4. Run tests to verify: go test ./...
-5. Fix any issues
-
-Start now.
-`, specName, specContent, constitution)
+				// Build structured prompt
+				prompt, _ = engine.BuildPrompt(ctx, spec, constitution)
 			} else {
+				// Fallback to simple prompt
 				prompt = fmt.Sprintf(`
 I need you to implement the feature described in the specification '%s'.
 
-Please follows these steps:
+Please follow these steps:
 1. Read the specification files in specs/%s/
 2. Create a plan of action
 3. Execute the plan to implement the feature
@@ -238,7 +236,95 @@ Start by reading specs/%s/spec.md
 		},
 	}
 
-	cmd.AddCommand(initCmd, listCmd, runCmd)
+	// spec show <name> - preview parsed spec
+	showCmd := &cobra.Command{
+		Use:   "show <spec-name>",
+		Short: "Show parsed spec with frontmatter",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			specName := args[0]
+			cwd, _ := os.Getwd()
+			ctx := context.Background()
+
+			engine := specs.NewEngine(cwd)
+
+			// Try to connect to graph for enrichment
+			graph.SetEnvLookup(os.LookupEnv)
+			if db, err := graph.Connect(); err == nil {
+				defer db.Close()
+				engine.WithDB(db)
+			}
+
+			spec, err := engine.ParseSpec(ctx, specName)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			// Print metadata
+			fmt.Println("═══════════════════════════════════════")
+			fmt.Printf("SPECIFICATION: %s\n", specName)
+			fmt.Println("═══════════════════════════════════════")
+
+			if spec.ID != "" {
+				fmt.Printf("ID:     %s\n", spec.ID)
+			}
+			if spec.Title != "" {
+				fmt.Printf("Title:  %s\n", spec.Title)
+			}
+			if spec.Status != "" {
+				fmt.Printf("Status: %s\n", spec.Status)
+			}
+			if spec.Owner != "" {
+				fmt.Printf("Owner:  %s\n", spec.Owner)
+			}
+			if spec.Type != "" {
+				fmt.Printf("Type:   %s\n", spec.Type)
+			}
+
+			// Context files
+			if len(spec.Context) > 0 {
+				fmt.Println("\nContext Files:")
+				for _, f := range spec.Context {
+					fmt.Printf("  - %s\n", f)
+				}
+			}
+
+			// Requirements
+			if len(spec.Requirements) > 0 {
+				fmt.Printf("\nRequirements (%d):\n", len(spec.Requirements))
+				for _, r := range spec.Requirements {
+					check := "[ ]"
+					if r.Complete {
+						check = "[x]"
+					}
+					fmt.Printf("  %s %s\n", check, r.Text)
+				}
+				fmt.Printf("\nProgress: %.0f%%\n", spec.Progress())
+			}
+
+			// Plan
+			if len(spec.Plan) > 0 {
+				fmt.Println("\nPlan:")
+				for i, step := range spec.Plan {
+					fmt.Printf("  %d. %s\n", i+1, step)
+				}
+			}
+
+			// Enriched context
+			enriched, _ := engine.EnrichContext(ctx, spec, 2)
+			if len(enriched) > len(spec.Context) {
+				fmt.Println("\nEnriched Context (from graph):")
+				for _, f := range enriched {
+					fmt.Printf("  - %s\n", f)
+				}
+			}
+
+			fmt.Println("\n═══════════════════════════════════════")
+		},
+	}
+
+	cmd.AddCommand(initCmd, listCmd, runCmd, showCmd)
 	return cmd
 }
 

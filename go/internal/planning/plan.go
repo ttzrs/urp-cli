@@ -196,11 +196,11 @@ func (p *Planner) GetPlan(ctx context.Context, planID string) (*Plan, error) {
 
 	r := records[0]
 	plan := &Plan{
-		PlanID:      getString(r, "plan_id"),
-		Description: getString(r, "description"),
-		Status:      PlanStatus(getString(r, "status")),
-		CreatedAt:   getString(r, "created_at"),
-		UpdatedAt:   getString(r, "updated_at"),
+		PlanID:      graph.GetString(r, "plan_id"),
+		Description: graph.GetString(r, "description"),
+		Status:      PlanStatus(graph.GetString(r, "status")),
+		CreatedAt:   graph.GetString(r, "created_at"),
+		UpdatedAt:   graph.GetString(r, "updated_at"),
 	}
 
 	// Parse tasks
@@ -381,12 +381,12 @@ func (p *Planner) GetNextTask(ctx context.Context, planID string) (*Task, error)
 
 	r := records[0]
 	return &Task{
-		TaskID:      getString(r, "task_id"),
+		TaskID:      graph.GetString(r, "task_id"),
 		PlanID:      planID,
-		Description: getString(r, "description"),
-		Status:      TaskStatus(getString(r, "status")),
-		Order:       getInt(r, "task_order"),
-		CreatedAt:   getString(r, "created_at"),
+		Description: graph.GetString(r, "description"),
+		Status:      TaskStatus(graph.GetString(r, "status")),
+		Order:       graph.GetInt(r, "task_order"),
+		CreatedAt:   graph.GetString(r, "created_at"),
 	}, nil
 }
 
@@ -414,11 +414,11 @@ func (p *Planner) ListPlans(ctx context.Context, limit int) ([]Plan, error) {
 	var plans []Plan
 	for _, r := range records {
 		plans = append(plans, Plan{
-			PlanID:      getString(r, "plan_id"),
-			Description: getString(r, "description"),
-			Status:      PlanStatus(getString(r, "status")),
-			CreatedAt:   getString(r, "created_at"),
-			UpdatedAt:   getString(r, "updated_at"),
+			PlanID:      graph.GetString(r, "plan_id"),
+			Description: graph.GetString(r, "description"),
+			Status:      PlanStatus(graph.GetString(r, "status")),
+			CreatedAt:   graph.GetString(r, "created_at"),
+			UpdatedAt:   graph.GetString(r, "updated_at"),
 		})
 	}
 
@@ -447,30 +447,6 @@ func (p *Planner) updatePlanStatus(ctx context.Context, taskID string) {
 		"task_id": taskID,
 		"now":     time.Now().UTC().Format(time.RFC3339),
 	})
-}
-
-// Helper functions
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return int(n)
-		case int:
-			return n
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
 }
 
 func getStringFrom(m map[string]any, key string) string {
@@ -605,11 +581,11 @@ func (p *Planner) GetTask(ctx context.Context, taskID string) (*Task, error) {
 
 	r := records[0]
 	return &Task{
-		TaskID:      getString(r, "task_id"),
-		Description: getString(r, "description"),
-		Status:      TaskStatus(getString(r, "status")),
-		WorkerID:    getString(r, "worker_id"),
-		Order:       getInt(r, "task_order"),
+		TaskID:      graph.GetString(r, "task_id"),
+		Description: graph.GetString(r, "description"),
+		Status:      TaskStatus(graph.GetString(r, "status")),
+		WorkerID:    graph.GetString(r, "worker_id"),
+		Order:       graph.GetInt(r, "task_order"),
 	}, nil
 }
 

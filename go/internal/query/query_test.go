@@ -2,6 +2,8 @@ package query
 
 import (
 	"testing"
+
+	"github.com/joss/urp/internal/graph"
 )
 
 func TestImpactStruct(t *testing.T) {
@@ -101,16 +103,16 @@ func TestGetStringHelper(t *testing.T) {
 		"empty": "",
 	}
 
-	if getString(record, "name") != "test" {
+	if graph.GetString(record, "name") != "test" {
 		t.Error("expected test")
 	}
-	if getString(record, "count") != "" {
+	if graph.GetString(record, "count") != "" {
 		t.Error("expected empty for non-string")
 	}
-	if getString(record, "missing") != "" {
+	if graph.GetString(record, "missing") != "" {
 		t.Error("expected empty for missing")
 	}
-	if getString(record, "empty") != "" {
+	if graph.GetString(record, "empty") != "" {
 		t.Error("expected empty string")
 	}
 }
@@ -123,19 +125,19 @@ func TestGetIntHelper(t *testing.T) {
 		"string":  "not a number",
 	}
 
-	if getInt(record, "int") != 42 {
+	if graph.GetInt(record, "int") != 42 {
 		t.Error("expected 42")
 	}
-	if getInt(record, "int64") != 64 {
+	if graph.GetInt(record, "int64") != 64 {
 		t.Error("expected 64")
 	}
-	if getInt(record, "float64") != 99 {
+	if graph.GetInt(record, "float64") != 99 {
 		t.Error("expected 99")
 	}
-	if getInt(record, "string") != 0 {
+	if graph.GetInt(record, "string") != 0 {
 		t.Error("expected 0 for string")
 	}
-	if getInt(record, "missing") != 0 {
+	if graph.GetInt(record, "missing") != 0 {
 		t.Error("expected 0 for missing")
 	}
 }
@@ -148,16 +150,16 @@ func TestGetFloatHelper(t *testing.T) {
 		"string": "not a number",
 	}
 
-	if getFloat(record, "float") != 3.14 {
+	if graph.GetFloat(record, "float") != 3.14 {
 		t.Error("expected 3.14")
 	}
-	if getFloat(record, "int") != 10.0 {
+	if graph.GetFloat(record, "int") != 10.0 {
 		t.Error("expected 10.0")
 	}
-	if getFloat(record, "int64") != 20.0 {
+	if graph.GetFloat(record, "int64") != 20.0 {
 		t.Error("expected 20.0")
 	}
-	if getFloat(record, "string") != 0.0 {
+	if graph.GetFloat(record, "string") != 0.0 {
 		t.Error("expected 0 for string")
 	}
 }

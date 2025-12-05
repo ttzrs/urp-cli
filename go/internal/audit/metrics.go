@@ -342,18 +342,18 @@ func (s *MetricsStore) GetHistoricalStats(ctx context.Context, metricType Metric
 	var stats []MetricStats
 	for _, r := range records {
 		stats = append(stats, MetricStats{
-			Type:      MetricType(getString(r, "type")),
-			Category:  Category(getString(r, "category")),
-			Operation: getString(r, "operation"),
-			Count:     getInt(r, "count"),
-			Sum:       getFloat(r, "sum"),
-			Mean:      getFloat(r, "mean"),
-			Min:       getFloat(r, "min"),
-			Max:       getFloat(r, "max"),
-			StdDev:    getFloat(r, "std_dev"),
-			P50:       getFloat(r, "p50"),
-			P95:       getFloat(r, "p95"),
-			P99:       getFloat(r, "p99"),
+			Type:      MetricType(graph.GetString(r, "type")),
+			Category:  Category(graph.GetString(r, "category")),
+			Operation: graph.GetString(r, "operation"),
+			Count:     graph.GetInt(r, "count"),
+			Sum:       graph.GetFloat(r, "sum"),
+			Mean:      graph.GetFloat(r, "mean"),
+			Min:       graph.GetFloat(r, "min"),
+			Max:       graph.GetFloat(r, "max"),
+			StdDev:    graph.GetFloat(r, "std_dev"),
+			P50:       graph.GetFloat(r, "p50"),
+			P95:       graph.GetFloat(r, "p95"),
+			P99:       graph.GetFloat(r, "p99"),
 		})
 	}
 

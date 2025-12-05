@@ -50,10 +50,10 @@ func (q *Querier) FindImpact(ctx context.Context, signature string, maxDepth int
 	var impacts []Impact
 	for _, r := range records {
 		impacts = append(impacts, Impact{
-			Name:      getString(r, "name"),
-			Path:      getString(r, "path"),
-			Signature: getString(r, "signature"),
-			Distance:  getInt(r, "distance"),
+			Name:      graph.GetString(r, "name"),
+			Path:      graph.GetString(r, "path"),
+			Signature: graph.GetString(r, "signature"),
+			Distance:  graph.GetInt(r, "distance"),
 		})
 	}
 
@@ -92,10 +92,10 @@ func (q *Querier) FindDeps(ctx context.Context, signature string, maxDepth int) 
 	var deps []Dependency
 	for _, r := range records {
 		deps = append(deps, Dependency{
-			Name:      getString(r, "name"),
-			Path:      getString(r, "path"),
-			Signature: getString(r, "signature"),
-			Distance:  getInt(r, "distance"),
+			Name:      graph.GetString(r, "name"),
+			Path:      graph.GetString(r, "path"),
+			Signature: graph.GetString(r, "signature"),
+			Distance:  graph.GetInt(r, "distance"),
 		})
 	}
 
@@ -137,10 +137,10 @@ func (q *Querier) FindDeadCode(ctx context.Context) ([]DeadCode, error) {
 	var dead []DeadCode
 	for _, r := range records {
 		dead = append(dead, DeadCode{
-			Name:      getString(r, "name"),
-			Path:      getString(r, "path"),
-			Type:      getString(r, "type"),
-			Signature: getString(r, "signature"),
+			Name:      graph.GetString(r, "name"),
+			Path:      graph.GetString(r, "path"),
+			Type:      graph.GetString(r, "type"),
+			Signature: graph.GetString(r, "signature"),
 		})
 	}
 
@@ -217,10 +217,10 @@ func (q *Querier) FindHotspots(ctx context.Context, days int) ([]Hotspot, error)
 	var hotspots []Hotspot
 	for _, r := range records {
 		hotspots = append(hotspots, Hotspot{
-			Path:    getString(r, "path"),
-			Commits: getInt(r, "commits"),
-			Authors: getInt(r, "authors"),
-			Score:   getFloat(r, "score"),
+			Path:    graph.GetString(r, "path"),
+			Commits: graph.GetInt(r, "commits"),
+			Authors: graph.GetInt(r, "authors"),
+			Score:   graph.GetFloat(r, "score"),
 		})
 	}
 
@@ -260,10 +260,10 @@ func (q *Querier) GetHistory(ctx context.Context, path string, limit int) ([]Fil
 	var history []FileHistory
 	for _, r := range records {
 		history = append(history, FileHistory{
-			Hash:      getString(r, "hash"),
-			Author:    getString(r, "author"),
-			Message:   getString(r, "message"),
-			Timestamp: getString(r, "timestamp"),
+			Hash:      graph.GetString(r, "hash"),
+			Author:    graph.GetString(r, "author"),
+			Message:   graph.GetString(r, "message"),
+			Timestamp: graph.GetString(r, "timestamp"),
 		})
 	}
 
@@ -306,53 +306,16 @@ func (q *Querier) GetStats(ctx context.Context) (*GraphStats, error) {
 	stats := &GraphStats{}
 	if len(records) > 0 {
 		r := records[0]
-		stats.Files = getInt(r, "files")
-		stats.Functions = getInt(r, "functions")
-		stats.Structs = getInt(r, "structs")
-		stats.Commits = getInt(r, "commits")
-		stats.Authors = getInt(r, "authors")
-		stats.Events = getInt(r, "events")
-		stats.Conflicts = getInt(r, "conflicts")
-		stats.Calls = getInt(r, "calls")
+		stats.Files = graph.GetInt(r, "files")
+		stats.Functions = graph.GetInt(r, "functions")
+		stats.Structs = graph.GetInt(r, "structs")
+		stats.Commits = graph.GetInt(r, "commits")
+		stats.Authors = graph.GetInt(r, "authors")
+		stats.Events = graph.GetInt(r, "events")
+		stats.Conflicts = graph.GetInt(r, "conflicts")
+		stats.Calls = graph.GetInt(r, "calls")
 	}
 
 	return stats, nil
 }
 
-// Helper functions
-func getString(r graph.Record, key string) string {
-	if v, ok := r[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getInt(r graph.Record, key string) int {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case int:
-			return n
-		case int64:
-			return int(n)
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
-}
-
-func getFloat(r graph.Record, key string) float64 {
-	if v, ok := r[key]; ok {
-		switch n := v.(type) {
-		case float64:
-			return n
-		case int64:
-			return float64(n)
-		case int:
-			return float64(n)
-		}
-	}
-	return 0
-}

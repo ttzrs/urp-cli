@@ -97,10 +97,13 @@ func TestAgentSystemPrompt(t *testing.T) {
 
 	provider := testutil.NewMockProvider(testutil.DoneResponse())
 	registry := tool.NewRegistry()
-	agent := New(cfg, provider, registry)
+	_ = New(cfg, provider, registry)
 
+	// Test PromptBuilder directly
+	builder := NewPromptBuilder()
+	builder.SetCustomPrompt("Custom agent prompt")
 	session := testutil.TestSession("", "/custom/dir")
-	prompt := agent.buildSystemPrompt(session)
+	prompt := builder.Build(session)
 
 	assert.Contains(t, prompt, "/custom/dir")
 	assert.Contains(t, prompt, "Custom agent prompt")
@@ -841,23 +844,22 @@ func TestAutocorrectionConfig(t *testing.T) {
 }
 
 func TestDetectFailure(t *testing.T) {
-	cfg := testAgentConfig()
-	provider := testutil.NewMockProvider()
-	registry := tool.NewRegistry()
-	agent := New(cfg, provider, registry)
+	// Test Autocorrector directly
+	autocorrector := NewAutocorrector()
 
 	// Without autocorrection enabled
+	autocorrector.Configure(AutocorrectionConfig{Enabled: false})
 	parts := []domain.Part{
 		domain.ToolCallPart{Result: "FAIL: test failed"},
 	}
-	failed, _ := agent.detectFailure(parts)
+	failed, _ := autocorrector.DetectFailure(parts)
 	assert.False(t, failed) // Not enabled
 
 	// Enable autocorrection
-	agent.EnableAutocorrection(DefaultAutocorrection())
+	autocorrector.Configure(DefaultAutocorrection())
 
 	// Should detect failure
-	failed, reason := agent.detectFailure(parts)
+	failed, reason := autocorrector.DetectFailure(parts)
 	assert.True(t, failed)
 	assert.Contains(t, reason, "FAIL")
 
@@ -865,31 +867,30 @@ func TestDetectFailure(t *testing.T) {
 	successParts := []domain.Part{
 		domain.ToolCallPart{Result: "ok\nPASS: all tests passed"},
 	}
-	failed, _ = agent.detectFailure(successParts)
+	failed, _ = autocorrector.DetectFailure(successParts)
 	assert.False(t, failed)
 }
 
 func TestShouldRetry(t *testing.T) {
-	cfg := testAgentConfig()
-	provider := testutil.NewMockProvider()
-	registry := tool.NewRegistry()
-	agent := New(cfg, provider, registry)
+	// Test Autocorrector directly
+	autocorrector := NewAutocorrector()
 
 	// Without autocorrection - never retry
-	assert.False(t, agent.shouldRetry())
+	autocorrector.Configure(AutocorrectionConfig{Enabled: false})
+	assert.False(t, autocorrector.ShouldRetry())
 
 	// Enable with 2 retries
-	agent.EnableAutocorrection(AutocorrectionConfig{
+	autocorrector.Configure(AutocorrectionConfig{
 		Enabled:    true,
 		MaxRetries: 2,
 		Patterns:   []string{"FAIL"},
 	})
 
-	assert.True(t, agent.shouldRetry())
+	assert.True(t, autocorrector.ShouldRetry())
 
-	agent.retryCount = 1
-	assert.True(t, agent.shouldRetry())
+	autocorrector.IncrementRetry()
+	assert.True(t, autocorrector.ShouldRetry())
 
-	agent.retryCount = 2
-	assert.False(t, agent.shouldRetry())
+	autocorrector.IncrementRetry()
+	assert.False(t, autocorrector.ShouldRetry())
 }

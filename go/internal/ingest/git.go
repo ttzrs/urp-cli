@@ -12,6 +12,7 @@ import (
 
 	"github.com/joss/urp/internal/domain"
 	"github.com/joss/urp/internal/graph"
+	urpstrings "github.com/joss/urp/internal/strings"
 )
 
 // GitLoader loads git history into the graph.
@@ -148,7 +149,7 @@ func (g *GitLoader) storeChunk(ctx context.Context, batches []commitBatch) error
 	for _, b := range batches {
 		commits = append(commits, map[string]any{
 			"hash":      b.commit.Hash,
-			"message":   truncate(b.commit.Message, 200),
+			"message":   urpstrings.TruncateNoEllipsis(b.commit.Message, 200),
 			"timestamp": b.commit.Timestamp.Unix(),
 			"datetime":  b.commit.Timestamp.Format(time.RFC3339),
 			"author":    b.commit.Author,
@@ -236,13 +237,6 @@ func (g *GitLoader) loadBranches(ctx context.Context) (int, error) {
 	}
 
 	return len(branches), nil
-}
-
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n]
 }
 
 func lastSegment(path string) string {

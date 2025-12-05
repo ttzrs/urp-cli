@@ -182,7 +182,7 @@ func (n *NoveltyService) jaccardNovelty(ctx context.Context, code string) (*Nove
 	matches := 0
 
 	for _, r := range records {
-		sig := getString(r, "signature")
+		sig := graph.GetString(r, "signature")
 		if sig == "" {
 			continue
 		}
