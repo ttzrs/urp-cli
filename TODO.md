@@ -579,7 +579,7 @@ Cobertura mínima: 70%
 - [ ] Colores personalizables vía config
 - [ ] Panel de status en tiempo real (CPU/RAM de contenedores)
 - [x] Navegación con vim-keys (j/k/g/G/Ctrl+u/Ctrl+f/Ctrl+b)
-- [ ] Búsqueda en historial de sesiones (/)
+- [x] Búsqueda en output con / (vim-style, n/N para navegar)
 - [ ] Preview de mensajes en lista de sesiones
 
 ### OpenCode Agent

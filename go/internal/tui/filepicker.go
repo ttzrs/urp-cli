@@ -19,6 +19,7 @@ type inputMode int
 const (
 	modeChat inputMode = iota
 	modeFilePicker
+	modeSearch
 )
 
 // fileItem implements list.Item for the file picker

@@ -135,6 +135,11 @@ type AgentModel struct {
 
 	// Debug panel for interaction visualization
 	debug *DebugPanel
+
+	// Search state
+	searchQuery   string
+	searchMatches []int // line numbers with matches
+	searchIdx     int   // current match index
 }
 
 type toolCallInfo struct {
@@ -233,6 +238,11 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateFilePicker(msg)
 	}
 
+	// Handle search mode
+	if m.inputMode == modeSearch {
+		return m.updateSearch(msg)
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -285,6 +295,16 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.filePicker = NewFilePicker(m.workDir, m.width-4, 10)
 				}
 				m.filePicker.LoadFiles()
+				return m, nil
+			}
+
+		case "/":
+			// Trigger search mode (vim-style)
+			if !m.agentActive {
+				m.inputMode = modeSearch
+				m.searchQuery = ""
+				m.searchMatches = nil
+				m.searchIdx = 0
 				return m, nil
 			}
 
@@ -416,6 +436,25 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Page up (vim style - backward)
 			if m.agentActive || !m.input.Focused() {
 				m.viewport.ViewUp()
+			}
+			return m, nil
+
+		case "n":
+			// Next search match (vim style)
+			if len(m.searchMatches) > 0 && !m.input.Focused() {
+				m.searchIdx = (m.searchIdx + 1) % len(m.searchMatches)
+				m.jumpToSearchMatch()
+			}
+			return m, nil
+
+		case "N":
+			// Previous search match (vim style)
+			if len(m.searchMatches) > 0 && !m.input.Focused() {
+				m.searchIdx--
+				if m.searchIdx < 0 {
+					m.searchIdx = len(m.searchMatches) - 1
+				}
+				m.jumpToSearchMatch()
 			}
 			return m, nil
 		}
@@ -705,6 +744,76 @@ func (m AgentModel) updateFilePicker(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+// updateSearch handles input when in search mode
+func (m AgentModel) updateSearch(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEsc:
+			// Cancel search
+			m.inputMode = modeChat
+			m.searchQuery = ""
+			return m, nil
+
+		case tea.KeyEnter:
+			// Execute search and exit search mode
+			m.performSearch()
+			m.inputMode = modeChat
+			if len(m.searchMatches) > 0 {
+				m.jumpToSearchMatch()
+			}
+			return m, nil
+
+		case tea.KeyBackspace:
+			if len(m.searchQuery) > 0 {
+				m.searchQuery = m.searchQuery[:len(m.searchQuery)-1]
+				m.performSearch() // Live search as you type
+			}
+			return m, nil
+
+		default:
+			// Add character to search query
+			if msg.Type == tea.KeyRunes {
+				m.searchQuery += string(msg.Runes)
+				m.performSearch() // Live search as you type
+			}
+			return m, nil
+		}
+	}
+	return m, nil
+}
+
+// performSearch finds all matching lines in the output
+func (m *AgentModel) performSearch() {
+	m.searchMatches = nil
+	m.searchIdx = 0
+
+	if m.searchQuery == "" || m.shared == nil {
+		return
+	}
+
+	content := m.shared.output.String()
+	lines := strings.Split(content, "\n")
+	queryLower := strings.ToLower(m.searchQuery)
+
+	for i, line := range lines {
+		if strings.Contains(strings.ToLower(line), queryLower) {
+			m.searchMatches = append(m.searchMatches, i)
+		}
+	}
+}
+
+// jumpToSearchMatch scrolls viewport to current match
+func (m *AgentModel) jumpToSearchMatch() {
+	if len(m.searchMatches) == 0 {
+		return
+	}
+
+	lineNum := m.searchMatches[m.searchIdx]
+	// Scroll to the line (approximately)
+	m.viewport.SetYOffset(lineNum)
+}
+
 // View renders the TUI
 func (m AgentModel) View() string {
 	if m.quitting {
@@ -765,7 +874,7 @@ func (m AgentModel) View() string {
 	status := m.renderStatus()
 	b.WriteString(status + "\n")
 
-	// Input area or file picker
+	// Input area, file picker, or search
 	if m.inputMode == modeFilePicker && m.filePicker != nil {
 		// Show file picker overlay
 		pickerStyle := lipgloss.NewStyle().
@@ -776,6 +885,25 @@ func (m AgentModel) View() string {
 		b.WriteString(pickerStyle.Render(m.filePicker.View()))
 		b.WriteString("\n")
 		b.WriteString(thinkingStyle.Render("  ↑↓: navigate │ Enter: select │ Esc: cancel"))
+	} else if m.inputMode == modeSearch {
+		// Show search input
+		searchStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("226")). // Yellow for search
+			Padding(0, 1).
+			Width(m.width - 4)
+		matchInfo := ""
+		if m.searchQuery != "" {
+			if len(m.searchMatches) > 0 {
+				matchInfo = fmt.Sprintf(" [%d/%d]", m.searchIdx+1, len(m.searchMatches))
+			} else {
+				matchInfo = " [no matches]"
+			}
+		}
+		searchContent := fmt.Sprintf("/ %s%s", m.searchQuery, matchInfo)
+		b.WriteString(searchStyle.Render(searchContent))
+		b.WriteString("\n")
+		b.WriteString(thinkingStyle.Render("  Type to search │ Enter: confirm │ Esc: cancel │ n/N: next/prev match"))
 	} else if m.agentActive {
 		b.WriteString(fmt.Sprintf("  %s Running...", m.spinner.View()))
 	} else {
@@ -831,7 +959,7 @@ func (m AgentModel) renderStatus() string {
 	if m.agentActive {
 		parts = append(parts, "Ctrl+C: cancel │ j/k: scroll │ g/G: top/bottom │ Ctrl+D: debug")
 	} else {
-		parts = append(parts, "Enter: send │ @: files │ Tab: agent │ j/k: scroll │ Esc: quit")
+		parts = append(parts, "Enter: send │ @: files │ /: search │ j/k: scroll │ Esc: quit")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
