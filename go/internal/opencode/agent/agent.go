@@ -36,26 +36,64 @@ type Agent struct {
 	logger *AgentLogger
 }
 
-// New creates an Agent with its dependencies (uses interfaces)
-func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry) *Agent {
-	hooks := hook.NewRegistry()
+// AgentOption configures Agent via functional options (DIP).
+type AgentOption func(*Agent)
+
+// WithMessages injects a custom MessageStore.
+func WithMessages(m *MessageStore) AgentOption {
+	return func(a *Agent) { a.messages = m }
+}
+
+// WithAutocorrector injects a custom Autocorrector.
+func WithAutocorrector(ac *Autocorrector) AgentOption {
+	return func(a *Agent) { a.autocorrector = ac }
+}
+
+// WithPromptBuilder injects a custom PromptBuilder.
+func WithPromptBuilder(pb *PromptBuilder) AgentOption {
+	return func(a *Agent) { a.promptBuilder = pb }
+}
+
+// WithCognitiveEngine injects a custom cognitive engine.
+func WithCognitiveEngine(e *cognitive.Engine) AgentOption {
+	return func(a *Agent) { a.cognitive = e }
+}
+
+// WithAgentLogger injects a custom logger.
+func WithAgentLogger(l *AgentLogger) AgentOption {
+	return func(a *Agent) { a.logger = l }
+}
+
+// WithAgentHooks injects a custom hook registry.
+func WithAgentHooks(h *hook.Registry) AgentOption {
+	return func(a *Agent) { a.hooks = h }
+}
+
+// New creates an Agent with its dependencies (DIP via functional options).
+func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry, opts ...AgentOption) *Agent {
 	a := &Agent{
 		config:        config,
 		provider:      provider,
 		tools:         tools,
-		hooks:         hooks,
+		hooks:         hook.NewRegistry(),
 		messages:      NewMessageStore(),
 		autocorrector: NewAutocorrector(),
 		promptBuilder: NewPromptBuilder(),
 		cognitive:     cognitive.NewEngine(cognitive.DefaultEngineConfig()),
 		logger:        defaultLogger,
 	}
+
+	// Apply options (DIP - allows injection)
+	for _, opt := range opts {
+		opt(a)
+	}
+
 	// Set custom prompt from config
 	if config.Prompt != "" {
 		a.promptBuilder.SetCustomPrompt(config.Prompt)
 	}
 	// Initialize executor with default permissions and shared hooks
-	a.executor = NewToolExecutor(tools, nil).WithHooks(hooks)
+	a.executor = NewToolExecutor(tools, nil).WithHooks(a.hooks)
 	return a
 }
 

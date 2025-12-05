@@ -31,14 +31,41 @@ type Ingester struct {
 	progress ProgressWriter
 }
 
-// NewIngester creates a new code ingester.
-func NewIngester(db graph.Driver) *Ingester {
-	return &Ingester{
+// IngesterOption configures Ingester via functional options (DIP).
+type IngesterOption func(*Ingester)
+
+// WithRegistry injects a custom parser registry.
+func WithRegistry(r *Registry) IngesterOption {
+	return func(i *Ingester) { i.registry = r }
+}
+
+// WithVectorStore injects a custom vector store.
+func WithVectorStore(s vector.Store) IngesterOption {
+	return func(i *Ingester) { i.vectors = s }
+}
+
+// WithEmbedder injects a custom embedder.
+func WithEmbedder(e vector.Embedder) IngesterOption {
+	return func(i *Ingester) { i.embedder = e }
+}
+
+// WithProgress injects a progress callback.
+func WithProgress(p ProgressWriter) IngesterOption {
+	return func(i *Ingester) { i.progress = p }
+}
+
+// NewIngester creates a new code ingester (DIP via functional options).
+func NewIngester(db graph.Driver, opts ...IngesterOption) *Ingester {
+	i := &Ingester{
 		db:       db,
 		registry: NewRegistry(),
 		vectors:  vector.Default(),
 		embedder: vector.GetDefaultEmbedder(),
 	}
+	for _, opt := range opts {
+		opt(i)
+	}
+	return i
 }
 
 // SetProgress sets the progress callback

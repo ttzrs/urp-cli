@@ -15,7 +15,7 @@ import (
 
 // Manager handles session lifecycle
 type Manager struct {
-	store domain.Store
+	store domain.Store // Uses all store operations (sessions, messages, usage)
 }
 
 // NewManager creates a Manager with the given storage (accepts interface)
