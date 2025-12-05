@@ -10,14 +10,26 @@ import (
 // Record represents a single result row from a query.
 type Record map[string]any
 
-// Driver defines the interface for graph database operations.
-// Any graph DB (Memgraph, Neo4j, etc.) must implement this interface.
-type Driver interface {
+// GraphReader provides read-only graph database operations.
+// Use this for query-only consumers (ISP - Interface Segregation).
+type GraphReader interface {
 	// Execute runs a Cypher query and returns results.
 	Execute(ctx context.Context, query string, params map[string]any) ([]Record, error)
+}
 
+// GraphWriter provides write graph database operations.
+// Use this for write-only consumers.
+type GraphWriter interface {
 	// ExecuteWrite runs a write query (CREATE, MERGE, SET, DELETE).
 	ExecuteWrite(ctx context.Context, query string, params map[string]any) error
+}
+
+// Driver defines the full interface for graph database operations.
+// Composes GraphReader + GraphWriter + lifecycle methods.
+// Any graph DB (Memgraph, Neo4j, etc.) must implement this interface.
+type Driver interface {
+	GraphReader
+	GraphWriter
 
 	// Close releases database resources.
 	Close() error

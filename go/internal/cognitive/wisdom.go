@@ -12,13 +12,13 @@ import (
 
 // WisdomService finds similar past errors and solutions.
 type WisdomService struct {
-	db       graph.Driver
+	db       graph.GraphReader // ISP: only needs read operations
 	vectors  vector.Store
 	embedder vector.Embedder
 }
 
 // NewWisdomService creates a new wisdom service.
-func NewWisdomService(db graph.Driver) *WisdomService {
+func NewWisdomService(db graph.GraphReader) *WisdomService {
 	return &WisdomService{
 		db:       db,
 		vectors:  vector.Default(),
@@ -27,7 +27,7 @@ func NewWisdomService(db graph.Driver) *WisdomService {
 }
 
 // NewWisdomServiceWithVectors creates a wisdom service with custom vector store.
-func NewWisdomServiceWithVectors(db graph.Driver, store vector.Store, embedder vector.Embedder) *WisdomService {
+func NewWisdomServiceWithVectors(db graph.GraphReader, store vector.Store, embedder vector.Embedder) *WisdomService {
 	return &WisdomService{
 		db:       db,
 		vectors:  store,

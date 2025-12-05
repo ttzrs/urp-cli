@@ -10,11 +10,11 @@ import (
 
 // Querier provides code analysis queries.
 type Querier struct {
-	db graph.Driver
+	db graph.GraphReader // ISP: only needs read operations
 }
 
 // NewQuerier creates a new querier.
-func NewQuerier(db graph.Driver) *Querier {
+func NewQuerier(db graph.GraphReader) *Querier {
 	return &Querier{db: db}
 }
 

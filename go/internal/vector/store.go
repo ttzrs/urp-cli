@@ -36,16 +36,26 @@ type SearchResult struct {
 	Distance float32 // L2 distance
 }
 
-// Store defines the vector store interface.
-type Store interface {
+// VectorSearcher provides read-only vector search (ISP - Interface Segregation).
+type VectorSearcher interface {
+	// Search finds similar vectors.
+	Search(ctx context.Context, vector []float32, limit int, kind string) ([]SearchResult, error)
+}
+
+// VectorWriter provides write operations for vectors.
+type VectorWriter interface {
 	// Add stores a vector entry.
 	Add(ctx context.Context, entry VectorEntry) error
 
-	// Search finds similar vectors.
-	Search(ctx context.Context, vector []float32, limit int, kind string) ([]SearchResult, error)
-
 	// Delete removes an entry by ID.
 	Delete(ctx context.Context, id string) error
+}
+
+// Store defines the full vector store interface.
+// Composes VectorSearcher + VectorWriter + lifecycle methods.
+type Store interface {
+	VectorSearcher
+	VectorWriter
 
 	// Count returns total entries.
 	Count(ctx context.Context) (int, error)

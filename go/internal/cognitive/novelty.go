@@ -10,13 +10,13 @@ import (
 
 // NoveltyService detects unusual patterns in code.
 type NoveltyService struct {
-	db       graph.Driver
+	db       graph.GraphReader // ISP: only needs read operations
 	vectors  vector.Store
 	embedder vector.Embedder
 }
 
 // NewNoveltyService creates a new novelty service.
-func NewNoveltyService(db graph.Driver) *NoveltyService {
+func NewNoveltyService(db graph.GraphReader) *NoveltyService {
 	return &NoveltyService{
 		db:       db,
 		vectors:  vector.Default(),
@@ -25,7 +25,7 @@ func NewNoveltyService(db graph.Driver) *NoveltyService {
 }
 
 // NewNoveltyServiceWithVectors creates a novelty service with custom vector store.
-func NewNoveltyServiceWithVectors(db graph.Driver, store vector.Store, embedder vector.Embedder) *NoveltyService {
+func NewNoveltyServiceWithVectors(db graph.GraphReader, store vector.Store, embedder vector.Embedder) *NoveltyService {
 	return &NoveltyService{
 		db:       db,
 		vectors:  store,

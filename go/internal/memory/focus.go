@@ -36,11 +36,11 @@ type FocusEdge struct {
 
 // FocusService loads targeted context.
 type FocusService struct {
-	db graph.Driver
+	db graph.GraphReader // ISP: only needs read operations
 }
 
 // NewFocusService creates a focus service.
-func NewFocusService(db graph.Driver) *FocusService {
+func NewFocusService(db graph.GraphReader) *FocusService {
 	return &FocusService{db: db}
 }
 

@@ -11,12 +11,12 @@ import (
 
 // CodeSearch performs semantic search over indexed code
 type CodeSearch struct {
-	store    vector.Store
+	store    vector.VectorSearcher // ISP: only needs search operations
 	embedder vector.Embedder
 }
 
 // NewCodeSearch creates a new CodeSearch tool
-func NewCodeSearch(store vector.Store, embedder vector.Embedder) *CodeSearch {
+func NewCodeSearch(store vector.VectorSearcher, embedder vector.Embedder) *CodeSearch {
 	return &CodeSearch{
 		store:    store,
 		embedder: embedder,
