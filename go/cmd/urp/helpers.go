@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/joss/urp/internal/audit"
+	"github.com/joss/urp/internal/config"
+	urpstrings "github.com/joss/urp/internal/strings"
 )
 
 // requireDB checks if database is connected and exits with error if not.
@@ -26,54 +27,37 @@ func exitOnError(event *audit.AuditEvent, err error) {
 	os.Exit(1)
 }
 
-// truncateStr truncates string to n characters with ellipsis.
-// Consolidates 3 duplicate truncate functions.
+// truncateStr delegates to urpstrings.Truncate for backward compatibility.
 func truncateStr(s string, n int) string {
-	if n < 4 {
-		n = 4
-	}
-	if len(s) <= n {
-		return s
-	}
-	return s[:n-3] + "..."
-}
-
-// urpPath returns a path under ~/.urp-go/
-// Consolidates 5-6 duplicate home directory path constructions.
-func urpPath(subdir ...string) string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		home = "."
-	}
-	parts := append([]string{home, ".urp-go"}, subdir...)
-	return filepath.Join(parts...)
+	return urpstrings.Truncate(s, n)
 }
 
 // urpDataPath returns ~/.urp-go/data/ path for knowledge persistence.
 func urpDataPath() string {
-	return urpPath("data")
+	return config.GetPaths().Data
 }
 
 // urpBackupsPath returns ~/.urp-go/backups/ path.
 func urpBackupsPath() string {
-	return urpPath("backups")
+	return config.GetPaths().Backups
 }
 
 // urpSkillsPath returns ~/.urp-go/skills/ path.
 func urpSkillsPath() string {
-	return urpPath("skills")
+	return config.GetPaths().Skills
 }
 
 // urpEnvPath returns ~/.urp-go/.env path.
 func urpEnvPath() string {
-	return urpPath(".env")
+	return config.GetPaths().EnvFile
 }
 
-// getCwd returns current working directory or "unknown".
+// urpPath returns a path under ~/.urp-go/ using config.Path.
+func urpPath(subdir ...string) string {
+	return config.Path(subdir...)
+}
+
+// getCwd delegates to urpstrings.GetCwd for backward compatibility.
 func getCwd() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "unknown"
-	}
-	return cwd
+	return urpstrings.GetCwd()
 }

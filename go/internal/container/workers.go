@@ -42,11 +42,8 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 	m.runQuiet("rm", "-f", containerName)
 
 	// Use host home from env (when running inside master) or local home
-	homeDir := os.Getenv("URP_HOST_HOME")
-	if homeDir == "" {
-		homeDir, _ = os.UserHomeDir()
-	}
-	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+	homeDir := ResolveHomeDir()
+	envFile := ResolveEnvFile()
 
 	// Check if we have a TTY available
 	hasTTY := term.IsTerminal(int(os.Stdin.Fd()))

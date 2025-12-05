@@ -16,6 +16,7 @@ import (
 	"github.com/joss/urp/internal/opencode/agent"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/graphstore"
+	urpstrings "github.com/joss/urp/internal/strings"
 	"github.com/joss/urp/pkg/llm"
 )
 
@@ -777,26 +778,12 @@ func (m AgentModel) renderStatus() string {
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
 }
 
-// Helpers
+// Helpers - delegate to urpstrings
 
 func truncateArgsMap(args map[string]any) string {
-	if args == nil {
-		return ""
-	}
-	var parts []string
-	for k, v := range args {
-		parts = append(parts, fmt.Sprintf("%s=%v", k, v))
-	}
-	s := strings.Join(parts, ", ")
-	if len(s) > 100 {
-		return s[:97] + "..."
-	}
-	return s
+	return urpstrings.TruncateMap(args, 100)
 }
 
 func truncateOutput(s string) string {
-	if len(s) > 500 {
-		return s[:497] + "..."
-	}
-	return s
+	return urpstrings.Truncate(s, 500)
 }

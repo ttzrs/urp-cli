@@ -47,11 +47,7 @@ func (m *Manager) ValidateSpawnRequirements(projectPath string) *SpawnRequiremen
 	}
 
 	// Check .env file exists
-	homeDir := os.Getenv("URP_HOST_HOME")
-	if homeDir == "" {
-		homeDir, _ = os.UserHomeDir()
-	}
-	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+	envFile := ResolveEnvFile()
 	if _, err := os.Stat(envFile); os.IsNotExist(err) {
 		req.Errors = append(req.Errors, fmt.Sprintf("env file not found: %s (create with ANTHROPIC_API_KEY)", envFile))
 	} else {

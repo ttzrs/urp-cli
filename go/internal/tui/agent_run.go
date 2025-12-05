@@ -13,6 +13,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/oklog/ulid/v2"
 
+	"github.com/joss/urp/internal/config"
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/opencode/agent"
 	"github.com/joss/urp/internal/opencode/domain"
@@ -135,12 +136,7 @@ func initProvider() (llm.Provider, error) {
 
 // loadEnvFile loads environment variables from ~/.urp-go/.env
 func loadEnvFile() {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return
-	}
-
-	envPath := filepath.Join(home, ".urp-go", ".env")
+	envPath := config.GetPaths().EnvFile
 	data, err := os.ReadFile(envPath)
 	if err != nil {
 		return

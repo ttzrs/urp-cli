@@ -53,8 +53,7 @@ func (m *Manager) LaunchStandalone(projectPath string, readOnly bool) (string, e
 	}
 
 	// Expand home directory for env file
-	homeDir, _ := os.UserHomeDir()
-	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+	envFile := ResolveEnvFile()
 
 	// Set project for scoped resources
 	m.project = projectName
@@ -129,11 +128,8 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	}
 
 	// Expand home directory for env file (resolve symlinks for Silverblue /var/home)
-	homeDir, _ := os.UserHomeDir()
-	if realHome, err := filepath.EvalSymlinks(homeDir); err == nil {
-		homeDir = realHome
-	}
-	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+	homeDir := ResolveHomeDirReal()
+	envFile := ResolveEnvFileReal()
 
 	// Check if we have a TTY available
 	hasTTY := term.IsTerminal(int(os.Stdin.Fd()))
@@ -152,7 +148,7 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	}
 
 	// Alerts directory
-	alertsDir := filepath.Join(homeDir, ".urp-go", "alerts")
+	alertsDir := ResolveAlertsDir()
 	os.MkdirAll(alertsDir, 0755)
 
 	args = append(args,

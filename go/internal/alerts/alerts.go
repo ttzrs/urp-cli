@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/joss/urp/internal/config"
 )
 
 // Level represents alert severity
@@ -52,8 +54,7 @@ func Global() *Manager {
 	once.Do(func() {
 		alertDir := os.Getenv("URP_ALERT_DIR")
 		if alertDir == "" {
-			home, _ := os.UserHomeDir()
-			alertDir = filepath.Join(home, ".urp-go", "alerts")
+			alertDir = config.GetPaths().Alerts
 		}
 		globalManager = NewManager(alertDir)
 	})

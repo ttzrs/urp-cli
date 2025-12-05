@@ -91,11 +91,7 @@ func (m *Manager) LaunchNeMo(projectPath string, containerName string) (string, 
 	m.runQuiet("rm", "-f", containerName)
 
 	// Get env file path
-	homeDir := os.Getenv("URP_HOST_HOME")
-	if homeDir == "" {
-		homeDir, _ = os.UserHomeDir()
-	}
-	envFile := filepath.Join(homeDir, ".urp-go", ".env")
+	envFile := ResolveEnvFile()
 
 	args := []string{
 		"run", "-d",

@@ -180,11 +180,8 @@ func (e *Executor) logToGraph(ctx context.Context, event domain.Event) {
 	_ = e.db.ExecuteWrite(ctx, query, params)
 }
 
+// getCwd delegates to urpstrings.GetCwd.
 func getCwd() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "unknown"
-	}
-	return cwd
+	return urpstrings.GetCwd()
 }
 

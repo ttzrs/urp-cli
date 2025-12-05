@@ -41,11 +41,17 @@ func StandardVolumes(projectPath, projectName, envFile string, readOnly bool) []
 
 // ResolveEnvFile finds the .env file path from URP_HOST_HOME or user home
 func ResolveEnvFile() string {
-	homeDir := os.Getenv("URP_HOST_HOME")
-	if homeDir == "" {
-		homeDir, _ = os.UserHomeDir()
-	}
-	return filepath.Join(homeDir, ".urp-go", ".env")
+	return filepath.Join(ResolveHomeDir(), ".urp-go", ".env")
+}
+
+// ResolveEnvFileReal finds the .env file path with symlink resolution (for Silverblue)
+func ResolveEnvFileReal() string {
+	return filepath.Join(ResolveHomeDirReal(), ".urp-go", ".env")
+}
+
+// ResolveAlertsDir returns the alerts directory path with symlink resolution
+func ResolveAlertsDir() string {
+	return filepath.Join(ResolveHomeDirReal(), ".urp-go", "alerts")
 }
 
 // ResolveHomeDir returns URP_HOST_HOME or user home directory
@@ -53,6 +59,15 @@ func ResolveHomeDir() string {
 	homeDir := os.Getenv("URP_HOST_HOME")
 	if homeDir == "" {
 		homeDir, _ = os.UserHomeDir()
+	}
+	return homeDir
+}
+
+// ResolveHomeDirReal returns home directory with symlinks resolved (for Silverblue /var/home)
+func ResolveHomeDirReal() string {
+	homeDir := ResolveHomeDir()
+	if realHome, err := filepath.EvalSymlinks(homeDir); err == nil {
+		return realHome
 	}
 	return homeDir
 }
