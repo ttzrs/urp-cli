@@ -616,7 +616,12 @@ func getToolPath(args map[string]any) string {
 }
 
 func (m AgentModel) renderOutput() string {
-	return m.shared.output.String()
+	content := m.shared.output.String()
+	// Wrap text to viewport width for responsive display
+	if m.width > 4 {
+		content = urpstrings.WordWrap(content, m.width-4)
+	}
+	return content
 }
 
 // updateFilePicker handles input when in file picker mode
