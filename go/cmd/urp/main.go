@@ -201,8 +201,7 @@ func tuiCmd() *cobra.Command {
 		Long:  "Start the Bubble Tea powered interactive terminal interface",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := tui.Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 		},
 	}
@@ -266,10 +265,7 @@ func focusCmd() *cobra.Command {
 		Long:  "Load minimal context for surgical precision (reduces hallucination)",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			svc := memory.NewFocusService(db)
 			result, err := svc.Focus(context.Background(), args[0], depth)
@@ -292,8 +288,7 @@ func focusCmd() *cobra.Command {
 // runInteractiveAgent starts an interactive OpenCode session
 func runInteractiveAgent(workDir string) {
 	if _, err := os.Stat(workDir); os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "Error: directory does not exist: %s\n", workDir)
-		os.Exit(1)
+		fatalErrorf("directory does not exist: %s", workDir)
 	}
 
 	if config.Env().ContainerMode {
@@ -303,31 +298,27 @@ func runInteractiveAgent(workDir string) {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			fatalError(err)
 		}
 		return
 	}
 
 	if err := tui.RunAgent(workDir); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fatalError(err)
 	}
 }
 
 // runInteractiveAgentDebug runs agent with static output (debug mode)
 func runInteractiveAgentDebug(workDir string) {
 	if _, err := os.Stat(workDir); os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "Error: directory does not exist: %s\n", workDir)
-		os.Exit(1)
+		fatalErrorf("directory does not exist: %s", workDir)
 	}
 
 	fmt.Println("🔧 URP Debug Mode")
 	fmt.Printf("📁 Working directory: %s\n", workDir)
 
 	if err := tui.RunAgentDebug(workDir); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fatalError(err)
 	}
 }
 

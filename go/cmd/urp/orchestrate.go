@@ -97,8 +97,7 @@ Examples:
 
 			results, err := orch.ExecuteTasksParallel(ctx, tasks, handler)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			// Summary
@@ -174,8 +173,7 @@ Examples:
 			handler := orchestrator.ShellCommandHandler(args[0])
 			results, err := orch.ExecuteTasksParallel(ctx, tasks, handler)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			// Count results
@@ -440,8 +438,7 @@ Each run shows: status, task count, success/failure, and duration.`,
 
 			runs, err := po.ListRuns(ctx, historyLimit)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(runs) == 0 {
@@ -490,8 +487,7 @@ Each run shows: status, task count, success/failure, and duration.`,
 
 			stats, err := po.GetRunStats(ctx)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println("ORCHESTRATION STATISTICS")
@@ -597,8 +593,7 @@ Examples:
 			// Wait for completion
 			results, err := orch.WaitForAll(ctx, taskIDs)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			// Summary

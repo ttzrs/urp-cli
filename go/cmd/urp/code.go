@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -77,7 +76,7 @@ func codeCmd() *cobra.Command {
 				fmt.Println(" done")
 			}
 
-			out, _ := json.MarshalIndent(stats, "", "  ")
+			out, _ := prettyJSON(stats)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -101,7 +100,7 @@ func codeCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(deps, "", "  ")
+			out, _ := prettyJSON(deps)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -125,7 +124,7 @@ func codeCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(impacts, "", "  ")
+			out, _ := prettyJSON(impacts)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -148,7 +147,7 @@ func codeCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(dead, "", "  ")
+			out, _ := prettyJSON(dead)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -170,7 +169,7 @@ func codeCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(cycles, "", "  ")
+			out, _ := prettyJSON(cycles)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -193,7 +192,7 @@ func codeCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(hotspots, "", "  ")
+			out, _ := prettyJSON(hotspots)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -216,7 +215,7 @@ func codeCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(stats, "", "  ")
+			out, _ := prettyJSON(stats)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))

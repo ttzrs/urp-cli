@@ -14,7 +14,7 @@ import (
 // It ports the logic from the Python Specify CLI.
 type Engine struct {
 	workDir string
-	db      *graph.Memgraph // Optional graph database for context enrichment
+	db      graph.Driver // Optional graph database for context enrichment (DIP)
 }
 
 // NewEngine creates a new spec engine.
@@ -24,8 +24,9 @@ func NewEngine(workDir string) *Engine {
 	}
 }
 
-// WithDB attaches a graph database for context enrichment
-func (e *Engine) WithDB(db *graph.Memgraph) *Engine {
+// WithDB attaches a graph database for context enrichment.
+// Accepts graph.Driver interface for DIP compliance.
+func (e *Engine) WithDB(db graph.Driver) *Engine {
 	e.db = db
 	return e
 }

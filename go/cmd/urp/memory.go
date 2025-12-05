@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 
@@ -38,8 +36,7 @@ func memCmd() *cobra.Command {
 			mem := memory.NewSessionMemory(db, ctx)
 			id, err := mem.Add(context.Background(), args[0], kind, importance, nil)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Remembered: %s\n", id)
@@ -62,8 +59,7 @@ func memCmd() *cobra.Command {
 			mem := memory.NewSessionMemory(db, ctx)
 			results, err := mem.Recall(context.Background(), args[0], limit, "", 1)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(results) == 0 {
@@ -90,8 +86,7 @@ func memCmd() *cobra.Command {
 			mem := memory.NewSessionMemory(db, ctx)
 			results, err := mem.List(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(results) == 0 {
@@ -117,12 +112,10 @@ func memCmd() *cobra.Command {
 			mem := memory.NewSessionMemory(db, ctx)
 			stats, err := mem.Stats(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
-			out, _ := json.MarshalIndent(stats, "", "  ")
-			fmt.Println(string(out))
+			printJSON(stats)
 		},
 	}
 
@@ -137,8 +130,7 @@ func memCmd() *cobra.Command {
 			mem := memory.NewSessionMemory(db, ctx)
 			count, err := mem.Clear(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Cleared %d memories\n", count)
@@ -173,8 +165,7 @@ func kbCmd() *cobra.Command {
 			kb := memory.NewKnowledgeStore(db, ctx)
 			id, err := kb.Store(context.Background(), args[0], kind, scope)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Stored: %s\n", id)
@@ -198,8 +189,7 @@ func kbCmd() *cobra.Command {
 			kb := memory.NewKnowledgeStore(db, ctx)
 			results, err := kb.Query(context.Background(), args[0], limit, level, "")
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(results) == 0 {
@@ -228,8 +218,7 @@ func kbCmd() *cobra.Command {
 			kb := memory.NewKnowledgeStore(db, ctx)
 			results, err := kb.List(context.Background(), "", "", 50)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(results) == 0 {
@@ -256,8 +245,7 @@ func kbCmd() *cobra.Command {
 			kb := memory.NewKnowledgeStore(db, ctx)
 			err := kb.Reject(context.Background(), args[0], args[1])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Rejected: %s\n", args[0])
@@ -277,8 +265,7 @@ func kbCmd() *cobra.Command {
 			kb := memory.NewKnowledgeStore(db, ctx)
 			err := kb.Promote(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Promoted to global: %s\n", args[0])
@@ -296,12 +283,10 @@ func kbCmd() *cobra.Command {
 			kb := memory.NewKnowledgeStore(db, ctx)
 			stats, err := kb.Stats(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
-			out, _ := json.MarshalIndent(stats, "", "  ")
-			fmt.Println(string(out))
+			printJSON(stats)
 		},
 	}
 

@@ -91,8 +91,7 @@ func infraCmd() *cobra.Command {
 			}
 
 			if err := mgr.StartInfra(); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			networkName := container.NetworkName(project)
@@ -120,8 +119,7 @@ func infraCmd() *cobra.Command {
 			}
 
 			if err := mgr.StopInfra(); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println("✓ Containers stopped")
@@ -139,8 +137,7 @@ func infraCmd() *cobra.Command {
 			fmt.Println("Cleaning URP infrastructure...")
 
 			if err := mgr.CleanInfra(); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println("✓ Containers removed")
@@ -167,8 +164,7 @@ func infraCmd() *cobra.Command {
 
 			logs, err := mgr.Logs(containerName, tail)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("=== %s logs (last %d lines) ===\n", containerName, tail)
@@ -229,8 +225,7 @@ Examples:
 				// Default: launch master (interactive or detached)
 				containerName, err = mgr.LaunchMaster(path)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 				// Check if TTY mode (interactive) or detached
 				if term.IsTerminal(int(os.Stdin.Fd())) {
@@ -250,8 +245,7 @@ Examples:
 				fmt.Printf("Launching standalone for %s...\n", path)
 				containerName, err = mgr.LaunchStandalone(path, readOnly)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 				fmt.Printf("✓ Container started: %s\n", containerName)
 				fmt.Println()
@@ -283,9 +277,7 @@ Examples:
 		Run: func(cmd *cobra.Command, args []string) {
 			// Check if running inside master
 			if !config.Env().IsMaster {
-				fmt.Fprintln(os.Stderr, "Error: spawn must be run from inside a master container")
-				fmt.Fprintln(os.Stderr, "Use 'urp launch' first")
-				os.Exit(1)
+				fatalErrorf("spawn must be run from inside a master container\nUse 'urp launch' first")
 			}
 
 			workerNum := 1
@@ -305,8 +297,7 @@ Examples:
 
 			containerName, err = mgr.SpawnWorker(path, workerNum)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 			fmt.Printf("✓ Worker spawned: %s\n", containerName)
 			fmt.Printf("  Send tasks: urp ask %s \"<instruction>\"\n", containerName)
@@ -410,8 +401,7 @@ Examples:
 			mgr := container.NewManager(context.Background())
 
 			if err := mgr.AttachWorker(args[0]); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 		},
 	}
@@ -436,8 +426,7 @@ Examples:
 			mgr := container.NewManager(context.Background())
 
 			if err := mgr.Exec(containerName, command); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 		},
 	}
@@ -482,8 +471,7 @@ Examples:
 			}
 
 			if err := mgr.Exec(containerName, command); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 		},
 	}
@@ -511,21 +499,18 @@ Examples:
 			if all {
 				project := config.Env().Project
 				if err := mgr.KillAllWorkers(project); err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 				fmt.Println("✓ All workers killed")
 				return
 			}
 
 			if len(args) == 0 {
-				fmt.Fprintln(os.Stderr, "Error: container name required (or use --all)")
-				os.Exit(1)
+				fatalErrorf("container name required (or use --all)")
 			}
 
 			if err := mgr.KillWorker(args[0]); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ Killed: %s\n", args[0])
@@ -567,8 +552,7 @@ Examples:
 
 			name, err := mgr.LaunchNeMo(projectPath, "")
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ NeMo started: %s\n", name)
@@ -592,8 +576,7 @@ Examples:
 
 			output, err := mgr.ExecNeMo(containerName, args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println(output)
@@ -614,8 +597,7 @@ Examples:
 			containerName := fmt.Sprintf("urp-nemo-%s", projectName)
 
 			if err := mgr.KillNeMo(containerName); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ NeMo stopped: %s\n", containerName)

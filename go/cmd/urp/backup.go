@@ -169,8 +169,7 @@ func backupListCmd() *cobra.Command {
 			mgr := backup.NewBackupManager(nil, urpDataPath())
 			meta, err := mgr.List(args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println("BACKUP CONTENTS")

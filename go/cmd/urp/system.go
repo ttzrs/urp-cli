@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 
@@ -204,8 +203,7 @@ The /metrics endpoint can be scraped by Prometheus.`,
 				fmt.Println("Endpoints: /metrics, /health")
 				fmt.Println("Press Ctrl+C to stop")
 				if err := srv.Start(); err != nil {
-					fmt.Fprintf(os.Stderr, "Failed to start server: %v\n", err)
-					os.Exit(1)
+					fatalErrorf("start server: %v", err)
 				}
 				// Block forever
 				select {}
@@ -260,8 +258,7 @@ func vecCmd() *cobra.Command {
 			store := vector.Default()
 			count, err := store.Count(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			embedder := vector.GetDefaultEmbedder()
@@ -288,15 +285,13 @@ func vecCmd() *cobra.Command {
 			// Generate embedding for query
 			queryVec, err := embedder.Embed(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error embedding query: %v\n", err)
-				os.Exit(1)
+				fatalErrorf("embedding query: %v", err)
 			}
 
 			// Search
 			results, err := store.Search(context.Background(), queryVec, limit, kind)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(results) == 0 {
@@ -336,8 +331,7 @@ func vecCmd() *cobra.Command {
 			// Generate embedding
 			vec, err := embedder.Embed(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error embedding: %v\n", err)
-				os.Exit(1)
+				fatalErrorf("embedding: %v", err)
 			}
 
 			entry := vector.VectorEntry{
@@ -347,8 +341,7 @@ func vecCmd() *cobra.Command {
 			}
 
 			if err := store.Add(context.Background(), entry); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Added to vector store [%s]: %s\n", addKind, truncateStr(args[0], 50))

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -43,7 +42,7 @@ func gitCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(stats, "", "  ")
+			out, _ := prettyJSON(stats)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))
@@ -68,7 +67,7 @@ func gitCmd() *cobra.Command {
 				exitOnError(event, err)
 			}
 
-			out, _ := json.MarshalIndent(history, "", "  ")
+			out, _ := prettyJSON(history)
 			event.OutputSize = len(out)
 			auditLogger.LogSuccess(event)
 			fmt.Println(string(out))

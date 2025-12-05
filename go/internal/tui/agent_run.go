@@ -69,6 +69,7 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 		}
 
 		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 		if shared != nil {
 			shared.cancelFunc = cancel
 		}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -301,8 +300,7 @@ func skillStatsCmd() *cobra.Command {
 
 			auditLogger.LogSuccess(event)
 
-			out, _ := json.MarshalIndent(stats, "", "  ")
-			fmt.Println(string(out))
+			printJSON(stats)
 		},
 	}
 }

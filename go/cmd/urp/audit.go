@@ -12,13 +12,6 @@ import (
 	"github.com/joss/urp/internal/memory"
 )
 
-// checkDB exits if the database is not connected.
-func checkDB() {
-	if db == nil {
-		fmt.Fprintln(os.Stderr, "Error: Not connected to graph database")
-		os.Exit(1)
-	}
-}
 
 func auditCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -60,7 +53,7 @@ Examples:
   urp audit log --status error     # Show errors only
   urp audit log --limit 50         # Show last 50 events`,
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			store := audit.NewStore(db, sessCtx.SessionID)
@@ -72,8 +65,7 @@ Examples:
 
 			events, err := store.Query(context.Background(), filter)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(events) == 0 {
@@ -133,14 +125,13 @@ func auditErrorsCmd() *cobra.Command {
 		Use:   "errors",
 		Short: "Show recent errors",
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			store := audit.NewStore(db, sessCtx.SessionID)
 			events, err := store.GetErrors(context.Background(), 20)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(events) == 0 {
@@ -175,7 +166,7 @@ func auditStatsCmd() *cobra.Command {
 		Use:   "stats",
 		Short: "Show audit statistics",
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			store := audit.NewStore(db, sessCtx.SessionID)
@@ -183,8 +174,7 @@ func auditStatsCmd() *cobra.Command {
 			// Get overall stats
 			stats, err := store.GetStats(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println("AUDIT STATISTICS")
@@ -225,14 +215,13 @@ func auditCommitCmd() *cobra.Command {
 		Short: "Show events for a commit",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			store := audit.NewStore(db, sessCtx.SessionID)
 			events, err := store.GetEventsByCommit(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(events) == 0 {
@@ -268,7 +257,7 @@ func auditMetricsCmd() *cobra.Command {
 Metrics include latency, error rates, and output sizes
 aggregated across operations.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			metricsStore := audit.NewMetricsStore(db, sessCtx.SessionID)
@@ -331,7 +320,7 @@ Anomaly levels:
   high     - Significant deviation (3+ sigma)
   critical - Threshold breach or extreme deviation (4+ sigma)`,
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
@@ -346,8 +335,7 @@ Anomaly levels:
 			}
 
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(anomalies) == 0 {
@@ -402,7 +390,7 @@ func auditBaselineCmd() *cobra.Command {
 
 Use --compute to calculate new baselines from recent metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 
@@ -499,7 +487,7 @@ Remediation actions:
 
 Use --dry-run to see what would be done without executing.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
@@ -517,8 +505,7 @@ Use --dry-run to see what would be done without executing.`,
 			}
 
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(anomalies) == 0 {
@@ -584,15 +571,14 @@ func auditHistoryCmd() *cobra.Command {
 		Use:   "history",
 		Short: "Show healing history",
 		Run: func(cmd *cobra.Command, args []string) {
-			checkDB()
+			requireDBSimple()
 
 			sessCtx := memory.NewContext()
 			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
 
 			results, err := healingStore.GetRecent(context.Background(), 30)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(results) == 0 {

@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 
@@ -61,8 +60,7 @@ Examples:
 			case alerts.LevelCritical:
 				alert = alerts.Critical(component, title, message, ctx)
 			default:
-				fmt.Fprintf(os.Stderr, "Invalid level: %s (use info, warning, error, critical)\n", level)
-				os.Exit(1)
+				fatalErrorf("Invalid level: %s (use info, warning, error, critical)", level)
 			}
 
 			fmt.Printf("Alert sent: %s\n", alert.ID)

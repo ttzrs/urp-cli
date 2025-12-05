@@ -45,8 +45,7 @@ Examples:
 			planner := getPlanner()
 			plan, err := planner.CreatePlan(context.Background(), description, tasks)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("PLAN CREATED: %s\n", plan.PlanID)
@@ -89,8 +88,7 @@ Examples:
 				plan = &plans[0]
 			}
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("PLAN: %s\n", plan.PlanID)
@@ -136,8 +134,7 @@ Examples:
 			planner := getPlanner()
 			plans, err := planner.ListPlans(context.Background(), limit)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(plans) == 0 {
@@ -174,8 +171,7 @@ Examples:
 			planner := getPlanner()
 			task, err := planner.GetNextTask(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if task == nil {
@@ -201,8 +197,7 @@ Examples:
 
 			planner := getPlanner()
 			if err := planner.AssignTask(context.Background(), args[0], args[1]); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ Task %s assigned to %s\n", args[0], args[1])
@@ -219,8 +214,7 @@ Examples:
 
 			planner := getPlanner()
 			if err := planner.StartTask(context.Background(), args[0]); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ Task %s started\n", args[0])
@@ -254,8 +248,7 @@ Examples:
 			planner := getPlanner()
 			result, err := planner.CompleteTask(context.Background(), args[0], workerID, output, files)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ Task completed: %s\n", result.TaskID)
@@ -283,8 +276,7 @@ Examples:
 			planner := getPlanner()
 			result, err := planner.FailTask(context.Background(), args[0], workerID, args[1])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✗ Task failed: %s\n", result.TaskID)
@@ -334,8 +326,7 @@ Examples:
 			planner := getPlanner()
 			result, pr, err := planner.CompleteTaskWithPR(context.Background(), args[0], workerID, output, files, repoPath, baseBranch)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ Task completed: %s\n", result.TaskID)
@@ -374,29 +365,25 @@ Examples:
 				"task_id": args[0],
 			})
 			if err != nil || len(records) == 0 {
-				fmt.Fprintln(os.Stderr, "Error: Task or PR not found")
-				os.Exit(1)
+				fatalErrorf("Task or PR not found")
 			}
 
 			prURL, ok := records[0]["pr_url"].(string)
 			if !ok || prURL == "" {
-				fmt.Fprintln(os.Stderr, "Error: No PR associated with this task")
-				os.Exit(1)
+				fatalErrorf("No PR associated with this task")
 			}
 
 			// Extract PR number from URL (format: .../pull/123)
 			parts := strings.Split(prURL, "/")
 			if len(parts) < 2 {
-				fmt.Fprintln(os.Stderr, "Error: Invalid PR URL")
-				os.Exit(1)
+				fatalErrorf("Invalid PR URL")
 			}
 			var prNum int
 			fmt.Sscanf(parts[len(parts)-1], "%d", &prNum)
 
 			repoPath := getCwd()
 			if err := planning.MergePR(repoPath, prNum, squash); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("✓ PR #%d merged\n", prNum)

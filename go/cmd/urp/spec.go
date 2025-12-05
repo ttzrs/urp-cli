@@ -38,8 +38,7 @@ func specCmd() *cobra.Command {
 			engine := specs.NewEngine(cwd)
 			
 			if err := engine.InitProject(context.Background(), args[0]); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 			
 			fmt.Printf("✓ Initialized spec project: %s\n", args[0])
@@ -58,8 +57,7 @@ func specCmd() *cobra.Command {
 			
 			list, err := engine.ListSpecs(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 			
 			if len(list) == 0 {
@@ -105,8 +103,7 @@ func specCmd() *cobra.Command {
 			// 2. Initialize provider with fallback support
 			p, err := initProviderWithFallback()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			// Initialize tools with current directory
@@ -257,8 +254,7 @@ Start by reading specs/%s/spec.md
 
 			spec, err := engine.ParseSpec(ctx, specName)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			// Print metadata

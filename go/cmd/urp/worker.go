@@ -49,8 +49,7 @@ This is typically called by the worker-entrypoint.sh in Docker containers.`,
 
 			ctx := context.Background()
 			if err := worker.Run(ctx); err != nil {
-				fmt.Fprintf(os.Stderr, "Worker error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 		},
 	}

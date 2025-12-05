@@ -15,25 +15,43 @@ import (
 	urpstrings "github.com/joss/urp/internal/strings"
 )
 
+// Immune interface for command safety checking (DIP).
+type Immune interface {
+	Analyze(command string) RiskResult
+}
+
 // Executor runs commands and logs them to the graph.
 type Executor struct {
 	db      graph.Driver
-	immune  *ImmuneSystem
+	immune  Immune
 	project string
 }
 
 // NewExecutor creates a new command executor.
-func NewExecutor(db graph.Driver) *Executor {
+// Uses default ImmuneSystem if none provided via WithImmune.
+func NewExecutor(db graph.Driver, opts ...ExecutorOption) *Executor {
 	project := config.Env().Project
 	if project == "" {
 		project = "unknown"
 	}
 
-	return &Executor{
+	e := &Executor{
 		db:      db,
-		immune:  NewImmuneSystem(),
+		immune:  DefaultImmuneSystem,
 		project: project,
 	}
+	for _, opt := range opts {
+		opt(e)
+	}
+	return e
+}
+
+// ExecutorOption configures an Executor.
+type ExecutorOption func(*Executor)
+
+// WithImmune sets a custom Immune implementation (for testing).
+func WithImmune(i Immune) ExecutorOption {
+	return func(e *Executor) { e.immune = i }
 }
 
 // Result contains the output of a command execution.

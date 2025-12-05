@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/joss/urp/internal/opencode/domain"
-	"github.com/joss/urp/internal/opencode/graphstore"
-	"github.com/joss/urp/internal/opencode/session"
 	"github.com/joss/urp/internal/tui"
 )
+
+// Note: graphstore and session imports moved to helpers.go via getSessionManager()
 
 func opencodeCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -58,15 +58,13 @@ Examples:
 		Run: func(cmd *cobra.Command, args []string) {
 			workDir, err := os.Getwd()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			// If prompt is provided, run non-interactively
 			if prompt != "" {
 				if err := tui.RunAgentWithPrompt(workDir, prompt); err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 				return
 			}
@@ -75,21 +73,18 @@ Examples:
 			if len(args) > 0 {
 				fullPrompt := strings.Join(args, " ")
 				if err := tui.RunAgentWithPrompt(workDir, fullPrompt); err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 				return
 			}
 
 			if debugMode {
 				if err := tui.RunAgentDebug(workDir); err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 			} else {
 				if err := tui.RunAgent(workDir); err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 			}
 		},
@@ -114,16 +109,12 @@ func ocSessionCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List sessions",
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			dir, _ := os.Getwd()
 			sessions, err := mgr.List(context.Background(), dir, 20)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(sessions) == 0 {
@@ -147,16 +138,12 @@ func ocSessionCmd() *cobra.Command {
 		Use:   "new [title]",
 		Short: "Create a new session",
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			dir, _ := os.Getwd()
 			sess, err := mgr.Create(context.Background(), dir)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if len(args) > 0 {
@@ -174,15 +161,11 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Show session details",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			sess, err := mgr.Get(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("ID:        %s\n", sess.ID)
@@ -211,15 +194,11 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Fork a session",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			forked, err := mgr.Fork(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Forked session: %s\n", forked.ID)
@@ -232,14 +211,10 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Delete a session",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			if err := mgr.Delete(context.Background(), args[0]); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Println("Deleted")
@@ -253,21 +228,16 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Export session to JSON",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			data, err := mgr.Export(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			if outputFile != "" {
 				if err := os.WriteFile(outputFile, data, 0644); err != nil {
-					fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
-					return
+					fatalErrorf("writing file: %v", err)
 				}
 				fmt.Printf("Exported to: %s\n", outputFile)
 			} else {
@@ -283,22 +253,17 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Import session from JSON",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
 			data, err := os.ReadFile(args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-				os.Exit(1)
+				fatalErrorf("reading file: %v", err)
 			}
 
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			dir, _ := os.Getwd()
 			sess, err := mgr.Import(context.Background(), data, dir)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Imported session: %s\n", sess.ID)
@@ -323,15 +288,11 @@ func ocMessageCmd() *cobra.Command {
 		Short: "List messages in a session",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			messages, err := mgr.GetMessages(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			for _, m := range messages {
@@ -356,10 +317,7 @@ func ocMessageCmd() *cobra.Command {
 		Short: "Add a message to session",
 		Args:  cobra.ExactArgs(3),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			msg := &domain.Message{
 				ID:        ulid.Make().String(),
@@ -370,8 +328,7 @@ func ocMessageCmd() *cobra.Command {
 			}
 
 			if err := mgr.AddMessage(context.Background(), msg); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Added message: %s\n", msg.ID)
@@ -396,15 +353,11 @@ func ocUsageCmd() *cobra.Command {
 		Short: "Show session usage",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			usage, err := mgr.GetUsage(context.Background(), args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Session:  %s\n", usage.SessionID)
@@ -429,15 +382,11 @@ func ocUsageCmd() *cobra.Command {
 		Use:   "total",
 		Short: "Show total usage across all sessions",
 		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
-			store := graphstore.New(db)
-			mgr := session.NewManager(store)
+			mgr := getSessionManager()
 
 			usage, err := mgr.GetTotalUsage(context.Background())
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				fatalError(err)
 			}
 
 			fmt.Printf("Total Usage\n")
