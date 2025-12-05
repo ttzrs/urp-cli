@@ -91,6 +91,11 @@ func DefaultRegistry(workDir string) *Registry {
 	r.Register(NewTodoRead())
 	r.Register(NewPatch(workDir))
 
+	// FASE 5-6 tools
+	r.Register(NewLSPHover(workDir))
+	r.Register(NewBatch(r))   // batch needs registry reference
+	r.Register(NewInvalid(r)) // invalid needs registry for suggestions
+
 	return r
 }
 
