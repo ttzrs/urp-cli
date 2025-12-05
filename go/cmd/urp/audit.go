@@ -10,8 +10,8 @@ import (
 
 	"github.com/joss/urp/internal/audit"
 	"github.com/joss/urp/internal/memory"
+	"github.com/joss/urp/internal/render"
 )
-
 
 func auditCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -36,6 +36,13 @@ timing, and status information for debugging and analysis.`,
 		auditRulesCmd(),
 	)
 	return cmd
+}
+
+// newAuditService creates an audit service with current session context.
+func newAuditService() *audit.Service {
+	sessCtx := memory.NewContext()
+	store := audit.NewStore(db, sessCtx.SessionID)
+	return audit.NewService(store, nil)
 }
 
 func auditLogCmd() *cobra.Command {
@@ -68,49 +75,8 @@ Examples:
 				fatalError(err)
 			}
 
-			if len(events) == 0 {
-				fmt.Println("No audit events found")
-				return
-			}
-
-			fmt.Printf("AUDIT LOG (%d events)\n", len(events))
-			fmt.Println()
-
-			for _, e := range events {
-				statusIcon := "•"
-				switch e.Status {
-				case audit.StatusSuccess:
-					statusIcon = "✓"
-				case audit.StatusError:
-					statusIcon = "✗"
-				case audit.StatusWarning:
-					statusIcon = "!"
-				case audit.StatusTimeout:
-					statusIcon = "⏱"
-				}
-
-				// Format: [status] category/operation (duration) @ commit
-				line := fmt.Sprintf("%s [%s] %s/%s",
-					statusIcon,
-					e.StartedAt.Format("15:04:05"),
-					e.Category,
-					e.Operation,
-				)
-
-				if e.DurationMs > 0 {
-					line += fmt.Sprintf(" (%dms)", e.DurationMs)
-				}
-
-				if e.Git.CommitShort != "" {
-					line += fmt.Sprintf(" @ %s", e.Git.CommitShort)
-				}
-
-				fmt.Println(line)
-
-				if e.ErrorMessage != "" && e.Status == audit.StatusError {
-					fmt.Printf("    └─ %s\n", truncateStr(e.ErrorMessage, 70))
-				}
-			}
+			r := render.NewAudit()
+			r.Events(events)
 		},
 	}
 	cmd.Flags().StringVarP(&category, "category", "c", "", "Filter by category (code, git, events, etc)")
@@ -127,36 +93,14 @@ func auditErrorsCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
-			store := audit.NewStore(db, sessCtx.SessionID)
-			events, err := store.GetErrors(context.Background(), 20)
+			svc := newAuditService()
+			events, err := svc.GetErrors(context.Background(), time.Time{}, "", 20)
 			if err != nil {
 				fatalError(err)
 			}
 
-			if len(events) == 0 {
-				fmt.Println("No errors found")
-				return
-			}
-
-			fmt.Printf("RECENT ERRORS (%d)\n", len(events))
-			fmt.Println()
-
-			for _, e := range events {
-				fmt.Printf("✗ [%s] %s/%s @ %s\n",
-					e.StartedAt.Format("2006-01-02 15:04:05"),
-					e.Category,
-					e.Operation,
-					e.Git.CommitShort,
-				)
-				if e.ErrorMessage != "" {
-					fmt.Printf("  Error: %s\n", e.ErrorMessage)
-				}
-				if e.Command != "" {
-					fmt.Printf("  Command: %s\n", truncateStr(e.Command, 60))
-				}
-				fmt.Println()
-			}
+			r := render.NewAudit()
+			r.Errors(events)
 		},
 	}
 }
@@ -168,43 +112,14 @@ func auditStatsCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
-			store := audit.NewStore(db, sessCtx.SessionID)
-
-			// Get overall stats
-			stats, err := store.GetStats(context.Background())
+			svc := newAuditService()
+			stats, err := svc.GetStats(context.Background())
 			if err != nil {
 				fatalError(err)
 			}
 
-			fmt.Println("AUDIT STATISTICS")
-			fmt.Println()
-			fmt.Printf("  Total events:   %v\n", stats["total"])
-			fmt.Printf("  Success:        %v\n", stats["success"])
-			fmt.Printf("  Errors:         %v\n", stats["errors"])
-			fmt.Printf("  Warnings:       %v\n", stats["warnings"])
-			fmt.Printf("  Timeouts:       %v\n", stats["timeouts"])
-			fmt.Println()
-
-			if avg, ok := stats["avg_duration_ms"].(float64); ok && avg > 0 {
-				fmt.Printf("  Avg duration:   %.0fms\n", avg)
-			}
-			if max, ok := stats["max_duration_ms"].(int64); ok && max > 0 {
-				fmt.Printf("  Max duration:   %dms\n", max)
-			}
-
-			// Get stats by category
-			fmt.Println()
-			fmt.Println("BY CATEGORY:")
-
-			catStats, err := store.GetStatsByCategory(context.Background())
-			if err == nil && len(catStats) > 0 {
-				for cat, cs := range catStats {
-					total := cs["total"]
-					errors := cs["errors"]
-					fmt.Printf("  %-12s %v total, %v errors\n", cat+":", total, errors)
-				}
-			}
+			r := render.NewAudit()
+			r.Stats(stats)
 		},
 	}
 }
@@ -217,33 +132,14 @@ func auditCommitCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
-			store := audit.NewStore(db, sessCtx.SessionID)
-			events, err := store.GetEventsByCommit(context.Background(), args[0])
+			svc := newAuditService()
+			events, err := svc.GetEventsByCommit(context.Background(), args[0])
 			if err != nil {
 				fatalError(err)
 			}
 
-			if len(events) == 0 {
-				fmt.Printf("No events found for commit %s\n", args[0])
-				return
-			}
-
-			fmt.Printf("EVENTS FOR COMMIT %s (%d)\n", args[0], len(events))
-			fmt.Println()
-
-			for _, e := range events {
-				statusIcon := "✓"
-				if e.Status == audit.StatusError {
-					statusIcon = "✗"
-				}
-				fmt.Printf("%s %s/%s (%dms)\n",
-					statusIcon,
-					e.Category,
-					e.Operation,
-					e.DurationMs,
-				)
-			}
+			r := render.NewAudit()
+			r.CommitEvents(args[0], events)
 		},
 	}
 }
@@ -261,47 +157,23 @@ aggregated across operations.`,
 
 			sessCtx := memory.NewContext()
 			metricsStore := audit.NewMetricsStore(db, sessCtx.SessionID)
+			ctx := context.Background()
 
-			// Show latency stats
-			fmt.Println("LATENCY METRICS")
-			fmt.Println()
+			// Collect latency stats by category
+			latency := make(map[audit.Category][]audit.MetricStats)
+			errorRates := make(map[audit.Category][]audit.MetricStats)
 
 			for _, cat := range []audit.Category{audit.CategoryCode, audit.CategoryGit, audit.CategorySystem} {
-				stats, err := metricsStore.GetHistoricalStats(context.Background(), audit.MetricLatency, cat, 10)
-				if err != nil || len(stats) == 0 {
-					continue
+				if stats, err := metricsStore.GetHistoricalStats(ctx, audit.MetricLatency, cat, 10); err == nil && len(stats) > 0 {
+					latency[cat] = stats
 				}
-
-				fmt.Printf("  %s:\n", cat)
-				for _, s := range stats {
-					fmt.Printf("    %-20s mean=%.0fms p95=%.0fms p99=%.0fms (n=%d)\n",
-						s.Operation+":",
-						s.Mean, s.P95, s.P99, s.Count)
+				if stats, err := metricsStore.GetHistoricalStats(ctx, audit.MetricErrorRate, cat, 10); err == nil && len(stats) > 0 {
+					errorRates[cat] = stats
 				}
 			}
 
-			// Show error rate stats
-			fmt.Println()
-			fmt.Println("ERROR RATES")
-			fmt.Println()
-
-			for _, cat := range []audit.Category{audit.CategoryCode, audit.CategoryGit, audit.CategorySystem} {
-				stats, err := metricsStore.GetHistoricalStats(context.Background(), audit.MetricErrorRate, cat, 10)
-				if err != nil || len(stats) == 0 {
-					continue
-				}
-
-				fmt.Printf("  %s:\n", cat)
-				for _, s := range stats {
-					rate := 0.0
-					if s.Count > 0 {
-						rate = (s.Sum / float64(s.Count)) * 100
-					}
-					fmt.Printf("    %-20s %.1f%% (%d/%d)\n",
-						s.Operation+":",
-						rate, int(s.Sum), s.Count)
-				}
-			}
+			r := render.NewAudit()
+			r.Metrics(latency, errorRates)
 		},
 	}
 }
@@ -324,55 +196,23 @@ Anomaly levels:
 
 			sessCtx := memory.NewContext()
 			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
+			ctx := context.Background()
 
 			var anomalies []audit.Anomaly
 			var err error
 
 			if anomalyLevel != "" {
-				anomalies, err = anomalyStore.GetByLevel(context.Background(), audit.AnomalyLevel(anomalyLevel), 50)
+				anomalies, err = anomalyStore.GetByLevel(ctx, audit.AnomalyLevel(anomalyLevel), 50)
 			} else {
-				anomalies, err = anomalyStore.GetRecent(context.Background(), 50)
+				anomalies, err = anomalyStore.GetRecent(ctx, 50)
 			}
 
 			if err != nil {
 				fatalError(err)
 			}
 
-			if len(anomalies) == 0 {
-				fmt.Println("No anomalies detected")
-				return
-			}
-
-			fmt.Printf("DETECTED ANOMALIES (%d)\n", len(anomalies))
-			fmt.Println()
-
-			for _, a := range anomalies {
-				levelIcon := "•"
-				switch a.Level {
-				case audit.AnomalyLow:
-					levelIcon = "○"
-				case audit.AnomalyMedium:
-					levelIcon = "◐"
-				case audit.AnomalyHigh:
-					levelIcon = "●"
-				case audit.AnomalyCritical:
-					levelIcon = "◉"
-				}
-
-				fmt.Printf("%s [%s] %s/%s\n",
-					levelIcon,
-					a.Level,
-					a.Category,
-					a.Operation,
-				)
-				fmt.Printf("    %s\n", a.Description)
-				if a.ZScore != 0 {
-					fmt.Printf("    z-score: %.2f (value=%.2f expected=%.2f)\n",
-						a.ZScore, a.Value, a.Expected)
-				}
-				fmt.Printf("    @ %s\n", a.DetectedAt.Format("2006-01-02 15:04:05"))
-				fmt.Println()
-			}
+			r := render.NewAudit()
+			r.Anomalies(anomalies)
 		},
 	}
 	cmd.Flags().StringVarP(&anomalyLevel, "level", "l", "", "Filter by level (low, medium, high, critical)")
@@ -393,16 +233,14 @@ Use --compute to calculate new baselines from recent metrics.`,
 			requireDBSimple()
 
 			sessCtx := memory.NewContext()
+			ctx := context.Background()
 
 			if computeBaseline {
 				fmt.Println("Computing baselines from metrics...")
 
-				// Create collector and populate from recent events
 				collector := audit.NewMetricsCollector(24*time.Hour, 10000)
-
-				// Get recent events to populate collector
 				store := audit.NewStore(db, sessCtx.SessionID)
-				events, err := store.Query(context.Background(), audit.QueryFilter{Limit: 1000})
+				events, err := store.Query(ctx, audit.QueryFilter{Limit: 1000})
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 					os.Exit(1)
@@ -412,53 +250,42 @@ Use --compute to calculate new baselines from recent metrics.`,
 					collector.Record(&events[i])
 				}
 
-				// Compute and show baselines
 				detector := audit.NewAnomalyDetector(collector, audit.DefaultThresholds)
 				allStats := collector.GetAllStats()
 
-				fmt.Println()
-				fmt.Println("COMPUTED BASELINES")
-				fmt.Println()
-
+				var baselines []audit.Baseline
 				for _, stats := range allStats {
 					if stats.Count < 10 {
 						continue
 					}
-
 					baseline := detector.ComputeBaseline(stats.Type, stats.Category, stats.Operation)
-					if baseline == nil {
-						continue
+					if baseline != nil {
+						baselines = append(baselines, *baseline)
 					}
-
-					fmt.Printf("  %s/%s/%s:\n", stats.Type, stats.Category, stats.Operation)
-					fmt.Printf("    mean=%.2f stddev=%.2f min=%.2f max=%.2f (n=%d)\n",
-						baseline.Mean, baseline.StdDev, baseline.Min, baseline.Max, baseline.SampleSize)
 				}
 
+				r := render.NewAudit()
+				r.Baselines(baselines)
 				return
 			}
 
-			// Show existing baselines from graph
+			// Show existing baselines
 			metricsStore := audit.NewMetricsStore(db, sessCtx.SessionID)
-
-			fmt.Println("STORED BASELINES")
-			fmt.Println()
+			w := render.Stdout()
+			w.Header("STORED BASELINES")
 
 			for _, metricType := range []audit.MetricType{audit.MetricLatency, audit.MetricErrorRate, audit.MetricOutputSize} {
-				fmt.Printf("%s:\n", metricType)
-
+				w.Println("%s:", metricType)
 				for _, cat := range []audit.Category{audit.CategoryCode, audit.CategoryGit, audit.CategorySystem} {
-					stats, err := metricsStore.GetHistoricalStats(context.Background(), metricType, cat, 5)
+					stats, err := metricsStore.GetHistoricalStats(ctx, metricType, cat, 5)
 					if err != nil || len(stats) == 0 {
 						continue
 					}
-
 					for _, s := range stats {
-						fmt.Printf("  %s/%-15s mean=%.2f stddev=%.2f (n=%d)\n",
-							cat, s.Operation+":", s.Mean, s.StdDev, s.Count)
+						w.Item("%s/%-15s mean=%.2f stddev=%.2f (n=%d)", cat, s.Operation+":", s.Mean, s.StdDev, s.Count)
 					}
 				}
-				fmt.Println()
+				w.Line()
 			}
 		},
 	}
@@ -490,18 +317,18 @@ Use --dry-run to see what would be done without executing.`,
 			requireDBSimple()
 
 			sessCtx := memory.NewContext()
+			ctx := context.Background()
 			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
 			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
 			healer := audit.NewHealer()
 
-			// Get anomalies to heal
 			var anomalies []audit.Anomaly
 			var err error
 
 			if healLevel != "" {
-				anomalies, err = anomalyStore.GetByLevel(context.Background(), audit.AnomalyLevel(healLevel), 20)
+				anomalies, err = anomalyStore.GetByLevel(ctx, audit.AnomalyLevel(healLevel), 20)
 			} else {
-				anomalies, err = anomalyStore.GetRecent(context.Background(), 20)
+				anomalies, err = anomalyStore.GetRecent(ctx, 20)
 			}
 
 			if err != nil {
@@ -513,51 +340,38 @@ Use --dry-run to see what would be done without executing.`,
 				return
 			}
 
-			if healDryRun {
-				fmt.Printf("DRY RUN - Would heal %d anomalies:\n\n", len(anomalies))
+			r := render.NewAudit()
 
+			if healDryRun {
+				var previews []render.HealPreview
 				for _, a := range anomalies {
 					rule := healer.FindRule(&a)
+					p := render.HealPreview{
+						Category:    string(a.Category),
+						Operation:   a.Operation,
+						Description: a.Description,
+					}
 					if rule == nil {
-						fmt.Printf("  %-10s %s/%s - no matching rule\n",
-							"[skip]", a.Category, a.Operation)
-						continue
+						p.Action = "skip"
+						p.CanHeal = false
+						p.Reason = "no matching rule"
+					} else {
+						p.Action = string(rule.Action)
+						p.CanHeal, p.Reason = healer.CanHeal(&a, rule)
 					}
-
-					canHeal, reason := healer.CanHeal(&a, rule)
-					status := fmt.Sprintf("[%s]", rule.Action)
-					if !canHeal {
-						status = "[blocked: " + reason + "]"
-					}
-
-					fmt.Printf("  %-20s %s/%s - %s\n",
-						status, a.Category, a.Operation, a.Description)
+					previews = append(previews, p)
 				}
+				r.HealDryRun(previews)
 				return
 			}
 
-			// Execute healing
-			fmt.Printf("HEALING %d ANOMALIES\n\n", len(anomalies))
-
-			results := healer.HealAll(context.Background(), anomalies)
-
-			successCount := 0
-			for _, r := range results {
-				icon := "✗"
-				if r.Success {
-					icon = "✓"
-					successCount++
-				}
-
-				fmt.Printf("%s [%s] %s\n", icon, r.Action, r.Message)
-
-				// Persist result
-				if err := healingStore.Save(context.Background(), &r); err != nil {
+			results := healer.HealAll(ctx, anomalies)
+			for _, res := range results {
+				if err := healingStore.Save(ctx, &res); err != nil {
 					fmt.Fprintf(os.Stderr, "  Warning: failed to save result: %v\n", err)
 				}
 			}
-
-			fmt.Printf("\nHealed %d/%d anomalies\n", successCount, len(results))
+			r.HealResults(results, len(anomalies))
 		},
 	}
 	cmd.Flags().BoolVar(&healDryRun, "dry-run", false, "Show what would be done without executing")
@@ -574,46 +388,17 @@ func auditHistoryCmd() *cobra.Command {
 			requireDBSimple()
 
 			sessCtx := memory.NewContext()
+			ctx := context.Background()
 			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
 
-			results, err := healingStore.GetRecent(context.Background(), 30)
+			results, err := healingStore.GetRecent(ctx, 30)
 			if err != nil {
 				fatalError(err)
 			}
 
-			if len(results) == 0 {
-				fmt.Println("No healing history")
-				return
-			}
-
-			fmt.Printf("HEALING HISTORY (%d attempts)\n\n", len(results))
-
-			for _, r := range results {
-				icon := "✗"
-				if r.Success {
-					icon = "✓"
-				}
-
-				fmt.Printf("%s [%s] %s @ %s (%dms)\n",
-					icon,
-					r.Action,
-					r.Message,
-					r.AttemptedAt.Format("15:04:05"),
-					r.DurationMs,
-				)
-
-				if r.RollbackRef != "" {
-					fmt.Printf("    └─ rollback: %s\n", r.RollbackRef[:7])
-				}
-			}
-
-			// Show stats
-			stats, err := healingStore.GetStats(context.Background())
-			if err == nil {
-				fmt.Println()
-				fmt.Printf("Total: %v  Success: %v  Failed: %v\n",
-					stats["total"], stats["success"], stats["failed"])
-			}
+			stats, _ := healingStore.GetStats(ctx)
+			r := render.NewAudit()
+			r.HealHistory(results, stats)
 		},
 	}
 }
@@ -623,31 +408,8 @@ func auditRulesCmd() *cobra.Command {
 		Use:   "rules",
 		Short: "Show remediation rules",
 		Run: func(cmd *cobra.Command, args []string) {
-			healer := audit.NewHealer()
-
-			fmt.Println("REMEDIATION RULES")
-			fmt.Println()
-
-			// Access rules via reflection isn't ideal, but we can describe defaults
-			rules := []struct {
-				name   string
-				action string
-				desc   string
-			}{
-				{"high-latency-retry", "retry", "Retry operations with high latency"},
-				{"critical-latency-escalate", "escalate", "Escalate critical latency issues"},
-				{"code-error-rollback", "rollback", "Rollback code changes on persistent errors"},
-				{"git-error-notify", "notify", "Notify on git operation failures"},
-				{"system-error-restart", "restart", "Restart system services on critical failures"},
-				{"large-output-clear", "clear_cache", "Clear cache when output sizes spike"},
-			}
-
-			for _, r := range rules {
-				fmt.Printf("  %-28s [%s]\n", r.name, r.action)
-				fmt.Printf("    %s\n\n", r.desc)
-			}
-
-			_ = healer // Keep reference
+			r := render.NewAudit()
+			r.Rules(render.DefaultRules())
 		},
 	}
 }
