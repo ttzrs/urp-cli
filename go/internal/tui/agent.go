@@ -364,6 +364,60 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.viewport, cmd = m.viewport.Update(msg)
 				return m, cmd
 			}
+
+		// Vim-style navigation (always works for viewport)
+		case "j":
+			// Scroll down one line (vim style)
+			if m.agentActive || m.viewport.AtBottom() {
+				m.viewport.LineDown(1)
+			} else if !m.input.Focused() {
+				m.viewport.LineDown(1)
+			}
+			return m, nil
+
+		case "k":
+			// Scroll up one line (vim style)
+			if m.agentActive || m.viewport.AtTop() {
+				m.viewport.LineUp(1)
+			} else if !m.input.Focused() {
+				m.viewport.LineUp(1)
+			}
+			return m, nil
+
+		case "g":
+			// Go to top (vim style: gg)
+			if m.agentActive || !m.input.Focused() {
+				m.viewport.GotoTop()
+			}
+			return m, nil
+
+		case "G":
+			// Go to bottom (vim style)
+			if m.agentActive || !m.input.Focused() {
+				m.viewport.GotoBottom()
+			}
+			return m, nil
+
+		case "ctrl+u":
+			// Half page up (vim style)
+			if m.agentActive || !m.input.Focused() {
+				m.viewport.HalfViewUp()
+			}
+			return m, nil
+
+		case "ctrl+f":
+			// Page down (vim style - forward)
+			if m.agentActive || !m.input.Focused() {
+				m.viewport.ViewDown()
+			}
+			return m, nil
+
+		case "ctrl+b":
+			// Page up (vim style - backward)
+			if m.agentActive || !m.input.Focused() {
+				m.viewport.ViewUp()
+			}
+			return m, nil
 		}
 
 	case tea.WindowSizeMsg:
@@ -775,9 +829,9 @@ func (m AgentModel) renderStatus() string {
 
 	// Help
 	if m.agentActive {
-		parts = append(parts, "Ctrl+C: cancel │ ↑↓: scroll │ Ctrl+D: debug")
+		parts = append(parts, "Ctrl+C: cancel │ j/k: scroll │ g/G: top/bottom │ Ctrl+D: debug")
 	} else {
-		parts = append(parts, "Enter: send │ @: files │ Tab: agent │ Ctrl+D: debug │ Esc: quit")
+		parts = append(parts, "Enter: send │ @: files │ Tab: agent │ j/k: scroll │ Esc: quit")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))

@@ -578,7 +578,7 @@ Cobertura mínima: 70%
 - [ ] Scroll suave en viewport de mensajes
 - [ ] Colores personalizables vía config
 - [ ] Panel de status en tiempo real (CPU/RAM de contenedores)
-- [ ] Navegación con vim-keys (h/j/k/l) como alternativa
+- [x] Navegación con vim-keys (j/k/g/G/Ctrl+u/Ctrl+f/Ctrl+b)
 - [ ] Búsqueda en historial de sesiones (/)
 - [ ] Preview de mensajes en lista de sesiones
 
