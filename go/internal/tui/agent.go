@@ -288,17 +288,34 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.ready = true
 
-		// Calculate viewport size
+		// Calculate viewport size (header + status bar + input area)
 		headerHeight := 2
 		statusHeight := 1
 		inputHeight := 5
-		m.viewport = viewport.New(msg.Width, msg.Height-headerHeight-statusHeight-inputHeight)
-		m.viewport.SetContent(m.renderOutput())
+		vpWidth := msg.Width
+		vpHeight := msg.Height - headerHeight - statusHeight - inputHeight
+
+		if !m.ready {
+			// First time: create viewport
+			m.viewport = viewport.New(vpWidth, vpHeight)
+			m.viewport.SetContent(m.renderOutput())
+			m.ready = true
+		} else {
+			// Resize: adjust dimensions and re-wrap content
+			m.viewport.Width = vpWidth
+			m.viewport.Height = vpHeight
+			// Force re-render with new width
+			m.viewport.SetContent(m.renderOutput())
+		}
 
 		// Adjust input width
 		m.input.SetWidth(msg.Width - 4)
+
+		// Update file picker width if it exists
+		if m.filePicker != nil {
+			m.filePicker = NewFilePicker(m.workDir, m.width-4, 10)
+		}
 
 	case agentStreamEventMsg:
 		event := domain.StreamEvent(msg)

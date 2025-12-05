@@ -83,6 +83,14 @@ func DefaultRegistry(workDir string) *Registry {
 	r.Register(NewComputer())
 	r.Register(NewBrowser())
 	r.Register(NewDiagnostics(workDir))
+
+	// FASE 1 tools
+	r.Register(NewTask(workDir))
+	r.Register(NewMultiEdit(workDir))
+	r.Register(NewTodoWrite())
+	r.Register(NewTodoRead())
+	r.Register(NewPatch(workDir))
+
 	return r
 }
 
