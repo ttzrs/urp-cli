@@ -261,7 +261,72 @@ func ocSessionCmd() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(listCmd, newCmd, showCmd, forkCmd, deleteCmd)
+	// oc session export <id> [-o file]
+	var outputFile string
+	exportCmd := &cobra.Command{
+		Use:   "export <id>",
+		Short: "Export session to JSON",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Database not connected")
+				return
+			}
+
+			store := graphstore.New(db)
+			mgr := session.NewManager(store)
+
+			data, err := mgr.Export(context.Background(), args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				return
+			}
+
+			if outputFile != "" {
+				if err := os.WriteFile(outputFile, data, 0644); err != nil {
+					fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
+					return
+				}
+				fmt.Printf("Exported to: %s\n", outputFile)
+			} else {
+				fmt.Println(string(data))
+			}
+		},
+	}
+	exportCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file (default: stdout)")
+
+	// oc session import <file>
+	importCmd := &cobra.Command{
+		Use:   "import <file>",
+		Short: "Import session from JSON",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if db == nil {
+				fmt.Fprintln(os.Stderr, "Database not connected")
+				return
+			}
+
+			data, err := os.ReadFile(args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+				return
+			}
+
+			store := graphstore.New(db)
+			mgr := session.NewManager(store)
+
+			dir, _ := os.Getwd()
+			sess, err := mgr.Import(context.Background(), data, dir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				return
+			}
+
+			fmt.Printf("Imported session: %s\n", sess.ID)
+		},
+	}
+
+	cmd.AddCommand(listCmd, newCmd, showCmd, forkCmd, deleteCmd, exportCmd, importCmd)
 	return cmd
 }
 

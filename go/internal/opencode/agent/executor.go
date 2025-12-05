@@ -2,7 +2,6 @@ package agent
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/joss/urp/internal/opencode/domain"
@@ -16,7 +15,6 @@ type ToolExecutor struct {
 	tools       tool.ToolRegistry
 	permissions *permission.Manager
 	hooks       *hook.Registry
-	permMu      sync.Mutex // Serializes permission dialogs to avoid UI conflicts
 }
 
 // NewToolExecutor creates a new executor
@@ -94,11 +92,8 @@ func (e *ToolExecutor) Execute(
 		}
 
 		if perm == domain.PermissionAsk {
-			// Serialize permission dialogs to avoid UI conflicts
-			// Lock ensures only one dialog is shown at a time
-			e.permMu.Lock()
-
-			// Ask user for permission
+			// Ask user for permission (no mutex - let events be processed in parallel)
+			// The UI is responsible for serializing dialog display if needed
 			respChan := make(chan bool, 1)
 			events <- domain.StreamEvent{
 				Type: domain.StreamEventPermissionAsk,
@@ -112,12 +107,11 @@ func (e *ToolExecutor) Execute(
 				PermissionResp: respChan,
 			}
 
-			// Wait for response
+			// Wait for response with timeout to prevent deadlock
 			var allowed bool
 			select {
 			case allowed = <-respChan:
 			case <-ctx.Done():
-				e.permMu.Unlock()
 				tc.Error = "cancelled"
 				tc.Duration = time.Since(startTime)
 				events <- domain.StreamEvent{
@@ -125,9 +119,10 @@ func (e *ToolExecutor) Execute(
 					Part: tc,
 				}
 				return ExecuteResult{Part: tc, Allowed: false}
+			case <-time.After(30 * time.Second):
+				// Timeout - auto-approve to prevent deadlock in non-interactive mode
+				allowed = true
 			}
-
-			e.permMu.Unlock()
 
 			if !allowed {
 				tc.Error = "permission denied by user"

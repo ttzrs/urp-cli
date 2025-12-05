@@ -72,6 +72,17 @@ var (
 				Border(lipgloss.RoundedBorder()).
 				BorderForeground(lipgloss.Color("205")).
 				Padding(0, 1)
+
+	ultrathinkInputStyle = lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("226")). // Yellow
+				Padding(0, 1)
+
+	ultrathinkBadgeStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("0")).
+				Background(lipgloss.Color("226")). // Yellow bg, black text
+				Bold(true).
+				Padding(0, 1)
 )
 
 // sharedState holds state that needs to be shared across model copies
@@ -125,6 +136,12 @@ type AgentModel struct {
 	// Agent cycling
 	agentRegistry *agent.Registry
 	currentAgent  string
+
+	// BrainMonitor for cognitive state visualization
+	brain BrainModel
+
+	// Debug panel for interaction visualization
+	debug *DebugPanel
 }
 
 type toolCallInfo struct {
@@ -174,12 +191,14 @@ func NewAgentModel(workDir string, ag *agent.Agent, store *graphstore.Store, pro
 		input:         ti,
 		agentRegistry: agent.DefaultRegistry(),
 		currentAgent:  "code",
+		brain:         NewBrainModel(200000), // 200k default context
+		debug:         NewDebugPanel(100),    // Keep last 100 events
 	}
 }
 
 // Init initializes the TUI
 func (m AgentModel) Init() tea.Cmd {
-	return m.spinner.Tick
+	return tea.Batch(m.spinner.Tick, m.brain.Init())
 }
 
 // queuePrompt sets a pending prompt to be executed on next tick
@@ -235,11 +254,35 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quitting = true
 			return m, tea.Quit
 
-		case "ctrl+d", "esc":
+		case "esc":
 			if !m.agentActive {
 				m.quitting = true
 				return m, tea.Quit
 			}
+
+		case "ctrl+d":
+			// Toggle debug panel
+			if m.debug != nil {
+				m.debug.Toggle()
+				m.debug.SetWidth(m.width)
+				m.debug.AddSystem("Debug", fmt.Sprintf("Debug mode %s", map[bool]string{true: "enabled", false: "disabled"}[m.debug.IsEnabled()]))
+			}
+			return m, nil
+
+		case "ctrl+e":
+			// Toggle expand/collapse all debug events
+			if m.debug != nil && m.debug.IsEnabled() {
+				m.debug.ToggleAll()
+			}
+			return m, nil
+
+		case "ctrl+x":
+			// Clear debug panel
+			if m.debug != nil && m.debug.IsEnabled() {
+				m.debug.Clear()
+				m.debug.AddSystem("Debug", "Events cleared")
+			}
+			return m, nil
 
 		case "@":
 			// Trigger file picker mode
@@ -334,12 +377,13 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 
-		// Calculate viewport size (header + status bar + input area)
+		// Calculate viewport size (header + brain monitor + status bar + input area)
 		headerHeight := 2
+		brainHeight := 3 // BrainMonitor takes ~3 lines
 		statusHeight := 1
 		inputHeight := 5
 		vpWidth := msg.Width
-		vpHeight := msg.Height - headerHeight - statusHeight - inputHeight
+		vpHeight := msg.Height - headerHeight - brainHeight - statusHeight - inputHeight
 
 		if !m.ready {
 			// First time: create viewport
@@ -373,8 +417,16 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.agentActive = false
 		if msg.err != nil {
 			m.shared.output.WriteString("\n" + agentErrorStyle.Render(fmt.Sprintf("Error: %v", msg.err)) + "\n")
+			// Trigger brain trauma on error
+			var brainCmd tea.Cmd
+			m.brain, brainCmd = m.brain.Update(BrainTraumaMsg{Err: msg.err})
+			cmds = append(cmds, brainCmd)
 		} else {
 			m.shared.output.WriteString("\n" + successStyle.Render("✓ Done") + "\n")
+			// Return brain to idle
+			var brainCmd tea.Cmd
+			m.brain, brainCmd = m.brain.Update(BrainIdleMsg{})
+			cmds = append(cmds, brainCmd)
 		}
 		m.viewport.SetContent(m.renderOutput())
 		m.viewport.GotoBottom()
@@ -383,6 +435,11 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		cmds = append(cmds, cmd)
+
+		// Also update brain spinner
+		var brainCmd tea.Cmd
+		m.brain, brainCmd = m.brain.Update(msg)
+		cmds = append(cmds, brainCmd)
 
 		// Check for pending prompt from slash commands
 		if m.pendingPrompt != "" && !m.agentActive && m.ag != nil {
@@ -397,6 +454,12 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.thinkTokens = 0
 			cmds = append(cmds, runAgent(m.ag, m.store, m.workDir, prompt, m.shared.program, m.shared))
 		}
+
+	// Brain state messages
+	case BrainTraumaMsg, BrainRecallMsg, BrainPruneMsg, BrainWriteMsg, BrainFocusMsg, BrainIdleMsg, TokenUpdateMsg:
+		var brainCmd tea.Cmd
+		m.brain, brainCmd = m.brain.Update(msg)
+		cmds = append(cmds, brainCmd)
 	}
 
 	// Update textarea if not running
@@ -420,7 +483,17 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 		m.shared.output.WriteString(thinkingStyle.Render(event.Content))
 		if event.Usage != nil {
 			m.thinkTokens += event.Usage.OutputTokens
+			// Debug: Log thinking tokens
+			if m.debug != nil && m.debug.IsEnabled() {
+				preview := event.Content
+				if len(preview) > 100 {
+					preview = preview[:97] + "..."
+				}
+				m.debug.AddThinking(preview, event.Usage.OutputTokens)
+			}
 		}
+		// Brain: Focus state when thinking
+		m.brain, _ = m.brain.Update(BrainFocusMsg{Task: "Thinking..."})
 
 	case domain.StreamEventText:
 		m.shared.output.WriteString(textStyle.Render(event.Content))
@@ -438,6 +511,26 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 			*m.shared.toolCalls = append(*m.shared.toolCalls, info)
 			m.currentTool = &(*m.shared.toolCalls)[len(*m.shared.toolCalls)-1]
 			m.shared.output.WriteString("\n" + toolStyle.Render(fmt.Sprintf("▶ %s", tc.Name)) + "\n")
+
+			// Debug: Log tool call start
+			if m.debug != nil && m.debug.IsEnabled() {
+				m.debug.AddEvent(DebugEvent{
+					Type:    DebugEventTool,
+					Title:   fmt.Sprintf("Tool Start: %s", tc.Name),
+					Content: truncateArgsMap(tc.Args),
+				})
+			}
+
+			// Brain: Show tool activity
+			switch tc.Name {
+			case "write", "edit", "multi_edit", "patch":
+				path := getToolPath(tc.Args)
+				m.brain, _ = m.brain.Update(BrainWriteMsg{Path: path})
+			case "grep", "glob", "read":
+				m.brain, _ = m.brain.Update(BrainRecallMsg{Context: tc.Name})
+			default:
+				m.brain, _ = m.brain.Update(BrainFocusMsg{Task: tc.Name})
+			}
 		}
 
 	case domain.StreamEventToolDone:
@@ -447,8 +540,15 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 				m.currentTool.err = tc.Error
 				m.currentTool.done = true
 
+				// Debug: Log tool completion
+				if m.debug != nil && m.debug.IsEnabled() {
+					m.debug.AddTool(tc.Name, tc.Args, tc.Result, tc.Error, tc.Duration)
+				}
+
 				if tc.Error != "" {
 					m.shared.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("  ✗ %s\n", tc.Error)))
+					// Brain: Trauma on tool error
+					m.brain, _ = m.brain.Update(BrainTraumaMsg{Err: fmt.Errorf("%s", tc.Error)})
 				} else {
 					m.shared.output.WriteString(successStyle.Render("  ✓\n"))
 				}
@@ -457,13 +557,69 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 
 	case domain.StreamEventError:
 		m.shared.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("\nError: %v\n", event.Error)))
+		// Debug: Log error
+		if m.debug != nil && m.debug.IsEnabled() {
+			m.debug.AddError("Stream", event.Error.Error())
+		}
+		// Brain: Trauma on error
+		m.brain, _ = m.brain.Update(BrainTraumaMsg{Err: event.Error})
 
 	case domain.StreamEventUsage:
 		if event.Usage != nil {
 			m.inputTokens = event.Usage.InputTokens
 			m.outputTokens = event.Usage.OutputTokens
+
+			// Debug: Log LLM usage (this is critical!)
+			if m.debug != nil && m.debug.IsEnabled() {
+				model := "unknown"
+				if m.ag != nil {
+					model = m.ag.Model()
+				}
+				m.debug.AddEvent(DebugEvent{
+					Type:  DebugEventAPI,
+					Title: fmt.Sprintf("LLM Call: %s", model),
+					Content: fmt.Sprintf("Input: %d tokens\nOutput: %d tokens\nCache Read: %d\nCache Write: %d\nCost: $%.4f",
+						event.Usage.InputTokens,
+						event.Usage.OutputTokens,
+						event.Usage.CacheRead,
+						event.Usage.CacheWrite,
+						event.Usage.TotalCost),
+					Metadata: map[string]string{
+						"model":        model,
+						"input_tokens": fmt.Sprintf("%d", event.Usage.InputTokens),
+						"output_tokens": fmt.Sprintf("%d", event.Usage.OutputTokens),
+						"total_cost":   fmt.Sprintf("$%.4f", event.Usage.TotalCost),
+					},
+				})
+			}
+
+			// Brain: Update token usage for progress bar
+			totalTokens := m.inputTokens + m.outputTokens + m.thinkTokens
+			m.brain, _ = m.brain.Update(TokenUpdateMsg{Current: totalTokens, Max: m.brain.MaxTokens})
+		}
+
+	case domain.StreamEventPermissionAsk:
+		// Debug: Log permission request
+		if m.debug != nil && m.debug.IsEnabled() && event.PermissionReq != nil {
+			m.debug.AddPermission(
+				event.PermissionReq.Tool,
+				event.PermissionReq.Command,
+				event.PermissionReq.Path,
+				"asking...",
+			)
 		}
 	}
+}
+
+// getToolPath extracts path from tool args
+func getToolPath(args map[string]any) string {
+	if p, ok := args["path"].(string); ok {
+		return p
+	}
+	if p, ok := args["file_path"].(string); ok {
+		return p
+	}
+	return ""
 }
 
 func (m AgentModel) renderOutput() string {
@@ -509,14 +665,49 @@ func (m AgentModel) View() string {
 
 	var b strings.Builder
 
-	// Header
+	// Header with BrainMonitor
 	header := agentTitleStyle.Render("⚡ URP Agent") + "  " +
 		lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render(m.workDir)
-	b.WriteString(header + "\n\n")
+	if m.debug != nil && m.debug.IsEnabled() {
+		header += "  " + lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true).Render("[DEBUG]")
+	}
+	b.WriteString(header + "\n")
 
-	// Main viewport
+	// BrainMonitor - cognitive state + token progress bar
+	b.WriteString(m.brain.View() + "\n\n")
+
+	// Calculate available height for content
+	headerHeight := 2
+	brainHeight := 3
+	statusHeight := 1
+	inputHeight := 5
+	debugHeight := 0
+
+	// Debug panel (if enabled, takes bottom portion)
+	if m.debug != nil && m.debug.IsEnabled() {
+		debugHeight = 12 // Fixed height for debug panel
+	}
+
+	// Main viewport (reduced if debug is on)
+	vpHeight := m.height - headerHeight - brainHeight - statusHeight - inputHeight - debugHeight
+	if vpHeight < 5 {
+		vpHeight = 5
+	}
+	// Temporarily adjust viewport height
+	oldHeight := m.viewport.Height
+	if m.viewport.Height != vpHeight {
+		// Note: we can't modify viewport here as View() is immutable
+		// The resize happens in Update on WindowSizeMsg
+	}
+	_ = oldHeight // suppress unused warning
+
 	b.WriteString(m.viewport.View())
 	b.WriteString("\n")
+
+	// Debug panel (between viewport and status)
+	if m.debug != nil && m.debug.IsEnabled() {
+		b.WriteString(m.debug.View(debugHeight) + "\n")
+	}
 
 	// Status bar
 	status := m.renderStatus()
@@ -536,9 +727,18 @@ func (m AgentModel) View() string {
 	} else if m.agentActive {
 		b.WriteString(fmt.Sprintf("  %s Running...", m.spinner.View()))
 	} else {
-		inputBox := inputBorderStyle.Width(m.width - 4).Render(m.input.View())
-		if m.input.Focused() {
+		// Check if ultrathink is typed - show yellow indicator
+		hasUltrathink := strings.Contains(strings.ToLower(m.input.Value()), "ultrathink")
+
+		var inputBox string
+		if hasUltrathink {
+			// Yellow border + badge when ultrathink detected
+			inputBox = ultrathinkInputStyle.Width(m.width - 4).Render(m.input.View())
+			b.WriteString(ultrathinkBadgeStyle.Render("🧠 ULTRATHINK") + " ")
+		} else if m.input.Focused() {
 			inputBox = focusedInputStyle.Width(m.width - 4).Render(m.input.View())
+		} else {
+			inputBox = inputBorderStyle.Width(m.width - 4).Render(m.input.View())
 		}
 		b.WriteString(inputBox)
 	}
@@ -577,9 +777,9 @@ func (m AgentModel) renderStatus() string {
 
 	// Help
 	if m.agentActive {
-		parts = append(parts, "Ctrl+C: cancel │ ↑↓: scroll")
+		parts = append(parts, "Ctrl+C: cancel │ ↑↓: scroll │ Ctrl+D: debug")
 	} else {
-		parts = append(parts, "Enter: send │ @: files │ Tab: agent │ Esc: quit")
+		parts = append(parts, "Enter: send │ @: files │ Tab: agent │ Ctrl+D: debug │ Esc: quit")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
@@ -928,6 +1128,11 @@ func RunAgentWithPrompt(workDir, prompt string) error {
 				} else {
 					fmt.Println("[done]")
 				}
+			}
+		case domain.StreamEventPermissionAsk:
+			// Auto-approve in non-interactive mode (workers run with full permissions)
+			if event.PermissionResp != nil {
+				event.PermissionResp <- true
 			}
 		case domain.StreamEventError:
 			fmt.Printf("\n[ERROR: %v]\n", event.Error)
