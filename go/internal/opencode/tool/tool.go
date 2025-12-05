@@ -82,6 +82,7 @@ func DefaultRegistry(workDir string) *Registry {
 	r.Register(NewScreenCapture())
 	r.Register(NewComputer())
 	r.Register(NewBrowser())
+	r.Register(NewDiagnostics(workDir))
 	return r
 }
 

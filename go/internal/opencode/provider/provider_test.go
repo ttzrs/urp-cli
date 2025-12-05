@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/joss/urp/internal/opencode/domain"
@@ -279,6 +280,11 @@ func TestAnthropicBaseURL(t *testing.T) {
 }
 
 func TestOpenAIBaseURL(t *testing.T) {
+	// Save and restore env
+	oldEnv := os.Getenv("OPENAI_BASE_URL")
+	defer os.Setenv("OPENAI_BASE_URL", oldEnv)
+	os.Unsetenv("OPENAI_BASE_URL")
+
 	tests := []struct {
 		name    string
 		baseURL string

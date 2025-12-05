@@ -57,21 +57,31 @@ func writeFile(path, content string) error {
 	return os.WriteFile(path, []byte(content), 0644)
 }
 
+// normalizeLineEndings converts all line endings to \n for consistent matching
+func normalizeLineEndings(s string) string {
+	return strings.ReplaceAll(s, "\r\n", "\n")
+}
+
 func editFile(path, oldStr, newStr string, replaceAll bool) (int, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return 0, fmt.Errorf("read file: %w", err)
 	}
 
-	str := string(content)
+	// Normalize line endings to avoid \r\n vs \n mismatches
+	// This is critical for LLM-generated edits which may have different line endings
+	str := normalizeLineEndings(string(content))
+	oldStr = normalizeLineEndings(oldStr)
+	newStr = normalizeLineEndings(newStr)
+
 	count := strings.Count(str, oldStr)
 
 	if count == 0 {
-		return 0, fmt.Errorf("old_string not found in file")
+		return 0, fmt.Errorf("old_string not found in file (check whitespace/indentation)")
 	}
 
 	if count > 1 && !replaceAll {
-		return 0, fmt.Errorf("old_string found %d times - use replace_all or provide more context", count)
+		return 0, fmt.Errorf("old_string found %d times - use replace_all or provide more context to make it unique", count)
 	}
 
 	var newContent string

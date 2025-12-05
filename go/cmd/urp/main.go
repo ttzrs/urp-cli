@@ -2190,17 +2190,22 @@ Examples:
 }
 
 func askCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "ask <master> <prompt>",
-		Short: "Send a prompt to the master's Claude CLI",
-		Long: `Send a prompt to the Claude CLI running in a master container.
+	var useClaude bool
 
-This is the primary way to interact with the master when running
-without a TTY (e.g., from Claude Code).
+	cmd := &cobra.Command{
+		Use:   "ask <container> <prompt>",
+		Short: "Send a prompt to a container's OpenCode agent",
+		Long: `Send a prompt to the OpenCode agent running in a container.
+
+This is the primary way to interact with containers when running
+without a TTY (e.g., from another Claude session).
+
+Uses the URP OpenCode agent by default. Use --claude to use Claude Code CLI instead.
 
 Examples:
   urp ask urp-master-myproject "Run tests and report results"
-  urp ask urp-master-postllm "Spawn a worker to fix the auth bug"`,
+  urp ask urp-proj-w1 "Create a hello world main.go"
+  urp ask --claude urp-proj-w1 "Use Claude CLI instead"`,
 		Args: cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			containerName := args[0]
@@ -2208,17 +2213,26 @@ Examples:
 
 			mgr := container.NewManager(context.Background())
 
-			// Source .env and execute claude -p as non-root user
-			// Use --dangerously-skip-permissions for batch execution
+			var command string
 			escapedPrompt := strings.ReplaceAll(prompt, `"`, `\"`)
 			escapedPrompt = strings.ReplaceAll(escapedPrompt, `$`, `\$`)
-			command := fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && su -c 'claude -p --dangerously-skip-permissions "%s"' urp`, escapedPrompt)
+
+			if useClaude {
+				// Legacy: use Claude Code CLI
+				command = fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && su -c 'claude -p --dangerously-skip-permissions "%s"' urp`, escapedPrompt)
+			} else {
+				// Default: use URP OpenCode agent
+				command = fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && cd /workspace && urp oc agent -p "%s"`, escapedPrompt)
+			}
+
 			if err := mgr.Exec(containerName, command); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 		},
 	}
+
+	cmd.Flags().BoolVar(&useClaude, "claude", false, "Use Claude Code CLI instead of OpenCode agent")
 
 	return cmd
 }

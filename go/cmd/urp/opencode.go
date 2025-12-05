@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -12,6 +13,7 @@ import (
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/graphstore"
 	"github.com/joss/urp/internal/opencode/session"
+	"github.com/joss/urp/internal/tui"
 )
 
 func opencodeCmd() *cobra.Command {
@@ -30,7 +32,71 @@ Sessions persist in the graph database, enabling:
 		ocSessionCmd(),
 		ocMessageCmd(),
 		ocUsageCmd(),
+		ocAgentCmd(),
 	)
+
+	return cmd
+}
+
+// ocAgentCmd creates the agent command
+func ocAgentCmd() *cobra.Command {
+	var debugMode bool
+	var prompt string
+
+	cmd := &cobra.Command{
+		Use:   "agent [prompt]",
+		Short: "Start interactive AI agent",
+		Long: `Start an interactive AI coding agent with tool access.
+
+The agent can read/write files, execute commands, and help with
+software development tasks.
+
+Examples:
+  urp oc agent                      # Interactive TUI mode
+  urp oc agent --debug              # Debug mode (reads from stdin)
+  urp oc agent -p "Create main.go"  # Non-interactive with prompt`,
+		Run: func(cmd *cobra.Command, args []string) {
+			workDir, err := os.Getwd()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			// If prompt is provided, run non-interactively
+			if prompt != "" {
+				if err := tui.RunAgentWithPrompt(workDir, prompt); err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				return
+			}
+
+			// If args provided, use as prompt
+			if len(args) > 0 {
+				fullPrompt := strings.Join(args, " ")
+				if err := tui.RunAgentWithPrompt(workDir, fullPrompt); err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				return
+			}
+
+			if debugMode {
+				if err := tui.RunAgentDebug(workDir); err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+			} else {
+				if err := tui.RunAgent(workDir); err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
+		},
+	}
+
+	cmd.Flags().BoolVar(&debugMode, "debug", false, "Run in debug mode (no TUI)")
+	cmd.Flags().StringVarP(&prompt, "print", "p", "", "Run with prompt (non-interactive)")
 
 	return cmd
 }

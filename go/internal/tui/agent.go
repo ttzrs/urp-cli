@@ -111,11 +111,13 @@ type AgentModel struct {
 	thinkTokens  int
 
 	// UI components
-	viewport viewport.Model
-	input    textarea.Model
-	spinner  spinner.Model
-	width    int
-	height   int
+	viewport   viewport.Model
+	input      textarea.Model
+	spinner    spinner.Model
+	filePicker *FilePicker
+	inputMode  inputMode
+	width      int
+	height     int
 }
 
 type toolCallInfo struct {
@@ -175,6 +177,11 @@ func (m AgentModel) Init() tea.Cmd {
 func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
+	// Handle file picker mode separately
+	if m.inputMode == modeFilePicker {
+		return m.updateFilePicker(msg)
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -195,10 +202,33 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 
+		case "@":
+			// Trigger file picker mode
+			if !m.agentActive {
+				m.inputMode = modeFilePicker
+				if m.filePicker == nil {
+					m.filePicker = NewFilePicker(m.workDir, m.width-4, 10)
+				}
+				m.filePicker.LoadFiles()
+				return m, nil
+			}
+
 		case "enter":
 			// Enter sends message (if not empty and not running)
 			if !m.agentActive && strings.TrimSpace(m.input.Value()) != "" {
 				prompt := m.input.Value()
+
+				// Check for slash commands
+				if isSlashCommand(prompt) {
+					m.input.SetValue("")
+					result := executeSlashCommand(&m, prompt)
+					if result != "" {
+						m.shared.output.WriteString(result + "\n")
+						m.viewport.SetContent(m.renderOutput())
+					}
+					return m, nil
+				}
+
 				m.input.SetValue("")
 				m.agentActive = true
 				m.shared.output.Reset()
@@ -364,6 +394,33 @@ func (m AgentModel) renderOutput() string {
 	return m.shared.output.String()
 }
 
+// updateFilePicker handles input when in file picker mode
+func (m AgentModel) updateFilePicker(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEsc:
+			// Cancel file picker
+			m.inputMode = modeChat
+			return m, nil
+
+		case tea.KeyEnter:
+			// Select file and insert into input
+			if path, ok := m.filePicker.SelectedItem(); ok {
+				current := m.input.Value()
+				m.input.SetValue(current + "@" + path + " ")
+			}
+			m.inputMode = modeChat
+			return m, nil
+		}
+	}
+
+	// Forward other messages to file picker
+	var cmd tea.Cmd
+	m.filePicker, cmd = m.filePicker.Update(msg)
+	return m, cmd
+}
+
 // View renders the TUI
 func (m AgentModel) View() string {
 	if m.quitting {
@@ -389,8 +446,18 @@ func (m AgentModel) View() string {
 	status := m.renderStatus()
 	b.WriteString(status + "\n")
 
-	// Input area
-	if m.agentActive {
+	// Input area or file picker
+	if m.inputMode == modeFilePicker && m.filePicker != nil {
+		// Show file picker overlay
+		pickerStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("205")).
+			Padding(0, 1).
+			Width(m.width - 4)
+		b.WriteString(pickerStyle.Render(m.filePicker.View()))
+		b.WriteString("\n")
+		b.WriteString(thinkingStyle.Render("  ↑↓: navigate │ Enter: select │ Esc: cancel"))
+	} else if m.agentActive {
 		b.WriteString(fmt.Sprintf("  %s Running...", m.spinner.View()))
 	} else {
 		inputBox := inputBorderStyle.Width(m.width - 4).Render(m.input.View())
@@ -431,7 +498,7 @@ func (m AgentModel) renderStatus() string {
 	if m.agentActive {
 		parts = append(parts, "Ctrl+C: cancel │ ↑↓: scroll")
 	} else {
-		parts = append(parts, "Enter: send │ Alt+Enter: newline │ Esc: quit │ Ctrl+T: tools")
+		parts = append(parts, "Enter: send │ @: files │ Alt+Enter: newline │ Esc: quit")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
@@ -661,6 +728,26 @@ func RunAgent(workDir string) error {
 
 // RunAgentDebug runs the agent with static stdout output (for debugging)
 func RunAgentDebug(workDir string) error {
+	// Read prompt from stdin
+	fmt.Println("\n✓ Ready. Enter prompt (empty to quit):")
+	fmt.Print("> ")
+
+	reader := bufio.NewReader(os.Stdin)
+	prompt, err := reader.ReadString('\n')
+	if err != nil {
+		return err
+	}
+	prompt = strings.TrimSpace(prompt)
+	if prompt == "" {
+		fmt.Println("Empty prompt, exiting.")
+		return nil
+	}
+
+	return RunAgentWithPrompt(workDir, prompt)
+}
+
+// RunAgentWithPrompt runs the agent with a given prompt (non-interactive, for containers)
+func RunAgentWithPrompt(workDir, prompt string) error {
 	ctx := context.Background()
 
 	// Load env
@@ -721,7 +808,7 @@ func RunAgentDebug(workDir string) error {
 		ID:        ulid.Make().String(),
 		ProjectID: filepath.Base(workDir),
 		Directory: workDir,
-		Title:     "debug",
+		Title:     "worker-task",
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -731,21 +818,6 @@ func RunAgentDebug(workDir string) error {
 		ag.OnMessage(func(ctx context.Context, msg *domain.Message) error {
 			return store.CreateMessage(ctx, msg)
 		})
-	}
-
-	fmt.Println("\n✓ Ready. Enter prompt (empty to quit):")
-	fmt.Print("> ")
-
-	// Read prompt from stdin
-	reader := bufio.NewReader(os.Stdin)
-	prompt, err := reader.ReadString('\n')
-	if err != nil {
-		return err
-	}
-	prompt = strings.TrimSpace(prompt)
-	if prompt == "" {
-		fmt.Println("Empty prompt, exiting.")
-		return nil
 	}
 
 	fmt.Printf("\nRunning agent with prompt: %s\n", prompt)

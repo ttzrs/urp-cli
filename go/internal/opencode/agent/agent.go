@@ -46,6 +46,8 @@ type Agent struct {
 	onMessage       MessageCallback      // Called to persist messages
 	autocorrection  AutocorrectionConfig // Autocorrection settings
 	retryCount      int                  // Current retry counter
+	messages        []domain.Message     // Current conversation history (for compaction)
+	mu              sync.RWMutex         // Protects messages
 }
 
 // New creates an Agent with its dependencies (uses interfaces)
@@ -96,8 +98,40 @@ func (a *Agent) EnableAutocorrection(config AutocorrectionConfig) {
 	a.autocorrection = config
 }
 
-// persistMessage calls the callback if set
+// Messages returns a copy of the current conversation history
+func (a *Agent) Messages() []domain.Message {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	msgs := make([]domain.Message, len(a.messages))
+	copy(msgs, a.messages)
+	return msgs
+}
+
+// SetMessages replaces the conversation history (used for compaction)
+func (a *Agent) SetMessages(msgs []domain.Message) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.messages = make([]domain.Message, len(msgs))
+	copy(a.messages, msgs)
+}
+
+// Model returns the current model ID
+func (a *Agent) Model() string {
+	return a.config.Model.ModelID
+}
+
+// SetModel changes the model for subsequent requests
+func (a *Agent) SetModel(modelID string) {
+	a.config.Model.ModelID = modelID
+}
+
+// persistMessage calls the callback if set and stores in internal history
 func (a *Agent) persistMessage(ctx context.Context, msg *domain.Message) {
+	// Store in internal history for compaction support
+	a.mu.Lock()
+	a.messages = append(a.messages, *msg)
+	a.mu.Unlock()
+
 	if a.onMessage != nil {
 		a.onMessage(ctx, msg)
 	}
@@ -520,17 +554,19 @@ func BuiltinAgents() map[string]domain.Agent {
 			Mode:        domain.AgentModePrimary,
 			BuiltIn:     true,
 			Tools: map[string]bool{
-				"bash":       true,
-				"read":       true,
-				"write":      true,
-				"edit":       true,
-				"glob":       true,
-				"grep":       true,
-				"ls":         true,
-				"screenshot": true,
+				"bash":        true,
+				"read":        true,
+				"write":       true,
+				"edit":        true,
+				"glob":        true,
+				"grep":        true,
+				"ls":          true,
+				"screenshot":  true,
+				"diagnostics": true,
 			},
 			Permissions: domain.AgentPermissions{
-				Edit: domain.PermissionAllow,
+				Edit:        domain.PermissionAllow,
+				ExternalDir: domain.PermissionAllow,
 				Bash: map[string]domain.Permission{
 					"*": domain.PermissionAllow,
 				},
