@@ -16,6 +16,35 @@ const (
 	EntityMethod    EntityType = "Method"
 )
 
+// entityMeta provides metadata for entity types (OCP - extend via map, not switch).
+var entityMeta = map[EntityType]struct {
+	Label   string
+	StatKey string
+}{
+	EntityFile:      {"File", "files"},
+	EntityFunction:  {"Function", "functions"},
+	EntityMethod:    {"Method", "functions"}, // Methods count as functions
+	EntityStruct:    {"Struct", "structs"},
+	EntityInterface: {"Interface", "interfaces"},
+	EntityClass:     {"Class", "classes"},
+}
+
+// GraphLabel returns the Cypher node label for this entity type.
+func (e EntityType) GraphLabel() string {
+	if m, ok := entityMeta[e]; ok {
+		return m.Label
+	}
+	return "Entity"
+}
+
+// StatKey returns the stats counter key for this entity type.
+func (e EntityType) StatKey() string {
+	if m, ok := entityMeta[e]; ok {
+		return m.StatKey
+	}
+	return "other"
+}
+
 // Entity represents a code entity in the graph (D primitive).
 type Entity struct {
 	ID        string            `json:"id"`

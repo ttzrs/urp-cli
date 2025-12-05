@@ -140,14 +140,15 @@ func (i *Ingester) Ingest(ctx context.Context, rootPath string) (*Stats, error) 
 			stats.Errors += len(batch)
 		} else {
 			for _, e := range batch {
-				switch e.Type {
-				case domain.EntityFile:
+				// Use EntityType method instead of switch (OCP)
+				switch e.Type.StatKey() {
+				case "files":
 					stats.Files++
-				case domain.EntityFunction, domain.EntityMethod:
+				case "functions":
 					stats.Functions++
-				case domain.EntityStruct:
+				case "structs":
 					stats.Structs++
-				case domain.EntityInterface:
+				case "interfaces":
 					stats.Interfaces++
 				}
 			}
@@ -188,23 +189,8 @@ func (i *Ingester) storeEntitiesBatch(ctx context.Context, entities []domain.Ent
 	// Group by type for efficient batch writes
 	byType := make(map[string][]map[string]any)
 	for _, e := range entities {
-		var label string
-		switch e.Type {
-		case domain.EntityFile:
-			label = "File"
-		case domain.EntityFunction:
-			label = "Function"
-		case domain.EntityMethod:
-			label = "Method"
-		case domain.EntityStruct:
-			label = "Struct"
-		case domain.EntityInterface:
-			label = "Interface"
-		case domain.EntityClass:
-			label = "Class"
-		default:
-			label = "Entity"
-		}
+		// Use EntityType method instead of switch (OCP)
+		label := e.Type.GraphLabel()
 
 		byType[label] = append(byType[label], map[string]any{
 			"id":         e.ID,

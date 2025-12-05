@@ -12,6 +12,8 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
+// NOTE: expandPath is used by runner.go, so strings import stays
+
 // Executor runs skills.
 type Executor struct {
 	store     *Store
@@ -55,21 +57,15 @@ func (e *Executor) Execute(ctx context.Context, name string, input string) (*Exe
 		Agent:        skill.Agent,
 	}
 
-	// Execute based on source type
+	// Execute using registry (OCP - extensible without modification)
 	var output string
 	var execErr error
 
-	switch skill.SourceType {
-	case "file":
-		output, execErr = e.executeFile(ctx, skill, input)
-	case "builtin":
-		output, execErr = e.executeBuiltin(ctx, skill, input)
-	case "mcp":
-		output, execErr = e.executeMCP(ctx, skill, input)
-	default:
-		output = fmt.Sprintf("Skill loaded: %s\nCategory: %s\nAgent: %s\nContext: %v",
-			skill.Name, skill.Category, skill.Agent, skill.ContextFiles)
+	runner, ok := GetRunner(skill.SourceType)
+	if !ok {
+		runner = &DefaultRunner{}
 	}
+	output, execErr = runner.Run(ctx, skill, input)
 
 	result.Duration = time.Since(start)
 	result.Output = output
@@ -96,49 +92,6 @@ func (e *Executor) Execute(ctx context.Context, name string, input string) (*Exe
 	})
 
 	return result, nil
-}
-
-func (e *Executor) executeFile(ctx context.Context, skill *Skill, input string) (string, error) {
-	// Read file content
-	content, err := os.ReadFile(skill.Source)
-	if err != nil {
-		return "", fmt.Errorf("reading skill file: %w", err)
-	}
-
-	// Load context files
-	var contextContent strings.Builder
-	for _, cf := range skill.ContextFiles {
-		expanded := expandPath(cf)
-		data, err := os.ReadFile(expanded)
-		if err == nil {
-			contextContent.WriteString(fmt.Sprintf("\n--- %s ---\n%s\n", cf, string(data)))
-		}
-	}
-
-	return fmt.Sprintf("=== SKILL: %s ===\n\n%s\n\n=== CONTEXT ===\n%s\n\n=== INPUT ===\n%s",
-		skill.Name, string(content), contextContent.String(), input), nil
-}
-
-func (e *Executor) executeBuiltin(ctx context.Context, skill *Skill, input string) (string, error) {
-	switch skill.Name {
-	case "researcher":
-		return fmt.Sprintf("RESEARCH MODE ACTIVATED\nQuery: %s\nAgent: researcher\nUse web search and document analysis.", input), nil
-	case "pentester":
-		return fmt.Sprintf("SECURITY TESTING MODE\nTarget: %s\nAgent: pentester\nAuthorized testing only.", input), nil
-	case "designer":
-		return fmt.Sprintf("VISUAL DESIGN MODE\nTask: %s\nAgent: designer\nBrowser automation available.", input), nil
-	case "upgrade":
-		return fmt.Sprintf("UPGRADE PLANNING MODE\nScope: %s\nIterating versions to achieve objective.", input), nil
-	default:
-		return fmt.Sprintf("Builtin skill: %s\nInput: %s", skill.Name, input), nil
-	}
-}
-
-func (e *Executor) executeMCP(ctx context.Context, skill *Skill, input string) (string, error) {
-	// MCP skills call external MCP servers
-	// For now, just document what would happen
-	return fmt.Sprintf("MCP SKILL: %s\nSource: %s\nInput: %s\n\nThis would invoke the MCP protocol.",
-		skill.Name, skill.Source, input), nil
 }
 
 // ExecuteScript runs a skill as a shell script.
