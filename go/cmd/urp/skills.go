@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/joss/urp/internal/audit"
+	"github.com/joss/urp/internal/config"
 	"github.com/joss/urp/internal/skills"
 )
 
@@ -160,7 +161,7 @@ func skillRunCmd() *cobra.Command {
 			requireDB(event)
 
 			store := skills.NewStore(db)
-			executor := skills.NewExecutor(store, os.Getenv("URP_SESSION_ID"))
+			executor := skills.NewExecutor(store, config.Env().SessionID)
 
 			input := ""
 			if len(args) > 1 {

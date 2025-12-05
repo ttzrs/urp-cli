@@ -68,3 +68,12 @@ func urpSkillsPath() string {
 func urpEnvPath() string {
 	return urpPath(".env")
 }
+
+// getCwd returns current working directory or "unknown".
+func getCwd() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "unknown"
+	}
+	return cwd
+}

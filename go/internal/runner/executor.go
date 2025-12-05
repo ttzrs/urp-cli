@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joss/urp/internal/config"
 	"github.com/joss/urp/internal/domain"
 	"github.com/joss/urp/internal/graph"
 	urpstrings "github.com/joss/urp/internal/strings"
@@ -23,7 +24,7 @@ type Executor struct {
 
 // NewExecutor creates a new command executor.
 func NewExecutor(db graph.Driver) *Executor {
-	project := os.Getenv("PROJECT_NAME")
+	project := config.Env().Project
 	if project == "" {
 		project = "unknown"
 	}

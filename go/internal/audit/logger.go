@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/joss/urp/internal/config"
 )
 
 // Logger provides audit logging capabilities.
@@ -47,8 +48,8 @@ func WithOutput(f *os.File) LoggerOption {
 // NewLogger creates a new audit logger.
 func NewLogger(opts ...LoggerOption) *Logger {
 	l := &Logger{
-		sessionID: os.Getenv("URP_SESSION_ID"),
-		project:   os.Getenv("URP_PROJECT"),
+		sessionID: config.Env().SessionID,
+		project:   config.Env().Project,
 		output:    os.Stderr,
 		gitCtx:    GetGitContext(),
 	}

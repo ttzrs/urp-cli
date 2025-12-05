@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/joss/urp/internal/config"
 	"github.com/joss/urp/internal/graph"
 )
 
@@ -73,7 +74,7 @@ func (m *BackupManager) Export(ctx context.Context, types []KnowledgeType, outpu
 	metadata := &BackupMetadata{
 		Version:     "1.0",
 		CreatedAt:   time.Now(),
-		Project:     os.Getenv("PROJECT_NAME"),
+		Project:     config.Env().Project,
 		Description: description,
 		Types:       types,
 		Counts:      make(map[string]int),
