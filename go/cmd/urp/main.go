@@ -94,13 +94,21 @@ Use 'urp help' for full command list.`,
 				workDir = path
 			}
 
-			// Start interactive OpenCode session
-			runInteractiveAgent(workDir)
+			// Check for TUI mode (experimental)
+			useTUI, _ := cmd.Flags().GetBool("tui")
+			if useTUI {
+				runInteractiveAgent(workDir)
+				return
+			}
+
+			// Default: use debug mode (stable)
+			runInteractiveAgentDebug(workDir)
 		},
 	}
 
 	rootCmd.PersistentFlags().BoolVar(&pretty, "pretty", true, "Pretty print output")
 	rootCmd.PersistentFlags().Bool("json", false, "Output as JSON")
+	rootCmd.Flags().Bool("tui", false, "Use experimental TUI mode")
 
 	// Define command groups
 	rootCmd.AddGroup(
@@ -278,44 +286,14 @@ func tuiCmd() *cobra.Command {
 
 // runInteractiveAgent starts an interactive OpenCode session
 func runInteractiveAgent(workDir string) {
-	ctx := context.Background()
-
-	fmt.Println("🚀 URP Interactive Agent")
-	fmt.Printf("📁 Working directory: %s\n", workDir)
-
 	// Verify directory exists
 	if _, err := os.Stat(workDir); os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "Error: directory does not exist: %s\n", workDir)
 		os.Exit(1)
 	}
 
-	// Import required packages (already imported at top of file)
-	// These are used for the interactive agent
-
-	// 1. Connect to Memgraph
-	var gdb graph.Driver
-	var err error
-	gdb, err = graph.Connect()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "⚠ Memgraph not available (volatile session): %v\n", err)
-		gdb = nil
-	}
-	if gdb != nil {
-		defer gdb.Close()
-		fmt.Println("📊 Connected to Memgraph")
-	}
-
-	// Import the packages we need
-	var store interface {
-		CreateSession(context.Context, interface{}) error
-		CreateMessage(context.Context, interface{}) error
-	}
-	_ = store // Silence unused warning for now
-
-	// For now, delegate to launch command if in container mode
-	// or run claude directly for simplicity
+	// Container mode - delegate to claude CLI directly
 	if os.Getenv("URP_CONTAINER_MODE") == "1" {
-		// Inside container - run claude directly
 		cmd := exec.Command("claude")
 		cmd.Dir = workDir
 		cmd.Stdin = os.Stdin
@@ -328,17 +306,29 @@ func runInteractiveAgent(workDir string) {
 		return
 	}
 
-	// On host - launch master container
-	fmt.Println("🐳 Launching container environment...")
-	mgr := container.NewManagerForProject(ctx, filepath.Base(workDir))
+	// Host mode - use Bubble Tea TUI
+	if err := tui.RunAgent(workDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
 
-	containerName, err := mgr.LaunchMaster(workDir)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error launching container: %v\n", err)
+// runInteractiveAgentDebug runs agent with static output (debug mode)
+func runInteractiveAgentDebug(workDir string) {
+	// Verify directory exists
+	if _, err := os.Stat(workDir); os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "Error: directory does not exist: %s\n", workDir)
 		os.Exit(1)
 	}
 
-	fmt.Printf("✓ Container: %s\n", containerName)
+	fmt.Println("🔧 URP Debug Mode")
+	fmt.Printf("📁 Working directory: %s\n", workDir)
+
+	// Use static runner instead of TUI
+	if err := tui.RunAgentDebug(workDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func versionCmd() *cobra.Command {

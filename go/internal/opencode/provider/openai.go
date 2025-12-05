@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/pkg/llm"
@@ -24,7 +25,18 @@ type OpenAI struct {
 }
 
 func NewOpenAI(apiKey string, baseURLOverride string) *OpenAI {
-	return NewOpenAIWithClient(apiKey, baseURLOverride, &http.Client{})
+	// Reuse transport for connection pooling
+	transport := &http.Transport{
+		MaxIdleConns:        10,
+		MaxIdleConnsPerHost: 5,
+		IdleConnTimeout:     90 * time.Second,
+		DisableCompression:  true, // JSON streams better without compression
+	}
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   5 * time.Minute, // Long timeout for streaming
+	}
+	return NewOpenAIWithClient(apiKey, baseURLOverride, client)
 }
 
 func NewOpenAIWithClient(apiKey string, baseURLOverride string, client HTTPClient) *OpenAI {
