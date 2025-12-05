@@ -4,6 +4,9 @@ package graph
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
+	"time"
 
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
@@ -101,4 +104,46 @@ func MustConnect(cfg Config) *Memgraph {
 // Connect creates a Memgraph driver with default config.
 func Connect() (*Memgraph, error) {
 	return NewMemgraph(DefaultConfig())
+}
+
+// ConnectWithRetry tries to connect with exponential backoff.
+// Returns nil if all retries fail (graceful degradation).
+func ConnectWithRetry(maxRetries int) *Memgraph {
+	var lastErr error
+	for i := 0; i < maxRetries; i++ {
+		mg, err := Connect()
+		if err == nil {
+			// Verify connectivity
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			if pingErr := mg.Ping(ctx); pingErr == nil {
+				cancel()
+				return mg
+			}
+			cancel()
+			mg.Close()
+			lastErr = err
+		} else {
+			lastErr = err
+		}
+		// Exponential backoff: 100ms, 200ms, 400ms...
+		time.Sleep(time.Duration(100<<i) * time.Millisecond)
+	}
+	if lastErr != nil {
+		// Log but don't fail - graceful degradation
+		fmt.Fprintf(os.Stderr, "⚠ Memgraph unavailable: %v (continuing without graph)\n", lastErr)
+	}
+	return nil
+}
+
+// IsConnectionError checks if an error is a connection-related error.
+func IsConnectionError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := err.Error()
+	return strings.Contains(errStr, "connection refused") ||
+		strings.Contains(errStr, "connection reset") ||
+		strings.Contains(errStr, "no such host") ||
+		strings.Contains(errStr, "timeout") ||
+		strings.Contains(errStr, "EOF")
 }

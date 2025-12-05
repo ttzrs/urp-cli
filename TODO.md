@@ -560,17 +560,17 @@ Cobertura mínima: 70%
 
 ## 🔴 Crítico (Original)
 
-### Responsividad UI
-- [ ] **Ajustar texto al redimensionar ventana** en TUI (Bubble Tea)
-  - Los paneles deben responder a cambios de tamaño de terminal
-  - Viewport debe recalcular dimensiones en `tea.WindowSizeMsg`
-  - Texto debe hacer wrap correctamente
-  - Bordes y estilos deben adaptarse al ancho disponible
+### Responsividad UI ✅
+- [x] **Ajustar texto al redimensionar ventana** en TUI (Bubble Tea)
+  - Los paneles responden a cambios de tamaño de terminal
+  - Viewport recalcula dimensiones en `tea.WindowSizeMsg`
+  - Texto hace wrap correctamente (WordWrap con ANSI awareness)
+  - Bordes y estilos se adaptan al ancho disponible
 
 ### Bugs Conocidos
 - [ ] Verificar persistencia de sesiones cuando Memgraph se reinicia
-- [ ] Manejar errores de conexión a Memgraph más gracefully
-- [ ] Validar paths de proyecto antes de `urp launch`
+- [x] Manejar errores de conexión a Memgraph más gracefully (ConnectWithRetry)
+- [x] Validar paths de proyecto antes de `urp launch`
 
 ## 🟡 Mejoras Importantes
 

@@ -76,6 +76,18 @@ Use 'urp help' for full command list.`,
 				workDir = path
 			}
 
+			// Validate workDir exists and is a directory
+			info, err := os.Stat(workDir)
+			if err != nil {
+				if os.IsNotExist(err) {
+					fatalErrorf("path does not exist: %s", workDir)
+				}
+				fatalErrorf("cannot access path: %v", err)
+			}
+			if !info.IsDir() {
+				fatalErrorf("path is not a directory: %s", workDir)
+			}
+
 			useTUI, _ := cmd.Flags().GetBool("tui")
 			if useTUI {
 				runInteractiveAgent(workDir)
