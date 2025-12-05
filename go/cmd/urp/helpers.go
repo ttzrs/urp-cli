@@ -10,10 +10,19 @@ import (
 )
 
 // requireDB checks if database is connected and exits with error if not.
-// Eliminates 67+ duplicate db-nil checks across commands.
+// Use when audit event is available for logging.
 func requireDB(event *audit.AuditEvent) {
 	if db == nil {
 		auditLogger.LogError(event, fmt.Errorf("not connected to graph"))
+		fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
+		os.Exit(1)
+	}
+}
+
+// requireDBSimple checks if database is connected and exits with error if not.
+// Use when no audit event is available. Eliminates 40+ duplicate checks.
+func requireDBSimple() {
+	if db == nil {
 		fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
 		os.Exit(1)
 	}

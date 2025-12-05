@@ -32,10 +32,7 @@ func memCmd() *cobra.Command {
 		Long:  "Remember something for this session (note, decision, observation)",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
@@ -59,10 +56,7 @@ func memCmd() *cobra.Command {
 		Short: "Search session memories",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
@@ -90,10 +84,7 @@ func memCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List all session memories",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
@@ -120,10 +111,7 @@ func memCmd() *cobra.Command {
 		Use:   "stats",
 		Short: "Show session memory statistics",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
@@ -143,10 +131,7 @@ func memCmd() *cobra.Command {
 		Use:   "clear",
 		Short: "Clear all session memories",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
@@ -182,10 +167,7 @@ func kbCmd() *cobra.Command {
 		Short: "Store knowledge",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			kb := memory.NewKnowledgeStore(db, ctx)
@@ -210,10 +192,7 @@ func kbCmd() *cobra.Command {
 		Short: "Search knowledge",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			kb := memory.NewKnowledgeStore(db, ctx)
@@ -243,10 +222,7 @@ func kbCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List all knowledge",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			kb := memory.NewKnowledgeStore(db, ctx)
@@ -274,10 +250,7 @@ func kbCmd() *cobra.Command {
 		Short: "Mark knowledge as not applicable",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			kb := memory.NewKnowledgeStore(db, ctx)
@@ -298,10 +271,7 @@ func kbCmd() *cobra.Command {
 		Short: "Promote knowledge to global scope",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			kb := memory.NewKnowledgeStore(db, ctx)
@@ -320,10 +290,7 @@ func kbCmd() *cobra.Command {
 		Use:   "stats",
 		Short: "Show knowledge statistics",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			ctx := getCtx()
 			kb := memory.NewKnowledgeStore(db, ctx)

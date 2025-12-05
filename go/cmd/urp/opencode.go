@@ -114,10 +114,7 @@ func ocSessionCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List sessions",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -150,10 +147,7 @@ func ocSessionCmd() *cobra.Command {
 		Use:   "new [title]",
 		Short: "Create a new session",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -180,10 +174,7 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Show session details",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -220,10 +211,7 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Fork a session",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -244,10 +232,7 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Delete a session",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -268,10 +253,7 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Export session to JSON",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -301,10 +283,7 @@ func ocSessionCmd() *cobra.Command {
 		Short: "Import session from JSON",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			data, err := os.ReadFile(args[0])
 			if err != nil {
@@ -344,10 +323,7 @@ func ocMessageCmd() *cobra.Command {
 		Short: "List messages in a session",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -380,10 +356,7 @@ func ocMessageCmd() *cobra.Command {
 		Short: "Add a message to session",
 		Args:  cobra.ExactArgs(3),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -423,10 +396,7 @@ func ocUsageCmd() *cobra.Command {
 		Short: "Show session usage",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)
@@ -459,10 +429,7 @@ func ocUsageCmd() *cobra.Command {
 		Use:   "total",
 		Short: "Show total usage across all sessions",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Database not connected")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			store := graphstore.New(db)
 			mgr := session.NewManager(store)

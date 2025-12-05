@@ -37,10 +37,7 @@ Examples:
   urp plan create "Add caching" "Add Redis client" "Update handlers" "Write tests"`,
 		Args: cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			description := args[0]
 			tasks := args[1:]
@@ -70,10 +67,7 @@ Examples:
 		Short: "Show plan details (latest if no ID given)",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			planner := getPlanner()
 			var plan *planning.Plan
@@ -137,10 +131,7 @@ Examples:
 		Use:   "list",
 		Short: "List plans for session",
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			planner := getPlanner()
 			plans, err := planner.ListPlans(context.Background(), limit)
@@ -178,10 +169,7 @@ Examples:
 		Short: "Get next pending task",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			planner := getPlanner()
 			task, err := planner.GetNextTask(context.Background(), args[0])
@@ -209,10 +197,7 @@ Examples:
 		Short: "Assign task to worker",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			planner := getPlanner()
 			if err := planner.AssignTask(context.Background(), args[0], args[1]); err != nil {
@@ -230,10 +215,7 @@ Examples:
 		Short: "Mark task as in progress",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			planner := getPlanner()
 			if err := planner.StartTask(context.Background(), args[0]); err != nil {
@@ -252,10 +234,7 @@ Examples:
 		Short: "Mark task as completed",
 		Args:  cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			output := ""
 			if len(args) > 1 {
@@ -294,10 +273,7 @@ Examples:
 		Short: "Mark task as failed",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			workerID := config.Env().WorkerID
 			if workerID == "" {
@@ -333,10 +309,7 @@ Examples:
   urp plan done task-123 --base main`,
 		Args: cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			output := ""
 			if len(args) > 1 {
@@ -390,10 +363,7 @@ Examples:
   urp plan merge task-123 --squash`,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if db == nil {
-				fmt.Fprintln(os.Stderr, "Error: Not connected to graph")
-				os.Exit(1)
-			}
+			requireDBSimple()
 
 			// Get PR URL from task result
 			query := `

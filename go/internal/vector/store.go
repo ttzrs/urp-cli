@@ -15,6 +15,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/joss/urp/internal/config"
 )
 
 // VectorEntry represents a stored vector with metadata.
@@ -66,8 +68,7 @@ type LanceStore struct {
 // NewLanceStore creates a new vector store with file persistence.
 func NewLanceStore(dbPath string) (*LanceStore, error) {
 	if dbPath == "" {
-		home, _ := os.UserHomeDir()
-		dbPath = filepath.Join(home, ".urp", "vectors")
+		dbPath = config.GetPaths().Vectors
 	}
 
 	if err := os.MkdirAll(dbPath, 0755); err != nil {
