@@ -410,8 +410,8 @@ func TestComputerIsDangerous(t *testing.T) {
 }
 
 func TestComputerDetectBackend(t *testing.T) {
-	c := NewComputer()
-	backend := c.detectBackend()
+	_ = NewComputer()
+	backend := detectBackend()
 	t.Logf("Detected backend: %T", backend)
 }
 
