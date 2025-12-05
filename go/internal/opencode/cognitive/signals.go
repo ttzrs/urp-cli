@@ -24,6 +24,30 @@ const (
 	SignalNetworkError                   // Network connectivity issue
 )
 
+// signalMeta provides icon and action for each signal type (OCP - extend via map).
+var signalMeta = map[SignalType]struct {
+	Icon   string
+	Action string
+}{
+	SignalError:        {"⚡", "Analyze and fix the error before continuing"},
+	SignalMemoryLow:    {"📊", "Consider summarizing completed work"},
+	SignalMemoryCrit:   {"🚨", "CRITICAL: Summarize now or context will be lost"},
+	SignalDockerError:  {"🐳", "Container issue - check docker status"},
+	SignalGraphOffline: {"🔌", "Graph DB offline - context enrichment unavailable"},
+	SignalRetry:        {"🔄", "Previous attempt failed - try alternative approach"},
+	SignalTimeout:      {"⏱️", "Operation timed out - check if service is responsive"},
+	SignalPermDenied:   {"🔒", "Permission denied - may need different approach"},
+	SignalNetworkError: {"🌐", "Network error - check connectivity"},
+}
+
+// Meta returns the icon and action for this signal type.
+func (s SignalType) Meta() (icon, action string) {
+	if m, ok := signalMeta[s]; ok {
+		return m.Icon, m.Action
+	}
+	return "ℹ️", ""
+}
+
 // Signal represents a system notification for the LLM
 type Signal struct {
 	Type    SignalType
@@ -217,28 +241,8 @@ func (s *SignalInjector) formatSignal(sig Signal) string {
 
 // getSignalMeta returns icon and suggested action for a signal type
 func (s *SignalInjector) getSignalMeta(sig Signal) (icon, action string) {
-	switch sig.Type {
-	case SignalError:
-		return "⚡", "Analyze and fix the error before continuing"
-	case SignalMemoryLow:
-		return "📊", "Consider summarizing completed work"
-	case SignalMemoryCrit:
-		return "🚨", "CRITICAL: Summarize now or context will be lost"
-	case SignalDockerError:
-		return "🐳", "Container issue - check docker status"
-	case SignalGraphOffline:
-		return "🔌", "Graph DB offline - context enrichment unavailable"
-	case SignalRetry:
-		return "🔄", "Previous attempt failed - try alternative approach"
-	case SignalTimeout:
-		return "⏱️", "Operation timed out - check if service is responsive"
-	case SignalPermDenied:
-		return "🔒", "Permission denied - may need different approach"
-	case SignalNetworkError:
-		return "🌐", "Network error - check connectivity"
-	default:
-		return "ℹ️", ""
-	}
+	// Use SignalType method instead of switch (OCP)
+	return sig.Type.Meta()
 }
 
 // Profile-specific formatters
