@@ -1,16 +1,16 @@
 # URP CLI - Plan de Refactorización SOLID
 
 ```
-VERDICT: refactorizar porque hay type switches + fat interfaces + god objects
-DATA: 46,740 LOC total, 27 packages, 82% SOLID compliance actual
-REMOVE: 19 type switches, 3 fat interfaces, 100+ fmt.Fprintf duplicados
-RISK: Agent, Healer, Orchestrator son el núcleo
-ACTION: extract(interfaces) → inject(deps) → split(god_objects)
+VERDICT: REFACTOR - data structures before code
+DATA: 46,740 LOC total, 27 packages, 17 CRITICAL violations, 82% SOLID compliance
+REMOVE: CLI logic from business, 7 fragmented stores, duplicated providers
+RISK: Breaking cmd/urp/* public interface
+ACTION: Phase 1 → Store interface, Phase 2 → CLI extraction, Phase 3 → Provider consolidation
 ```
 
 ---
 
-## AUDITORÍA ULTRATHINK (2025-12-05)
+## AUDITORÍA ULTRATHINK (2025-12-05) - ACTUALIZADA
 
 ### MÉTRICAS CODEBASE
 
@@ -1138,6 +1138,129 @@ TOUCH WITH CARE (núcleo del sistema):
 - internal/orchestrator/orchestrator.go
 - internal/protocol/master.go
 ```
+
+---
+
+---
+
+## NUEVOS HALLAZGOS (Auditoría 2025-12-05)
+
+### PROBLEMA CRÍTICO #1: Store Interface Fragmentation
+
+**7 Store implementations sin interfaz común:**
+- `audit.Store` - 6 métodos
+- `memory.KnowledgeStore` - 11 métodos
+- `opencode/graphstore.Store` - 14 métodos
+- `skills.Store` - 8 métodos
+- `vector.MemgraphStore` - 5 métodos
+- `audit.MetricsStore` - 4 métodos
+- `audit.AnomalyStore` - 3 métodos
+
+**Fix propuesto:**
+```go
+// internal/store/store.go - NEW
+package store
+
+type Store interface {
+    Ping(ctx context.Context) error
+    Close() error
+}
+
+type EntityStore[T any] interface {
+    Store
+    Create(ctx context.Context, entity *T) error
+    Get(ctx context.Context, id string) (*T, error)
+    Update(ctx context.Context, entity *T) error
+    Delete(ctx context.Context, id string) error
+    List(ctx context.Context, filter Filter) ([]*T, error)
+}
+```
+
+### PROBLEMA CRÍTICO #2: CLI Logic in cmd/urp/
+
+**5700+ líneas mezclando:**
+- Cobra definitions (UI)
+- Business logic (queries)
+- Output formatting (render)
+
+**Archivos afectados:**
+| Archivo | LOC | Mezcla |
+|---------|-----|--------|
+| audit.go | 653 | CLI+Query+Render |
+| container.go | 609 | CLI+Orchestration+Docker |
+| orchestrate.go | 634 | CLI+Workers+Session |
+| spec.go | 440 | CLI+Parser+Agent |
+| skills.go | 404 | CLI+Executor+Format |
+
+**Fix propuesto:**
+```
+cmd/urp/audit.go (653 LOC) →
+  ├── cmd/urp/audit.go (~100 LOC, thin CLI)
+  ├── internal/audit/service.go (business logic)
+  └── internal/render/audit.go (formatting)
+```
+
+### PROBLEMA CRÍTICO #3: Provider Duplication
+
+**3 providers con 150+ líneas duplicadas:**
+- Constructor patterns (~50 lines × 3)
+- Request/Response types (~100 lines duplicated)
+- Streaming logic patterns
+
+**Fix propuesto:**
+```go
+// internal/opencode/provider/factory.go - NEW
+type Factory struct{}
+
+func (f *Factory) Create(id string, opts ...ConfigOption) (domain.Provider, error)
+
+// Shared conversion layer
+// internal/opencode/provider/convert/*.go
+func ToAnthropic(req *domain.ChatRequest) *anthropicRequest
+func ToOpenAI(req *domain.ChatRequest) *openaiRequest
+func ToGoogle(req *domain.ChatRequest) *googleRequest
+```
+
+### PROBLEMA CRÍTICO #4: Agent Over-Delegation
+
+**Agent tiene 12 delegated components + 21 public methods:**
+
+```go
+type Agent struct {
+    config, provider, tools, executor, hooks, workDir, thinkingBudget,
+    messages, autocorrector, promptBuilder, cognitive, logger
+}
+```
+
+**Fix propuesto - Facades:**
+```go
+type Agent struct {
+    config   domain.Agent
+    provider llm.Provider
+
+    conversation *ConversationFacade  // messages + promptBuilder
+    execution    *ExecutionFacade     // tools + executor + permissions
+    optimization *OptimizationFacade  // cognitive + autocorrection
+
+    hooks  *hook.Registry
+    logger *AgentLogger
+}
+```
+
+---
+
+## PRIORIDADES ACTUALIZADAS
+
+| Prioridad | Tarea | Esfuerzo | Impacto |
+|-----------|-------|----------|---------|
+| P0 | Store Interface Común | 3-4h | CRÍTICO |
+| P0 | CLI Extraction (audit.go primero) | 4h | CRÍTICO |
+| P1 | Provider Factory + Interface | 4h | ALTO |
+| P1 | Agent Facades | 4h | ALTO |
+| P2 | Tool File Split (bash.go) | 3h | MEDIO |
+| P2 | Error Handling Consolidation | 2h | MEDIO |
+
+**Total estimado para P0+P1:** 15-20 horas
 
 ---
 
