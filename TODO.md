@@ -568,7 +568,7 @@ Cobertura mínima: 70%
   - Bordes y estilos se adaptan al ancho disponible
 
 ### Bugs Conocidos
-- [ ] Verificar persistencia de sesiones cuando Memgraph se reinicia
+- [x] Verificar persistencia de sesiones - `urp doctor` ahora detecta si Memgraph tiene volumen montado
 - [x] Manejar errores de conexión a Memgraph más gracefully (ConnectWithRetry)
 - [x] Validar paths de proyecto antes de `urp launch`
 

@@ -12,14 +12,15 @@ import (
 
 // Environment describes the runtime environment.
 type Environment struct {
-	HasTTY         bool
-	Runtime        string // docker, podman, or none
-	RuntimeVersion string
-	MemgraphUp     bool
-	NetworkExists  bool
-	ImagesExist    map[string]bool
-	Warnings       []string
-	Errors         []string
+	HasTTY              bool
+	Runtime             string // docker, podman, or none
+	RuntimeVersion      string
+	MemgraphUp          bool
+	MemgraphPersistence bool // true if Memgraph has durability configured
+	NetworkExists       bool
+	ImagesExist         map[string]bool
+	Warnings            []string
+	Errors              []string
 }
 
 // Check performs a complete environment validation.
@@ -79,6 +80,38 @@ func (e *Environment) checkInfrastructure() {
 	cmd = exec.Command(e.Runtime, "ps", "--filter", "name=urp-memgraph", "--format", "{{.Status}}")
 	if out, err := cmd.Output(); err == nil && strings.Contains(string(out), "Up") {
 		e.MemgraphUp = true
+		e.checkMemgraphPersistence()
+	}
+}
+
+// checkMemgraphPersistence verifies Memgraph has durability settings
+func (e *Environment) checkMemgraphPersistence() {
+	// Check if data volume is mounted by inspecting container
+	cmd := exec.Command(e.Runtime, "inspect", "urp-memgraph", "--format", "{{range .Mounts}}{{.Destination}}{{end}}")
+	if out, err := cmd.Output(); err == nil {
+		// Memgraph stores data in /var/lib/memgraph by default
+		if strings.Contains(string(out), "/var/lib/memgraph") {
+			e.MemgraphPersistence = true
+		}
+	}
+
+	// Also check environment variables for snapshot/wal settings
+	cmd = exec.Command(e.Runtime, "inspect", "urp-memgraph", "--format", "{{range .Config.Env}}{{.}}\n{{end}}")
+	if out, err := cmd.Output(); err == nil {
+		envStr := string(out)
+		// Check for durability settings (snapshot interval or wal enabled)
+		if strings.Contains(envStr, "MEMGRAPH_SNAPSHOT") ||
+			strings.Contains(envStr, "MEMGRAPH_WAL") ||
+			strings.Contains(envStr, "--storage-snapshot") ||
+			strings.Contains(envStr, "--storage-wal") {
+			e.MemgraphPersistence = true
+		}
+	}
+
+	if !e.MemgraphPersistence && e.MemgraphUp {
+		e.Warnings = append(e.Warnings,
+			"Memgraph persistence not detected. Sessions may be lost on restart. "+
+				"Mount a volume to /var/lib/memgraph or set --storage-snapshot-interval-sec")
 	}
 }
 
@@ -145,7 +178,11 @@ func (e *Environment) Summary() string {
 
 	memStatus := "Not running"
 	if e.MemgraphUp {
-		memStatus = "Running"
+		if e.MemgraphPersistence {
+			memStatus = "Running (persistent)"
+		} else {
+			memStatus = "Running (⚠ no persistence)"
+		}
 	}
 	sb.WriteString(fmt.Sprintf("Memgraph:     %s\n", memStatus))
 
