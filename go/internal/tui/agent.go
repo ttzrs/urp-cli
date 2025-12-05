@@ -54,6 +54,10 @@ var (
 	successStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("42"))
 
+	ultrathinkStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("201")). // magenta/pink
+			Bold(true)
+
 	agentStatusStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("241")).
 			Background(lipgloss.Color("236")).
@@ -71,9 +75,12 @@ var (
 )
 
 // sharedState holds state that needs to be shared across model copies
+// strings.Builder CANNOT be copied after use, so it must be a pointer
 type sharedState struct {
 	program    *tea.Program
 	cancelFunc context.CancelFunc
+	output     *strings.Builder
+	toolCalls  *[]toolCallInfo
 }
 
 // AgentModel is the main TUI model for the interactive agent
@@ -95,9 +102,7 @@ type AgentModel struct {
 	// Shared state (pointer so it survives model copies)
 	shared *sharedState
 
-	// Output buffer
-	output      strings.Builder
-	toolCalls   []toolCallInfo
+	// Current tool being processed
 	currentTool *toolCallInfo
 
 	// Usage tracking
@@ -142,16 +147,22 @@ func NewAgentModel(workDir string, ag *agent.Agent, store *graphstore.Store, pro
 	ti.SetHeight(3)
 	ti.Focus()
 
+	// Initialize shared state with pointers to mutable data
+	toolCalls := make([]toolCallInfo, 0)
+	shared := &sharedState{
+		output:    &strings.Builder{},
+		toolCalls: &toolCalls,
+	}
+
 	return AgentModel{
 		workDir:     workDir,
 		ag:          ag,
 		store:       store,
 		prov:        prov,
-		initialized: true, // Already initialized
-		shared:      &sharedState{}, // Will be set by RunAgent
+		initialized: true,
+		shared:      shared,
 		spinner:     s,
 		input:       ti,
-		toolCalls:   []toolCallInfo{},
 	}
 }
 
@@ -171,7 +182,7 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.agentActive && m.shared != nil && m.shared.cancelFunc != nil {
 				m.shared.cancelFunc()
 				m.agentActive = false
-				m.output.WriteString("\n\n" + agentErrorStyle.Render("⚠ Cancelled") + "\n")
+				m.shared.output.WriteString("\n\n" + agentErrorStyle.Render("⚠ Cancelled") + "\n")
 				m.viewport.SetContent(m.renderOutput())
 				return m, nil
 			}
@@ -190,10 +201,16 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				prompt := m.input.Value()
 				m.input.SetValue("")
 				m.agentActive = true
-				m.output.Reset()
-				m.output.WriteString(thinkingStyle.Render("⏳ Thinking...") + "\n")
+				m.shared.output.Reset()
+
+				// Detect ultrathink and show colored indicator
+				if strings.Contains(strings.ToLower(prompt), "ultrathink") {
+					m.shared.output.WriteString(ultrathinkStyle.Render("🧠 ULTRATHINK enabled (10k tokens)") + "\n")
+				}
+
+				m.shared.output.WriteString(thinkingStyle.Render("⏳ Thinking...") + "\n")
 				m.viewport.SetContent(m.renderOutput())
-				m.toolCalls = []toolCallInfo{}
+				*m.shared.toolCalls = []toolCallInfo{}
 				m.currentTool = nil
 				m.inputTokens = 0
 				m.outputTokens = 0
@@ -216,15 +233,15 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "ctrl+l":
 			// Clear output
-			m.output.Reset()
-			m.toolCalls = []toolCallInfo{}
+			m.shared.output.Reset()
+			*m.shared.toolCalls = []toolCallInfo{}
 			m.viewport.SetContent("")
 
 		case "ctrl+t":
 			// Toggle tool call collapse
-			if len(m.toolCalls) > 0 {
-				for i := range m.toolCalls {
-					m.toolCalls[i].collapsed = !m.toolCalls[i].collapsed
+			if len(*m.shared.toolCalls) > 0 {
+				for i := range *m.shared.toolCalls {
+					(*m.shared.toolCalls)[i].collapsed = !(*m.shared.toolCalls)[i].collapsed
 				}
 				m.viewport.SetContent(m.renderOutput())
 			}
@@ -263,9 +280,9 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case agentRunDoneMsg:
 		m.agentActive = false
 		if msg.err != nil {
-			m.output.WriteString("\n" + agentErrorStyle.Render(fmt.Sprintf("Error: %v", msg.err)) + "\n")
+			m.shared.output.WriteString("\n" + agentErrorStyle.Render(fmt.Sprintf("Error: %v", msg.err)) + "\n")
 		} else {
-			m.output.WriteString("\n" + successStyle.Render("✓ Done") + "\n")
+			m.shared.output.WriteString("\n" + successStyle.Render("✓ Done") + "\n")
 		}
 		m.viewport.SetContent(m.renderOutput())
 		m.viewport.GotoBottom()
@@ -294,13 +311,13 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 	switch event.Type {
 	case domain.StreamEventThinking:
-		m.output.WriteString(thinkingStyle.Render(event.Content))
+		m.shared.output.WriteString(thinkingStyle.Render(event.Content))
 		if event.Usage != nil {
 			m.thinkTokens += event.Usage.OutputTokens
 		}
 
 	case domain.StreamEventText:
-		m.output.WriteString(textStyle.Render(event.Content))
+		m.shared.output.WriteString(textStyle.Render(event.Content))
 		if event.Usage != nil {
 			m.outputTokens += event.Usage.OutputTokens
 		}
@@ -312,9 +329,9 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 				args:      truncateArgsMap(tc.Args),
 				collapsed: true,
 			}
-			m.toolCalls = append(m.toolCalls, info)
-			m.currentTool = &m.toolCalls[len(m.toolCalls)-1]
-			m.output.WriteString("\n" + toolStyle.Render(fmt.Sprintf("▶ %s", tc.Name)) + "\n")
+			*m.shared.toolCalls = append(*m.shared.toolCalls, info)
+			m.currentTool = &(*m.shared.toolCalls)[len(*m.shared.toolCalls)-1]
+			m.shared.output.WriteString("\n" + toolStyle.Render(fmt.Sprintf("▶ %s", tc.Name)) + "\n")
 		}
 
 	case domain.StreamEventToolDone:
@@ -325,15 +342,15 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 				m.currentTool.done = true
 
 				if tc.Error != "" {
-					m.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("  ✗ %s\n", tc.Error)))
+					m.shared.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("  ✗ %s\n", tc.Error)))
 				} else {
-					m.output.WriteString(successStyle.Render("  ✓\n"))
+					m.shared.output.WriteString(successStyle.Render("  ✓\n"))
 				}
 			}
 		}
 
 	case domain.StreamEventError:
-		m.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("\nError: %v\n", event.Error)))
+		m.shared.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("\nError: %v\n", event.Error)))
 
 	case domain.StreamEventUsage:
 		if event.Usage != nil {
@@ -344,7 +361,7 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 }
 
 func (m AgentModel) renderOutput() string {
-	return m.output.String()
+	return m.shared.output.String()
 }
 
 // View renders the TUI
@@ -406,8 +423,8 @@ func (m AgentModel) renderStatus() string {
 	}
 
 	// Tool calls count
-	if len(m.toolCalls) > 0 {
-		parts = append(parts, fmt.Sprintf("Tools:%d", len(m.toolCalls)))
+	if len(*m.shared.toolCalls) > 0 {
+		parts = append(parts, fmt.Sprintf("Tools:%d", len(*m.shared.toolCalls)))
 	}
 
 	// Help
@@ -455,6 +472,18 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 			return agentRunDoneMsg{err: fmt.Errorf("agent not initialized - check API key")}
 		}
 
+		// Check for "ultrathink" keyword to enable extended thinking for this call
+		actualPrompt := prompt
+		if strings.Contains(strings.ToLower(prompt), "ultrathink") {
+			ag.SetThinkingBudget(10000)
+			actualPrompt = strings.ReplaceAll(prompt, "ultrathink", "")
+			actualPrompt = strings.ReplaceAll(actualPrompt, "ULTRATHINK", "")
+			actualPrompt = strings.ReplaceAll(actualPrompt, "Ultrathink", "")
+			actualPrompt = strings.TrimSpace(actualPrompt)
+		} else {
+			ag.SetThinkingBudget(0) // Reset to no thinking
+		}
+
 		ctx, cancel := context.WithCancel(context.Background())
 		if shared != nil {
 			shared.cancelFunc = cancel
@@ -479,8 +508,8 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 			})
 		}
 
-		// Run agent - this is the only slow part now
-		events, err := ag.Run(ctx, sess, nil, prompt)
+		// Run agent
+		events, err := ag.Run(ctx, sess, nil, actualPrompt)
 		if err != nil {
 			return agentRunDoneMsg{err: err}
 		}
@@ -605,7 +634,13 @@ func RunAgent(workDir string) error {
 
 	ag := agent.New(agentConfig, prov, tools)
 	ag.SetWorkDir(workDir)
-	ag.SetThinkingBudget(4000)
+	// ThinkingBudget disabled by default for speed. Set URP_THINKING=4000 to enable.
+	if tb := os.Getenv("URP_THINKING"); tb != "" {
+		var budget int
+		if _, err := fmt.Sscanf(tb, "%d", &budget); err == nil && budget > 0 {
+			ag.SetThinkingBudget(budget)
+		}
+	}
 
 	// Create model with shared state
 	model := NewAgentModel(workDir, ag, store, prov)
@@ -670,7 +705,14 @@ func RunAgentDebug(workDir string) error {
 
 	ag := agent.New(agentConfig, prov, tools)
 	ag.SetWorkDir(workDir)
-	ag.SetThinkingBudget(4000)
+	// ThinkingBudget disabled by default for speed. Set URP_THINKING=4000 to enable.
+	if tb := os.Getenv("URP_THINKING"); tb != "" {
+		var budget int
+		if _, err := fmt.Sscanf(tb, "%d", &budget); err == nil && budget > 0 {
+			ag.SetThinkingBudget(budget)
+			fmt.Printf("Thinking budget: %d\n", budget)
+		}
+	}
 	fmt.Println("✓ Agent created")
 
 	// Create session
