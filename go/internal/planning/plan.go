@@ -4,71 +4,10 @@ package planning
 import (
 	"context"
 	"fmt"
-	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/joss/urp/internal/graph"
 )
-
-// PlanStatus represents the state of a plan.
-type PlanStatus string
-
-const (
-	PlanPending    PlanStatus = "pending"
-	PlanInProgress PlanStatus = "in_progress"
-	PlanCompleted  PlanStatus = "completed"
-	PlanFailed     PlanStatus = "failed"
-)
-
-// TaskStatus represents the state of a task.
-type TaskStatus string
-
-const (
-	TaskPending    TaskStatus = "pending"
-	TaskAssigned   TaskStatus = "assigned"
-	TaskInProgress TaskStatus = "in_progress"
-	TaskCompleted  TaskStatus = "completed"
-	TaskFailed     TaskStatus = "failed"
-	TaskBlocked    TaskStatus = "blocked"
-)
-
-// Plan represents a high-level plan with tasks.
-type Plan struct {
-	PlanID      string     `json:"plan_id"`
-	Description string     `json:"description"`
-	Status      PlanStatus `json:"status"`
-	CreatedAt   string     `json:"created_at"`
-	UpdatedAt   string     `json:"updated_at"`
-	SessionID   string     `json:"session_id"`
-	Tasks       []Task     `json:"tasks,omitempty"`
-}
-
-// Task represents a unit of work assignable to a worker.
-type Task struct {
-	TaskID      string     `json:"task_id"`
-	PlanID      string     `json:"plan_id"`
-	Description string     `json:"description"`
-	Status      TaskStatus `json:"status"`
-	WorkerID    string     `json:"worker_id,omitempty"`
-	Order       int        `json:"order"`
-	DependsOn   []string   `json:"depends_on,omitempty"`
-	CreatedAt   string     `json:"created_at"`
-	StartedAt   string     `json:"started_at,omitempty"`
-	CompletedAt string     `json:"completed_at,omitempty"`
-}
-
-// Result represents the outcome of a task.
-type Result struct {
-	ResultID    string `json:"result_id"`
-	TaskID      string `json:"task_id"`
-	WorkerID    string `json:"worker_id"`
-	Status      string `json:"status"` // success, failure, partial
-	Output      string `json:"output"`
-	Error       string `json:"error,omitempty"`
-	FilesChanged []string `json:"files_changed,omitempty"`
-	CreatedAt   string `json:"created_at"`
-}
 
 // Planner manages plans and tasks in the graph.
 type Planner struct {
@@ -425,93 +364,35 @@ func (p *Planner) ListPlans(ctx context.Context, limit int) ([]Plan, error) {
 	return plans, nil
 }
 
-// updatePlanStatus updates the plan status based on task completion.
-func (p *Planner) updatePlanStatus(ctx context.Context, taskID string) {
-	// Get plan ID from task
+// GetTask retrieves a single task by ID.
+func (p *Planner) GetTask(ctx context.Context, taskID string) (*Task, error) {
 	query := `
-		MATCH (plan:Plan)-[:HAS_TASK]->(task:Task {task_id: $task_id})
-		OPTIONAL MATCH (plan)-[:HAS_TASK]->(allTasks:Task)
-		WITH plan,
-		     count(allTasks) as total,
-		     sum(CASE WHEN allTasks.status = 'completed' THEN 1 ELSE 0 END) as completed,
-		     sum(CASE WHEN allTasks.status = 'failed' THEN 1 ELSE 0 END) as failed
-		SET plan.status = CASE
-			WHEN failed > 0 THEN 'failed'
-			WHEN completed = total THEN 'completed'
-			ELSE 'in_progress'
-		END,
-		plan.updated_at = $now
+		MATCH (task:Task {task_id: $task_id})
+		RETURN task.task_id as task_id,
+		       task.description as description,
+		       task.status as status,
+		       task.worker_id as worker_id,
+		       task.task_order as task_order
 	`
 
-	p.db.ExecuteWrite(ctx, query, map[string]any{
+	records, err := p.db.Execute(ctx, query, map[string]any{
 		"task_id": taskID,
-		"now":     time.Now().UTC().Format(time.RFC3339),
 	})
-}
-
-func getStringFrom(m map[string]any, key string) string {
-	if v, ok := m[key]; ok {
-		if s, ok := v.(string); ok {
-			return s
-		}
-	}
-	return ""
-}
-
-func getIntFrom(m map[string]any, key string) int {
-	if v, ok := m[key]; ok {
-		switch n := v.(type) {
-		case int64:
-			return int(n)
-		case int:
-			return n
-		case float64:
-			return int(n)
-		}
-	}
-	return 0
-}
-
-// PRResult represents the result of creating a PR.
-type PRResult struct {
-	URL        string `json:"url"`
-	Number     int    `json:"number"`
-	Branch     string `json:"branch"`
-	BaseBranch string `json:"base_branch"`
-}
-
-// CreatePR creates a pull request for a task branch.
-// Uses gh CLI to create PR against base branch.
-func CreatePR(repoPath, branch, baseBranch, title, body string) (*PRResult, error) {
-	// Push branch to remote
-	pushCmd := exec.Command("git", "-C", repoPath, "push", "-u", "origin", branch)
-	if out, err := pushCmd.CombinedOutput(); err != nil {
-		return nil, fmt.Errorf("failed to push branch: %s: %w", string(out), err)
-	}
-
-	// Create PR using gh CLI
-	args := []string{
-		"pr", "create",
-		"--base", baseBranch,
-		"--head", branch,
-		"--title", title,
-		"--body", body,
-	}
-
-	cmd := exec.Command("gh", args...)
-	cmd.Dir = repoPath
-	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create PR: %s: %w", string(out), err)
+		return nil, err
 	}
 
-	// gh pr create returns the PR URL
-	url := strings.TrimSpace(string(out))
+	if len(records) == 0 {
+		return nil, fmt.Errorf("task not found: %s", taskID)
+	}
 
-	return &PRResult{
-		URL:        url,
-		Branch:     branch,
-		BaseBranch: baseBranch,
+	r := records[0]
+	return &Task{
+		TaskID:      graph.GetString(r, "task_id"),
+		Description: graph.GetString(r, "description"),
+		Status:      TaskStatus(graph.GetString(r, "status")),
+		WorkerID:    graph.GetString(r, "worker_id"),
+		Order:       graph.GetInt(r, "task_order"),
 	}, nil
 }
 
@@ -557,36 +438,28 @@ func (p *Planner) CompleteTaskWithPR(ctx context.Context, taskID, workerID, outp
 	return result, pr, nil
 }
 
-// GetTask retrieves a single task by ID.
-func (p *Planner) GetTask(ctx context.Context, taskID string) (*Task, error) {
+// updatePlanStatus updates the plan status based on task completion.
+func (p *Planner) updatePlanStatus(ctx context.Context, taskID string) {
+	// Get plan ID from task
 	query := `
-		MATCH (task:Task {task_id: $task_id})
-		RETURN task.task_id as task_id,
-		       task.description as description,
-		       task.status as status,
-		       task.worker_id as worker_id,
-		       task.task_order as task_order
+		MATCH (plan:Plan)-[:HAS_TASK]->(task:Task {task_id: $task_id})
+		OPTIONAL MATCH (plan)-[:HAS_TASK]->(allTasks:Task)
+		WITH plan,
+		     count(allTasks) as total,
+		     sum(CASE WHEN allTasks.status = 'completed' THEN 1 ELSE 0 END) as completed,
+		     sum(CASE WHEN allTasks.status = 'failed' THEN 1 ELSE 0 END) as failed
+		SET plan.status = CASE
+			WHEN failed > 0 THEN 'failed'
+			WHEN completed = total THEN 'completed'
+			ELSE 'in_progress'
+		END,
+		plan.updated_at = $now
 	`
 
-	records, err := p.db.Execute(ctx, query, map[string]any{
+	p.db.ExecuteWrite(ctx, query, map[string]any{
 		"task_id": taskID,
+		"now":     time.Now().UTC().Format(time.RFC3339),
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	if len(records) == 0 {
-		return nil, fmt.Errorf("task not found: %s", taskID)
-	}
-
-	r := records[0]
-	return &Task{
-		TaskID:      graph.GetString(r, "task_id"),
-		Description: graph.GetString(r, "description"),
-		Status:      TaskStatus(graph.GetString(r, "status")),
-		WorkerID:    graph.GetString(r, "worker_id"),
-		Order:       graph.GetInt(r, "task_order"),
-	}, nil
 }
 
 // storePRInfo stores the PR URL in the task's result.
@@ -601,52 +474,25 @@ func (p *Planner) storePRInfo(ctx context.Context, taskID, prURL string) {
 	})
 }
 
-// getBranchForTask gets the current git branch.
-func getBranchForTask(repoPath string) string {
-	cmd := exec.Command("git", "-C", repoPath, "rev-parse", "--abbrev-ref", "HEAD")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
+func getStringFrom(m map[string]any, key string) string {
+	if v, ok := m[key]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
 	}
-	return strings.TrimSpace(string(out))
+	return ""
 }
 
-// hasCommits checks if branch has commits ahead of base.
-func hasCommits(repoPath, baseBranch, branch string) bool {
-	// git log base..branch --oneline
-	cmd := exec.Command("git", "-C", repoPath, "log", fmt.Sprintf("%s..%s", baseBranch, branch), "--oneline")
-	out, err := cmd.Output()
-	if err != nil {
-		return false
+func getIntFrom(m map[string]any, key string) int {
+	if v, ok := m[key]; ok {
+		switch n := v.(type) {
+		case int64:
+			return int(n)
+		case int:
+			return n
+		case float64:
+			return int(n)
+		}
 	}
-	return len(strings.TrimSpace(string(out))) > 0
-}
-
-// MergePR merges a PR by number.
-func MergePR(repoPath string, prNumber int, squash bool) error {
-	args := []string{"pr", "merge", fmt.Sprintf("%d", prNumber), "--delete-branch"}
-	if squash {
-		args = append(args, "--squash")
-	} else {
-		args = append(args, "--merge")
-	}
-
-	cmd := exec.Command("gh", args...)
-	cmd.Dir = repoPath
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to merge PR: %s: %w", string(out), err)
-	}
-	return nil
-}
-
-// GetPRStatus gets the status of a PR.
-func GetPRStatus(repoPath string, prNumber int) (string, error) {
-	cmd := exec.Command("gh", "pr", "view", fmt.Sprintf("%d", prNumber), "--json", "state", "-q", ".state")
-	cmd.Dir = repoPath
-	out, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(out)), nil
+	return 0
 }
