@@ -4,6 +4,8 @@ package tui
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -46,6 +48,16 @@ func builtinCommands() map[string]SlashCommand {
 			Description: "Show or change current model",
 			Handler:     cmdModel,
 		},
+		"init": {
+			Name:        "init",
+			Description: "Create CLAUDE.md with project context",
+			Handler:     cmdInit,
+		},
+		"review": {
+			Name:        "review",
+			Description: "Review uncommitted changes (or specify target)",
+			Handler:     cmdReview,
+		},
 	}
 }
 
@@ -68,7 +80,8 @@ func executeSlashCommand(m *AgentModel, input string) string {
 		args = parts[1]
 	}
 
-	cmds := builtinCommands()
+	// Include custom commands from .urp/commands/
+	cmds := allCommands(m.workDir)
 	if cmd, ok := cmds[cmdName]; ok {
 		return cmd.Handler(m, args)
 	}
@@ -80,10 +93,20 @@ func executeSlashCommand(m *AgentModel, input string) string {
 
 func cmdHelp(m *AgentModel, args string) string {
 	var sb strings.Builder
-	sb.WriteString("Available commands:\n")
+	sb.WriteString("Built-in commands:\n")
 	for name, cmd := range builtinCommands() {
 		sb.WriteString(fmt.Sprintf("  /%s - %s\n", name, cmd.Description))
 	}
+
+	// Show custom commands if any
+	custom := loadCustomCommands(m.workDir)
+	if len(custom) > 0 {
+		sb.WriteString("\nCustom commands (.urp/commands/):\n")
+		for name, cmd := range custom {
+			sb.WriteString(fmt.Sprintf("  /%s - %s\n", name, cmd.Description))
+		}
+	}
+
 	sb.WriteString("\nShortcuts:\n")
 	sb.WriteString("  @         - Open file picker\n")
 	sb.WriteString("  Ctrl+C    - Cancel running operation\n")
@@ -237,4 +260,123 @@ func CompactWithLLM(ctx context.Context, m *AgentModel, messages []domain.Messag
 	// For now, we use the simple text-based compaction
 	// Future: Use a fast/cheap model (Haiku) to summarize
 	return "", fmt.Errorf("LLM compaction not implemented yet")
+}
+
+func cmdInit(m *AgentModel, args string) string {
+	if m.ag == nil {
+		return "Error: Agent not initialized"
+	}
+
+	prompt := `Analyze this project and create a CLAUDE.md file with:
+
+1. **Build Commands**: How to build, test, lint the project
+2. **Code Style**: Language-specific conventions used
+3. **Project Structure**: Key directories and their purpose
+4. **Key Patterns**: Important design patterns or idioms
+
+Keep it concise (under 100 lines). Focus on what an AI agent needs to know.
+Write the file to CLAUDE.md in the project root.`
+
+	// Queue the prompt to be sent
+	m.queuePrompt(prompt)
+	return "Running /init - analyzing project..."
+}
+
+func cmdReview(m *AgentModel, args string) string {
+	if m.ag == nil {
+		return "Error: Agent not initialized"
+	}
+
+	target := "uncommitted changes"
+	if args != "" {
+		target = args
+	}
+
+	prompt := fmt.Sprintf(`Review %s:
+
+1. Run 'git diff' to see the changes
+2. Analyze for:
+   - Bugs or logic errors
+   - Security issues
+   - Performance concerns
+   - Code style violations
+   - Missing error handling
+3. Provide specific, actionable feedback
+
+Be concise. Focus on important issues.`, target)
+
+	m.queuePrompt(prompt)
+	return fmt.Sprintf("Running /review - analyzing %s...", target)
+}
+
+// loadCustomCommands loads markdown files from .urp/commands/ as slash commands
+func loadCustomCommands(workDir string) map[string]SlashCommand {
+	result := make(map[string]SlashCommand)
+
+	// Look in .urp/commands/ relative to workDir
+	cmdDir := filepath.Join(workDir, ".urp", "commands")
+	entries, err := os.ReadDir(cmdDir)
+	if err != nil {
+		return result // No custom commands
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".md") {
+			continue
+		}
+
+		// Read file content
+		path := filepath.Join(cmdDir, name)
+		content, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+
+		// Command name is filename without .md
+		cmdName := strings.TrimSuffix(name, ".md")
+		cmdName = strings.ToLower(cmdName)
+
+		// Parse description from first line if it starts with #
+		prompt := string(content)
+		description := "Custom command: " + cmdName
+		lines := strings.SplitN(prompt, "\n", 2)
+		if len(lines) > 0 && strings.HasPrefix(lines[0], "# ") {
+			description = strings.TrimPrefix(lines[0], "# ")
+			if len(lines) > 1 {
+				prompt = strings.TrimSpace(lines[1])
+			}
+		}
+
+		// Create custom command handler (closure captures prompt)
+		cmdPrompt := prompt
+		result[cmdName] = SlashCommand{
+			Name:        cmdName,
+			Description: description,
+			Handler: func(m *AgentModel, args string) string {
+				if m.ag == nil {
+					return "Error: Agent not initialized"
+				}
+				// Replace $ARGS in prompt with actual args
+				finalPrompt := strings.ReplaceAll(cmdPrompt, "$ARGS", args)
+				m.queuePrompt(finalPrompt)
+				return fmt.Sprintf("Running /%s...", cmdName)
+			},
+		}
+	}
+
+	return result
+}
+
+// allCommands returns builtin + custom commands
+func allCommands(workDir string) map[string]SlashCommand {
+	cmds := builtinCommands()
+	for name, cmd := range loadCustomCommands(workDir) {
+		cmds[name] = cmd
+	}
+	return cmds
 }

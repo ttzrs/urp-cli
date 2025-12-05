@@ -118,6 +118,13 @@ type AgentModel struct {
 	inputMode  inputMode
 	width      int
 	height     int
+
+	// Pending prompt from slash commands
+	pendingPrompt string
+
+	// Agent cycling
+	agentRegistry *agent.Registry
+	currentAgent  string
 }
 
 type toolCallInfo struct {
@@ -157,20 +164,52 @@ func NewAgentModel(workDir string, ag *agent.Agent, store *graphstore.Store, pro
 	}
 
 	return AgentModel{
-		workDir:     workDir,
-		ag:          ag,
-		store:       store,
-		prov:        prov,
-		initialized: true,
-		shared:      shared,
-		spinner:     s,
-		input:       ti,
+		workDir:       workDir,
+		ag:            ag,
+		store:         store,
+		prov:          prov,
+		initialized:   true,
+		shared:        shared,
+		spinner:       s,
+		input:         ti,
+		agentRegistry: agent.DefaultRegistry(),
+		currentAgent:  "code",
 	}
 }
 
 // Init initializes the TUI
 func (m AgentModel) Init() tea.Cmd {
 	return m.spinner.Tick
+}
+
+// queuePrompt sets a pending prompt to be executed on next tick
+func (m *AgentModel) queuePrompt(prompt string) {
+	m.pendingPrompt = prompt
+}
+
+// cycleAgent cycles through available agents
+func (m *AgentModel) cycleAgent() {
+	if m.agentRegistry == nil {
+		return
+	}
+
+	agents := m.agentRegistry.Names()
+	if len(agents) == 0 {
+		return
+	}
+
+	// Find current index
+	currentIdx := 0
+	for i, name := range agents {
+		if name == m.currentAgent {
+			currentIdx = i
+			break
+		}
+	}
+
+	// Cycle to next
+	nextIdx := (currentIdx + 1) % len(agents)
+	m.currentAgent = agents[nextIdx]
 }
 
 // Update handles messages
@@ -276,6 +315,12 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.viewport.SetContent(m.renderOutput())
 			}
 
+		case "tab":
+			// Cycle through agents when not active
+			if !m.agentActive && m.agentRegistry != nil {
+				m.cycleAgent()
+			}
+
 		case "up", "down", "pgup", "pgdown":
 			// Viewport scrolling when agent active
 			if m.agentActive {
@@ -338,6 +383,20 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		cmds = append(cmds, cmd)
+
+		// Check for pending prompt from slash commands
+		if m.pendingPrompt != "" && !m.agentActive && m.ag != nil {
+			prompt := m.pendingPrompt
+			m.pendingPrompt = ""
+			m.agentActive = true
+			m.shared.output.Reset()
+			*m.shared.toolCalls = []toolCallInfo{}
+			m.currentTool = nil
+			m.inputTokens = 0
+			m.outputTokens = 0
+			m.thinkTokens = 0
+			cmds = append(cmds, runAgent(m.ag, m.store, m.workDir, prompt, m.shared.program, m.shared))
+		}
 	}
 
 	// Update textarea if not running
@@ -490,6 +549,11 @@ func (m AgentModel) View() string {
 func (m AgentModel) renderStatus() string {
 	var parts []string
 
+	// Current agent
+	if m.currentAgent != "" {
+		parts = append(parts, toolStyle.Render("▸ "+m.currentAgent))
+	}
+
 	// Connection status
 	if m.store != nil {
 		parts = append(parts, successStyle.Render("●")+" Graph")
@@ -515,7 +579,7 @@ func (m AgentModel) renderStatus() string {
 	if m.agentActive {
 		parts = append(parts, "Ctrl+C: cancel │ ↑↓: scroll")
 	} else {
-		parts = append(parts, "Enter: send │ @: files │ Alt+Enter: newline │ Esc: quit")
+		parts = append(parts, "Enter: send │ @: files │ Tab: agent │ Esc: quit")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
