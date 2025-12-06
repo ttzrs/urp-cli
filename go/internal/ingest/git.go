@@ -2,11 +2,8 @@
 package ingest
 
 import (
-	"bufio"
 	"context"
 	"fmt"
-	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 
@@ -46,64 +43,15 @@ type commitBatch struct {
 // Optimized: batches commits and uses UNWIND for bulk insertion.
 func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats, error) {
 	stats := &GitStats{}
-	authors := make(map[string]bool)
 
-	// Get commit log
-	cmd := exec.CommandContext(ctx, "git", "-C", g.path, "log",
-		fmt.Sprintf("--max-count=%d", maxCommits),
-		"--format=%H|%an|%ae|%at|%s",
-		"--name-only",
-	)
-
-	output, err := cmd.Output()
+	// 1. Parsing Phase (Delegated to GitParser - SRP)
+	parser := NewGitParser(g.path)
+	batches, authors, err := parser.ParseCommits(ctx, maxCommits)
 	if err != nil {
-		return nil, fmt.Errorf("git log failed: %w", err)
+		return nil, fmt.Errorf("parsing commits: %w", err)
 	}
 
-	// Parse all commits first
-	var batches []commitBatch
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-	var currentCommit *domain.Commit
-	var files []string
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		if strings.Contains(line, "|") && strings.Count(line, "|") >= 4 {
-			// Save previous commit
-			if currentCommit != nil {
-				batches = append(batches, commitBatch{commit: currentCommit, files: files})
-				authors[currentCommit.Author] = true
-			}
-
-			// Parse new commit
-			parts := strings.SplitN(line, "|", 5)
-			if len(parts) < 5 {
-				continue
-			}
-
-			timestamp, _ := strconv.ParseInt(parts[3], 10, 64)
-			currentCommit = &domain.Commit{
-				Hash:      parts[0],
-				Author:    parts[1],
-				Email:     parts[2],
-				Timestamp: time.Unix(timestamp, 0),
-				Message:   parts[4],
-			}
-			files = nil
-
-		} else if line != "" && currentCommit != nil {
-			files = append(files, line)
-		}
-	}
-
-	// Save last commit
-	if currentCommit != nil {
-		batches = append(batches, commitBatch{commit: currentCommit, files: files})
-		authors[currentCommit.Author] = true
-	}
-
-	// Batch insert all commits
+	// 2. Storage Phase
 	if err := g.storeBatch(ctx, batches); err != nil {
 		return nil, err
 	}
@@ -111,11 +59,16 @@ func (g *GitLoader) LoadHistory(ctx context.Context, maxCommits int) (*GitStats,
 	stats.Commits = len(batches)
 	stats.Authors = len(authors)
 
-	// Load branches
-	branches, err := g.loadBranches(ctx)
-	if err == nil {
-		stats.Branches = branches
+	// 3. Branches Phase
+	branches, err := parser.ParseBranches(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("parsing branches: %w", err)
 	}
+
+	if err := g.storeBranches(ctx, branches); err != nil {
+		return nil, err
+	}
+	stats.Branches = len(branches)
 
 	return stats, nil
 }
@@ -205,26 +158,15 @@ func (g *GitLoader) storeChunk(ctx context.Context, batches []commitBatch) error
 	return nil
 }
 
-func (g *GitLoader) loadBranches(ctx context.Context) (int, error) {
-	cmd := exec.CommandContext(ctx, "git", "-C", g.path, "branch", "-a", "--format=%(refname:short)")
-	output, err := cmd.Output()
-	if err != nil {
-		return 0, err
-	}
-
-	// Collect all branches
-	var branches []map[string]any
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-	for scanner.Scan() {
-		branch := strings.TrimSpace(scanner.Text())
-		if branch == "" {
-			continue
-		}
-		branches = append(branches, map[string]any{"name": branch})
-	}
-
+func (g *GitLoader) storeBranches(ctx context.Context, branches []string) error {
 	if len(branches) == 0 {
-		return 0, nil
+		return nil
+	}
+
+	// Prepare data for UNWIND
+	var branchMaps []map[string]any
+	for _, b := range branches {
+		branchMaps = append(branchMaps, map[string]any{"name": b})
 	}
 
 	// Single UNWIND query for all branches
@@ -232,11 +174,31 @@ func (g *GitLoader) loadBranches(ctx context.Context) (int, error) {
 		UNWIND $branches AS b
 		MERGE (:Branch {name: b.name})
 	`
-	if err := g.db.ExecuteWrite(ctx, query, map[string]any{"branches": branches}); err != nil {
-		return 0, err
+	if err := g.db.ExecuteWrite(ctx, query, map[string]any{"branches": branchMaps}); err != nil {
+		return fmt.Errorf("store branches: %w", err)
 	}
 
-	return len(branches), nil
+	return nil
+}
+
+// GenerateCoEvolutionWeights links files that are modified in the same commit.
+// It creates CO_CHANGED_WITH relationships and updates their weights.
+func (g *GitLoader) GenerateCoEvolutionWeights(ctx context.Context) error {
+	// This query finds pairs of files modified in the same commit
+	// and creates/updates a weighted relationship between them.
+	// We use id(f1) < id(f2) to avoid double counting and self-loops.
+	query := `
+		MATCH (c:Commit)-[:TOUCHED]->(f1:File)
+		MATCH (c)-[:TOUCHED]->(f2:File)
+		WHERE id(f1) < id(f2)
+		MERGE (f1)-[r:CO_CHANGED_WITH]-(f2)
+		ON CREATE SET r.weight = 1
+		ON MATCH SET r.weight = r.weight + 1
+	`
+	if err := g.db.ExecuteWrite(ctx, query, nil); err != nil {
+		return fmt.Errorf("generating co-evolution weights: %w", err)
+	}
+	return nil
 }
 
 func lastSegment(path string) string {

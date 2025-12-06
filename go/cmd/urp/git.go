@@ -75,6 +75,28 @@ func gitCmd() *cobra.Command {
 	}
 	historyCmd.Flags().IntVarP(&limit, "limit", "n", 20, "Max commits")
 
-	cmd.AddCommand(ingestCmd, historyCmd)
+	cmd.AddCommand(ingestCmd, historyCmd, linkCmd())
 	return cmd
+}
+
+// urp git link
+// Generates co-evolution weights
+func linkCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "link",
+		Short: "Generate co-evolution weights",
+		Long:  "Analyzes commit history to link files that change together.",
+		Run: func(cmd *cobra.Command, args []string) {
+			event := auditLogger.Start(audit.CategoryGit, "link")
+			requireDB(event)
+
+			loader := ingest.NewGitLoader(db, ".")
+			if err := loader.GenerateCoEvolutionWeights(context.Background()); err != nil {
+				exitOnError(event, err)
+			}
+
+			auditLogger.LogSuccess(event)
+			fmt.Println("✓ Co-evolution weights generated successfully.")
+		},
+	}
 }

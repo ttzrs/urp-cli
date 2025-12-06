@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/joss/urp/internal/audit"
 	"github.com/joss/urp/internal/memory"
 )
 
@@ -24,100 +25,103 @@ func memCmd() *cobra.Command {
 	// urp mem add <text>
 	var kind string
 	var importance int
-	addCmd := &cobra.Command{
-		Use:   "add <text>",
-		Short: "Add a note to session memory",
-		Long:  "Remember something for this session (note, decision, observation)",
-		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
+	addCmd := newCommand(CommandConfig{
+		Use:      "add <text>",
+		Short:    "Add a note to session memory",
+		Long:     "Remember something for this session (note, decision, observation)",
+		Args:     cobra.ExactArgs(1),
+		Category: audit.CategoryMemory,
+		Action:   "add",
+		RunFunc: func(cmd *cobra.Command, args []string) error {
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
 			id, err := mem.Add(context.Background(), args[0], kind, importance, nil)
 			if err != nil {
-				fatalError(err)
+				return err
 			}
 
 			fmt.Printf("Remembered: %s\n", id)
 			fmt.Printf("  Kind: %s, Importance: %d\n", kind, importance)
+			return nil
 		},
-	}
+	})
 	addCmd.Flags().StringVarP(&kind, "kind", "k", "note", "Memory type (note|decision|summary|observation)")
 	addCmd.Flags().IntVarP(&importance, "importance", "i", 2, "Importance 1-5")
 
 	// urp mem recall <query>
 	var limit int
-	recallCmd := &cobra.Command{
-		Use:   "recall <query>",
-		Short: "Search session memories",
-		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
+	recallCmd := newCommand(CommandConfig{
+		Use:      "recall <query>",
+		Short:    "Search session memories",
+		Args:     cobra.ExactArgs(1),
+		Category: audit.CategoryMemory,
+		Action:   "recall",
+		RunFunc: func(cmd *cobra.Command, args []string) error {
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
 			results, err := mem.Recall(context.Background(), args[0], limit, "", 1)
 			if err != nil {
-				fatalError(err)
+				return err
 			}
 
 			if len(results) == 0 {
 				fmt.Println("No matching memories found")
-				return
+				return nil
 			}
 
 			fmt.Println("RECALL: Matching memories")
 			for _, m := range results {
 				fmt.Printf("  [%.0f%%] [%s] %s\n", m.Similarity*100, m.Kind, truncateStr(m.Text, 60))
 			}
+			return nil
 		},
-	}
+	})
 	recallCmd.Flags().IntVarP(&limit, "limit", "n", 10, "Max results")
 
 	// urp mem list
-	listCmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all session memories",
-		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
+	listCmd := newCommand(CommandConfig{
+		Use:      "list",
+		Short:    "List all session memories",
+		Category: audit.CategoryMemory,
+		Action:   "list",
+		RunFunc: func(cmd *cobra.Command, args []string) error {
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
 			results, err := mem.List(context.Background())
 			if err != nil {
-				fatalError(err)
+				return err
 			}
 
 			if len(results) == 0 {
 				fmt.Println("No memories in this session")
-				return
+				return nil
 			}
 
 			fmt.Printf("MEMORIES: %d items\n", len(results))
 			for _, m := range results {
 				fmt.Printf("  %s [%s] %s\n", m.MemoryID, m.Kind, truncateStr(m.Text, 50))
 			}
+			return nil
 		},
-	}
+	})
 
 	// urp mem stats
-	statsCmd := &cobra.Command{
-		Use:   "stats",
-		Short: "Show session memory statistics",
-		Run: func(cmd *cobra.Command, args []string) {
-			requireDBSimple()
-
+	statsCmd := newCommand(CommandConfig{
+		Use:      "stats",
+		Short:    "Show session memory statistics",
+		Category: audit.CategoryMemory,
+		Action:   "stats",
+		RunFunc: func(cmd *cobra.Command, args []string) error {
 			ctx := getCtx()
 			mem := memory.NewSessionMemory(db, ctx)
 			stats, err := mem.Stats(context.Background())
 			if err != nil {
-				fatalError(err)
+				return err
 			}
 
-			printJSON(stats)
+			return printJSON(stats)
 		},
-	}
+	})
 
 	// urp mem clear
 	clearCmd := &cobra.Command{

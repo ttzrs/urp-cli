@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -52,14 +53,26 @@ Use 'urp help' for full command list.`,
 				db = nil
 			}
 
-			// Configure logging to persist events to graph
+			// Configure logging
+			var logOpts []audit.LoggerOption
+
+			// Ensure session ID is consistent (shared between Logger and Store)
+			if config.Env().SessionID == "" {
+				config.Env().SessionID = fmt.Sprintf("sess-%d", time.Now().UnixNano())
+			}
+
 			if db != nil {
 				audit.SetGraphDriver(db)
 				vector.SetDefaultStore(vector.NewMemgraphStore(db))
+
+				// Create and inject Store for persistence
+				store := audit.NewStore(db, config.Env().SessionID)
+				logOpts = append(logOpts, audit.WithStore(store))
 			}
 
-			// Initialize audit logger
-			auditLogger = audit.Global()
+			// Initialize audit logger with options
+			auditLogger = audit.NewLogger(logOpts...)
+			audit.SetGlobal(auditLogger)
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if db != nil {

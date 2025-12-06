@@ -188,11 +188,15 @@ func GetDefaultEmbedder() Embedder {
 		provider := os.Getenv("URP_EMBEDDING_PROVIDER")
 		apiKey := os.Getenv("OPENAI_API_KEY")
 
-		if provider == "local" {
+		if provider == "tei" {
+			teiURL := os.Getenv("TEI_URL")
+			defaultEmbedder = NewTeiEmbedder(teiURL)
+		} else if provider == "local" {
 			defaultEmbedder = NewLocalEmbedder(384)
 		} else if apiKey != "" {
 			defaultEmbedder = NewOpenAIEmbedder(apiKey)
 		} else {
+			// Fallback: Check if TEI is reachable (auto-discovery) or use local
 			defaultEmbedder = NewLocalEmbedder(384)
 		}
 	}

@@ -2,6 +2,7 @@
 package audit
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -19,10 +20,18 @@ type Logger struct {
 	project   string
 	output    *os.File
 	gitCtx    GitContext
+	store     *Store // Persists events to graph
 }
 
 // LoggerOption configures the logger.
 type LoggerOption func(*Logger)
+
+// WithStore sets the graph store for persistence.
+func WithStore(store *Store) LoggerOption {
+	return func(l *Logger) {
+		l.store = store
+	}
+}
 
 // WithSession sets the session ID.
 func WithSession(id string) LoggerOption {
@@ -103,6 +112,15 @@ func (l *Logger) Log(event *AuditEvent) error {
 	}
 
 	_, err = fmt.Fprintf(l.output, "%s\n", data)
+
+	// Persist to graph (blocking with timeout to ensure CLI persistence)
+	if l.store != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		// We ignore error to not break the CLI flow, but we wait for it
+		_ = l.store.Save(ctx, event)
+	}
+
 	return err
 }
 
