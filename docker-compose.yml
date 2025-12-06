@@ -24,7 +24,10 @@ services:
   # Memgraph - Graph Database
   # ═══════════════════════════════════════════════════════════════
   memgraph:
-    image: memgraph/memgraph-mage:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.memgraph
+    image: urp:memgraph
     container_name: urp-memgraph
     restart: unless-stopped
     networks:
@@ -43,6 +46,32 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+
+  # ═══════════════════════════════════════════════════════════════
+  # Text Embeddings Inference (Sovereign Embeddings)
+  # ═══════════════════════════════════════════════════════════════
+  tei:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    container_name: urp-tei
+    restart: unless-stopped
+    networks:
+      - urp
+    ports:
+      - "8080:80" # Expose for debugging/local testing
+    volumes:
+      - urp-vectors:/data # Cache models here
+    environment:
+      - PORT=80
+      # BAAI/bge-small-en-v1.5: 384 dims, no auth required, fast
+      # Alternative: sentence-transformers/all-MiniLM-L6-v2 (384 dims)
+      - MODEL_ID=${TEI_MODEL:-BAAI/bge-small-en-v1.5}
+    command: --model-id ${TEI_MODEL:-BAAI/bge-small-en-v1.5} --port 80 --huggingface-hub-cache /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s # Model download takes time
 
   # ═══════════════════════════════════════════════════════════════
   # Master - Claude + Full Tools (OpenAI-compatible API)
@@ -72,8 +101,9 @@ services:
       # OpenAI-compatible API (for other tools)
       - OPENAI_API_KEY=${OPENAI_API_KEY:-NOHACEFALTA-NOHACEFALTA}
       - OPENAI_BASE_URL=${OPENAI_BASE_URL:-http://100.105.212.98:8317/v1}
-      # Force local embeddings since proxy doesn't support /v1/embeddings
-      - URP_EMBEDDING_PROVIDER=local
+      # Sovereign Embeddings: use local TEI service
+      - URP_EMBEDDING_PROVIDER=tei
+      - TEI_URL=http://urp-tei:80
       # GitHub for PRs
       - GH_TOKEN=${GH_TOKEN:-}
       - GITHUB_TOKEN=${GH_TOKEN:-}
@@ -133,7 +163,9 @@ services:
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://100.105.212.98:8317}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-NOHACEFALTA-NOHACEFALTA}
       - OPENAI_BASE_URL=${OPENAI_BASE_URL:-http://100.105.212.98:8317/v1}
-      - URP_EMBEDDING_PROVIDER=local
+      # Sovereign Embeddings: use local TEI service
+      - URP_EMBEDDING_PROVIDER=tei
+      - TEI_URL=http://urp-tei:80
       - GH_TOKEN=${GH_TOKEN:-}
       - GITHUB_TOKEN=${GH_TOKEN:-}
     stdin_open: true

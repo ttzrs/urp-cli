@@ -1113,13 +1113,16 @@ orch := orchestrator.New(mockMaster)
 
 | Métrica | Inicial | Actual | Objetivo | Status |
 |---------|---------|--------|----------|--------|
-| SOLID Score | 75% | ~88% | 95% | ✓ +13% |
-| God Objects (>500 LOC) | 8 | 2 | 2 | ✓ DONE |
-| Type Switches | 19 | ~12 | 5 | ✓ -7 eliminated |
+| SOLID Score | 75% | ~90% | 95% | ✓ +15% |
+| God Objects (>500 LOC) | 8 | 3 | 0 | 🔄 In Progress |
+| Type Switches | 19 | ~6 | 3 | ✓ -13 eliminated |
 | Fat Interfaces | 3 | 0 | 0 | ✓ DONE (ISP applied) |
-| DIP Violations | 4 | 0 | 0 | ✓ DONE (functional opts) |
+| DIP Violations | 4 | 1 | 0 | 🔄 orchestrator pending |
 | Error Handling Dups | 100+ | ~20 | 0 | ✓ -80% |
 | LOC Total | 46,740 | ~44,000 | ~42,000 | ✓ -5% |
+| Store Compliance | 0/7 | 1/7 | 7/7 | 🔄 Pending |
+| Build Status | - | ✅ Pass | ✅ Pass | ✓ VERIFIED |
+| All Tests | - | ✅ 30+ pkgs | ✅ Pass | ✓ VERIFIED |
 
 ### Completed Phases
 - ✅ Phase 1: Quick Wins (helpers, duplicates)
@@ -1128,6 +1131,14 @@ orch := orchestrator.New(mockMaster)
 - ✅ Phase 7: OCP Type Switches (SkillRunner, EntityType, SignalType)
 - ✅ Phase 8: ISP (graph.Driver → GraphReader/Writer, vector.Store → Searcher/Writer)
 - ✅ Phase 9: DIP Functional Options (Agent, Ingester)
+
+### Verified Implementations (2025-12-06)
+- ✅ `domain/entity.go`: EntityType.GraphLabel(), EntityType.StatKey() - OCP compliant
+- ✅ `cognitive/signals.go`: SignalType.Meta() with signalMeta map - OCP compliant
+- ✅ `store/store.go`: Base Store interface + EntityStore[T] generics + Reader/Writer ISP
+- ✅ `agent/agent.go`: Functional options pattern (WithMessages, WithAutocorrector, etc.)
+- ✅ `ingest/ingester.go`: Functional options pattern (WithRegistry, WithVectorStore, etc.)
+- ✅ TUI agent split: agent.go + agent_input.go + agent_run.go + agent_stream.go + agent_view.go
 
 ---
 
@@ -1151,69 +1162,49 @@ TOUCH WITH CARE (núcleo del sistema):
 
 ---
 
-## NUEVOS HALLAZGOS (Auditoría 2025-12-05)
+## HALLAZGOS ACTUALIZADOS (Auditoría 2025-12-06)
 
-### PROBLEMA CRÍTICO #1: Store Interface Fragmentation
+### PROBLEMA #1: Store Interface Compliance (PARCIALMENTE RESUELTO)
 
-**7 Store implementations sin interfaz común:**
-- `audit.Store` - 6 métodos
-- `memory.KnowledgeStore` - 11 métodos
-- `opencode/graphstore.Store` - 14 métodos
-- `skills.Store` - 8 métodos
-- `vector.MemgraphStore` - 5 métodos
-- `audit.MetricsStore` - 4 métodos
-- `audit.AnomalyStore` - 3 métodos
+**Estado:** `store/store.go` YA EXISTE con interface base + generics.
 
-**Fix propuesto:**
+**Pendiente:** Los stores individuales no implementan la interface:
+- `audit.Store` - ❌ Falta Ping/Close
+- `memory.KnowledgeStore` - ❌ Falta Ping/Close
+- `opencode/graphstore.Store` - ❌ Falta Ping/Close
+- `skills.Store` - ❌ Falta Ping/Close
+- `vector.MemgraphStore` - ❌ Falta Ping/Close
+
+**Fix requerido (2h):** Añadir a cada store:
 ```go
-// internal/store/store.go - NEW
-package store
-
-type Store interface {
-    Ping(ctx context.Context) error
-    Close() error
-}
-
-type EntityStore[T any] interface {
-    Store
-    Create(ctx context.Context, entity *T) error
-    Get(ctx context.Context, id string) (*T, error)
-    Update(ctx context.Context, entity *T) error
-    Delete(ctx context.Context, id string) error
-    List(ctx context.Context, filter Filter) ([]*T, error)
-}
+func (s *Store) Ping(ctx context.Context) error { return s.db.Ping(ctx) }
+func (s *Store) Close() error { return nil }
 ```
 
-### PROBLEMA CRÍTICO #2: CLI Logic in cmd/urp/
+### PROBLEMA #2: CLI Logic in cmd/urp/ (PENDIENTE)
 
-**5700+ líneas mezclando:**
-- Cobra definitions (UI)
-- Business logic (queries)
-- Output formatting (render)
+**5700+ líneas mezclando concerns** - Sin cambios desde última auditoría.
 
 **Archivos afectados:**
 | Archivo | LOC | Mezcla |
 |---------|-----|--------|
-| audit.go | 653 | CLI+Query+Render |
-| container.go | 609 | CLI+Orchestration+Docker |
-| orchestrate.go | 634 | CLI+Workers+Session |
+| audit.go | 667 | CLI+Query+Render |
+| container.go | 627 | CLI+Orchestration+Docker |
+| orchestrate.go | 639 | CLI+Workers+Session |
 | spec.go | 440 | CLI+Parser+Agent |
 | skills.go | 404 | CLI+Executor+Format |
 
 **Fix propuesto:**
 ```
-cmd/urp/audit.go (653 LOC) →
+cmd/urp/audit.go (667 LOC) →
   ├── cmd/urp/audit.go (~100 LOC, thin CLI)
   ├── internal/audit/service.go (business logic)
   └── internal/render/audit.go (formatting)
 ```
 
-### PROBLEMA CRÍTICO #3: Provider Duplication
+### PROBLEMA #3: Provider Duplication (PENDIENTE)
 
-**3 providers con 150+ líneas duplicadas:**
-- Constructor patterns (~50 lines × 3)
-- Request/Response types (~100 lines duplicated)
-- Streaming logic patterns
+**3 providers con código similar** - Sin cambios.
 
 **Fix propuesto:**
 ```go
@@ -1221,57 +1212,73 @@ cmd/urp/audit.go (653 LOC) →
 type Factory struct{}
 
 func (f *Factory) Create(id string, opts ...ConfigOption) (domain.Provider, error)
-
-// Shared conversion layer
-// internal/opencode/provider/convert/*.go
-func ToAnthropic(req *domain.ChatRequest) *anthropicRequest
-func ToOpenAI(req *domain.ChatRequest) *openaiRequest
-func ToGoogle(req *domain.ChatRequest) *googleRequest
 ```
 
-### PROBLEMA CRÍTICO #4: Agent Over-Delegation
+### PROBLEMA #4: Orchestrator DIP Violation (NUEVO)
 
-**Agent tiene 12 delegated components + 21 public methods:**
-
+**orchestrator.go:75** crea `protocol.NewMaster()` directamente:
 ```go
-type Agent struct {
-    config, provider, tools, executor, hooks, workDir, thinkingBudget,
-    messages, autocorrector, promptBuilder, cognitive, logger
+func New() *Orchestrator {
+    o.master = protocol.NewMaster()  // ← Hardcoded
 }
 ```
 
-**Fix propuesto - Facades:**
+**Fix propuesto:**
 ```go
-type Agent struct {
-    config   domain.Agent
-    provider llm.Provider
+type MasterProtocol interface {
+    // ... métodos necesarios
+}
 
-    conversation *ConversationFacade  // messages + promptBuilder
-    execution    *ExecutionFacade     // tools + executor + permissions
-    optimization *OptimizationFacade  // cognitive + autocorrection
-
-    hooks  *hook.Registry
-    logger *AgentLogger
+func New(master MasterProtocol) *Orchestrator {
+    // Inyección de dependencia
 }
 ```
 
----
+### PROBLEMA #5: Agent Delegation (MITIGADO)
 
-## PRIORIDADES ACTUALIZADAS
+**Agent tiene 12 componentes** pero ya usa functional options correctamente.
 
-| Prioridad | Tarea | Esfuerzo | Impacto |
-|-----------|-------|----------|---------|
-| P0 | Store Interface Común | 3-4h | CRÍTICO |
-| P0 | CLI Extraction (audit.go primero) | 4h | CRÍTICO |
-| P1 | Provider Factory + Interface | 4h | ALTO |
-| P1 | Agent Facades | 4h | ALTO |
-| P2 | Tool File Split (bash.go) | 3h | MEDIO |
-| P2 | Error Handling Consolidation | 2h | MEDIO |
+El código actual en `agent/agent.go` es aceptable:
+```go
+func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry, opts ...AgentOption) *Agent
+```
 
-**Total estimado para P0+P1:** 15-20 horas
+**Status:** ✅ DIP aplicado via functional options. Facade pattern es opcional/futuro.
 
 ---
 
-*Updated: 2025-12-05*
-*Talk is cheap. Show me the code.*
-*82% SOLID → Target 95%*
+## PRIORIDADES ACTUALIZADAS (2025-12-06)
+
+| Prioridad | Tarea | Esfuerzo | Impacto | Status |
+|-----------|-------|----------|---------|--------|
+| P0 | Store Interface Compliance | 2h | ALTO | 🔄 Pendiente |
+| P0 | Orchestrator DIP Fix | 2h | ALTO | 🔄 Pendiente |
+| P1 | CLI Extraction (audit.go) | 4h | MEDIO | 📋 Backlog |
+| P1 | Provider Factory | 4h | MEDIO | 📋 Backlog |
+| P2 | God Object: tui/agent.go | 4h | BAJO | 📋 Backlog |
+| P2 | God Object: orchestrator.go | 4h | BAJO | 📋 Backlog |
+
+**Total P0:** 4 horas
+**Total P0+P1:** 12 horas
+
+---
+
+## NEXT ACTIONS (Orden de Ejecución)
+
+### Inmediato (Esta sesión - 2h)
+1. Añadir `Ping()/Close()` a 5 stores pendientes
+2. Verificar que tests siguen pasando
+
+### Corto plazo (Esta semana - 4h)
+3. Refactorizar `orchestrator.New()` para inyectar Master
+4. Actualizar tests de orchestrator
+
+### Medio plazo (Próxima semana - 8h)
+5. Extraer business logic de `cmd/urp/audit.go`
+6. Crear `internal/audit/service.go`
+
+---
+
+*Updated: 2025-12-06*
+*Verified: Build ✅ | Tests ✅ (30+ packages passing)*
+*SOLID Score: ~90% → Target 95%*

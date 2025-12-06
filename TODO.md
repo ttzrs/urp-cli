@@ -710,24 +710,41 @@ Cobertura mínima: 70%
 
 ## 📝 Notas
 
-### Prioridades Inmediatas
-1. **FASE 1: Task Tool** - crítico para subagentes
-2. **FASE 2: Slash Commands** - /init, /review
-3. **Responsividad TUI** - impacto en UX
+### Estado del Proyecto (2025-12-06)
+- ✅ Build passing
+- ✅ 30+ packages con tests pasando
+- ✅ SOLID Score: ~90%
+- ✅ Phases 1-6 del OpenCode completadas
+
+### Prioridades Inmediatas (Actualizadas)
+1. **Store Interface Compliance** - 5 stores necesitan Ping/Close (2h)
+2. **Orchestrator DIP** - Inyectar protocol.Master (2h)
+3. **Multi-Worker Parallel** - Completar SpawnWorker (4h)
 
 ### Decisiones Tomadas
 - Interfaces pequeñas al estilo Go (io.Reader pattern)
 - Graph storage para todo lo persistente
 - Subagentes como sesiones aisladas
 - Comandos como templates + agentes
+- Functional options para DIP (Agent, Ingester)
+- OCP via maps en lugar de switches (EntityType, SignalType)
 
-### Tech Debt
-- Refactorizar `container/manager.go` (demasiado largo)
-- Unificar manejo de errores (muchos patrones diferentes)
-- Documentar interfaces públicas con godoc
-- Eliminar código muerto detectado por análisis
+### Tech Debt (Actualizado)
+- [ ] Stores no implementan interface común (5 pendientes)
+- [ ] CLI files mezclan concerns (~5700 LOC en cmd/urp/)
+- [ ] orchestrator.New() viola DIP (hardcoded Master)
+- [x] Refactorizar `container/manager.go` - parcialmente hecho
+- [x] Unificar manejo de errores - helpers.go creado
+- [ ] Documentar interfaces públicas con godoc
+
+### Archivos Verificados como OCP-Compliant
+- `internal/domain/entity.go` - EntityType.GraphLabel(), StatKey()
+- `internal/opencode/cognitive/signals.go` - SignalType.Meta()
+- `internal/store/store.go` - Base interfaces con generics
+- `internal/opencode/agent/agent.go` - Functional options
 
 ---
 
-**Última actualización:** 2024-12-05
+**Última actualización:** 2025-12-06
+**Verificado:** Build ✅ | Tests ✅ | SOLID ~90%
 **Mantenedor:** @joss
