@@ -5,9 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -16,6 +14,18 @@ import (
 	"github.com/joss/urp/internal/container"
 	"github.com/joss/urp/internal/selftest"
 )
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Service factory (DIP: abstracts container.Service creation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+func newContainerSvc() *container.Service {
+	return container.NewService(context.Background())
+}
+
+func newContainerSvcForProject() *container.Service {
+	return container.NewServiceForProject(context.Background(), config.Env().Project)
+}
 
 func infraCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -29,51 +39,9 @@ func infraCmd() *cobra.Command {
 		Use:   "status",
 		Short: "Show infrastructure status",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-			status := mgr.Status()
-
-			fmt.Println("URP INFRASTRUCTURE")
-			fmt.Println()
-
-			// Runtime
-			if status.Runtime == container.RuntimeNone {
-				fmt.Println("  Runtime:  NOT FOUND")
-				fmt.Println()
-				fmt.Println("  Install docker or podman to use URP containers")
-				return
-			}
-			fmt.Printf("  Runtime:  %s\n", status.Runtime)
-
-			// Network (show project-scoped name)
-			project := config.Env().Project
-			networkName := container.NetworkName(project)
-			if status.Network {
-				fmt.Printf("  Network:  %s ✓\n", networkName)
-			} else {
-				fmt.Printf("  Network:  %s (not created)\n", networkName)
-			}
-
-			// Memgraph
-			if status.Memgraph != nil {
-				fmt.Printf("  Memgraph: %s (%s)\n", status.Memgraph.Name, status.Memgraph.Status)
-				if status.Memgraph.Ports != "" {
-					fmt.Printf("            Ports: %s\n", status.Memgraph.Ports)
-				}
-			} else {
-				fmt.Println("  Memgraph: not running")
-			}
-
-			// Volumes
-			fmt.Printf("  Volumes:  %d\n", len(status.Volumes))
-			for _, v := range status.Volumes {
-				fmt.Printf("            - %s\n", v)
-			}
-
-			// Workers
-			fmt.Printf("  Workers:  %d\n", len(status.Workers))
-			for _, w := range status.Workers {
-				fmt.Printf("            - %s (%s)\n", w.Name, w.Status)
-			}
+			svc := newContainerSvc()
+			status := svc.Status()
+			renderInfraStatus(status)
 		},
 	}
 
@@ -82,26 +50,12 @@ func infraCmd() *cobra.Command {
 		Use:   "start",
 		Short: "Start infrastructure (network, memgraph)",
 		Run: func(cmd *cobra.Command, args []string) {
-			project := config.Env().Project
-			mgr := container.NewManagerForProject(context.Background(), project)
-
-			if project != "" {
-				fmt.Printf("Starting URP infrastructure for project: %s\n", project)
-			} else {
-				fmt.Println("Starting URP infrastructure (default)...")
+			svc := newContainerSvcForProject()
+			result := svc.StartInfra()
+			if result.Error != nil {
+				fatalError(result.Error)
 			}
-
-			if err := mgr.StartInfra(); err != nil {
-				fatalError(err)
-			}
-
-			networkName := container.NetworkName(project)
-			memgraphName := container.MemgraphName(project)
-			fmt.Printf("✓ Network: %s\n", networkName)
-			fmt.Println("✓ Volumes created")
-			fmt.Printf("✓ Memgraph: %s (no host ports)\n", memgraphName)
-			fmt.Println()
-			fmt.Println("Infrastructure ready. Use 'urp launch' to start a master.")
+			renderInfraStarted(result)
 		},
 	}
 
@@ -110,19 +64,11 @@ func infraCmd() *cobra.Command {
 		Use:   "stop",
 		Short: "Stop all URP containers for current project",
 		Run: func(cmd *cobra.Command, args []string) {
-			project := config.Env().Project
-			mgr := container.NewManagerForProject(context.Background(), project)
-
-			if project != "" {
-				fmt.Printf("Stopping URP containers for project: %s\n", project)
-			} else {
-				fmt.Println("Stopping URP containers (all)...")
+			svc := newContainerSvcForProject()
+			result := svc.StopInfra()
+			if result.Error != nil {
+				fatalError(result.Error)
 			}
-
-			if err := mgr.StopInfra(); err != nil {
-				fatalError(err)
-			}
-
 			fmt.Println("✓ Containers stopped")
 		},
 	}
@@ -132,15 +78,12 @@ func infraCmd() *cobra.Command {
 		Use:   "clean",
 		Short: "Remove all URP containers, volumes, and network for current project",
 		Run: func(cmd *cobra.Command, args []string) {
-			project := config.Env().Project
-			mgr := container.NewManagerForProject(context.Background(), project)
-
+			svc := newContainerSvcForProject()
 			fmt.Println("Cleaning URP infrastructure...")
-
-			if err := mgr.CleanInfra(); err != nil {
-				fatalError(err)
+			result := svc.CleanInfra()
+			if result.Error != nil {
+				fatalError(result.Error)
 			}
-
 			fmt.Println("✓ Containers removed")
 			fmt.Println("✓ Volumes removed")
 			fmt.Println("✓ Network removed")
@@ -154,22 +97,17 @@ func infraCmd() *cobra.Command {
 		Short: "Show container logs",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-
-			// Default to project memgraph (use URP_PROJECT env or empty for default)
-			project := config.Env().Project
-			containerName := container.MemgraphName(project)
+			svc := newContainerSvcForProject()
+			name := ""
 			if len(args) > 0 {
-				containerName = args[0]
+				name = args[0]
 			}
-
-			logs, err := mgr.Logs(containerName, tail)
-			if err != nil {
-				fatalError(err)
+			result := svc.Logs(name, tail)
+			if result.Error != nil {
+				fatalError(result.Error)
 			}
-
-			fmt.Printf("=== %s logs (last %d lines) ===\n", containerName, tail)
-			fmt.Println(logs)
+			fmt.Printf("=== %s logs (last %d lines) ===\n", result.ContainerName, result.Tail)
+			fmt.Println(result.Logs)
 		},
 	}
 	logsCmd.Flags().IntVarP(&tail, "tail", "n", 50, "Number of lines")
@@ -217,40 +155,21 @@ Examples:
 				path = args[0]
 			}
 
-			mgr := container.NewManager(context.Background())
-
-			var containerName string
-			var err error
+			svc := newContainerSvc()
 
 			if !worker {
-				// Default: launch master (interactive or detached)
-				containerName, err = mgr.LaunchMaster(path)
-				if err != nil {
-					fatalError(err)
+				result := svc.LaunchMaster(path)
+				if result.Error != nil {
+					fatalError(result.Error)
 				}
-				// Check if TTY mode (interactive) or detached
-				if term.IsTerminal(int(os.Stdin.Fd())) {
-					// Interactive mode - session ended
-					fmt.Println("\n✓ Master session ended")
-				} else {
-					// Detached mode - container running in background
-					fmt.Printf("✓ Master started: %s\n", containerName)
-					fmt.Println()
-					fmt.Println("Container is running in detached mode (no TTY).")
-					fmt.Printf("  Execute commands:  urp exec %s <command>\n", containerName)
-					fmt.Printf("  View logs:         docker logs -f %s\n", containerName)
-					fmt.Printf("  Stop:              docker rm -f %s\n", containerName)
-				}
+				renderLaunchMaster(result)
 			} else {
-				// Standalone mode: background container (no master/worker flow)
 				fmt.Printf("Launching standalone for %s...\n", path)
-				containerName, err = mgr.LaunchStandalone(path, readOnly)
-				if err != nil {
-					fatalError(err)
+				result := svc.LaunchStandalone(path, readOnly)
+				if result.Error != nil {
+					fatalError(result.Error)
 				}
-				fmt.Printf("✓ Container started: %s\n", containerName)
-				fmt.Println()
-				fmt.Printf("Attach with: urp attach %s\n", containerName)
+				renderLaunchStandalone(result)
 			}
 		},
 	}
@@ -290,27 +209,22 @@ Examples:
 				fmt.Sscanf(args[0], "%d", &workerNum)
 			}
 
-			// Inside master, use HOST path for worker volume mounts
-			path := config.Env().HostPath
-			if path == "" {
-				path = getCwd()
-			}
-			mgr := container.NewManager(context.Background())
+			svc := newContainerSvc()
+			path := container.ProjectPath()
 
 			// Parallel spawn mode
 			if parallel > 1 {
-				spawnWorkersParallel(mgr, path, parallel)
+				results := svc.SpawnWorkersParallel(path, parallel)
+				renderSpawnParallel(results)
 				return
 			}
 
 			// Single worker spawn
-			containerName, err := mgr.SpawnWorker(path, workerNum)
-			if err != nil {
-				fatalError(err)
+			result := svc.SpawnWorker(path, workerNum)
+			if result.Error != nil {
+				fatalError(result.Error)
 			}
-			fmt.Printf("✓ Worker spawned: %s\n", containerName)
-			fmt.Printf("  Send tasks: urp ask %s \"<instruction>\"\n", containerName)
-			fmt.Printf("  Attach:     urp attach %s\n", containerName)
+			renderSpawnSingle(result)
 		},
 	}
 
@@ -320,85 +234,14 @@ Examples:
 	return cmd
 }
 
-// spawnWorkersParallel spawns multiple workers concurrently.
-func spawnWorkersParallel(mgr *container.Manager, path string, count int) {
-	fmt.Printf("Spawning %d workers in parallel...\n", count)
-
-	type result struct {
-		num  int
-		name string
-		err  error
-	}
-
-	results := make(chan result, count)
-	var wg sync.WaitGroup
-
-	// Spawn workers concurrently
-	for i := 1; i <= count; i++ {
-		wg.Add(1)
-		go func(num int) {
-			defer wg.Done()
-			name, err := mgr.SpawnWorker(path, num)
-			results <- result{num: num, name: name, err: err}
-		}(i)
-	}
-
-	// Close results when done
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-
-	// Collect results
-	var spawned []string
-	var failed []int
-	for r := range results {
-		if r.err != nil {
-			fmt.Printf("  ✗ Worker %d: %v\n", r.num, r.err)
-			failed = append(failed, r.num)
-		} else {
-			fmt.Printf("  ✓ Worker %d: %s\n", r.num, r.name)
-			spawned = append(spawned, r.name)
-		}
-	}
-
-	fmt.Println()
-	fmt.Printf("Summary: %d/%d workers spawned\n", len(spawned), count)
-
-	if len(spawned) > 0 {
-		fmt.Println("\nSend tasks:")
-		for _, name := range spawned {
-			fmt.Printf("  urp ask %s \"<instruction>\"\n", name)
-		}
-	}
-
-	if len(failed) > 0 {
-		os.Exit(1)
-	}
-}
-
 func workersCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workers",
 		Short: "List worker containers",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-
-			project := config.Env().Project
-			workers := mgr.ListWorkers(project)
-
-			if len(workers) == 0 {
-				fmt.Println("No workers running")
-				return
-			}
-
-			fmt.Printf("WORKERS: %d\n", len(workers))
-			fmt.Println()
-			for i, w := range workers {
-				fmt.Printf("  %d. %s\n", i+1, w.Name)
-				fmt.Printf("     Image: %s\n", w.Image)
-				fmt.Printf("     Status: %s\n", w.Status)
-			}
+			svc := newContainerSvcForProject()
+			workers := svc.ListWorkers()
+			renderWorkersList(workers)
 		},
 	}
 
@@ -411,37 +254,12 @@ func workersCmd() *cobra.Command {
 
 With --restart flag, automatically restarts unhealthy workers.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-			project := config.Env().Project
-			workers := mgr.ListWorkers(project)
+			svc := newContainerSvcForProject()
+			result := svc.CheckAllHealth()
+			renderWorkersHealth(result, restart)
 
-			if len(workers) == 0 {
-				fmt.Println("No workers to check")
-				return
-			}
-
-			var unhealthyCount int
-			for _, w := range workers {
-				health := mgr.CheckWorkerHealth(w.Name)
-				status := health.Status
-				if health.Health != "" {
-					status = health.Health
-				}
-
-				icon := "✓"
-				if health.Status == "unhealthy" || health.Status == "exited" {
-					icon = "✗"
-					unhealthyCount++
-				} else if health.Status == "starting" {
-					icon = "…"
-				}
-
-				fmt.Printf("%s %s: %s\n", icon, w.Name, status)
-			}
-
-			if restart && unhealthyCount > 0 {
-				fmt.Println()
-				restarted := mgr.MonitorAndRestartUnhealthy(project)
+			if restart && result.Unhealthy > 0 {
+				restarted := svc.RestartUnhealthy()
 				for _, name := range restarted {
 					fmt.Printf("↻ Restarted: %s\n", name)
 				}
@@ -465,9 +283,8 @@ Examples:
   urp attach urp-myproject-w1`,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-
-			if err := mgr.AttachWorker(args[0]); err != nil {
+			svc := newContainerSvc()
+			if err := svc.AttachWorker(args[0]); err != nil {
 				fatalError(err)
 			}
 		},
@@ -487,12 +304,9 @@ Examples:
   urp exec urp-myproject-w1 "pip install httpx"`,
 		Args: cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			containerName := args[0]
+			svc := newContainerSvc()
 			command := strings.Join(args[1:], " ")
-
-			mgr := container.NewManager(context.Background())
-
-			if err := mgr.Exec(containerName, command); err != nil {
+			if err := svc.Exec(args[0], command); err != nil {
 				fatalError(err)
 			}
 		},
@@ -520,24 +334,10 @@ Examples:
   urp ask --claude urp-proj-w1 "Use Claude CLI instead"`,
 		Args: cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			containerName := args[0]
+			svc := newContainerSvc()
 			prompt := strings.Join(args[1:], " ")
-
-			mgr := container.NewManager(context.Background())
-
-			var command string
-			escapedPrompt := strings.ReplaceAll(prompt, `"`, `\"`)
-			escapedPrompt = strings.ReplaceAll(escapedPrompt, `$`, `\$`)
-
-			if useClaude {
-				// Legacy: use Claude Code CLI
-				command = fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && su -c 'claude -p --dangerously-skip-permissions "%s"' urp`, escapedPrompt)
-			} else {
-				// Default: use URP OpenCode agent
-				command = fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && cd /workspace && urp oc agent -p "%s"`, escapedPrompt)
-			}
-
-			if err := mgr.Exec(containerName, command); err != nil {
+			command := buildAskCommand(prompt, useClaude)
+			if err := svc.Exec(args[0], command); err != nil {
 				fatalError(err)
 			}
 		},
@@ -546,6 +346,16 @@ Examples:
 	cmd.Flags().BoolVar(&useClaude, "claude", false, "Use Claude Code CLI instead of OpenCode agent")
 
 	return cmd
+}
+
+// buildAskCommand constructs the shell command for urp ask.
+func buildAskCommand(prompt string, useClaude bool) string {
+	escaped := strings.ReplaceAll(prompt, `"`, `\"`)
+	escaped = strings.ReplaceAll(escaped, `$`, `\$`)
+	if useClaude {
+		return fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && su -c 'claude -p --dangerously-skip-permissions "%s"' urp`, escaped)
+	}
+	return fmt.Sprintf(`set -a && source /etc/urp/.env && set +a && cd /workspace && urp oc agent -p "%s"`, escaped)
 }
 
 func killCmd() *cobra.Command {
@@ -561,11 +371,10 @@ Examples:
   urp kill --all              # Kill all workers`,
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
+			svc := newContainerSvcForProject()
 
 			if all {
-				project := config.Env().Project
-				if err := mgr.KillAllWorkers(project); err != nil {
+				if err := svc.KillAllWorkers(); err != nil {
 					fatalError(err)
 				}
 				fmt.Println("✓ All workers killed")
@@ -576,10 +385,9 @@ Examples:
 				fatalErrorf("container name required (or use --all)")
 			}
 
-			if err := mgr.KillWorker(args[0]); err != nil {
+			if err := svc.KillWorker(args[0]); err != nil {
 				fatalError(err)
 			}
-
 			fmt.Printf("✓ Killed: %s\n", args[0])
 		},
 	}
@@ -609,20 +417,12 @@ Examples:
 		Use:   "start",
 		Short: "Start NeMo GPU container",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-
-			// Use host path from env or workspace
-			projectPath := config.Env().HostPath
-			if projectPath == "" {
-				projectPath = getCwd()
+			svc := newContainerSvcForProject()
+			result := svc.LaunchNeMo(container.ProjectPath())
+			if result.Error != nil {
+				fatalError(result.Error)
 			}
-
-			name, err := mgr.LaunchNeMo(projectPath, "")
-			if err != nil {
-				fatalError(err)
-			}
-
-			fmt.Printf("✓ NeMo started: %s\n", name)
+			fmt.Printf("✓ NeMo started: %s\n", result.ContainerName)
 			fmt.Printf("  Run commands: urp nemo exec \"python train.py\"\n")
 		},
 	}
@@ -633,19 +433,11 @@ Examples:
 		Short: "Execute command in NeMo container",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-
-			projectName := config.Env().Project
-			if projectName == "" {
-				projectName = filepath.Base(getCwd())
-			}
-			containerName := fmt.Sprintf("urp-nemo-%s", projectName)
-
-			output, err := mgr.ExecNeMo(containerName, args[0])
+			svc := newContainerSvcForProject()
+			output, err := svc.ExecNeMo(args[0])
 			if err != nil {
 				fatalError(err)
 			}
-
 			fmt.Println(output)
 		},
 	}
@@ -655,22 +447,169 @@ Examples:
 		Use:   "stop",
 		Short: "Stop NeMo container",
 		Run: func(cmd *cobra.Command, args []string) {
-			mgr := container.NewManager(context.Background())
-
-			projectName := config.Env().Project
-			if projectName == "" {
-				projectName = filepath.Base(getCwd())
-			}
-			containerName := fmt.Sprintf("urp-nemo-%s", projectName)
-
-			if err := mgr.KillNeMo(containerName); err != nil {
+			svc := newContainerSvcForProject()
+			name := svc.NeMoContainerName()
+			if err := svc.KillNeMo(); err != nil {
 				fatalError(err)
 			}
-
-			fmt.Printf("✓ NeMo stopped: %s\n", containerName)
+			fmt.Printf("✓ NeMo stopped: %s\n", name)
 		},
 	}
 
 	cmd.AddCommand(startCmd, execNemoCmd, stopCmd)
 	return cmd
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Render functions (presentation layer)
+// ─────────────────────────────────────────────────────────────────────────────
+
+func renderInfraStatus(status *container.InfraStatus) {
+	fmt.Println("URP INFRASTRUCTURE")
+	fmt.Println()
+
+	if status.Runtime == container.RuntimeNone {
+		fmt.Println("  Runtime:  NOT FOUND")
+		fmt.Println()
+		fmt.Println("  Install docker or podman to use URP containers")
+		return
+	}
+	fmt.Printf("  Runtime:  %s\n", status.Runtime)
+
+	project := config.Env().Project
+	networkName := container.NetworkName(project)
+	if status.Network {
+		fmt.Printf("  Network:  %s ✓\n", networkName)
+	} else {
+		fmt.Printf("  Network:  %s (not created)\n", networkName)
+	}
+
+	if status.Memgraph != nil {
+		fmt.Printf("  Memgraph: %s (%s)\n", status.Memgraph.Name, status.Memgraph.Status)
+		if status.Memgraph.Ports != "" {
+			fmt.Printf("            Ports: %s\n", status.Memgraph.Ports)
+		}
+	} else {
+		fmt.Println("  Memgraph: not running")
+	}
+
+	fmt.Printf("  Volumes:  %d\n", len(status.Volumes))
+	for _, v := range status.Volumes {
+		fmt.Printf("            - %s\n", v)
+	}
+
+	fmt.Printf("  Workers:  %d\n", len(status.Workers))
+	for _, w := range status.Workers {
+		fmt.Printf("            - %s (%s)\n", w.Name, w.Status)
+	}
+}
+
+func renderInfraStarted(result *container.InfraResult) {
+	if result.Project != "" {
+		fmt.Printf("Starting URP infrastructure for project: %s\n", result.Project)
+	} else {
+		fmt.Println("Starting URP infrastructure (default)...")
+	}
+	fmt.Printf("✓ Network: %s\n", result.NetworkName)
+	fmt.Println("✓ Volumes created")
+	fmt.Printf("✓ Memgraph: %s (no host ports)\n", result.MemgraphName)
+	fmt.Println()
+	fmt.Println("Infrastructure ready. Use 'urp launch' to start a master.")
+}
+
+func renderLaunchMaster(result *container.LaunchResult) {
+	if term.IsTerminal(int(os.Stdin.Fd())) {
+		fmt.Println("\n✓ Master session ended")
+	} else {
+		fmt.Printf("✓ Master started: %s\n", result.ContainerName)
+		fmt.Println()
+		fmt.Println("Container is running in detached mode (no TTY).")
+		fmt.Printf("  Execute commands:  urp exec %s <command>\n", result.ContainerName)
+		fmt.Printf("  View logs:         docker logs -f %s\n", result.ContainerName)
+		fmt.Printf("  Stop:              docker rm -f %s\n", result.ContainerName)
+	}
+}
+
+func renderLaunchStandalone(result *container.LaunchResult) {
+	fmt.Printf("✓ Container started: %s\n", result.ContainerName)
+	fmt.Println()
+	fmt.Printf("Attach with: urp attach %s\n", result.ContainerName)
+}
+
+func renderSpawnSingle(result *container.SpawnResult) {
+	fmt.Printf("✓ Worker spawned: %s\n", result.Name)
+	fmt.Printf("  Send tasks: urp ask %s \"<instruction>\"\n", result.Name)
+	fmt.Printf("  Attach:     urp attach %s\n", result.Name)
+}
+
+func renderSpawnParallel(results []*container.SpawnResult) {
+	fmt.Printf("Spawning %d workers in parallel...\n", len(results))
+
+	var spawned []string
+	var failed int
+	for _, r := range results {
+		if r.Error != nil {
+			fmt.Printf("  ✗ Worker %d: %v\n", r.Num, r.Error)
+			failed++
+		} else {
+			fmt.Printf("  ✓ Worker %d: %s\n", r.Num, r.Name)
+			spawned = append(spawned, r.Name)
+		}
+	}
+
+	fmt.Println()
+	fmt.Printf("Summary: %d/%d workers spawned\n", len(spawned), len(results))
+
+	if len(spawned) > 0 {
+		fmt.Println("\nSend tasks:")
+		for _, name := range spawned {
+			fmt.Printf("  urp ask %s \"<instruction>\"\n", name)
+		}
+	}
+
+	if failed > 0 {
+		os.Exit(1)
+	}
+}
+
+func renderWorkersList(workers []container.ContainerStatus) {
+	if len(workers) == 0 {
+		fmt.Println("No workers running")
+		return
+	}
+
+	fmt.Printf("WORKERS: %d\n", len(workers))
+	fmt.Println()
+	for i, w := range workers {
+		fmt.Printf("  %d. %s\n", i+1, w.Name)
+		fmt.Printf("     Image: %s\n", w.Image)
+		fmt.Printf("     Status: %s\n", w.Status)
+	}
+}
+
+func renderWorkersHealth(result *container.HealthResult, showRestart bool) {
+	if len(result.Workers) == 0 {
+		fmt.Println("No workers to check")
+		return
+	}
+
+	for _, h := range result.Workers {
+		status := h.Status
+		if h.Health != "" {
+			status = h.Health
+		}
+
+		icon := "✓"
+		if h.Status == "unhealthy" || h.Status == "exited" {
+			icon = "✗"
+		} else if h.Status == "starting" {
+			icon = "…"
+		}
+
+		fmt.Printf("%s %s: %s\n", icon, h.Name, status)
+	}
+
+	if showRestart && result.Unhealthy > 0 {
+		fmt.Println()
+	}
 }
