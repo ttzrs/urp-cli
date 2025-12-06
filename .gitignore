@@ -53,3 +53,4 @@ legacy/reference/
 # Rust vendor/build artifacts (heavy)
 rust_modules/inferencia/vendor/
 rust_modules/**/target/
+urp
