@@ -91,7 +91,7 @@ urp ask urp-proj-w1 "create feature branch and implement auth"
 urp exec urp-proj-w1 "pip install pytest-cov"
 
 # Master reads worker output
-urp logs urp-proj-w1
+urp infra logs urp-proj-w1
 ```
 
 ## Memory Architecture
@@ -245,7 +245,7 @@ go/
 │   │   └── volume.go        # Volume management
 │   │
 │   ├── graph/               # Graph database
-│   │   ├── client.go        # Memgraph driver
+│   │   ├── driver.go        # Memgraph driver
 │   │   └── queries.go       # Cypher queries
 │   │
 │   ├── vector/              # Vector store

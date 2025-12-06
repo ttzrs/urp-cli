@@ -235,7 +235,7 @@ The perception model based on 7 primitives:
 | `ANTHROPIC_API_KEY` | - | Claude API key |
 | `OPENAI_API_KEY` | - | OpenAI/OpenRouter key |
 | `OPENAI_BASE_URL` | - | OpenAI-compatible endpoint |
-| `URP_MODEL` | - | Override model selection |
+| `DEFAULT_MODEL` | - | Override model selection |
 
 ## Configuration
 
@@ -246,7 +246,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 # Or for OpenRouter:
 OPENAI_API_KEY=sk-or-v1-...
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
-URP_MODEL=anthropic/claude-sonnet-4
+DEFAULT_MODEL=anthropic/claude-sonnet-4
 ```
 
 ## Safety System

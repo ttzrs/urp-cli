@@ -59,11 +59,6 @@ func urpSkillsPath() string {
 	return config.GetPaths().Skills
 }
 
-// urpEnvPath returns ~/.urp-go/.env path.
-func urpEnvPath() string {
-	return config.GetPaths().EnvFile
-}
-
 // urpPath returns a path under ~/.urp-go/ using config.Path.
 func urpPath(subdir ...string) string {
 	return config.Path(subdir...)

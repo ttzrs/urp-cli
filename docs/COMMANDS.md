@@ -38,6 +38,7 @@ Infrastructure management.
 urp infra start   # Create network, volumes, start memgraph
 urp infra stop    # Stop all URP containers
 urp infra clean   # Remove all URP resources
+urp infra logs    # View container logs
 urp infra status  # Show infrastructure status
 ```
 
