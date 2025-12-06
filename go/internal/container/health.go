@@ -23,6 +23,9 @@ func (r *SpawnRequirements) IsValid() bool {
 	return len(r.Errors) == 0
 }
 
+// ContainerWorkspacePath is where project is mounted inside URP containers
+const ContainerWorkspacePath = "/workspace"
+
 // ValidateSpawnRequirements checks environment before spawning a worker
 func (m *Manager) ValidateSpawnRequirements(projectPath string) *SpawnRequirements {
 	req := &SpawnRequirements{
@@ -36,12 +39,20 @@ func (m *Manager) ValidateSpawnRequirements(projectPath string) *SpawnRequiremen
 		req.Errors = append(req.Errors, "docker.sock not found: workers won't be able to control NeMo")
 	}
 
-	// Check project path exists
-	absPath, err := filepath.Abs(projectPath)
-	if err != nil {
-		req.Errors = append(req.Errors, fmt.Sprintf("invalid project path: %s", projectPath))
-	} else if _, err := os.Stat(absPath); os.IsNotExist(err) {
-		req.Errors = append(req.Errors, fmt.Sprintf("project path does not exist: %s", absPath))
+	// Check project path exists - use /workspace inside container
+	checkPath := projectPath
+	if IsInsideContainer() {
+		checkPath = ContainerWorkspacePath
+	} else {
+		var err error
+		checkPath, err = filepath.Abs(projectPath)
+		if err != nil {
+			req.Errors = append(req.Errors, fmt.Sprintf("invalid project path: %s", projectPath))
+			return req
+		}
+	}
+	if _, err := os.Stat(checkPath); os.IsNotExist(err) {
+		req.Errors = append(req.Errors, fmt.Sprintf("project path does not exist: %s", checkPath))
 	} else {
 		req.ProjectPath = true
 	}

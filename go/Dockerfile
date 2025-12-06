@@ -84,10 +84,11 @@ RUN npm install -g @anthropic-ai/claude-code --unsafe-perm && \
     npm cache clean --force && \
     rm -rf /root/.npm
 
-# Create user
+# Create user and container marker
 RUN adduser -D -s /bin/bash urp && \
     mkdir -p /var/lib/urp/vector /home/urp/.config && \
-    chown -R urp:urp /var/lib/urp /home/urp
+    chown -R urp:urp /var/lib/urp /home/urp && \
+    touch /.urp-container
 
 # Copy URP binary
 COPY --from=builder /build/urp /usr/local/bin/urp

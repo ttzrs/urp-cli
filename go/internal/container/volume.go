@@ -39,9 +39,32 @@ func StandardVolumes(projectPath, projectName, envFile string, readOnly bool) []
 	}
 }
 
-// ResolveEnvFile finds the .env file path from URP_HOST_HOME or user home
+// ContainerEnvPath is where .env is mounted inside URP containers
+const ContainerEnvPath = "/etc/urp/.env"
+
+// IsInsideContainer detects if we're running inside a URP container
+func IsInsideContainer() bool {
+	_, err := os.Stat("/.urp-container")
+	return err == nil
+}
+
+// ResolveEnvFile finds the .env file path - container path if inside, host path if outside
 func ResolveEnvFile() string {
+	if IsInsideContainer() {
+		return ContainerEnvPath
+	}
 	return filepath.Join(ResolveHomeDir(), ".urp-go", ".env")
+}
+
+// ResolveHostEnvFile returns the HOST path for .env (for docker mounts, not validation)
+// Inside container: uses URP_HOST_HOME (set by master)
+// Outside container: uses user home
+func ResolveHostEnvFile() string {
+	hostHome := os.Getenv("URP_HOST_HOME")
+	if hostHome == "" {
+		hostHome, _ = os.UserHomeDir()
+	}
+	return filepath.Join(hostHome, ".urp-go", ".env")
 }
 
 // ResolveEnvFileReal finds the .env file path with symlink resolution (for Silverblue)

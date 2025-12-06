@@ -357,34 +357,34 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 
-	// Vim-style navigation (always works for viewport)
+	// Vim-style navigation (only when input not focused or agent active)
 	case "j":
-		if m.agentActive || m.viewport.AtBottom() {
+		if m.agentActive {
 			m.viewport.LineDown(1)
-		} else if !m.input.Focused() {
-			m.viewport.LineDown(1)
+			return m, nil
 		}
-		return m, nil
+		// Let textarea handle it when focused
 
 	case "k":
-		if m.agentActive || m.viewport.AtTop() {
+		if m.agentActive {
 			m.viewport.LineUp(1)
-		} else if !m.input.Focused() {
-			m.viewport.LineUp(1)
+			return m, nil
 		}
-		return m, nil
+		// Let textarea handle it when focused
 
 	case "g":
-		if m.agentActive || !m.input.Focused() {
+		if m.agentActive {
 			m.viewport.GotoTop()
+			return m, nil
 		}
-		return m, nil
+		// Let textarea handle it when focused
 
 	case "G":
-		if m.agentActive || !m.input.Focused() {
+		if m.agentActive {
 			m.viewport.GotoBottom()
+			return m, nil
 		}
-		return m, nil
+		// Let textarea handle it when focused
 
 	case "ctrl+u":
 		if m.agentActive || !m.input.Focused() {
@@ -405,23 +405,32 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "n":
-		// Next search match (vim style)
-		if len(m.searchMatches) > 0 && !m.input.Focused() {
+		// Next search match (vim style) - only when agent active
+		if m.agentActive && len(m.searchMatches) > 0 {
 			m.searchIdx = (m.searchIdx + 1) % len(m.searchMatches)
 			m.jumpToSearchMatch()
+			return m, nil
 		}
-		return m, nil
+		// Let textarea handle it when focused
 
 	case "N":
-		// Previous search match (vim style)
-		if len(m.searchMatches) > 0 && !m.input.Focused() {
+		// Previous search match (vim style) - only when agent active
+		if m.agentActive && len(m.searchMatches) > 0 {
 			m.searchIdx--
 			if m.searchIdx < 0 {
 				m.searchIdx = len(m.searchMatches) - 1
 			}
 			m.jumpToSearchMatch()
+			return m, nil
 		}
-		return m, nil
+		// Let textarea handle it when focused
+	}
+
+	// DEFAULT: pass unhandled keys to textarea when not agent active
+	if !m.agentActive && m.input.Focused() {
+		var cmd tea.Cmd
+		m.input, cmd = m.input.Update(msg)
+		return m, cmd
 	}
 
 	return m, nil

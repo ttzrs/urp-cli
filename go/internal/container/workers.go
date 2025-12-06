@@ -43,7 +43,8 @@ func (m *Manager) SpawnWorker(projectPath string, workerNum int) (string, error)
 
 	// Use host home from env (when running inside master) or local home
 	homeDir := ResolveHomeDir()
-	envFile := ResolveEnvFile()
+	// For mounts, always use the HOST path (not the container path)
+	envFile := ResolveHostEnvFile()
 
 	// Check if we have a TTY available
 	hasTTY := term.IsTerminal(int(os.Stdin.Fd()))
