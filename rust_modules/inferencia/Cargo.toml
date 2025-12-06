@@ -1,0 +1,20 @@
+[package]
+name = "inferencia_mod"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "inferencia"
+crate-type = ["cdylib"]
+
+[dependencies]
+rsmgp-sys = { path = "../mage/rust/rsmgp-sys" }
+rayon = "1.7"
+c_str_macro = "1.0.2"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
