@@ -477,3 +477,13 @@ func sortBySimilarity(entries []KnowledgeEntry, limit int) []KnowledgeEntry {
 	}
 	return entries
 }
+
+// Ping verifies the database connection is alive.
+func (k *KnowledgeStore) Ping(ctx context.Context) error {
+	return k.db.Ping(ctx)
+}
+
+// Close releases any resources held by the store.
+func (k *KnowledgeStore) Close() error {
+	return nil // Connection managed externally
+}

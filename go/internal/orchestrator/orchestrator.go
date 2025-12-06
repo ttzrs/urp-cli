@@ -37,7 +37,7 @@ type TaskResult struct {
 // Orchestrator coordinates multi-agent task execution.
 type Orchestrator struct {
 	mu      sync.RWMutex
-	master  *protocol.Master
+	master  protocol.MasterProtocol
 	workers map[string]*workerConn
 	results map[string]*TaskResult
 
@@ -63,8 +63,18 @@ type workerConn struct {
 	readyCh   chan struct{} // signals when worker is ready
 }
 
-// New creates a new Orchestrator.
-func New() *Orchestrator {
+// OrchestratorOption configures an Orchestrator.
+type OrchestratorOption func(*Orchestrator)
+
+// WithMaster sets a custom MasterProtocol implementation.
+func WithMaster(m protocol.MasterProtocol) OrchestratorOption {
+	return func(o *Orchestrator) {
+		o.master = m
+	}
+}
+
+// New creates a new Orchestrator with optional configuration.
+func New(opts ...OrchestratorOption) *Orchestrator {
 	o := &Orchestrator{
 		workers:     make(map[string]*workerConn),
 		results:     make(map[string]*TaskResult),
@@ -72,15 +82,24 @@ func New() *Orchestrator {
 		taskDone:    make(chan string, 100),
 	}
 
-	o.master = protocol.NewMaster()
+	// Apply options
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	// Default to real Master if not injected
+	if o.master == nil {
+		o.master = protocol.NewMaster()
+	}
+
 	o.setupCallbacks()
 
 	return o
 }
 
-// setupCallbacks wires up master callbacks.
+// setupCallbacks wires up master callbacks via interface setters.
 func (o *Orchestrator) setupCallbacks() {
-	o.master.OnWorkerReady = func(workerID string, caps []string) {
+	o.master.SetOnWorkerReady(func(workerID string, caps []string) {
 		o.mu.Lock()
 		if w, ok := o.workers[workerID]; ok {
 			w.caps = caps
@@ -101,9 +120,9 @@ func (o *Orchestrator) setupCallbacks() {
 		if o.OnWorkerReady != nil {
 			o.OnWorkerReady(workerID, caps)
 		}
-	}
+	})
 
-	o.master.OnTaskStarted = func(workerID, taskID, branch string) {
+	o.master.SetOnTaskStarted(func(workerID, taskID, branch string) {
 		o.mu.Lock()
 		if result, ok := o.results[taskID]; ok {
 			result.StartedAt = time.Now()
@@ -113,9 +132,9 @@ func (o *Orchestrator) setupCallbacks() {
 		if o.OnTaskStarted != nil {
 			o.OnTaskStarted(workerID, taskID)
 		}
-	}
+	})
 
-	o.master.OnTaskComplete = func(workerID, taskID string, result *protocol.TaskCompletePayload) {
+	o.master.SetOnTaskComplete(func(workerID, taskID string, result *protocol.TaskCompletePayload) {
 		o.mu.Lock()
 		taskResult := &TaskResult{
 			TaskID:   taskID,
@@ -141,9 +160,9 @@ func (o *Orchestrator) setupCallbacks() {
 		if o.OnTaskComplete != nil {
 			o.OnTaskComplete(workerID, taskID, taskResult)
 		}
-	}
+	})
 
-	o.master.OnTaskFailed = func(workerID, taskID string, result *protocol.TaskFailedPayload) {
+	o.master.SetOnTaskFailed(func(workerID, taskID string, result *protocol.TaskFailedPayload) {
 		o.mu.Lock()
 		taskResult := &TaskResult{
 			TaskID:   taskID,
@@ -168,7 +187,7 @@ func (o *Orchestrator) setupCallbacks() {
 		if o.OnTaskFailed != nil {
 			o.OnTaskFailed(workerID, taskID, fmt.Errorf("%s", result.Error))
 		}
-	}
+	})
 }
 
 // WaitForWorkerReady waits for a specific worker to be ready.

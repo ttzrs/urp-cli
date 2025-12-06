@@ -269,3 +269,13 @@ func recordToSkill(r graph.Record) *Skill {
 	}
 }
 
+// Ping verifies the database connection is alive.
+func (s *Store) Ping(ctx context.Context) error {
+	return s.db.Ping(ctx)
+}
+
+// Close releases any resources held by the store.
+func (s *Store) Close() error {
+	return nil // Connection managed externally
+}
+

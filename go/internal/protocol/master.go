@@ -8,6 +8,35 @@ import (
 	"time"
 )
 
+// MasterProtocol defines the interface for master-worker coordination.
+// This enables dependency injection and testing.
+type MasterProtocol interface {
+	// Worker management
+	AddWorker(workerID string, r io.Reader, w io.Writer) *WorkerConnection
+	RemoveWorker(workerID string)
+	GetWorker(workerID string) *WorkerConnection
+	ListWorkers() []string
+	ListIdleWorkers() []string
+
+	// Task management
+	AssignTask(workerID string, task *AssignTaskPayload) error
+	CancelTask(workerID, taskID, reason string) error
+
+	// Communication
+	Ping(workerID string) error
+	Shutdown(workerID string) error
+	ShutdownAll()
+
+	// Message handling
+	HandleWorker(ctx context.Context, workerID string) error
+
+	// Callback setters
+	SetOnWorkerReady(fn func(workerID string, caps []string))
+	SetOnTaskStarted(fn func(workerID, taskID, branch string))
+	SetOnTaskComplete(fn func(workerID, taskID string, result *TaskCompletePayload))
+	SetOnTaskFailed(fn func(workerID, taskID string, result *TaskFailedPayload))
+}
+
 // WorkerConnection represents a connection to a worker.
 type WorkerConnection struct {
 	ID           string
@@ -40,6 +69,26 @@ func NewMaster() *Master {
 	return &Master{
 		workers: make(map[string]*WorkerConnection),
 	}
+}
+
+// SetOnWorkerReady sets the callback for worker ready events.
+func (m *Master) SetOnWorkerReady(fn func(workerID string, caps []string)) {
+	m.OnWorkerReady = fn
+}
+
+// SetOnTaskStarted sets the callback for task started events.
+func (m *Master) SetOnTaskStarted(fn func(workerID, taskID, branch string)) {
+	m.OnTaskStarted = fn
+}
+
+// SetOnTaskComplete sets the callback for task completion events.
+func (m *Master) SetOnTaskComplete(fn func(workerID, taskID string, result *TaskCompletePayload)) {
+	m.OnTaskComplete = fn
+}
+
+// SetOnTaskFailed sets the callback for task failure events.
+func (m *Master) SetOnTaskFailed(fn func(workerID, taskID string, result *TaskFailedPayload)) {
+	m.OnTaskFailed = fn
 }
 
 // AddWorker registers a worker connection.

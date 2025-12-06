@@ -164,3 +164,8 @@ func (s *MemgraphStore) Count(ctx context.Context) (int, error) {
 func (s *MemgraphStore) Close() error {
 	return nil
 }
+
+// Ping verifies the database connection is alive.
+func (s *MemgraphStore) Ping(ctx context.Context) error {
+	return s.db.Ping(ctx)
+}

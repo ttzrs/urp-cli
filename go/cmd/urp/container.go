@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -261,7 +262,10 @@ Examples:
 }
 
 func spawnCmd() *cobra.Command {
-	var background bool
+	var (
+		background bool
+		parallel   int
+	)
 
 	cmd := &cobra.Command{
 		Use:   "spawn [num]",
@@ -272,6 +276,7 @@ Run from inside master. Send instructions via urp ask.
 Examples:
   urp spawn              # Create worker 1
   urp spawn 2            # Create worker 2
+  urp spawn --parallel 4 # Create workers 1-4 in parallel
   urp ask urp-proj-w1 "run tests"  # Send instruction`,
 		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -292,10 +297,14 @@ Examples:
 			}
 			mgr := container.NewManager(context.Background())
 
-			var containerName string
-			var err error
+			// Parallel spawn mode
+			if parallel > 1 {
+				spawnWorkersParallel(mgr, path, parallel)
+				return
+			}
 
-			containerName, err = mgr.SpawnWorker(path, workerNum)
+			// Single worker spawn
+			containerName, err := mgr.SpawnWorker(path, workerNum)
 			if err != nil {
 				fatalError(err)
 			}
@@ -306,8 +315,66 @@ Examples:
 	}
 
 	cmd.Flags().BoolVarP(&background, "detach", "d", false, "Ignored (workers always detached)")
+	cmd.Flags().IntVarP(&parallel, "parallel", "n", 0, "Spawn N workers in parallel")
 
 	return cmd
+}
+
+// spawnWorkersParallel spawns multiple workers concurrently.
+func spawnWorkersParallel(mgr *container.Manager, path string, count int) {
+	fmt.Printf("Spawning %d workers in parallel...\n", count)
+
+	type result struct {
+		num  int
+		name string
+		err  error
+	}
+
+	results := make(chan result, count)
+	var wg sync.WaitGroup
+
+	// Spawn workers concurrently
+	for i := 1; i <= count; i++ {
+		wg.Add(1)
+		go func(num int) {
+			defer wg.Done()
+			name, err := mgr.SpawnWorker(path, num)
+			results <- result{num: num, name: name, err: err}
+		}(i)
+	}
+
+	// Close results when done
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Collect results
+	var spawned []string
+	var failed []int
+	for r := range results {
+		if r.err != nil {
+			fmt.Printf("  ✗ Worker %d: %v\n", r.num, r.err)
+			failed = append(failed, r.num)
+		} else {
+			fmt.Printf("  ✓ Worker %d: %s\n", r.num, r.name)
+			spawned = append(spawned, r.name)
+		}
+	}
+
+	fmt.Println()
+	fmt.Printf("Summary: %d/%d workers spawned\n", len(spawned), count)
+
+	if len(spawned) > 0 {
+		fmt.Println("\nSend tasks:")
+		for _, name := range spawned {
+			fmt.Printf("  urp ask %s \"<instruction>\"\n", name)
+		}
+	}
+
+	if len(failed) > 0 {
+		os.Exit(1)
+	}
 }
 
 func workersCmd() *cobra.Command {

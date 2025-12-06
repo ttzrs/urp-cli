@@ -40,9 +40,23 @@ timing, and status information for debugging and analysis.`,
 
 // newAuditService creates an audit service with current session context.
 func newAuditService() *audit.Service {
+	return audit.NewService(newAuditStore(), nil)
+}
+
+// newAuditStore creates an audit store with current session context.
+func newAuditStore() *audit.Store {
 	sessCtx := memory.NewContext()
-	store := audit.NewStore(db, sessCtx.SessionID)
-	return audit.NewService(store, nil)
+	return audit.NewStore(db, sessCtx.SessionID)
+}
+
+// newAuditStores creates common audit stores for anomaly/metrics/healing commands.
+func newAuditStores() (sessID string, anomalyStore *audit.AnomalyStore, metricsStore *audit.MetricsStore, healingStore *audit.HealingStore) {
+	sessCtx := memory.NewContext()
+	sessID = sessCtx.SessionID
+	anomalyStore = audit.NewAnomalyStore(db, sessID)
+	metricsStore = audit.NewMetricsStore(db, sessID)
+	healingStore = audit.NewHealingStore(db, sessID)
+	return
 }
 
 func auditLogCmd() *cobra.Command {
@@ -62,8 +76,7 @@ Examples:
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
-			store := audit.NewStore(db, sessCtx.SessionID)
+			store := newAuditStore()
 			filter := audit.QueryFilter{
 				Category: audit.Category(category),
 				Status:   audit.Status(status),
@@ -75,8 +88,7 @@ Examples:
 				fatalError(err)
 			}
 
-			r := render.NewAudit()
-			r.Events(events)
+			render.NewAudit().Events(events)
 		},
 	}
 	cmd.Flags().StringVarP(&category, "category", "c", "", "Filter by category (code, git, events, etc)")
@@ -93,14 +105,11 @@ func auditErrorsCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			svc := newAuditService()
-			events, err := svc.GetErrors(context.Background(), time.Time{}, "", 20)
+			events, err := newAuditService().GetErrors(context.Background(), time.Time{}, "", 20)
 			if err != nil {
 				fatalError(err)
 			}
-
-			r := render.NewAudit()
-			r.Errors(events)
+			render.NewAudit().Errors(events)
 		},
 	}
 }
@@ -112,14 +121,11 @@ func auditStatsCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			svc := newAuditService()
-			stats, err := svc.GetStats(context.Background())
+			stats, err := newAuditService().GetStats(context.Background())
 			if err != nil {
 				fatalError(err)
 			}
-
-			r := render.NewAudit()
-			r.Stats(stats)
+			render.NewAudit().Stats(stats)
 		},
 	}
 }
@@ -132,14 +138,11 @@ func auditCommitCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			svc := newAuditService()
-			events, err := svc.GetEventsByCommit(context.Background(), args[0])
+			events, err := newAuditService().GetEventsByCommit(context.Background(), args[0])
 			if err != nil {
 				fatalError(err)
 			}
-
-			r := render.NewAudit()
-			r.CommitEvents(args[0], events)
+			render.NewAudit().CommitEvents(args[0], events)
 		},
 	}
 }
@@ -155,8 +158,7 @@ aggregated across operations.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
-			metricsStore := audit.NewMetricsStore(db, sessCtx.SessionID)
+			_, _, metricsStore, _ := newAuditStores()
 			ctx := context.Background()
 
 			// Collect latency stats by category
@@ -172,8 +174,7 @@ aggregated across operations.`,
 				}
 			}
 
-			r := render.NewAudit()
-			r.Metrics(latency, errorRates)
+			render.NewAudit().Metrics(latency, errorRates)
 		},
 	}
 }
@@ -194,8 +195,7 @@ Anomaly levels:
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
-			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
+			_, anomalyStore, _, _ := newAuditStores()
 			ctx := context.Background()
 
 			var anomalies []audit.Anomaly
@@ -210,9 +210,7 @@ Anomaly levels:
 			if err != nil {
 				fatalError(err)
 			}
-
-			r := render.NewAudit()
-			r.Anomalies(anomalies)
+			render.NewAudit().Anomalies(anomalies)
 		},
 	}
 	cmd.Flags().StringVarP(&anomalyLevel, "level", "l", "", "Filter by level (low, medium, high, critical)")
@@ -232,18 +230,17 @@ Use --compute to calculate new baselines from recent metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
+			_, _, metricsStore, _ := newAuditStores()
 			ctx := context.Background()
 
 			if computeBaseline {
 				fmt.Println("Computing baselines from metrics...")
 
 				collector := audit.NewMetricsCollector(24*time.Hour, 10000)
-				store := audit.NewStore(db, sessCtx.SessionID)
+				store := newAuditStore()
 				events, err := store.Query(ctx, audit.QueryFilter{Limit: 1000})
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fatalError(err)
 				}
 
 				for i := range events {
@@ -264,13 +261,11 @@ Use --compute to calculate new baselines from recent metrics.`,
 					}
 				}
 
-				r := render.NewAudit()
-				r.Baselines(baselines)
+				render.NewAudit().Baselines(baselines)
 				return
 			}
 
 			// Show existing baselines
-			metricsStore := audit.NewMetricsStore(db, sessCtx.SessionID)
 			w := render.Stdout()
 			w.Header("STORED BASELINES")
 
@@ -316,10 +311,8 @@ Use --dry-run to see what would be done without executing.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
+			_, anomalyStore, _, healingStore := newAuditStores()
 			ctx := context.Background()
-			anomalyStore := audit.NewAnomalyStore(db, sessCtx.SessionID)
-			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
 			healer := audit.NewHealer()
 
 			var anomalies []audit.Anomaly
@@ -387,9 +380,8 @@ func auditHistoryCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			requireDBSimple()
 
-			sessCtx := memory.NewContext()
+			_, _, _, healingStore := newAuditStores()
 			ctx := context.Background()
-			healingStore := audit.NewHealingStore(db, sessCtx.SessionID)
 
 			results, err := healingStore.GetRecent(ctx, 30)
 			if err != nil {
@@ -397,8 +389,7 @@ func auditHistoryCmd() *cobra.Command {
 			}
 
 			stats, _ := healingStore.GetStats(ctx)
-			r := render.NewAudit()
-			r.HealHistory(results, stats)
+			render.NewAudit().HealHistory(results, stats)
 		},
 	}
 }
@@ -408,8 +399,7 @@ func auditRulesCmd() *cobra.Command {
 		Use:   "rules",
 		Short: "Show remediation rules",
 		Run: func(cmd *cobra.Command, args []string) {
-			r := render.NewAudit()
-			r.Rules(render.DefaultRules())
+			render.NewAudit().Rules(render.DefaultRules())
 		},
 	}
 }
