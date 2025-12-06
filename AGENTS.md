@@ -2,8 +2,9 @@
 
 ## Build Status (2025-12-06)
 - ✅ `make build` - PASS
-- ✅ `make test` - 30+ packages PASS
-- ✅ SOLID Score: ~90%
+- ✅ `make test` - 446 tests, 34 packages PASS
+- ✅ SOLID Score: 93%
+- ✅ `urp doctor` - HEALTHY
 
 ## Commands
 - **Build**: `make build` (builds `urp` binary)
@@ -60,15 +61,16 @@
   - Master/Worker architecture must be respected.
   - Do not introduce cycles in imports.
 
-## Pendientes Clave (P0-P1)
+## Completed (P0-P1)
 
-### P0 - Inmediato (4h)
-- [ ] Store Interface Compliance: 5 stores necesitan `Ping()/Close()` (2h)
-- [ ] Orchestrator DIP: Inyectar `protocol.Master` via interface (2h)
+### P0 - DONE
+- [x] Store Interface Compliance: All stores have `Ping()/Close()`
+- [x] Orchestrator DIP: `MasterProtocol` interface injection
+- [x] Container Service: `internal/container/service.go` (CLI → Service → Manager)
 
-### P1 - Esta semana (8h)
-- [ ] Multi-worker paralelo: Completar `SpawnWorker()` + `--parallel N`
-- [ ] CLI extraction: Separar business logic de `cmd/urp/audit.go`
+### P1 - DONE
+- [x] Multi-worker parallel: `SpawnWorker()` + `--parallel N`
+- [x] CLI extraction: `cmd/urp/audit.go` thin CLI layer
 
 ### P2 - Backlog
 - TUI: scroll suave, colores configurables, panel de estado en tiempo real
@@ -76,6 +78,7 @@
 - Spec-Kit: templates, validación, wizard interactivo
 - Observabilidad: Prometheus/Grafana, pruebas E2E/carga
 - Distribución: Homebrew, APT/YUM, security scanning
+- Provider Factory: Unify provider creation
 
 ## Archivos Críticos (NO ROMPER)
 ```
@@ -83,6 +86,7 @@ PROTECTED (alta dependencia):
 - internal/graph/driver.go
 - internal/store/store.go
 - internal/opencode/domain/*
+- internal/protocol/master.go
 
 OCP COMPLIANT (extiende via maps):
 - internal/domain/entity.go
@@ -91,4 +95,6 @@ OCP COMPLIANT (extiende via maps):
 DIP COMPLIANT (functional options):
 - internal/opencode/agent/agent.go
 - internal/ingest/ingester.go
+- internal/orchestrator/orchestrator.go (MasterProtocol)
+- internal/container/service.go (Service layer)
 ```

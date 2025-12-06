@@ -2,8 +2,9 @@
 
 ## Build Status (2025-12-06)
 - ✅ `go build ./cmd/urp` - PASS
-- ✅ `go test ./...` - 30+ packages PASS
-- ✅ SOLID Score: ~90%
+- ✅ `go test ./...` - 446 tests, 34 packages PASS
+- ✅ SOLID Score: 93%
+- ✅ `urp doctor` - HEALTHY
 
 ---
 
@@ -18,39 +19,30 @@
 - [x] P0.7: Agent functional options (`internal/opencode/agent/agent.go`)
 - [x] P0.8: Ingester functional options (`internal/ingest/ingester.go`)
 
----
+## Completed (P0 - SOLID Compliance)
 
-## Pending - Code Quality
-
-### P0: Store Interface Compliance (2h)
-Stores that need `Ping()/Close()` methods:
-- [ ] `internal/audit/store.go`
-- [ ] `internal/memory/knowledge.go`
-- [ ] `internal/opencode/graphstore/store.go`
-- [ ] `internal/skills/store.go`
-- [ ] `internal/vector/memgraph_store.go`
-
-### P0: Orchestrator DIP (2h)
-- [ ] Extract `MasterProtocol` interface
-- [ ] Inject via `New(master MasterProtocol)`
-- [ ] Update tests
+- [x] P0.9: Store Interface Compliance - 5 stores with `Ping()/Close()`
+- [x] P0.10: Orchestrator DIP - `MasterProtocol` interface + injection
+- [x] P1.1: Multi-worker parallel spawn - `SpawnWorker()` + pool
+- [x] P1.2: CLI extraction - `cmd/urp/audit.go` → thin CLI
+- [x] P1.3: Container Service layer - `internal/container/service.go` (DIP)
 
 ---
 
 ## Pending - Orchestration System
 
-### P1: `urp launch` - Master Container
-- [ ] Create master container with project:ro mount
-- [ ] Auto-ingest: `urp code ingest && urp git ingest`
-- [ ] Open Claude CLI (interactive)
-- [ ] SELinux :z labels for volumes
+### P2: `urp launch` - Master Container
+- [x] Create master container with project:ro mount
+- [x] Auto-ingest: `urp code ingest && urp git ingest`
+- [x] Open Claude CLI (interactive)
+- [ ] SELinux :z labels for volumes (optional)
 
 ### P2: `urp spawn` - Ephemeral Workers
-- [ ] Spawn worker containers (docker --rm)
-- [ ] Workers have project:rw access
-- [ ] Workers can install tools, modify code
-- [ ] Worker types: default, browser, test
-- [ ] `--parallel N` flag for pool
+- [x] Spawn worker containers (docker --rm)
+- [x] Workers have project:rw access
+- [x] Workers can install tools, modify code
+- [x] `--parallel N` flag for pool
+- [ ] Worker types: browser, test (future)
 
 ### P3: Graph Schema Plan/Task/Result
 - [ ] `:Plan` node with status, project
@@ -59,8 +51,8 @@ Stores that need `Ping()/Close()` methods:
 - [ ] Relationships: HAS_TASK, EXECUTED_BY, PRODUCED, DEPENDS_ON
 
 ### P4: Envelope Wrapper
-- [ ] JSON-lines protocol over stdin/stdout
-- [ ] Message types: instruction, status, result, error
+- [x] JSON-lines protocol over stdin/stdout
+- [x] Message types: instruction, status, result, error
 - [ ] Intercept Claude CLI I/O
 - [ ] Log envelopes to graph
 
@@ -71,12 +63,11 @@ Stores that need `Ping()/Close()` methods:
 
 ---
 
-## Pending - CLI Extraction
+## Completed - CLI Extraction
 
-### P2: Extract Business Logic from cmd/urp/
-- [ ] `audit.go` (667 LOC) → `internal/audit/service.go`
-- [ ] `container.go` (627 LOC) → `internal/container/service.go`
-- [ ] `orchestrate.go` (639 LOC) → split concerns
+- [x] `audit.go` - thin CLI, logic in render/service
+- [x] `container.go` (615 LOC) → `internal/container/service.go` (284 LOC)
+- [x] `orchestrate.go` - uses orchestrator package
 
 ---
 
