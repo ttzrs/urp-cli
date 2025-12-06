@@ -56,9 +56,9 @@
 - [ ] Intercept Claude CLI I/O
 - [ ] Log envelopes to graph
 
-### P5: X11 Browser Worker
-- [ ] X11 forwarding setup
-- [ ] Firefox/Chrome in container
+### P5: Browser Worker (go-rod)
+- [ ] Use go-rod library (https://go-rod.github.io)
+- [ ] Chrome/Chromium headless in container
 - [ ] Visual testing support
 
 ---
