@@ -269,6 +269,52 @@ func (s *Service) KillNeMo() error {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Memgraph Lab Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+// LabResult holds Lab container info.
+type LabResult struct {
+	ContainerName string
+	MemgraphHost  string
+	Error         error
+}
+
+// LabContainerName returns the Lab container name for current project.
+func (s *Service) LabContainerName() string {
+	project := s.mgr.Project()
+	if project == "" {
+		return "urp-lab"
+	}
+	return fmt.Sprintf("urp-%s-lab", project)
+}
+
+// StartLab starts Memgraph Lab container (internal only) and opens Firefox.
+func (s *Service) StartLab() *LabResult {
+	name := s.LabContainerName()
+	memgraphHost := MemgraphName(s.mgr.Project())
+
+	result := &LabResult{
+		ContainerName: name,
+		MemgraphHost:  memgraphHost,
+	}
+
+	// Start Lab container (no host ports)
+	if err := s.mgr.StartLab(name, memgraphHost); err != nil {
+		result.Error = err
+		return result
+	}
+
+	// Start Firefox browser pointing to Lab
+	result.Error = s.mgr.StartLabBrowser(name)
+	return result
+}
+
+// StopLab stops the Lab container and browser.
+func (s *Service) StopLab() error {
+	return s.mgr.StopLab(s.LabContainerName())
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Helper Functions
 // ─────────────────────────────────────────────────────────────────────────────
 

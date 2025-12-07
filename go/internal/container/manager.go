@@ -48,11 +48,16 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"os"
 	osexec "os/exec"
 	"strings"
 
 	urpexec "github.com/joss/urp/internal/exec"
 )
+
+func init() {
+	envLookup = os.LookupEnv
+}
 
 const (
 	MemgraphImage   = "memgraph/memgraph-platform:latest"
@@ -267,4 +272,104 @@ func (m *Manager) Status() *InfraStatus {
 	}
 
 	return status
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Memgraph Lab Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+const (
+	LabImage     = "memgraph/lab:latest"
+	FirefoxImage = "jlesage/firefox:latest" // Firefox with VNC/X11 support
+)
+
+// StartLab starts Memgraph Lab container (internal network only, no host ports).
+func (m *Manager) StartLab(name, memgraphHost string) error {
+	if m.runtime == RuntimeNone {
+		return fmt.Errorf("no container runtime found")
+	}
+
+	networkName := NetworkName(m.project)
+
+	// Remove existing if any
+	m.runQuiet("rm", "-f", name)
+
+	args := []string{
+		"run", "-d",
+		"--name", name,
+		"--network", networkName,
+		// No port mapping - internal only
+		"-e", "QUICK_CONNECT_MG_HOST=" + memgraphHost,
+		"-e", "QUICK_CONNECT_MG_PORT=7687",
+		LabImage,
+	}
+
+	_, err := m.run(args...)
+	return err
+}
+
+// StartLabBrowser opens the host browser connected to Lab via port forward.
+// Since Lab is internal-only, we create a temporary port forward.
+func (m *Manager) StartLabBrowser(labHost string) error {
+	// Use socat to forward host port to internal Lab
+	// This avoids needing a browser container with X11 complexity
+	forwarderName := "urp-lab-forward"
+	m.runQuiet("rm", "-f", forwarderName)
+
+	networkName := NetworkName(m.project)
+
+	// Start socat forwarder: host:3333 -> lab:3000
+	args := []string{
+		"run", "-d", "--rm",
+		"--name", forwarderName,
+		"--network", networkName,
+		"-p", "127.0.0.1:3333:3333",
+		"alpine/socat",
+		"TCP-LISTEN:3333,fork,reuseaddr",
+		fmt.Sprintf("TCP:%s:3000", labHost),
+	}
+
+	if _, err := m.run(args...); err != nil {
+		return fmt.Errorf("start port forwarder: %w", err)
+	}
+
+	// Open browser on host
+	url := "http://127.0.0.1:3333"
+	var cmd *osexec.Cmd
+
+	// Try common browsers
+	browsers := []string{"xdg-open", "firefox", "chromium", "google-chrome"}
+	for _, browser := range browsers {
+		if path, err := osexec.LookPath(browser); err == nil {
+			cmd = osexec.Command(path, url)
+			break
+		}
+	}
+
+	if cmd == nil {
+		fmt.Printf("Open browser manually: %s\n", url)
+		return nil
+	}
+
+	// Start browser in background (don't wait)
+	return cmd.Start()
+}
+
+// StopLab stops and removes the Lab container and forwarder.
+func (m *Manager) StopLab(name string) error {
+	m.runQuiet("rm", "-f", "urp-lab-forward")
+	_, err := m.run("rm", "-f", name)
+	return err
+}
+
+// getEnv is a helper to get environment variables.
+func getEnv(key string) string {
+	if v, ok := envLookup(key); ok {
+		return v
+	}
+	return ""
+}
+
+var envLookup = func(key string) (string, bool) {
+	return "", false
 }

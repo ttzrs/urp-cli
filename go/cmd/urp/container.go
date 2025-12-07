@@ -613,3 +613,53 @@ func renderWorkersHealth(result *container.HealthResult, showRestart bool) {
 		fmt.Println()
 	}
 }
+
+func labCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "lab",
+		Short: "Launch Memgraph Lab for graph visualization",
+		Long: `Start Memgraph Lab UI with Firefox browser for visualization.
+
+Memgraph Lab provides:
+  - Visual graph exploration
+  - Cypher query editor
+  - Schema visualization
+  - Query history
+
+Lab runs on internal network (no host ports exposed).
+Firefox opens automatically connected to Lab.
+
+Examples:
+  urp lab       # Start Lab + Firefox
+  urp lab stop  # Stop Lab and browser`,
+		Run: func(cmd *cobra.Command, args []string) {
+			svc := newContainerSvcForProject()
+			result := svc.StartLab()
+			if result.Error != nil {
+				fatalError(result.Error)
+			}
+
+			fmt.Printf("✓ Memgraph Lab started: %s\n", result.ContainerName)
+			fmt.Printf("  Graph DB: bolt://%s:7687\n", result.MemgraphHost)
+			fmt.Println("  Firefox opened with Lab UI")
+			fmt.Println()
+			fmt.Println("Stop with: urp lab stop")
+		},
+	}
+
+	// urp lab stop
+	stopCmd := &cobra.Command{
+		Use:   "stop",
+		Short: "Stop Memgraph Lab and browser",
+		Run: func(cmd *cobra.Command, args []string) {
+			svc := newContainerSvcForProject()
+			if err := svc.StopLab(); err != nil {
+				fatalError(err)
+			}
+			fmt.Println("✓ Memgraph Lab stopped")
+		},
+	}
+
+	cmd.AddCommand(stopCmd)
+	return cmd
+}

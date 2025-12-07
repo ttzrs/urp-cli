@@ -46,7 +46,23 @@ Use 'urp status' to show infrastructure status.
 Use 'urp help' for full command list.`,
 		Args: cobra.MaximumNArgs(1),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			// Connect to graph - REQUIRED for all commands
+			// Commands that don't require Memgraph connection
+			skipDB := map[string]bool{
+				"lab":     true,
+				"infra":   true,
+				"doctor":  true,
+				"version": true,
+				"help":    true,
+			}
+			if skipDB[cmd.Name()] {
+				return
+			}
+			// Also skip for subcommands of infra/lab
+			if cmd.Parent() != nil && skipDB[cmd.Parent().Name()] {
+				return
+			}
+
+			// Connect to graph - REQUIRED for most commands
 			var err error
 			db, err = graph.Connect()
 			if err != nil {
@@ -164,6 +180,7 @@ func registerInfraCommands(root *cobra.Command) {
 		killCmd(),
 		askCmd(),
 		nemoCmd(),
+		labCmd(),
 		workerCmd(),
 		orchestrateCmd(),
 		doctorCmd(),

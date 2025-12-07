@@ -53,7 +53,10 @@ legacy/reference/
 # Rust vendor/build artifacts (heavy)
 rust_modules/inferencia/vendor/
 rust_modules/**/target/
-urp
+
+# Go binaries
+/urp
+go/urp
 go/cmd/desktop/frontend/node_modules/
 go/cmd/desktop/frontend/dist/
 go/cmd/desktop/build/
