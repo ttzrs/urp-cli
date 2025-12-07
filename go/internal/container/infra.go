@@ -37,12 +37,12 @@ func (m *Manager) StartInfra() error {
 				return fmt.Errorf("failed to start memgraph: %w", err)
 			}
 		} else {
-			// Create and run - NO PORT MAPPINGS (network-only access)
+			// Create and run with host port for CLI access
 			args := []string{
 				"run", "-d",
 				"--name", memgraphName,
 				"--network", networkName,
-				// No -p flags: containers access via network name, not host ports
+				"-p", "127.0.0.1:7687:7687", // Bolt protocol for host CLI
 				"-v", fmt.Sprintf("%s:/var/lib/memgraph", SessionsVolume(m.project)),
 				"--restart", "unless-stopped",
 				MemgraphImage,

@@ -22,8 +22,22 @@ type Embedder interface {
 // DefaultEmbedder is the global embedder instance.
 var defaultEmbedder Embedder
 
+// NullEmbedder is a no-op embedder that returns empty embeddings.
+// Used when no embedding provider is configured.
+type NullEmbedder struct{}
+
+func (n *NullEmbedder) Embed(ctx context.Context, text string) ([]float32, error) {
+	return nil, nil
+}
+
+func (n *NullEmbedder) EmbedBatch(ctx context.Context, texts []string) ([][]float32, error) {
+	return make([][]float32, len(texts)), nil
+}
+
+func (n *NullEmbedder) Dimensions() int { return 0 }
+
 // GetDefaultEmbedder returns the default embedder.
-// Panics if URP_EMBEDDING_PROVIDER is not configured.
+// Returns NullEmbedder if no provider is configured.
 // Supported providers: "tei", "openai"
 func GetDefaultEmbedder() Embedder {
 	if defaultEmbedder != nil {
@@ -36,21 +50,25 @@ func GetDefaultEmbedder() Embedder {
 	case "tei":
 		teiURL := os.Getenv("TEI_URL")
 		if teiURL == "" {
-			panic("URP_EMBEDDING_PROVIDER=tei but TEI_URL not set. Set TEI_URL=http://urp-tei:80")
+			fmt.Fprintf(os.Stderr, "Warning: URP_EMBEDDING_PROVIDER=tei but TEI_URL not set\n")
+			defaultEmbedder = &NullEmbedder{}
+		} else {
+			defaultEmbedder = NewTeiEmbedder(teiURL)
 		}
-		defaultEmbedder = NewTeiEmbedder(teiURL)
 	case "openai":
 		apiKey := os.Getenv("OPENAI_API_KEY")
 		if apiKey == "" {
-			panic("URP_EMBEDDING_PROVIDER=openai but OPENAI_API_KEY not set")
+			fmt.Fprintf(os.Stderr, "Warning: URP_EMBEDDING_PROVIDER=openai but OPENAI_API_KEY not set\n")
+			defaultEmbedder = &NullEmbedder{}
+		} else {
+			defaultEmbedder = NewOpenAIEmbedder(apiKey)
 		}
-		defaultEmbedder = NewOpenAIEmbedder(apiKey)
 	case "":
-		panic(fmt.Sprintf("URP_EMBEDDING_PROVIDER not set. Set to 'tei' or 'openai'.\n" +
-			"For local development: URP_EMBEDDING_PROVIDER=tei TEI_URL=http://localhost:8080\n" +
-			"Start TEI with: docker compose up -d tei"))
+		// No embedder configured - use null embedder (graph-only mode)
+		defaultEmbedder = &NullEmbedder{}
 	default:
-		panic(fmt.Sprintf("Unknown URP_EMBEDDING_PROVIDER=%q. Supported: tei, openai", provider))
+		fmt.Fprintf(os.Stderr, "Warning: Unknown URP_EMBEDDING_PROVIDER=%q, using null embedder\n", provider)
+		defaultEmbedder = &NullEmbedder{}
 	}
 
 	return defaultEmbedder

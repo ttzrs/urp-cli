@@ -15,6 +15,7 @@ import (
 
 	"github.com/joss/urp/internal/config"
 	"github.com/joss/urp/internal/graph"
+	"github.com/joss/urp/internal/ingest"
 	"github.com/joss/urp/internal/opencode/agent"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/graphstore"
@@ -161,6 +162,35 @@ func loadEnvFile() {
 	}
 }
 
+// autoIngest runs code and git ingestion if the graph is empty for this project.
+// Runs in background to not block TUI startup.
+func autoIngest(gdb graph.Driver, workDir string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	// Check if we already have data for this project
+	projectName := filepath.Base(workDir)
+	query := `MATCH (f:File) WHERE f.path STARTS WITH $prefix RETURN count(f) as count`
+	records, err := gdb.Execute(ctx, query, map[string]any{"prefix": projectName})
+	if err == nil && len(records) > 0 {
+		if count, ok := records[0]["count"].(int64); ok && count > 0 {
+			return // Already ingested
+		}
+	}
+
+	// Auto-ingest code
+	ingester := ingest.NewIngester(gdb)
+	if _, err := ingester.Ingest(ctx, workDir); err != nil {
+		fmt.Fprintf(os.Stderr, "auto-ingest code failed: %v\n", err)
+	}
+
+	// Auto-ingest git
+	gitLoader := ingest.NewGitLoader(gdb, workDir)
+	if _, err := gitLoader.LoadHistory(ctx, 500); err != nil {
+		fmt.Fprintf(os.Stderr, "auto-ingest git failed: %v\n", err)
+	}
+}
+
 // RunAgent starts the interactive agent TUI
 func RunAgent(workDir string) error {
 	// Initialize everything BEFORE starting the TUI
@@ -172,6 +202,8 @@ func RunAgent(workDir string) error {
 	gdb, err := graph.Connect()
 	if err == nil && gdb != nil {
 		store = graphstore.New(gdb)
+		// Auto-ingest in background
+		go autoIngest(gdb, workDir)
 	}
 
 	// Initialize provider
@@ -254,6 +286,11 @@ func RunAgentWithPrompt(workDir, prompt string) error {
 	}
 	defer gdb.Close()
 	fmt.Println("✓ Memgraph connected")
+
+	// Auto-ingest if needed (synchronous for non-interactive mode)
+	fmt.Println("Checking graph data...")
+	autoIngest(gdb, workDir)
+	fmt.Println("✓ Graph data ready")
 
 	store := graphstore.New(gdb)
 
