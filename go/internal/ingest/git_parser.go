@@ -31,9 +31,13 @@ func (p *GitParser) ParseCommits(ctx context.Context, maxCommits int) ([]commitB
 		"--name-only",
 	)
 
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, nil, fmt.Errorf("git log failed: %w", err)
+		// Exit code 128 = not a git repo or path doesn't exist
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 128 {
+			return nil, nil, fmt.Errorf("not a git repository: %s (run 'git init' first)", p.repoPath)
+		}
+		return nil, nil, fmt.Errorf("git log failed in %s: %w\nOutput: %s", p.repoPath, err, string(output))
 	}
 
 	var batches []commitBatch

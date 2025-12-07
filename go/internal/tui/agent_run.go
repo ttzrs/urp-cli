@@ -169,6 +169,11 @@ func autoIngest(gdb graph.Driver, workDir string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
+	// Validate workDir exists
+	if _, err := os.Stat(workDir); err != nil {
+		return // Directory doesn't exist, skip silently
+	}
+
 	// Check if we already have data for this project
 	projectName := filepath.Base(workDir)
 	query := `MATCH (f:File) WHERE f.path STARTS WITH $prefix RETURN count(f) as count`
@@ -182,13 +187,16 @@ func autoIngest(gdb graph.Driver, workDir string) {
 	// Auto-ingest code
 	ingester := ingest.NewIngester(gdb)
 	if _, err := ingester.Ingest(ctx, workDir); err != nil {
-		fmt.Fprintf(os.Stderr, "auto-ingest code failed: %v\n", err)
+		// Silent fail - don't spam stderr in background
 	}
 
-	// Auto-ingest git
-	gitLoader := ingest.NewGitLoader(gdb, workDir)
-	if _, err := gitLoader.LoadHistory(ctx, 500); err != nil {
-		fmt.Fprintf(os.Stderr, "auto-ingest git failed: %v\n", err)
+	// Auto-ingest git (only if .git exists)
+	gitDir := filepath.Join(workDir, ".git")
+	if _, err := os.Stat(gitDir); err == nil {
+		gitLoader := ingest.NewGitLoader(gdb, workDir)
+		if _, err := gitLoader.LoadHistory(ctx, 500); err != nil {
+			// Silent fail - not all directories are git repos
+		}
 	}
 }
 
