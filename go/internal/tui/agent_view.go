@@ -159,21 +159,98 @@ func (m AgentModel) renderStatus() string {
 
 	// Help
 	if m.agentActive {
-		parts = append(parts, "Ctrl+C: cancel │ j/k: scroll │ g/G: top/bottom │ Ctrl+D: debug")
+		parts = append(parts, "Ctrl+C: cancel │ j/k: scroll │ Ctrl+T: toggle tools │ Ctrl+D: debug")
 	} else {
-		parts = append(parts, "Enter: send │ @: files │ /: search │ j/k: scroll │ Esc: quit")
+		parts = append(parts, "Enter: send │ @: files │ Ctrl+T: toggle │ Esc: quit")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
 }
 
 func (m AgentModel) renderOutput() string {
-	content := m.shared.output.String()
-	// Wrap text to viewport width for responsive display
+	var b strings.Builder
+
+	// Render text output (non-tool content)
+	textContent := m.shared.output.String()
+
+	// Render tool calls with expand/collapse
+	if len(*m.shared.toolCalls) > 0 {
+		b.WriteString(textContent)
+
+		// Append detailed tool view
+		b.WriteString("\n")
+		for i, tc := range *m.shared.toolCalls {
+			b.WriteString(m.renderToolCall(i, tc))
+		}
+	} else {
+		b.WriteString(textContent)
+	}
+
+	content := b.String()
 	if m.width > 4 {
 		content = urpstrings.WordWrap(content, m.width-4)
 	}
 	return content
+}
+
+// renderToolCall renders a single tool call with expand/collapse
+func (m AgentModel) renderToolCall(index int, tc toolCallInfo) string {
+	var b strings.Builder
+
+	// Icon based on collapse state
+	icon := "▶"
+	if !tc.collapsed {
+		icon = "▼"
+	}
+
+	// Status indicator
+	var statusIcon string
+	var statusStyle lipgloss.Style
+	if !tc.done {
+		statusIcon = "⏳"
+		statusStyle = thinkingStyle
+	} else if tc.err != "" {
+		statusIcon = "✗"
+		statusStyle = agentErrorStyle
+	} else {
+		statusIcon = "✓"
+		statusStyle = successStyle
+	}
+
+	// Header line: ▶ tool_name ✓
+	header := fmt.Sprintf("%s %s %s", icon, toolStyle.Render(tc.name), statusStyle.Render(statusIcon))
+	b.WriteString(header + "\n")
+
+	// Expanded content
+	if !tc.collapsed {
+		// Args
+		if tc.args != "" {
+			b.WriteString(toolOutputStyle.Render("  Args: "+tc.args) + "\n")
+		}
+
+		// Output (truncated for display)
+		if tc.output != "" {
+			out := tc.output
+			if len(out) > 500 {
+				out = out[:497] + "..."
+			}
+			lines := strings.Split(out, "\n")
+			b.WriteString(toolOutputStyle.Render("  Output:") + "\n")
+			for _, line := range lines {
+				if len(line) > m.width-8 {
+					line = line[:m.width-11] + "..."
+				}
+				b.WriteString(toolOutputStyle.Render("    "+line) + "\n")
+			}
+		}
+
+		// Error
+		if tc.err != "" {
+			b.WriteString(agentErrorStyle.Render("  Error: "+tc.err) + "\n")
+		}
+	}
+
+	return b.String()
 }
 
 // Helpers - delegate to urpstrings

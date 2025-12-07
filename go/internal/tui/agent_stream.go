@@ -67,7 +67,7 @@ func (m *AgentModel) handleToolCall(event domain.StreamEvent) {
 		info := toolCallInfo{
 			name:      tc.Name,
 			args:      truncateArgsMap(tc.Args),
-			collapsed: true,
+			collapsed: false, // Start expanded for visibility
 		}
 		*m.shared.toolCalls = append(*m.shared.toolCalls, info)
 		m.currentTool = &(*m.shared.toolCalls)[len(*m.shared.toolCalls)-1]

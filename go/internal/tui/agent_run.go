@@ -86,11 +86,12 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 			UpdatedAt: now,
 		}
 
-		// Persist session if store available
+		// Persist session if store available (async to not block)
 		if store != nil {
-			store.CreateSession(ctx, sess)
+			go store.CreateSession(ctx, sess)
 			ag.OnMessage(func(ctx context.Context, msg *domain.Message) error {
-				return store.CreateMessage(ctx, msg)
+				go store.CreateMessage(ctx, msg) // Async persistence
+				return nil
 			})
 		}
 
@@ -211,6 +212,9 @@ func RunAgent(workDir string) error {
 	if err != nil {
 		return fmt.Errorf("provider init failed: %w", err)
 	}
+
+	// Warmup connection in background (reduces first-request latency)
+	go warmupConnection(prov)
 
 	// Create agent
 	tools := tool.DefaultRegistry(workDir)
