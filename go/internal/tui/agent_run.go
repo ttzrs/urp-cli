@@ -211,6 +211,8 @@ func RunAgent(workDir string) error {
 	gdb, err := graph.Connect()
 	if err == nil && gdb != nil {
 		store = graphstore.New(gdb)
+		// Set graph for memory tools
+		tool.SetGraphDB(gdb)
 		// Auto-ingest in background
 		go autoIngest(gdb, workDir)
 	}
@@ -298,6 +300,9 @@ func RunAgentWithPrompt(workDir, prompt string) error {
 	}
 	defer gdb.Close()
 	fmt.Println("✓ Memgraph connected")
+
+	// Set graph for memory tools
+	tool.SetGraphDB(gdb)
 
 	// Auto-ingest if needed (synchronous for non-interactive mode)
 	fmt.Println("Checking graph data...")

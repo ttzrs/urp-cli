@@ -96,6 +96,16 @@ func DefaultRegistry(workDir string) *Registry {
 	r.Register(NewBatch(r))   // batch needs registry reference
 	r.Register(NewInvalid(r)) // invalid needs registry for suggestions
 
+	// Graph/Memory tools - use graph data instead of reading all files
+	r.Register(NewGraphSearch())
+	r.Register(NewGraphStats())
+	r.Register(NewCodeDependencies())
+	r.Register(NewMemoryRecall())
+	r.Register(NewMemoryAdd())
+	r.Register(NewWisdom())
+	r.Register(NewKnowledgeQuery())
+	r.Register(NewContextSearch())
+
 	return r
 }
 
