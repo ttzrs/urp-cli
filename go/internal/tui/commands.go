@@ -4,6 +4,7 @@ package tui
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -334,6 +335,7 @@ func loadCustomCommands(workDir string) map[string]SlashCommand {
 		path := filepath.Join(cmdDir, name)
 		content, err := os.ReadFile(path)
 		if err != nil {
+			log.Printf("WARN: failed to read command %s: %v", name, err)
 			continue
 		}
 

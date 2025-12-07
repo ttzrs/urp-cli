@@ -471,7 +471,7 @@ func renderInfraStatus(status *container.InfraStatus) {
 	if status.Runtime == container.RuntimeNone {
 		fmt.Println("  Runtime:  NOT FOUND")
 		fmt.Println()
-		fmt.Println("  Install docker or podman to use URP containers")
+		fmt.Println("  Install Docker to use URP containers")
 		return
 	}
 	fmt.Printf("  Runtime:  %s\n", status.Runtime)

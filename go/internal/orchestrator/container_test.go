@@ -9,10 +9,10 @@ import (
 func TestDetectContainerRuntime(t *testing.T) {
 	runtime := detectContainerRuntime()
 
-	// Should return docker, podman, or empty
-	valid := runtime == "docker" || runtime == "podman" || runtime == ""
+	// Should return docker or empty (podman support removed)
+	valid := runtime == "docker" || runtime == ""
 	if !valid {
-		t.Errorf("unexpected runtime: %s", runtime)
+		t.Errorf("unexpected runtime: %s (expected docker or empty)", runtime)
 	}
 
 	// If we got a runtime, verify it exists

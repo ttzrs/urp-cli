@@ -512,7 +512,7 @@ Each run shows: status, task count, success/failure, and duration.`,
 	containerCmd := &cobra.Command{
 		Use:   "container <command>",
 		Short: "Run command in containerized workers",
-		Long: `Execute tasks using Docker/Podman containers as workers.
+		Long: `Execute tasks using Docker containers as workers.
 
 Each worker runs in an isolated container with read-write access
 to the project directory. Communication uses the envelope protocol.

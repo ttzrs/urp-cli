@@ -12,9 +12,9 @@ import (
 
 func TestDetectRuntime(t *testing.T) {
 	rt := detectRuntime()
-	// Should detect docker or podman on most systems
-	if rt != RuntimeDocker && rt != RuntimePodman && rt != RuntimeNone {
-		t.Errorf("unexpected runtime: %s", rt)
+	// Should detect docker or none (podman support removed)
+	if rt != RuntimeDocker && rt != RuntimeNone {
+		t.Errorf("unexpected runtime: %s (expected docker or none)", rt)
 	}
 }
 
@@ -23,10 +23,10 @@ func TestNewManager(t *testing.T) {
 	if mgr == nil {
 		t.Fatal("NewManager returned nil")
 	}
-	// Should have detected a runtime (or none)
+	// Should have detected docker or none (podman support removed)
 	rt := mgr.Runtime()
-	if rt != RuntimeDocker && rt != RuntimePodman && rt != RuntimeNone {
-		t.Errorf("unexpected runtime: %s", rt)
+	if rt != RuntimeDocker && rt != RuntimeNone {
+		t.Errorf("unexpected runtime: %s (expected docker or none)", rt)
 	}
 }
 
@@ -474,14 +474,8 @@ func TestE2E_X11Configuration(t *testing.T) {
 	}
 	envFile := filepath.Join(homeDir, ".urp-go", ".env")
 
-	// Get socket path
+	// Get socket path (Docker only)
 	socketPath := "/var/run/docker.sock"
-	if mgr.Runtime() == RuntimePodman {
-		xdgRuntime := os.Getenv("XDG_RUNTIME_DIR")
-		if xdgRuntime != "" {
-			socketPath = fmt.Sprintf("%s/podman/podman.sock", xdgRuntime)
-		}
-	}
 
 	networkName := NetworkName(projectName)
 	memgraphName := MemgraphName(projectName)

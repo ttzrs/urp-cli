@@ -13,7 +13,7 @@ type VolumeSpec struct {
 	ReadOnly bool   // Mount as read-only
 }
 
-// String returns the docker/podman -v argument format
+// String returns the docker -v argument format
 func (v VolumeSpec) String() string {
 	if v.ReadOnly {
 		return fmt.Sprintf("%s:%s:ro", v.Source, v.Target)
@@ -21,7 +21,7 @@ func (v VolumeSpec) String() string {
 	return fmt.Sprintf("%s:%s:rw", v.Source, v.Target)
 }
 
-// StringWithSELinux returns the volume string with :Z label for Podman/SELinux
+// StringWithSELinux returns the volume string with :Z label for SELinux systems
 func (v VolumeSpec) StringWithSELinux() string {
 	mode := "rw"
 	if v.ReadOnly {

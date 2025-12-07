@@ -1,8 +1,8 @@
-// Package container manages Docker/Podman infrastructure for URP.
+// Package container manages Docker infrastructure for URP.
 //
 // # Architecture
 //
-// URP supports two container modes:
+// URP uses Docker containers for isolation:
 //
 // ## Master/Worker Flow (Primary)
 //
@@ -38,13 +38,16 @@
 //   - urp:master - Full + Claude CLI + docker-cli (spawns workers)
 //   - urp:worker - Full + Claude CLI + dev tools (executes tasks)
 //   - urp:latest - Full image (standalone use)
+//
+// # Requirements
+//
+// Docker must be installed and running. Podman is not supported.
 package container
 
 import (
 	"bufio"
 	"context"
 	"fmt"
-	"os"
 	osexec "os/exec"
 	"strings"
 
@@ -52,22 +55,20 @@ import (
 )
 
 const (
-	MemgraphImage  = "memgraph/memgraph-platform:latest"
-	URPImage       = "urp:latest"
-	URPWorkerImage = "urp:worker"
-	URPMasterImage = "urp:master"
-	NeMoImage      = "nvcr.io/nvidia/nemo:24.07"
-	URPConfigDir   = "~/.urp-go"
-	URPEnvFile     = "~/.urp-go/.env"
+	MemgraphImage   = "memgraph/memgraph-platform:latest"
+	URPImage        = "urp:latest"
+	URPWorkerImage  = "urp:worker"
+	URPMasterImage  = "urp:master"
+	URPBrowserImage = "urp:browser" // Chrome + go-rod for browser automation
+	NeMoImage       = "nvcr.io/nvidia/nemo:24.07"
+	URPConfigDir    = "~/.urp-go"
+	URPEnvFile      = "~/.urp-go/.env"
 )
 
-// NetworkName returns the project-specific network name.
-// Each project gets its own isolated network: urp-<project>-net
+// NetworkName returns the URP network name.
+// All URP containers share a single network for simplicity.
 func NetworkName(project string) string {
-	if project == "" {
-		return "urp-default-net"
-	}
-	return fmt.Sprintf("urp-%s-net", project)
+	return "urp-network"
 }
 
 // MemgraphName returns the project-specific memgraph container name.
@@ -96,7 +97,6 @@ type Runtime string
 
 const (
 	RuntimeDocker Runtime = "docker"
-	RuntimePodman Runtime = "podman"
 	RuntimeNone   Runtime = ""
 )
 
@@ -167,21 +167,9 @@ func (m *Manager) SetProject(project string) {
 }
 
 func detectRuntime() Runtime {
-	// Allow override via env var
-	if override := os.Getenv("URP_RUNTIME"); override != "" {
-		switch override {
-		case "docker":
-			return RuntimeDocker
-		case "podman":
-			return RuntimePodman
-		}
-	}
-	// Prefer docker (more common), fall back to podman
+	// Docker is the only supported runtime
 	if _, err := osexec.LookPath("docker"); err == nil {
 		return RuntimeDocker
-	}
-	if _, err := osexec.LookPath("podman"); err == nil {
-		return RuntimePodman
 	}
 	return RuntimeNone
 }
@@ -215,7 +203,7 @@ func (m *Manager) Status() *InfraStatus {
 	}
 
 	if m.runtime == RuntimeNone {
-		status.Error = "no container runtime (docker/podman) found"
+		status.Error = "Docker not found. Install Docker to use URP containers."
 		return status
 	}
 

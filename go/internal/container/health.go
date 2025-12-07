@@ -130,11 +130,10 @@ func IsSELinuxEnforcing() bool {
 	return detectSELinux() == "enforcing"
 }
 
-// NeedsSELinuxWorkaround returns true if we need special handling for docker socket
+// NeedsSELinuxWorkaround returns true if we need special handling for docker socket.
+// With Docker and --security-opt label=disable, no workaround is needed.
 func (m *Manager) NeedsSELinuxWorkaround() bool {
-	// Only Podman on SELinux enforcing needs :Z labels
-	// Docker with --security-opt label=disable works
-	return m.runtime == RuntimePodman && IsSELinuxEnforcing()
+	return false
 }
 
 // WorkerHealth represents the health status of a worker container

@@ -475,16 +475,14 @@ func tickCmd() tea.Cmd {
 
 // Run starts the TUI
 func Run() error {
-	// Connect to graph
+	// Connect to graph - REQUIRED, no fallback
 	graph.SetEnvLookup(os.LookupEnv)
 	var err error
 	db, err = graph.Connect()
 	if err != nil {
-		db = nil // Silent fail, TUI will show disconnected
+		return fmt.Errorf("memgraph required: %w (run: docker compose up -d memgraph)", err)
 	}
-	if db != nil {
-		defer db.Close()
-	}
+	defer db.Close()
 
 	p := tea.NewProgram(New(), tea.WithAltScreen())
 	_, err = p.Run()

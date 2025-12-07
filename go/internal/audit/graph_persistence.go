@@ -2,6 +2,7 @@ package audit
 
 import (
 	"context"
+	"log"
 	"sync"
 	"time"
 )
@@ -30,7 +31,8 @@ func PersistContainerEvent(event, containerName, project string, durationMs int6
 	graphMu.RUnlock()
 
 	if driver == nil {
-		return // No graph configured, skip persistence
+		log.Printf("WARN: graph not configured, event not persisted: %s %s", event, containerName)
+		return
 	}
 
 	query := `

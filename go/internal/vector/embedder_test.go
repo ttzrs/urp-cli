@@ -2,121 +2,212 @@ package vector
 
 import (
 	"context"
+	"os"
 	"testing"
 )
 
-func TestLocalEmbedder(t *testing.T) {
-	embedder := NewLocalEmbedder(384)
+func TestGetDefaultEmbedderPanicsWithoutConfig(t *testing.T) {
+	// Save and clear environment
+	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
+	origTEI := os.Getenv("TEI_URL")
+	origOpenAI := os.Getenv("OPENAI_API_KEY")
 
-	ctx := context.Background()
+	os.Unsetenv("URP_EMBEDDING_PROVIDER")
+	os.Unsetenv("TEI_URL")
+	os.Unsetenv("OPENAI_API_KEY")
 
-	// Test basic embedding
-	emb, err := embedder.Embed(ctx, "ModuleNotFoundError: No module named 'foo'")
-	if err != nil {
-		t.Fatalf("Embed: %v", err)
-	}
+	// Reset default embedder
+	ResetDefaultEmbedder()
 
-	if len(emb) != 384 {
-		t.Errorf("Embedding dimension = %d, want 384", len(emb))
-	}
-
-	// Test unit vector (should be normalized)
-	var sum float32
-	for _, v := range emb {
-		sum += v * v
-	}
-	if sum < 0.99 || sum > 1.01 {
-		t.Errorf("Embedding norm = %f, want 1.0", sum)
-	}
-}
-
-func TestEmbeddingSimilarity(t *testing.T) {
-	embedder := NewLocalEmbedder(384)
-	ctx := context.Background()
-
-	// Similar texts should have high similarity
-	emb1, _ := embedder.Embed(ctx, "ModuleNotFoundError: No module named 'requests'")
-	emb2, _ := embedder.Embed(ctx, "ModuleNotFoundError: No module named 'flask'")
-	emb3, _ := embedder.Embed(ctx, "Connection refused on port 8080")
-
-	sim12 := cosineSimilarity(emb1, emb2)
-	sim13 := cosineSimilarity(emb1, emb3)
-
-	// Similar errors should be more similar than unrelated ones
-	if sim12 <= sim13 {
-		t.Errorf("Similar errors should have higher similarity: sim12=%f, sim13=%f", sim12, sim13)
-	}
-}
-
-func TestEmbedBatch(t *testing.T) {
-	embedder := NewLocalEmbedder(384)
-	ctx := context.Background()
-
-	texts := []string{
-		"error one",
-		"error two",
-		"error three",
-	}
-
-	embeddings, err := embedder.EmbedBatch(ctx, texts)
-	if err != nil {
-		t.Fatalf("EmbedBatch: %v", err)
-	}
-
-	if len(embeddings) != 3 {
-		t.Errorf("EmbedBatch count = %d, want 3", len(embeddings))
-	}
-
-	for i, emb := range embeddings {
-		if len(emb) != 384 {
-			t.Errorf("Embedding %d dimension = %d, want 384", i, len(emb))
+	defer func() {
+		// Restore environment
+		if origProvider != "" {
+			os.Setenv("URP_EMBEDDING_PROVIDER", origProvider)
 		}
+		if origTEI != "" {
+			os.Setenv("TEI_URL", origTEI)
+		}
+		if origOpenAI != "" {
+			os.Setenv("OPENAI_API_KEY", origOpenAI)
+		}
+		ResetDefaultEmbedder()
+	}()
+
+	// Should panic without configuration
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetDefaultEmbedder should panic when URP_EMBEDDING_PROVIDER is not set")
+		}
+	}()
+
+	GetDefaultEmbedder()
+}
+
+func TestGetDefaultEmbedderTEI(t *testing.T) {
+	// Save and clear environment
+	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
+	origTEI := os.Getenv("TEI_URL")
+
+	os.Setenv("URP_EMBEDDING_PROVIDER", "tei")
+	os.Setenv("TEI_URL", "http://localhost:8080")
+
+	// Reset default embedder
+	ResetDefaultEmbedder()
+
+	defer func() {
+		// Restore environment
+		if origProvider != "" {
+			os.Setenv("URP_EMBEDDING_PROVIDER", origProvider)
+		} else {
+			os.Unsetenv("URP_EMBEDDING_PROVIDER")
+		}
+		if origTEI != "" {
+			os.Setenv("TEI_URL", origTEI)
+		} else {
+			os.Unsetenv("TEI_URL")
+		}
+		ResetDefaultEmbedder()
+	}()
+
+	// Should not panic with valid config
+	embedder := GetDefaultEmbedder()
+	if embedder == nil {
+		t.Error("GetDefaultEmbedder returned nil with valid TEI config")
 	}
 }
 
-func TestTokenize(t *testing.T) {
-	tests := []struct {
-		input string
-		want  int
-	}{
-		{"hello world", 2},
-		{"ModuleNotFoundError: No module named 'foo'", 5}, // modulenotfounderror, no, module, named, foo
-		{"", 0},
-		{"a b c", 0},        // all too short
-		{"abc def ghi", 3},  // all >= 2 chars
-		{"HTTP 404 Error", 3},
-	}
+func TestGetDefaultEmbedderTEIPanicsWithoutURL(t *testing.T) {
+	// Save and clear environment
+	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
+	origTEI := os.Getenv("TEI_URL")
 
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			tokens := tokenize(tt.input)
-			if len(tokens) != tt.want {
-				t.Errorf("tokenize(%q) = %d tokens, want %d (got: %v)",
-					tt.input, len(tokens), tt.want, tokens)
-			}
-		})
-	}
+	os.Setenv("URP_EMBEDDING_PROVIDER", "tei")
+	os.Unsetenv("TEI_URL")
+
+	// Reset default embedder
+	ResetDefaultEmbedder()
+
+	defer func() {
+		// Restore environment
+		if origProvider != "" {
+			os.Setenv("URP_EMBEDDING_PROVIDER", origProvider)
+		} else {
+			os.Unsetenv("URP_EMBEDDING_PROVIDER")
+		}
+		if origTEI != "" {
+			os.Setenv("TEI_URL", origTEI)
+		}
+		ResetDefaultEmbedder()
+	}()
+
+	// Should panic without TEI_URL
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetDefaultEmbedder should panic when TEI_URL is not set")
+		}
+	}()
+
+	GetDefaultEmbedder()
 }
 
-func TestEmptyText(t *testing.T) {
-	embedder := NewLocalEmbedder(384)
-	ctx := context.Background()
+func TestGetDefaultEmbedderOpenAIPanicsWithoutKey(t *testing.T) {
+	// Save and clear environment
+	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
+	origOpenAI := os.Getenv("OPENAI_API_KEY")
 
-	emb, err := embedder.Embed(ctx, "")
-	if err != nil {
-		t.Fatalf("Embed empty: %v", err)
+	os.Setenv("URP_EMBEDDING_PROVIDER", "openai")
+	os.Unsetenv("OPENAI_API_KEY")
+
+	// Reset default embedder
+	ResetDefaultEmbedder()
+
+	defer func() {
+		// Restore environment
+		if origProvider != "" {
+			os.Setenv("URP_EMBEDDING_PROVIDER", origProvider)
+		} else {
+			os.Unsetenv("URP_EMBEDDING_PROVIDER")
+		}
+		if origOpenAI != "" {
+			os.Setenv("OPENAI_API_KEY", origOpenAI)
+		}
+		ResetDefaultEmbedder()
+	}()
+
+	// Should panic without OPENAI_API_KEY
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetDefaultEmbedder should panic when OPENAI_API_KEY is not set")
+		}
+	}()
+
+	GetDefaultEmbedder()
+}
+
+func TestGetDefaultEmbedderUnknownProvider(t *testing.T) {
+	// Save and clear environment
+	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
+
+	os.Setenv("URP_EMBEDDING_PROVIDER", "unknown-provider")
+
+	// Reset default embedder
+	ResetDefaultEmbedder()
+
+	defer func() {
+		// Restore environment
+		if origProvider != "" {
+			os.Setenv("URP_EMBEDDING_PROVIDER", origProvider)
+		} else {
+			os.Unsetenv("URP_EMBEDDING_PROVIDER")
+		}
+		ResetDefaultEmbedder()
+	}()
+
+	// Should panic with unknown provider
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetDefaultEmbedder should panic with unknown provider")
+		}
+	}()
+
+	GetDefaultEmbedder()
+}
+
+func TestSetDefaultEmbedder(t *testing.T) {
+	// Reset first
+	ResetDefaultEmbedder()
+
+	// Create a mock embedder
+	mock := &mockEmbedder{dims: 384}
+	SetDefaultEmbedder(mock)
+
+	// Should return the mock
+	embedder := GetDefaultEmbedder()
+	if embedder == nil {
+		t.Error("GetDefaultEmbedder should return the set embedder")
 	}
 
-	if len(emb) != 384 {
-		t.Errorf("Empty embedding dimension = %d, want 384", len(emb))
-	}
+	// Cleanup
+	ResetDefaultEmbedder()
+}
 
-	// Empty text should produce zero vector
-	var sum float32
-	for _, v := range emb {
-		sum += v * v
+// mockEmbedder for testing
+type mockEmbedder struct {
+	dims int
+}
+
+func (m *mockEmbedder) Embed(_ context.Context, _ string) ([]float32, error) {
+	return make([]float32, m.dims), nil
+}
+
+func (m *mockEmbedder) EmbedBatch(_ context.Context, texts []string) ([][]float32, error) {
+	results := make([][]float32, len(texts))
+	for i := range texts {
+		results[i] = make([]float32, m.dims)
 	}
-	if sum != 0 {
-		t.Errorf("Empty embedding should be zero vector, got norm %f", sum)
-	}
+	return results, nil
+}
+
+func (m *mockEmbedder) Dimensions() int {
+	return m.dims
 }

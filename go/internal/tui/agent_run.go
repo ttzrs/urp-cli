@@ -246,20 +246,16 @@ func RunAgentWithPrompt(workDir, prompt string) error {
 
 	fmt.Println("Loading environment...")
 
-	// Connect to graph
+	// Connect to graph - REQUIRED
 	graph.SetEnvLookup(os.LookupEnv)
 	gdb, err := graph.Connect()
 	if err != nil {
-		fmt.Printf("⚠ Memgraph: %v\n", err)
-		gdb = nil
-	} else {
-		fmt.Println("✓ Memgraph connected")
+		return fmt.Errorf("memgraph required: %w (run: docker compose up -d memgraph)", err)
 	}
+	defer gdb.Close()
+	fmt.Println("✓ Memgraph connected")
 
-	var store *graphstore.Store
-	if gdb != nil {
-		store = graphstore.New(gdb)
-	}
+	store := graphstore.New(gdb)
 
 	// Initialize provider
 	fmt.Println("Initializing provider...")

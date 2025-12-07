@@ -118,14 +118,8 @@ func (m *Manager) LaunchMaster(projectPath string) (string, error) {
 	// Stop existing if running
 	m.runQuiet("rm", "-f", containerName)
 
-	// Mount docker socket for spawning workers
+	// Docker socket path
 	socketPath := "/var/run/docker.sock"
-	if m.runtime == RuntimePodman {
-		xdgRuntime := os.Getenv("XDG_RUNTIME_DIR")
-		if xdgRuntime != "" {
-			socketPath = fmt.Sprintf("%s/podman/podman.sock", xdgRuntime)
-		}
-	}
 
 	// Expand home directory for env file (resolve symlinks for Silverblue /var/home)
 	homeDir := ResolveHomeDirReal()

@@ -54,3 +54,7 @@ legacy/reference/
 rust_modules/inferencia/vendor/
 rust_modules/**/target/
 urp
+go/cmd/desktop/frontend/node_modules/
+go/cmd/desktop/frontend/dist/
+go/cmd/desktop/build/
+packages/*/node_modules/

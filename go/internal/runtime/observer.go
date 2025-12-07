@@ -1,11 +1,10 @@
 // Package runtime provides system observability (vitals, topology, health).
+// Implements DIP: Observer depends on Runtime interface, not concrete Docker.
 package runtime
 
 import (
-	"bufio"
 	"context"
 	"fmt"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,15 +15,15 @@ import (
 
 // ContainerState represents container metrics (Φ energy).
 type ContainerState struct {
-	ID           string  `json:"id"`
-	Name         string  `json:"name"`
-	Status       string  `json:"status"`
-	CPUPercent   float64 `json:"cpu_percent"`
-	MemoryBytes  int64   `json:"memory_bytes"`
-	MemoryLimit  int64   `json:"memory_limit"`
-	MemoryPct    float64 `json:"memory_pct"`
-	NetworkRx    int64   `json:"network_rx"`
-	NetworkTx    int64   `json:"network_tx"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Status      string  `json:"status"`
+	CPUPercent  float64 `json:"cpu_percent"`
+	MemoryBytes int64   `json:"memory_bytes"`
+	MemoryLimit int64   `json:"memory_limit"`
+	MemoryPct   float64 `json:"memory_pct"`
+	NetworkRx   int64   `json:"network_rx"`
+	NetworkTx   int64   `json:"network_tx"`
 }
 
 // HealthIssue represents a container health problem (⊥ conflict).
@@ -52,69 +51,65 @@ type ContainerInfo struct {
 }
 
 // Observer provides runtime observation capabilities.
+// Uses Runtime interface for DIP - can be injected with mock for testing.
 type Observer struct {
 	db      graph.Driver
-	runtime string // "docker" or "podman"
+	runtime Runtime // DIP: depends on interface, not concrete Docker
+}
+
+// ObserverOption configures Observer via functional options (DIP).
+type ObserverOption func(*Observer)
+
+// WithRuntime injects a custom runtime (for testing).
+func WithRuntime(r Runtime) ObserverOption {
+	return func(o *Observer) { o.runtime = r }
 }
 
 // NewObserver creates an observer, auto-detecting container runtime.
-func NewObserver(db graph.Driver) *Observer {
-	runtime := detectRuntime()
-	return &Observer{db: db, runtime: runtime}
-}
+func NewObserver(db graph.Driver, opts ...ObserverOption) *Observer {
+	o := &Observer{
+		db:      db,
+		runtime: DetectRuntime(), // Default: auto-detect
+	}
 
-func detectRuntime() string {
-	// Check for podman first (more common on Fedora)
-	if _, err := exec.LookPath("podman"); err == nil {
-		return "podman"
+	for _, opt := range opts {
+		opt(o)
 	}
-	if _, err := exec.LookPath("docker"); err == nil {
-		return "docker"
-	}
-	return ""
+
+	return o
 }
 
 // Vitals returns current container states.
 func (o *Observer) Vitals(ctx context.Context) ([]ContainerState, error) {
-	if o.runtime == "" {
-		return nil, fmt.Errorf("no container runtime (docker/podman) found")
+	if o.runtime == nil || !o.runtime.Available() {
+		return nil, fmt.Errorf("Docker not found. Install Docker to use URP containers.")
 	}
 
-	// Use `docker/podman stats --no-stream --format` for metrics
-	cmd := exec.CommandContext(ctx, o.runtime, "stats", "--no-stream",
-		"--format", "{{.ID}}\t{{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}")
-
-	output, err := cmd.Output()
+	// Use Runtime interface (DIP)
+	rawStats, err := o.runtime.Stats(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s stats failed: %w", o.runtime, err)
+		return nil, fmt.Errorf("stats failed: %w", err)
 	}
 
 	var states []ContainerState
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, "\t")
-		if len(parts) < 5 {
-			continue
-		}
-
+	for _, raw := range rawStats {
 		state := ContainerState{
-			ID:   parts[0][:12],
-			Name: parts[1],
+			ID:   truncateID(raw.ID),
+			Name: raw.Name,
 		}
 
 		// Parse CPU (e.g., "1.23%")
-		cpuStr := strings.TrimSuffix(parts[2], "%")
+		cpuStr := strings.TrimSuffix(raw.CPUPercent, "%")
 		state.CPUPercent, _ = strconv.ParseFloat(cpuStr, 64)
 
 		// Parse memory (e.g., "123MiB / 1GiB")
-		state.MemoryBytes, state.MemoryLimit = parseMemUsage(parts[3])
+		state.MemoryBytes, state.MemoryLimit = parseMemUsage(raw.MemUsage)
 		if state.MemoryLimit > 0 {
 			state.MemoryPct = float64(state.MemoryBytes) / float64(state.MemoryLimit) * 100
 		}
 
 		// Parse network (e.g., "1.2kB / 3.4kB")
-		state.NetworkRx, state.NetworkTx = parseNetIO(parts[4])
+		state.NetworkRx, state.NetworkTx = parseNetIO(raw.NetIO)
 
 		state.Status = "running"
 		states = append(states, state)
@@ -126,6 +121,14 @@ func (o *Observer) Vitals(ctx context.Context) ([]ContainerState, error) {
 	}
 
 	return states, nil
+}
+
+// truncateID truncates container ID to 12 characters.
+func truncateID(id string) string {
+	if len(id) > 12 {
+		return id[:12]
+	}
+	return id
 }
 
 func parseMemUsage(s string) (used, limit int64) {
@@ -212,45 +215,35 @@ func (o *Observer) Topology(ctx context.Context) (*NetworkTopology, error) {
 		Networks:   []string{},
 	}
 
-	if o.runtime == "" {
+	if o.runtime == nil || !o.runtime.Available() {
 		result.Error = "no container runtime found"
 		return result, nil
 	}
 
-	// Get container list with network info
-	cmd := exec.CommandContext(ctx, o.runtime, "ps",
-		"--format", "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Networks}}")
-
-	output, err := cmd.Output()
+	// Use Runtime interface (DIP)
+	rawContainers, err := o.runtime.List(ctx)
 	if err != nil {
-		result.Error = fmt.Sprintf("%s ps failed: %v", o.runtime, err)
+		result.Error = fmt.Sprintf("list failed: %v", err)
 		return result, nil
 	}
 
 	networkSet := make(map[string]bool)
 
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, "\t")
-		if len(parts) < 5 {
-			continue
-		}
-
+	for _, raw := range rawContainers {
 		info := ContainerInfo{
-			ID:    parts[0][:min(12, len(parts[0]))],
-			Name:  parts[1],
-			Image: parts[2],
+			ID:    truncateID(raw.ID),
+			Name:  raw.Name,
+			Image: raw.Image,
 		}
 
 		// Parse ports
-		if parts[3] != "" {
-			info.Ports = strings.Split(parts[3], ", ")
+		if raw.Ports != "" {
+			info.Ports = strings.Split(raw.Ports, ", ")
 		}
 
 		// Parse networks
-		if parts[4] != "" {
-			info.Networks = strings.Split(parts[4], ",")
+		if raw.Networks != "" {
+			info.Networks = strings.Split(raw.Networks, ",")
 			for _, n := range info.Networks {
 				networkSet[strings.TrimSpace(n)] = true
 			}
@@ -293,24 +286,21 @@ func (o *Observer) storeTopology(ctx context.Context, info ContainerInfo) {
 func (o *Observer) Health(ctx context.Context) ([]HealthIssue, error) {
 	var issues []HealthIssue
 
-	if o.runtime == "" {
+	if o.runtime == nil || !o.runtime.Available() {
 		issues = append(issues, HealthIssue{
 			Container: "system",
 			Type:      "NO_RUNTIME",
-			Severity:  "WARN",
-			Detail:    "No container runtime (docker/podman) found",
+			Severity:  "ERROR",
+			Detail:    "Docker not found. Install Docker to use URP.",
 		})
 		return issues, nil
 	}
 
-	// Get all containers including stopped ones
-	cmd := exec.CommandContext(ctx, o.runtime, "ps", "-a",
-		"--format", "{{.ID}}\t{{.Names}}\t{{.Status}}\t{{.State}}")
-
-	output, err := cmd.Output()
+	// Use Runtime interface (DIP)
+	rawContainers, err := o.runtime.ListAll(ctx)
 	if err != nil {
 		issues = append(issues, HealthIssue{
-			Container: o.runtime,
+			Container: o.runtime.Name(),
 			Type:      "CMD_FAILED",
 			Severity:  "ERROR",
 			Detail:    err.Error(),
@@ -318,17 +308,10 @@ func (o *Observer) Health(ctx context.Context) ([]HealthIssue, error) {
 		return issues, nil
 	}
 
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, "\t")
-		if len(parts) < 4 {
-			continue
-		}
-
-		name := parts[1]
-		status := strings.ToLower(parts[2])
-		state := strings.ToLower(parts[3])
+	for _, raw := range rawContainers {
+		name := raw.Name
+		status := strings.ToLower(raw.Status)
+		state := strings.ToLower(raw.State)
 
 		// Check for restart loops
 		if strings.Contains(status, "restarting") {
@@ -367,14 +350,15 @@ func (o *Observer) Health(ctx context.Context) ([]HealthIssue, error) {
 	return issues, nil
 }
 
-// Runtime returns detected container runtime.
-func (o *Observer) Runtime() string {
-	return o.runtime
+// Runtime returns detected container runtime name.
+func (o *Observer) RuntimeName() string {
+	if o.runtime == nil {
+		return ""
+	}
+	return o.runtime.Name()
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+// RuntimeAvailable returns true if a container runtime is available.
+func (o *Observer) RuntimeAvailable() bool {
+	return o.runtime != nil && o.runtime.Available()
 }

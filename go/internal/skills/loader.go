@@ -3,6 +3,7 @@ package skills
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,23 +31,30 @@ func (l *Loader) LoadFromDirectory(ctx context.Context, dir string) (int, error)
 	}
 
 	loaded := 0
+	var loadErrors []error
 	for _, entry := range entries {
 		if entry.IsDir() {
 			// Subdirectories represent categories
 			catDir := filepath.Join(dir, entry.Name())
 			n, err := l.loadCategoryDir(ctx, catDir, entry.Name())
 			if err != nil {
-				continue // Skip broken categories
+				loadErrors = append(loadErrors, fmt.Errorf("category %s: %w", entry.Name(), err))
+				continue
 			}
 			loaded += n
 		} else if strings.HasSuffix(entry.Name(), ".md") {
 			// Root-level skills
 			path := filepath.Join(dir, entry.Name())
 			if err := l.loadSkillFile(ctx, path, ""); err != nil {
+				loadErrors = append(loadErrors, fmt.Errorf("skill %s: %w", entry.Name(), err))
 				continue
 			}
 			loaded++
 		}
+	}
+
+	if len(loadErrors) > 0 {
+		log.Printf("WARN: %d skill load errors: %v", len(loadErrors), loadErrors[0])
 	}
 
 	return loaded, nil

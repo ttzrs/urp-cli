@@ -46,11 +46,25 @@ Use 'urp status' to show infrastructure status.
 Use 'urp help' for full command list.`,
 		Args: cobra.MaximumNArgs(1),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			// Connect to graph (lazy, may fail)
+			// Connect to graph - REQUIRED for all commands
 			var err error
 			db, err = graph.Connect()
 			if err != nil {
-				db = nil
+				fmt.Fprintf(os.Stderr, "ERROR: Cannot connect to Memgraph: %v\n", err)
+				fmt.Fprintf(os.Stderr, "\nTo start infrastructure:\n")
+				fmt.Fprintf(os.Stderr, "  docker compose up -d memgraph\n")
+				fmt.Fprintf(os.Stderr, "\nThen retry your command.\n")
+				os.Exit(1)
+			}
+
+			// Verify connectivity
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if err := db.Ping(ctx); err != nil {
+				fmt.Fprintf(os.Stderr, "ERROR: Memgraph not responding: %v\n", err)
+				fmt.Fprintf(os.Stderr, "\nCheck if Memgraph is running:\n")
+				fmt.Fprintf(os.Stderr, "  docker ps | grep memgraph\n")
+				os.Exit(1)
 			}
 
 			// Configure logging
@@ -61,14 +75,13 @@ Use 'urp help' for full command list.`,
 				config.Env().SessionID = fmt.Sprintf("sess-%d", time.Now().UnixNano())
 			}
 
-			if db != nil {
-				audit.SetGraphDriver(db)
-				vector.SetDefaultStore(vector.NewMemgraphStore(db))
+			// All services now guaranteed to have db
+			audit.SetGraphDriver(db)
+			vector.SetDefaultStore(vector.NewMemgraphStore(db))
 
-				// Create and inject Store for persistence
-				store := audit.NewStore(db, config.Env().SessionID)
-				logOpts = append(logOpts, audit.WithStore(store))
-			}
+			// Create and inject Store for persistence
+			store := audit.NewStore(db, config.Env().SessionID)
+			logOpts = append(logOpts, audit.WithStore(store))
 
 			// Initialize audit logger with options
 			auditLogger = audit.NewLogger(logOpts...)
@@ -132,6 +145,7 @@ Use 'urp help' for full command list.`,
 	rootCmd.AddCommand(versionCmd())
 	rootCmd.AddCommand(statusCmd())
 	rootCmd.AddCommand(tuiCmd())
+	rootCmd.AddCommand(serveCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -251,10 +265,10 @@ func doctorCmd() *cobra.Command {
 		Long: `Diagnose the URP runtime environment.
 
 Checks:
-  - Container runtime (docker/podman)
+  - Docker (required)
   - TTY availability
-  - Network configuration
-  - Required images
+  - Network configuration (urp-network)
+  - Required images (urp:latest, urp:master, urp:worker)
   - Memgraph connectivity
 
 Use --quick for Docker HEALTHCHECK (fast, minimal checks inside container).`,

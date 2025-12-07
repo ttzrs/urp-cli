@@ -3,6 +3,7 @@ package permission
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -212,15 +213,19 @@ func (m *Manager) save() {
 	path := permissionFile()
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return // Silent fail - permissions still work in memory
+		log.Printf("WARN: failed to create permission dir %s: %v", dir, err)
+		return
 	}
 
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
+		log.Printf("WARN: failed to marshal permissions: %v", err)
 		return
 	}
 
-	os.WriteFile(path, jsonData, 0600) // 0600 for privacy
+	if err := os.WriteFile(path, jsonData, 0600); err != nil {
+		log.Printf("WARN: failed to persist permissions to %s: %v", path, err)
+	}
 }
 
 // load reads persisted permissions from disk

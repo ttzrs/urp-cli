@@ -111,11 +111,6 @@ func TestIsHealthy(t *testing.T) {
 			healthy: true,
 		},
 		{
-			name:    "healthy with podman",
-			env:     &Environment{Runtime: "podman", ImagesExist: map[string]bool{}},
-			healthy: true,
-		},
-		{
 			name:    "unhealthy no runtime",
 			env:     &Environment{Runtime: "none", ImagesExist: map[string]bool{}},
 			healthy: false,
@@ -124,6 +119,11 @@ func TestIsHealthy(t *testing.T) {
 			name:    "unhealthy with errors",
 			env:     &Environment{Runtime: "docker", Errors: []string{"something failed"}, ImagesExist: map[string]bool{}},
 			healthy: false,
+		},
+		{
+			name:    "unhealthy with non-docker runtime",
+			env:     &Environment{Runtime: "podman", ImagesExist: map[string]bool{}},
+			healthy: false, // Only docker is supported now
 		},
 	}
 

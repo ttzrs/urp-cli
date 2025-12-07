@@ -1,0 +1,29 @@
+# Stage 1: Build the Rust module
+FROM rust:bookworm as builder
+
+# Install build dependencies (clang is needed for bindgen)
+RUN apt-get update && apt-get install -y clang libssl-dev cmake
+
+WORKDIR /usr/src/rust_modules
+
+# Copy source code including local dependencies
+COPY rust_modules/inferencia ./inferencia
+COPY rust_modules/mage ./mage
+
+WORKDIR /usr/src/rust_modules/inferencia
+
+# Build the dynamic library in release mode, offline using vendored deps
+# We set RUSTFLAGS to use native CPU instructions for maximum performance
+ENV RUSTFLAGS="-C target-cpu=native"
+RUN cargo build --release --offline
+
+# Stage 2: Memgraph with module pre-loaded
+FROM memgraph/memgraph-mage:latest
+
+# Copy the compiled .so file to the query_modules directory
+COPY --from=builder /usr/src/rust_modules/inferencia/target/release/libinferencia.so /usr/lib/memgraph/query_modules/
+
+# Ensure permissions are correct
+USER root
+RUN chmod 644 /usr/lib/memgraph/query_modules/libinferencia.so
+USER memgraph

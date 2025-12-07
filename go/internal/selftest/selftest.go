@@ -13,7 +13,7 @@ import (
 // Environment describes the runtime environment.
 type Environment struct {
 	HasTTY              bool
-	Runtime             string // docker, podman, or none
+	Runtime             string // "docker" or "none"
 	RuntimeVersion      string
 	MemgraphUp          bool
 	MemgraphPersistence bool // true if Memgraph has durability configured
@@ -45,7 +45,7 @@ func Check() *Environment {
 }
 
 func (e *Environment) detectRuntime() {
-	// Check docker first
+	// Docker is the only supported runtime
 	if path, err := exec.LookPath("docker"); err == nil {
 		cmd := exec.Command(path, "--version")
 		if out, err := cmd.Output(); err == nil {
@@ -55,18 +55,8 @@ func (e *Environment) detectRuntime() {
 		}
 	}
 
-	// Fall back to podman
-	if path, err := exec.LookPath("podman"); err == nil {
-		cmd := exec.Command(path, "--version")
-		if out, err := cmd.Output(); err == nil {
-			e.Runtime = "podman"
-			e.RuntimeVersion = strings.TrimSpace(string(out))
-			return
-		}
-	}
-
 	e.Runtime = "none"
-	e.Errors = append(e.Errors, "No container runtime found (docker or podman)")
+	e.Errors = append(e.Errors, "Docker not found. Install Docker to use URP.")
 }
 
 func (e *Environment) checkInfrastructure() {
@@ -130,7 +120,7 @@ func (e *Environment) checkImages() {
 
 // IsHealthy returns true if the environment can run URP.
 func (e *Environment) IsHealthy() bool {
-	return len(e.Errors) == 0 && e.Runtime != "none"
+	return len(e.Errors) == 0 && e.Runtime == "docker"
 }
 
 // CanLaunchMaster returns true if master containers can be launched.

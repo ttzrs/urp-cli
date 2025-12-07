@@ -34,7 +34,10 @@ func (m *Manager) Export(ctx context.Context, sessionID string) ([]byte, error) 
 		return nil, fmt.Errorf("get messages: %w", err)
 	}
 
-	usage, _ := m.GetUsage(ctx, sessionID) // ignore errors
+	usage, err := m.GetUsage(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("get usage: %w", err)
+	}
 
 	share := ShareFormat{
 		Version:    "1.0.0",

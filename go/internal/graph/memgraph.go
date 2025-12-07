@@ -4,7 +4,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -107,17 +106,17 @@ func Connect() (*Memgraph, error) {
 }
 
 // ConnectWithRetry tries to connect with exponential backoff.
-// Returns nil if all retries fail (graceful degradation).
-func ConnectWithRetry(maxRetries int) *Memgraph {
+// Returns error if all retries fail - no silent degradation.
+func ConnectWithRetry(maxRetries int) (*Memgraph, error) {
 	var lastErr error
-	for i := 0; i < maxRetries; i++ {
+	for i := range maxRetries {
 		mg, err := Connect()
 		if err == nil {
 			// Verify connectivity
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			if pingErr := mg.Ping(ctx); pingErr == nil {
 				cancel()
-				return mg
+				return mg, nil
 			}
 			cancel()
 			mg.Close()
@@ -128,11 +127,7 @@ func ConnectWithRetry(maxRetries int) *Memgraph {
 		// Exponential backoff: 100ms, 200ms, 400ms...
 		time.Sleep(time.Duration(100<<i) * time.Millisecond)
 	}
-	if lastErr != nil {
-		// Log but don't fail - graceful degradation
-		fmt.Fprintf(os.Stderr, "⚠ Memgraph unavailable: %v (continuing without graph)\n", lastErr)
-	}
-	return nil
+	return nil, fmt.Errorf("Memgraph connection failed after %d retries: %w\n\nTo start Memgraph:\n  docker compose up -d memgraph", maxRetries, lastErr)
 }
 
 // IsConnectionError checks if an error is a connection-related error.

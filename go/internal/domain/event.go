@@ -63,7 +63,7 @@ func ClassifyCommand(cmdBase string) EventType {
 	switch cmdBase {
 	case "git", "svn", "hg":
 		return EventVCS
-	case "docker", "podman", "kubectl", "k3s":
+	case "docker", "kubectl", "k3s":
 		return EventContainer
 	case "npm", "pip", "cargo", "go", "make", "mvn", "gradle":
 		return EventBuild

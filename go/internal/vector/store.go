@@ -92,9 +92,9 @@ func NewLanceStore(dbPath string) (*LanceStore, error) {
 		vecFile:  filepath.Join(dbPath, "vectors.bin"),
 	}
 
-	// Load existing entries
+	// Load existing entries - error means corrupted data
 	if err := store.load(); err != nil {
-		// Ignore load errors, start fresh
+		return nil, fmt.Errorf("load vector store: %w (delete %s to start fresh)", err, dbPath)
 	}
 
 	return store, nil
@@ -317,11 +317,11 @@ func (s *LanceStore) load() error {
 	}
 	defer vecFile.Close()
 
-	// Reconstruct entries
+	// Reconstruct entries - fail on any corruption
 	for _, meta := range metas {
 		// Seek to vector offset
 		if _, err := vecFile.Seek(meta.VecOffset, io.SeekStart); err != nil {
-			continue
+			return fmt.Errorf("seek vector for %s: %w", meta.ID, err)
 		}
 
 		// Read vector
@@ -329,7 +329,7 @@ func (s *LanceStore) load() error {
 		for i := 0; i < meta.VecDims; i++ {
 			var buf [4]byte
 			if _, err := io.ReadFull(vecFile, buf[:]); err != nil {
-				break
+				return fmt.Errorf("read vector for %s: %w", meta.ID, err)
 			}
 			vector[i] = floatFromBits(binary.LittleEndian.Uint32(buf[:]))
 		}
@@ -371,12 +371,12 @@ func SetDefaultStore(s Store) {
 }
 
 // Default returns the default vector store.
+// Panics if the store cannot be initialized.
 func Default() Store {
 	defaultStoreOnce.Do(func() {
 		store, err := NewLanceStore("")
 		if err != nil {
-			// Fallback to in-memory only
-			store = &LanceStore{entries: make(map[string]VectorEntry)}
+			panic(fmt.Sprintf("Failed to initialize vector store: %v. Ensure ~/.urp-go/vectors exists and is writable.", err))
 		}
 		defaultStore = store
 	})

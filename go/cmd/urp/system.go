@@ -30,9 +30,9 @@ func sysCmd() *cobra.Command {
 
 			obs := runtime.NewObserver(db)
 
-			if obs.Runtime() == "" {
+			if obs.RuntimeName() == "" {
 				auditLogger.LogWarning(event, "no container runtime detected")
-				fmt.Println("No container runtime detected (docker/podman)")
+				fmt.Println("Docker not detected. Install Docker to use URP containers.")
 				return
 			}
 
@@ -152,7 +152,7 @@ func sysCmd() *cobra.Command {
 			event := auditLogger.Start(audit.CategorySystem, "runtime")
 
 			obs := runtime.NewObserver(db)
-			rt := obs.Runtime()
+			rt := obs.RuntimeName()
 
 			auditLogger.LogSuccess(event)
 

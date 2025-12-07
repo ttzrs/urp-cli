@@ -1,6 +1,7 @@
 package container
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -29,7 +30,7 @@ func TestSpawnRequirementsValidation(t *testing.T) {
 	os.Setenv("URP_HOST_HOME", tmpDir)
 	defer os.Setenv("URP_HOST_HOME", oldHome)
 
-	mgr := NewManager(nil)
+	mgr := NewManager(context.Background())
 	req := mgr.ValidateSpawnRequirements(projectPath)
 
 	// Project path should be valid
@@ -52,7 +53,7 @@ func TestSpawnRequirementsValidation(t *testing.T) {
 }
 
 func TestSpawnRequirementsInvalid(t *testing.T) {
-	mgr := NewManager(nil)
+	mgr := NewManager(context.Background())
 	req := mgr.ValidateSpawnRequirements("/nonexistent/path/12345")
 
 	if req.ProjectPath {

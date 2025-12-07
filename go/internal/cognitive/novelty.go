@@ -3,10 +3,14 @@ package cognitive
 
 import (
 	"context"
+	"errors"
 
 	"github.com/joss/urp/internal/graph"
 	"github.com/joss/urp/internal/vector"
 )
+
+// ErrVectorStoreRequired is returned when vector store is not configured.
+var ErrVectorStoreRequired = errors.New("vector store required: set URP_EMBEDDING_PROVIDER")
 
 // NoveltyService detects unusual patterns in code.
 type NoveltyService struct {
@@ -119,7 +123,7 @@ func (n *NoveltyService) vectorNovelty(ctx context.Context, code string) (*Novel
 // IndexCode stores code in the vector database for future novelty checks.
 func (n *NoveltyService) IndexCode(ctx context.Context, code, signature, path string) error {
 	if n.vectors == nil || n.embedder == nil {
-		return nil // Silently skip if no vector store
+		return ErrVectorStoreRequired
 	}
 
 	vec, err := n.embedder.Embed(ctx, code)

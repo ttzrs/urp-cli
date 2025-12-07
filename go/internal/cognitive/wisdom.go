@@ -180,7 +180,7 @@ func (w *WisdomService) jaccardSearch(ctx context.Context, errorMsg string, thre
 // IndexError stores an error in the vector database for future matching.
 func (w *WisdomService) IndexError(ctx context.Context, errorMsg, command, project string) error {
 	if w.vectors == nil || w.embedder == nil {
-		return nil // Silently skip if no vector store
+		return ErrVectorStoreRequired
 	}
 
 	vec, err := w.embedder.Embed(ctx, errorMsg)

@@ -3,6 +3,7 @@ package specs
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -145,14 +146,20 @@ func (e *Engine) EnrichContext(ctx context.Context, spec *Spec, depth int) ([]st
 		enriched[f] = true
 	}
 
+	var errs []error
 	for _, f := range files {
 		neighbors, err := e.getNeighborhood(ctx, f, depth)
 		if err != nil {
-			continue // Skip on error
+			errs = append(errs, fmt.Errorf("neighborhood %s: %w", f, err))
+			continue
 		}
 		for _, n := range neighbors {
 			enriched[n] = true
 		}
+	}
+	// Log errors but don't fail - partial results still useful
+	if len(errs) > 0 {
+		log.Printf("WARN: %d neighborhood errors: %v", len(errs), errs[0])
 	}
 
 	// Convert to slice

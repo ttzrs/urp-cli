@@ -57,13 +57,13 @@ func (o *Orchestrator) SpawnWorker(ctx context.Context, workerID string) error {
 	return nil
 }
 
-// SpawnWorkerContainer spawns a worker in a Docker/Podman container.
+// SpawnWorkerContainer spawns a worker in a Docker container.
 // The container runs in protocol mode, communicating via stdin/stdout.
 func (o *Orchestrator) SpawnWorkerContainer(ctx context.Context, workerID, projectPath string) error {
 	// Detect container runtime
 	runtime := detectContainerRuntime()
 	if runtime == "" {
-		return fmt.Errorf("no container runtime found (docker/podman)")
+		return fmt.Errorf("Docker not found. Install Docker and run 'docker compose up -d memgraph' first")
 	}
 
 	// Build container args for protocol mode
@@ -131,20 +131,13 @@ func (o *Orchestrator) SpawnWorkerContainer(ctx context.Context, workerID, proje
 	return nil
 }
 
-// detectContainerRuntime finds the available container runtime.
+// detectContainerRuntime finds Docker.
 func detectContainerRuntime() string {
-	// Check which runtime has urp-memgraph running (must match infra)
-	// This ensures workers can reach the database on the same network
+	// Check if Docker has urp-memgraph running (must match infra)
 	if out, err := exec.Command("docker", "ps", "-q", "-f", "name=urp-memgraph").Output(); err == nil && len(out) > 0 {
 		return "docker"
 	}
-	if out, err := exec.Command("podman", "ps", "-q", "-f", "name=urp-memgraph").Output(); err == nil && len(out) > 0 {
-		return "podman"
-	}
-	// Fallback: prefer podman for rootless
-	if _, err := exec.LookPath("podman"); err == nil {
-		return "podman"
-	}
+	// Check if Docker is available at all
 	if _, err := exec.LookPath("docker"); err == nil {
 		return "docker"
 	}

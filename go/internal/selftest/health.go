@@ -150,17 +150,13 @@ func checkDocker(ctx context.Context) ComponentStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	// Try docker first, then podman
+	// Docker is the only supported runtime
 	cmd := exec.CommandContext(ctx, "docker", "ps", "--format", "{{.Names}}")
 	if err := cmd.Run(); err != nil {
-		// Try podman
-		cmd = exec.CommandContext(ctx, "podman", "ps", "--format", "{{.Names}}")
-		if err := cmd.Run(); err != nil {
-			return ComponentStatus{
-				Status:  "error",
-				Latency: time.Since(start).Milliseconds(),
-				Error:   "no container runtime available",
-			}
+		return ComponentStatus{
+			Status:  "error",
+			Latency: time.Since(start).Milliseconds(),
+			Error:   "Docker not available: " + err.Error(),
 		}
 	}
 
