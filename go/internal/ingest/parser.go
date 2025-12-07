@@ -265,6 +265,7 @@ func NewRegistry() *Registry {
 	}
 	// Register default parsers
 	r.Register(NewGoParser())
+	r.Register(NewTableParser()) // CSV, TSV, JSON schema extraction
 	return r
 }
 

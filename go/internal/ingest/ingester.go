@@ -373,17 +373,51 @@ func loadGitignore(rootPath string) []string {
 	var patterns []string
 
 	// Default patterns for common data/binary files
+	// NOTE: CSV, TSV, JSON are NOT excluded - they're parsed for schema only
 	defaults := []string{
-		"*.csv", "*.tsv", "*.parquet", "*.arrow",
-		"*.json", "*.jsonl", "*.ndjson",
+		// Binary data formats (not parseable for schema)
+		"*.parquet", "*.arrow", "*.feather",
 		"*.pkl", "*.pickle", "*.joblib",
 		"*.h5", "*.hdf5", "*.npy", "*.npz",
 		"*.db", "*.sqlite", "*.sqlite3",
-		"*.tar", "*.tar.gz", "*.tgz", "*.zip", "*.gz", "*.bz2", "*.xz",
-		"*.bin", "*.dat", "*.model", "*.ckpt", "*.pt", "*.pth",
-		"*.png", "*.jpg", "*.jpeg", "*.gif", "*.ico", "*.svg",
-		"*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx",
+
+		// Archives
+		"*.tar", "*.tar.gz", "*.tgz", "*.zip", "*.gz", "*.bz2", "*.xz", "*.7z", "*.rar",
+
+		// ML models and checkpoints
+		"*.bin", "*.dat", "*.model", "*.ckpt", "*.pt", "*.pth", "*.safetensors", "*.onnx",
+
+		// Images
+		"*.png", "*.jpg", "*.jpeg", "*.gif", "*.ico", "*.svg", "*.webp", "*.bmp", "*.tiff",
+
+		// Documents
+		"*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx", "*.ppt", "*.pptx",
+
+		// Generated code (low semantic value)
+		"*_gen.go", "*.pb.go", "*_mock.go", "mock_*.go",
+		"*_generated.go", "*.gen.ts", "*.gen.js",
+		"*_string.go", // stringer generated
+
+		// Minified/bundled (no structure)
+		"*.min.js", "*.min.css", "*.bundle.js", "*.chunk.js",
+
+		// Lock files (noise)
+		"package-lock.json", "yarn.lock", "pnpm-lock.yaml",
+		"Cargo.lock", "Gemfile.lock", "poetry.lock", "go.sum",
+		"composer.lock", "Pipfile.lock",
+
+		// Type definitions (parse .ts instead)
+		"*.d.ts",
+
+		// Build artifacts and caches
+		"dist/", "build/", "out/", ".next/", ".nuxt/", ".output/",
+		"coverage/", ".coverage/", "htmlcov/",
+		".terraform/", ".serverless/",
+		"__snapshots__/", "fixtures/", "testdata/",
+
+		// Data directories
 		"data/", "datasets/", "models/", "checkpoints/", "logs/",
+		"migrations/", "seeds/",
 	}
 	patterns = append(patterns, defaults...)
 
