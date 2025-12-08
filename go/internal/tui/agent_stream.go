@@ -67,11 +67,11 @@ func (m *AgentModel) handleToolCall(event domain.StreamEvent) {
 		info := toolCallInfo{
 			name:      tc.Name,
 			args:      truncateArgsMap(tc.Args),
-			collapsed: false, // Start expanded for visibility
+			collapsed: true, // Start collapsed to reduce noise
 		}
 		*m.shared.toolCalls = append(*m.shared.toolCalls, info)
 		m.currentTool = &(*m.shared.toolCalls)[len(*m.shared.toolCalls)-1]
-		m.shared.output.WriteString("\n" + toolStyle.Render(fmt.Sprintf("▶ %s", tc.Name)) + "\n")
+		// Don't write to output buffer - tools are rendered separately
 
 		// Debug: Log tool call start
 		if m.debug != nil && m.debug.IsEnabled() {
@@ -108,12 +108,10 @@ func (m *AgentModel) handleToolDone(event domain.StreamEvent) {
 			}
 
 			if tc.Error != "" {
-				m.shared.output.WriteString(agentErrorStyle.Render(fmt.Sprintf("  ✗ %s\n", tc.Error)))
 				// Brain: Trauma on tool error
 				m.brain, _ = m.brain.Update(BrainTraumaMsg{Err: fmt.Errorf("%s", tc.Error)})
-			} else {
-				m.shared.output.WriteString(successStyle.Render("  ✓\n"))
 			}
+			// Don't write to output buffer - tools are rendered separately
 		}
 	}
 }

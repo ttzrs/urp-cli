@@ -3,6 +3,7 @@ package tool
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -154,7 +155,7 @@ func (t *Task) runSubAgent(ctx context.Context, taskID string, cfg domain.Agent,
 	start := time.Now()
 
 	// Create a minimal session for the subagent
-	_ = &domain.Session{
+	session := &domain.Session{
 		ID:        taskID,
 		Directory: t.workDir,
 		CreatedAt: start,
@@ -175,7 +176,7 @@ func (t *Task) runSubAgent(ctx context.Context, taskID string, cfg domain.Agent,
 		}
 	}
 
-	// Create request
+	// Create system prompt with task context injection point
 	systemPrompt := fmt.Sprintf(`You are a %s subagent. Your task is to complete the following request autonomously.
 
 Working directory: %s
@@ -184,9 +185,16 @@ Guidelines:
 - Complete the task efficiently
 - Return a clear summary of what you found or did
 - Do not ask questions - make reasonable decisions
+- FOCUS: Only do what was asked. No extra features/docs/tests.
 
 Agent type: %s
-Description: %s`, cfg.Name, t.workDir, cfg.Name, cfg.Description)
+Description: %s
+
+<task-context>
+OBJECTIVE: %s
+PHASE: executing
+RULES: Complete this specific task. Don't expand scope.
+</task-context>`, cfg.Name, t.workDir, cfg.Name, cfg.Description, truncatePrompt(prompt, 150))
 
 	messages := []domain.Message{{
 		ID:        ulid.Make().String(),
@@ -204,29 +212,142 @@ Description: %s`, cfg.Name, t.workDir, cfg.Name, cfg.Description)
 		MaxTokens:    8192,
 	}
 
-	// Run the subagent loop (simplified - single turn for now)
-	events, err := t.provider.Chat(ctx, req)
+	// Run the subagent with tool loop
+	result, err := t.runSubAgentLoop(ctx, session, req, registry, cfg, start)
 	if err != nil {
-		return nil, fmt.Errorf("subagent chat: %w", err)
+		return nil, err
 	}
 
-	// Collect response
-	var output string
-	for event := range events {
-		switch event.Type {
-		case domain.StreamEventText:
-			output += event.Content
-		case domain.StreamEventError:
-			return nil, event.Error
+	return result, nil
+}
+
+// runSubAgentLoop executes the subagent with tool call handling
+func (t *Task) runSubAgentLoop(
+	ctx context.Context,
+	session *domain.Session,
+	req *llm.ChatRequest,
+	registry *Registry,
+	cfg domain.Agent,
+	start time.Time,
+) (*SubAgentResult, error) {
+	const maxTurns = 10
+	allMessages := req.Messages
+
+	for turn := 0; turn < maxTurns; turn++ {
+		events, err := t.provider.Chat(ctx, req)
+		if err != nil {
+			return nil, fmt.Errorf("subagent chat: %w", err)
 		}
+
+		// Collect response
+		var output strings.Builder
+		var toolCalls []domain.ToolCallPart
+
+		for event := range events {
+			switch event.Type {
+			case domain.StreamEventText:
+				output.WriteString(event.Content)
+			case domain.StreamEventToolCall:
+				if tc, ok := event.Part.(domain.ToolCallPart); ok {
+					toolCalls = append(toolCalls, tc)
+				}
+			case domain.StreamEventError:
+				return nil, event.Error
+			}
+		}
+
+		// If no tool calls, we're done
+		if len(toolCalls) == 0 {
+			return &SubAgentResult{
+				TaskID:   session.ID,
+				Output:   output.String(),
+				Messages: allMessages,
+				Duration: time.Since(start),
+			}, nil
+		}
+
+		// Build assistant message with tool calls
+		assistantParts := []domain.Part{}
+		if output.Len() > 0 {
+			assistantParts = append(assistantParts, domain.TextPart{Text: output.String()})
+		}
+		for _, tc := range toolCalls {
+			assistantParts = append(assistantParts, tc)
+		}
+
+		assistantMsg := domain.Message{
+			ID:        ulid.Make().String(),
+			SessionID: session.ID,
+			Role:      domain.RoleAssistant,
+			Parts:     assistantParts,
+			Timestamp: time.Now(),
+		}
+
+		// Execute tools
+		var toolResults []domain.Part
+		for _, tc := range toolCalls {
+			tool, ok := registry.Get(tc.Name)
+			if !ok {
+				toolResults = append(toolResults, domain.ToolCallPart{
+					ToolID: tc.ToolID,
+					Name:   tc.Name,
+					Error:  fmt.Sprintf("unknown tool: %s", tc.Name),
+				})
+				continue
+			}
+
+			result, err := tool.Execute(ctx, tc.Args)
+			if err != nil {
+				toolResults = append(toolResults, domain.ToolCallPart{
+					ToolID: tc.ToolID,
+					Name:   tc.Name,
+					Error:  err.Error(),
+				})
+				continue
+			}
+
+			errStr := ""
+			if result.Error != nil {
+				errStr = result.Error.Error()
+			}
+			toolResults = append(toolResults, domain.ToolCallPart{
+				ToolID: tc.ToolID,
+				Name:   tc.Name,
+				Args:   tc.Args,
+				Result: result.Output,
+				Error:  errStr,
+			})
+		}
+
+		// Build tool result message
+		toolMsg := domain.Message{
+			ID:        ulid.Make().String(),
+			SessionID: session.ID,
+			Role:      domain.RoleUser,
+			Parts:     toolResults,
+			Timestamp: time.Now(),
+		}
+
+		// Update messages for next turn
+		allMessages = append(allMessages, assistantMsg, toolMsg)
+		req.Messages = allMessages
 	}
 
+	// Max turns reached
 	return &SubAgentResult{
-		TaskID:   taskID,
-		Output:   output,
-		Messages: messages,
+		TaskID:   session.ID,
+		Output:   "[SubAgent reached max turns]",
+		Messages: allMessages,
 		Duration: time.Since(start),
 	}, nil
+}
+
+// truncatePrompt truncates a prompt for display in task context
+func truncatePrompt(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	return s[:max-3] + "..."
 }
 
 // defaultSubAgents returns built-in subagent configurations

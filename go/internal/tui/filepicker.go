@@ -20,6 +20,7 @@ const (
 	modeChat inputMode = iota
 	modeFilePicker
 	modeSearch
+	modeHelp
 )
 
 // fileItem implements list.Item for the file picker

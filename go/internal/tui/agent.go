@@ -108,10 +108,15 @@ type AgentModel struct {
 	// Current tool being processed
 	currentTool *toolCallInfo
 
-	// Usage tracking
+	// Usage tracking (per-request)
 	inputTokens  int
 	outputTokens int
 	thinkTokens  int
+
+	// Session totals (accumulated)
+	sessionInput  int
+	sessionOutput int
+	sessionThink  int
 
 	// UI components
 	viewport   viewport.Model
@@ -139,6 +144,9 @@ type AgentModel struct {
 	searchQuery   string
 	searchMatches []int // line numbers with matches
 	searchIdx     int   // current match index
+
+	// Quit confirmation (double Ctrl+C within 3s)
+	lastCtrlC time.Time
 }
 
 type toolCallInfo struct {
@@ -216,6 +224,12 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return m.handleKeyMsg(msg)
 
+	case tea.MouseMsg:
+		// Handle mouse wheel scrolling
+		var cmd tea.Cmd
+		m.viewport, cmd = m.viewport.Update(msg)
+		return m, cmd
+
 	case tea.WindowSizeMsg:
 		return m.handleWindowSize(msg)
 
@@ -255,23 +269,63 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// Handle help mode - any key closes it
+	if m.inputMode == modeHelp {
+		m.inputMode = modeChat
+		return m, nil
+	}
+
 	switch msg.String() {
 	case "ctrl+c":
+		// If agent is active, cancel it first
 		if m.agentActive && m.shared != nil && m.shared.cancelFunc != nil {
 			m.shared.cancelFunc()
 			m.agentActive = false
 			m.shared.output.WriteString("\n\n" + agentErrorStyle.Render("⚠ Cancelled") + "\n")
 			m.viewport.SetContent(m.renderOutput())
+			m.lastCtrlC = time.Time{} // Reset quit timer
 			return m, nil
 		}
-		m.quitting = true
-		return m, tea.Quit
-
-	case "esc":
-		if !m.agentActive {
+		// Double Ctrl+C within 3 seconds to quit
+		now := time.Now()
+		if !m.lastCtrlC.IsZero() && now.Sub(m.lastCtrlC) < 3*time.Second {
 			m.quitting = true
 			return m, tea.Quit
 		}
+		m.lastCtrlC = now
+		m.shared.output.WriteString("\n" + agentStatusStyle.Render("Press Ctrl+C again to quit") + "\n")
+		m.viewport.SetContent(m.renderOutput())
+		m.viewport.GotoBottom()
+		return m, nil
+
+	case "esc":
+		// Esc also requires double-tap
+		now := time.Now()
+		if !m.agentActive {
+			if !m.lastCtrlC.IsZero() && now.Sub(m.lastCtrlC) < 3*time.Second {
+				m.quitting = true
+				return m, tea.Quit
+			}
+			m.lastCtrlC = now
+			m.shared.output.WriteString("\n" + agentStatusStyle.Render("Press Esc again to quit") + "\n")
+			m.viewport.SetContent(m.renderOutput())
+			m.viewport.GotoBottom()
+			return m, nil
+		}
+
+	case "q":
+		// Block "q" from quitting - let it go to textarea
+		if !m.agentActive && m.input.Focused() {
+			var cmd tea.Cmd
+			m.input, cmd = m.input.Update(msg)
+			return m, cmd
+		}
+		return m, nil // Ignore when agent active
+
+	case "ctrl+h":
+		// Show help overlay
+		m.inputMode = modeHelp
+		return m, nil
 
 	case "ctrl+d":
 		// Toggle debug panel
@@ -297,8 +351,8 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
-	case "@":
-		// Trigger file picker mode
+	case "ctrl+a":
+		// Trigger file picker mode (Ctrl+A for Attach)
 		if !m.agentActive {
 			m.inputMode = modeFilePicker
 			if m.filePicker == nil {
@@ -308,8 +362,8 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-	case "/":
-		// Trigger search mode (vim-style)
+	case "ctrl+s":
+		// Trigger search mode (Ctrl+S for Search)
 		if !m.agentActive {
 			m.inputMode = modeSearch
 			m.searchQuery = ""
@@ -343,8 +397,8 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.viewport.SetContent(m.renderOutput())
 		}
 
-	case "tab":
-		// Cycle through agents when not active
+	case "ctrl+n":
+		// Cycle through agents (Ctrl+N for Next agent)
 		if !m.agentActive && m.agentRegistry != nil {
 			m.cycleAgent()
 		}
@@ -357,65 +411,39 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 
-	// Vim-style navigation (only when input not focused or agent active)
-	case "j":
-		if m.agentActive {
-			m.viewport.LineDown(1)
-			return m, nil
-		}
-		// Let textarea handle it when focused
-
-	case "k":
-		if m.agentActive {
-			m.viewport.LineUp(1)
-			return m, nil
-		}
-		// Let textarea handle it when focused
-
-	case "g":
-		if m.agentActive {
-			m.viewport.GotoTop()
-			return m, nil
-		}
-		// Let textarea handle it when focused
-
-	case "G":
-		if m.agentActive {
-			m.viewport.GotoBottom()
-			return m, nil
-		}
-		// Let textarea handle it when focused
-
 	case "ctrl+u":
-		if m.agentActive || !m.input.Focused() {
-			m.viewport.HalfViewUp()
-		}
+		m.viewport.HalfViewUp()
 		return m, nil
 
 	case "ctrl+f":
-		if m.agentActive || !m.input.Focused() {
-			m.viewport.ViewDown()
-		}
+		m.viewport.ViewDown()
 		return m, nil
 
 	case "ctrl+b":
-		if m.agentActive || !m.input.Focused() {
-			m.viewport.ViewUp()
-		}
+		m.viewport.ViewUp()
 		return m, nil
 
-	case "n":
-		// Next search match (vim style) - only when agent active
-		if m.agentActive && len(m.searchMatches) > 0 {
+	case "ctrl+g":
+		// Go to top (Ctrl+G for Go)
+		m.viewport.GotoTop()
+		return m, nil
+
+	case "ctrl+o":
+		// Go to bottom (Ctrl+O for bOttom)
+		m.viewport.GotoBottom()
+		return m, nil
+
+	case "ctrl+p":
+		// Next search match
+		if len(m.searchMatches) > 0 {
 			m.searchIdx = (m.searchIdx + 1) % len(m.searchMatches)
 			m.jumpToSearchMatch()
 			return m, nil
 		}
-		// Let textarea handle it when focused
 
-	case "N":
-		// Previous search match (vim style) - only when agent active
-		if m.agentActive && len(m.searchMatches) > 0 {
+	case "ctrl+r":
+		// Previous search match (Ctrl+R for Reverse)
+		if len(m.searchMatches) > 0 {
 			m.searchIdx--
 			if m.searchIdx < 0 {
 				m.searchIdx = len(m.searchMatches) - 1
@@ -423,7 +451,6 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.jumpToSearchMatch()
 			return m, nil
 		}
-		// Let textarea handle it when focused
 	}
 
 	// DEFAULT: pass unhandled keys to textarea when not agent active
@@ -494,6 +521,8 @@ func (m AgentModel) handleWindowSize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd)
 	if !m.ready {
 		// First time: create viewport
 		m.viewport = viewport.New(vpWidth, vpHeight)
+		// Disable default key bindings (q, etc) - we handle navigation ourselves
+		m.viewport.KeyMap = viewport.KeyMap{} // Empty keymap disables all default bindings
 		m.viewport.SetContent(m.renderOutput())
 		m.ready = true
 	} else {
@@ -517,6 +546,11 @@ func (m AgentModel) handleWindowSize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd)
 
 func (m AgentModel) handleRunDone(msg agentRunDoneMsg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
+
+	// Accumulate session totals before resetting per-request counts
+	m.sessionInput += m.inputTokens
+	m.sessionOutput += m.outputTokens
+	m.sessionThink += m.thinkTokens
 
 	m.agentActive = false
 	if msg.err != nil {

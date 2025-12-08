@@ -9,6 +9,7 @@ import (
 // PromptBuilder constructs system prompts for agent sessions
 type PromptBuilder struct {
 	customPrompt string
+	taskContext  *TaskContext
 }
 
 // NewPromptBuilder creates a new prompt builder
@@ -19,6 +20,11 @@ func NewPromptBuilder() *PromptBuilder {
 // SetCustomPrompt sets additional custom instructions
 func (p *PromptBuilder) SetCustomPrompt(prompt string) {
 	p.customPrompt = prompt
+}
+
+// SetTaskContext sets the current task context for injection
+func (p *PromptBuilder) SetTaskContext(tc *TaskContext) {
+	p.taskContext = tc
 }
 
 // Build constructs the full system prompt for a session
@@ -45,6 +51,14 @@ You have access to a graph database with indexed code structure. Use it BEFORE r
 3. Use wisdom when encountering errors
 4. Store important decisions with memory_add
 
+## CRITICAL: Persist Key Context
+After completing significant work, use memory_add to save:
+- Decisions made ("decision": why X approach was chosen over Y)
+- Files modified ("note": list of files changed and why)
+- Errors solved ("observation": what error occurred and how it was fixed)
+
+This ensures context survives session compaction.
+
 ## Guidelines
 - Be concise and direct
 - Use tools to accomplish tasks
@@ -56,6 +70,11 @@ You have access to a graph database with indexed code structure. Use it BEFORE r
 
 	if p.customPrompt != "" {
 		prompt += "\n" + p.customPrompt
+	}
+
+	// Inject task context if available (keeps agent focused)
+	if p.taskContext != nil && p.taskContext.TurnCount > 0 {
+		prompt += "\n\n" + p.taskContext.BuildReminder()
 	}
 
 	return prompt

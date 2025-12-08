@@ -249,7 +249,9 @@ func RunAgent(workDir string) error {
 	// Create model with shared state
 	model := NewAgentModel(workDir, ag, store, prov)
 
-	// Create program
+	// Create program with mouse support for scrolling
+	// Note: Mouse enables wheel scrolling but may interfere with text selection
+	// Hold Shift while selecting to copy text in most terminals
 	p := tea.NewProgram(
 		model,
 		tea.WithAltScreen(),

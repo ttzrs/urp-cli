@@ -254,9 +254,13 @@ func tuiCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "tui",
 		Short: "Launch interactive terminal UI",
-		Long:  "Start the Bubble Tea powered interactive terminal interface",
+		Long:  "Start the Bubble Tea powered interactive terminal interface with memory bars",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := tui.Run(); err != nil {
+			workDir, err := os.Getwd()
+			if err != nil {
+				fatalError(err)
+			}
+			if err := tui.RunAgent(workDir); err != nil {
 				fatalError(err)
 			}
 		},

@@ -77,6 +77,12 @@ func (m AgentModel) View() string {
 func (m AgentModel) renderInputArea() string {
 	var b strings.Builder
 
+	if m.inputMode == modeHelp {
+		// Show help overlay with all keyboard shortcuts
+		b.WriteString(m.renderHelpOverlay())
+		return b.String()
+	}
+
 	if m.inputMode == modeFilePicker && m.filePicker != nil {
 		// Show file picker overlay
 		pickerStyle := lipgloss.NewStyle().
@@ -105,9 +111,17 @@ func (m AgentModel) renderInputArea() string {
 		searchContent := fmt.Sprintf("/ %s%s", m.searchQuery, matchInfo)
 		b.WriteString(searchStyle.Render(searchContent))
 		b.WriteString("\n")
-		b.WriteString(thinkingStyle.Render("  Type to search │ Enter: confirm │ Esc: cancel │ n/N: next/prev match"))
+		b.WriteString(thinkingStyle.Render("  Type to search │ Enter: confirm │ Esc: cancel │ Ctrl+P/R: next/prev"))
 	} else if m.agentActive {
-		b.WriteString(fmt.Sprintf("  %s Running...", m.spinner.View()))
+		// Show more context during agent activity
+		activity := "Processing..."
+		if len(*m.shared.toolCalls) > 0 {
+			lastTool := (*m.shared.toolCalls)[len(*m.shared.toolCalls)-1]
+			if !lastTool.done {
+				activity = fmt.Sprintf("Running: %s", lastTool.name)
+			}
+		}
+		b.WriteString(fmt.Sprintf("  %s %s (Ctrl+C to cancel)", m.spinner.View(), activity))
 	} else {
 		// Check if ultrathink is typed - show yellow indicator
 		hasUltrathink := strings.Contains(strings.ToLower(m.input.Value()), "ultrathink")
@@ -143,13 +157,19 @@ func (m AgentModel) renderStatus() string {
 		parts = append(parts, agentErrorStyle.Render("○")+" Graph")
 	}
 
-	// Token usage
+	// Token usage - current request
 	if m.inputTokens > 0 || m.outputTokens > 0 {
 		tokens := fmt.Sprintf("In:%d Out:%d", m.inputTokens, m.outputTokens)
 		if m.thinkTokens > 0 {
-			tokens += fmt.Sprintf(" Think:%d", m.thinkTokens)
+			tokens += fmt.Sprintf(" Th:%d", m.thinkTokens)
 		}
 		parts = append(parts, tokens)
+	}
+
+	// Session total tokens
+	sessionTotal := m.sessionInput + m.sessionOutput + m.sessionThink
+	if sessionTotal > 0 {
+		parts = append(parts, fmt.Sprintf("Session:%dk", sessionTotal/1000))
 	}
 
 	// Tool calls count
@@ -159,9 +179,9 @@ func (m AgentModel) renderStatus() string {
 
 	// Help
 	if m.agentActive {
-		parts = append(parts, "Ctrl+C: cancel │ j/k: scroll │ Ctrl+T: toggle tools │ Ctrl+D: debug")
+		parts = append(parts, "Ctrl+C: cancel │ ↑↓: scroll │ Ctrl+H: help")
 	} else {
-		parts = append(parts, "Enter: send │ @: files │ Ctrl+T: toggle │ Esc: quit")
+		parts = append(parts, "Enter: send │ Ctrl+A: files │ Ctrl+H: help")
 	}
 
 	return agentStatusStyle.Width(m.width).Render(strings.Join(parts, " │ "))
@@ -170,20 +190,36 @@ func (m AgentModel) renderStatus() string {
 func (m AgentModel) renderOutput() string {
 	var b strings.Builder
 
-	// Render text output (non-tool content)
+	// Render text output first
 	textContent := m.shared.output.String()
+	b.WriteString(textContent)
 
-	// Render tool calls with expand/collapse
+	// Render tool calls summary if any
 	if len(*m.shared.toolCalls) > 0 {
-		b.WriteString(textContent)
+		// Count completed/running tools
+		completed := 0
+		running := 0
+		for _, tc := range *m.shared.toolCalls {
+			if tc.done {
+				completed++
+			} else {
+				running++
+			}
+		}
 
-		// Append detailed tool view
+		// Tool summary header
 		b.WriteString("\n")
+		summary := fmt.Sprintf("─── Tools: %d completed", completed)
+		if running > 0 {
+			summary += fmt.Sprintf(", %d running", running)
+		}
+		summary += " (Ctrl+T to expand) ───"
+		b.WriteString(thinkingStyle.Render(summary) + "\n")
+
+		// Render each tool call
 		for i, tc := range *m.shared.toolCalls {
 			b.WriteString(m.renderToolCall(i, tc))
 		}
-	} else {
-		b.WriteString(textContent)
 	}
 
 	content := b.String()
@@ -261,4 +297,97 @@ func truncateArgsMap(args map[string]any) string {
 
 func truncateOutput(s string) string {
 	return urpstrings.Truncate(s, 500)
+}
+
+// renderHelpOverlay renders the keyboard shortcuts help panel
+func (m AgentModel) renderHelpOverlay() string {
+	titleStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("205")).
+		Align(lipgloss.Center)
+
+	keyStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("33")).
+		Bold(true)
+
+	descStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("252"))
+
+	sectionStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("226")).
+		Bold(true)
+
+	shortcuts := []struct {
+		section string
+		items   [][2]string
+	}{
+		{
+			section: "Input",
+			items: [][2]string{
+				{"Enter", "Send message"},
+				{"Ctrl+J", "Insert newline"},
+				{"Ctrl+A", "Attach file"},
+				{"Ctrl+N", "Cycle agent"},
+				{"Esc", "Quit"},
+			},
+		},
+		{
+			section: "Navigation",
+			items: [][2]string{
+				{"Ctrl+S", "Search in output"},
+				{"Ctrl+P", "Next match"},
+				{"Ctrl+R", "Previous match"},
+				{"Ctrl+G", "Go to top"},
+				{"Ctrl+O", "Go to bottom"},
+			},
+		},
+		{
+			section: "View",
+			items: [][2]string{
+				{"Ctrl+U", "Half page up"},
+				{"Ctrl+F", "Page down"},
+				{"Ctrl+B", "Page up"},
+				{"Ctrl+L", "Clear output"},
+				{"Ctrl+T", "Toggle tools"},
+			},
+		},
+		{
+			section: "Debug",
+			items: [][2]string{
+				{"Ctrl+D", "Toggle debug panel"},
+				{"Ctrl+E", "Expand/collapse all"},
+				{"Ctrl+X", "Clear debug"},
+			},
+		},
+		{
+			section: "Agent Running",
+			items: [][2]string{
+				{"Ctrl+C", "Cancel"},
+				{"Up/Down", "Scroll output"},
+			},
+		},
+	}
+
+	var content strings.Builder
+	content.WriteString(titleStyle.Width(m.width - 8).Render("Keyboard Shortcuts") + "\n\n")
+
+	for _, section := range shortcuts {
+		content.WriteString(sectionStyle.Render(section.section) + "\n")
+		for _, item := range section.items {
+			key := keyStyle.Width(12).Render(item[0])
+			desc := descStyle.Render(item[1])
+			content.WriteString(fmt.Sprintf("  %s %s\n", key, desc))
+		}
+		content.WriteString("\n")
+	}
+
+	content.WriteString(thinkingStyle.Render("Press any key to close"))
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("205")).
+		Padding(1, 2).
+		Width(m.width - 4)
+
+	return boxStyle.Render(content.String())
 }

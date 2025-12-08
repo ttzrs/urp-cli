@@ -159,8 +159,11 @@ func cmdCompact(m *AgentModel, args string) string {
 		return "No content to compact"
 	}
 
-	// Build compacted context
-	summary := fmt.Sprintf("[Session Summary - %s]\n%s",
+	// Build compacted context with memory hint
+	summary := fmt.Sprintf(`[Session Summary - %s]
+%s
+
+NOTE: Context was compacted. Use memory_recall to retrieve decisions and observations from earlier in this session.`,
 		time.Now().Format("2006-01-02 15:04"),
 		strings.Join(summaryParts, "\n"))
 
@@ -183,7 +186,7 @@ func cmdCompact(m *AgentModel, args string) string {
 	newTokens := tokens.CountMessages(newMessages)
 	reduction := float64(currentTokens-newTokens) / float64(currentTokens) * 100
 
-	return fmt.Sprintf("Compacted: %d -> %d tokens (%.1f%% reduction)\nKept last %d messages",
+	return fmt.Sprintf("Compacted: %d -> %d tokens (%.1f%% reduction)\nKept last %d messages\nTip: Use memory_recall to access earlier context",
 		currentTokens, newTokens, reduction, len(recentMessages))
 }
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGetDefaultEmbedderPanicsWithoutConfig(t *testing.T) {
+func TestGetDefaultEmbedderFallsBackToNull(t *testing.T) {
 	// Save and clear environment
 	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
 	origTEI := os.Getenv("TEI_URL")
@@ -33,14 +33,14 @@ func TestGetDefaultEmbedderPanicsWithoutConfig(t *testing.T) {
 		ResetDefaultEmbedder()
 	}()
 
-	// Should panic without configuration
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("GetDefaultEmbedder should panic when URP_EMBEDDING_PROVIDER is not set")
-		}
-	}()
-
-	GetDefaultEmbedder()
+	// Should return NullEmbedder (dimensions=0) without configuration
+	embedder := GetDefaultEmbedder()
+	if embedder == nil {
+		t.Error("GetDefaultEmbedder should return NullEmbedder, not nil")
+	}
+	if embedder.Dimensions() != 0 {
+		t.Errorf("NullEmbedder should have 0 dimensions, got %d", embedder.Dimensions())
+	}
 }
 
 func TestGetDefaultEmbedderTEI(t *testing.T) {
@@ -76,7 +76,7 @@ func TestGetDefaultEmbedderTEI(t *testing.T) {
 	}
 }
 
-func TestGetDefaultEmbedderTEIPanicsWithoutURL(t *testing.T) {
+func TestGetDefaultEmbedderTEIFallsBackWithoutURL(t *testing.T) {
 	// Save and clear environment
 	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
 	origTEI := os.Getenv("TEI_URL")
@@ -100,17 +100,17 @@ func TestGetDefaultEmbedderTEIPanicsWithoutURL(t *testing.T) {
 		ResetDefaultEmbedder()
 	}()
 
-	// Should panic without TEI_URL
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("GetDefaultEmbedder should panic when TEI_URL is not set")
-		}
-	}()
-
-	GetDefaultEmbedder()
+	// Should return NullEmbedder when TEI_URL is missing
+	embedder := GetDefaultEmbedder()
+	if embedder == nil {
+		t.Error("GetDefaultEmbedder should return NullEmbedder, not nil")
+	}
+	if embedder.Dimensions() != 0 {
+		t.Errorf("Should fallback to NullEmbedder (dims=0), got %d", embedder.Dimensions())
+	}
 }
 
-func TestGetDefaultEmbedderOpenAIPanicsWithoutKey(t *testing.T) {
+func TestGetDefaultEmbedderOpenAIFallsBackWithoutKey(t *testing.T) {
 	// Save and clear environment
 	origProvider := os.Getenv("URP_EMBEDDING_PROVIDER")
 	origOpenAI := os.Getenv("OPENAI_API_KEY")
@@ -134,14 +134,14 @@ func TestGetDefaultEmbedderOpenAIPanicsWithoutKey(t *testing.T) {
 		ResetDefaultEmbedder()
 	}()
 
-	// Should panic without OPENAI_API_KEY
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("GetDefaultEmbedder should panic when OPENAI_API_KEY is not set")
-		}
-	}()
-
-	GetDefaultEmbedder()
+	// Should return NullEmbedder when OPENAI_API_KEY is missing
+	embedder := GetDefaultEmbedder()
+	if embedder == nil {
+		t.Error("GetDefaultEmbedder should return NullEmbedder, not nil")
+	}
+	if embedder.Dimensions() != 0 {
+		t.Errorf("Should fallback to NullEmbedder (dims=0), got %d", embedder.Dimensions())
+	}
 }
 
 func TestGetDefaultEmbedderUnknownProvider(t *testing.T) {
@@ -163,14 +163,14 @@ func TestGetDefaultEmbedderUnknownProvider(t *testing.T) {
 		ResetDefaultEmbedder()
 	}()
 
-	// Should panic with unknown provider
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("GetDefaultEmbedder should panic with unknown provider")
-		}
-	}()
-
-	GetDefaultEmbedder()
+	// Should return NullEmbedder for unknown provider (graceful fallback)
+	embedder := GetDefaultEmbedder()
+	if embedder == nil {
+		t.Error("GetDefaultEmbedder should return NullEmbedder, not nil")
+	}
+	if embedder.Dimensions() != 0 {
+		t.Errorf("Should fallback to NullEmbedder (dims=0), got %d", embedder.Dimensions())
+	}
 }
 
 func TestSetDefaultEmbedder(t *testing.T) {

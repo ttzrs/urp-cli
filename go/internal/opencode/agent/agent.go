@@ -32,6 +32,9 @@ type Agent struct {
 	promptBuilder *PromptBuilder
 	cognitive     *cognitive.Engine
 
+	// Task tracking (maintains focus across turns)
+	taskContext *TaskContext
+
 	// Structured logging
 	logger *AgentLogger
 }
@@ -182,6 +185,27 @@ func (a *Agent) persistMessage(ctx context.Context, msg *domain.Message) {
 
 // Run processes a message and streams the response
 func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*domain.Message, input string) (<-chan domain.StreamEvent, error) {
+	// If no messages passed, use internal store (maintains conversation history)
+	if len(messages) == 0 {
+		stored := a.messages.Messages()
+		if len(stored) > 0 {
+			messages = make([]*domain.Message, len(stored))
+			for i := range stored {
+				messages[i] = &stored[i]
+			}
+		}
+	}
+
+	// Initialize or update task context
+	if a.taskContext == nil || len(messages) == 0 {
+		// New task - create fresh context
+		a.taskContext = NewTaskContext(input)
+		a.promptBuilder.SetTaskContext(a.taskContext)
+	} else {
+		// Continuing task - increment turn
+		a.taskContext.RecordTurn()
+	}
+
 	// Log session start
 	if a.logger != nil && len(messages) == 0 {
 		a.logger.SessionStart(ctx, session.ID, a.config.Model.ModelID)
@@ -445,6 +469,8 @@ func (a *Agent) executeToolsParallel(
 	// Single tool - no need for parallelization overhead
 	if len(toolCalls) == 1 {
 		result := a.executor.Execute(ctx, toolCalls[0], startTime, events)
+		// Track in task context
+		a.trackToolCall(toolCalls[0], result)
 		parts := []domain.Part{result.Part}
 		// Add images as separate parts for vision
 		for _, img := range result.Images {
@@ -467,6 +493,8 @@ func (a *Agent) executeToolsParallel(
 			defer wg.Done()
 			for _, item := range g.items {
 				result := a.executor.Execute(ctx, item.tc, startTime, events)
+				// Track in task context
+				a.trackToolCall(item.tc, result)
 				results[item.idx] = result
 			}
 		}(group)
@@ -522,6 +550,24 @@ func (a *Agent) groupByConflict(toolCalls []domain.ToolCallPart) []conflictGroup
 	return groups
 }
 
+// trackToolCall records tool execution in task context
+func (a *Agent) trackToolCall(tc domain.ToolCallPart, result ExecuteResult) {
+	if a.taskContext == nil {
+		return
+	}
+
+	// Extract path arg for tracking
+	path := getPath(tc.Args)
+
+	// Record the tool call
+	a.taskContext.RecordToolCall(tc.Name, path)
+
+	// Track errors for learning
+	if result.Part.Error != "" {
+		a.taskContext.RecordError(result.Part.Error)
+	}
+}
+
 // getConflictKey returns a key for grouping conflicting tools
 // Tools with the same key will be serialized
 func (a *Agent) getConflictKey(tc domain.ToolCallPart) string {
@@ -550,15 +596,30 @@ func BuiltinAgents() map[string]domain.Agent {
 			Mode:        domain.AgentModePrimary,
 			BuiltIn:     true,
 			Tools: map[string]bool{
-				"bash":        true,
-				"read":        true,
-				"write":       true,
-				"edit":        true,
-				"glob":        true,
-				"grep":        true,
-				"ls":          true,
-				"screenshot":  true,
-				"diagnostics": true,
+				"bash":           true,
+				"read":           true,
+				"write":          true,
+				"edit":           true,
+				"glob":           true,
+				"grep":           true,
+				"ls":             true,
+				"screenshot":     true,
+				"diagnostics":    true,
+				"graph_search":   true,
+				"graph_stats":    true,
+				"code_deps":      true,
+				"memory_recall":  true,
+				"memory_add":     true,
+				"wisdom":         true,
+				"knowledge_query": true,
+				"context_search": true,
+				"todo_write":     true,
+				"todo_read":      true,
+				"multi_edit":     true,
+				"task":           true,
+				"patch":          true,
+				"web_fetch":      true,
+				"web_search":     true,
 			},
 			Permissions: domain.AgentPermissions{
 				Edit:        domain.PermissionAllow,

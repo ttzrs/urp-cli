@@ -827,8 +827,8 @@ func TestAgentWithCustomHooksRegistry(t *testing.T) {
 	assert.Equal(t, 1, hooksCalled)
 }
 
-// contains is a local helper - strings.Contains is preferred for new code
-func contains(s, substr string) bool {
+// containsStr is a local helper - strings.Contains is preferred for new code
+func containsStr(s, substr string) bool {
 	return strings.Contains(s, substr)
 }
 

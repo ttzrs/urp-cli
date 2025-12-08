@@ -93,10 +93,11 @@ func NewBrainModel(maxTokens int) BrainModel {
 	s.Spinner = spinner.Pulse
 	s.Style = brainStyleIdle
 	return BrainModel{
-		State:     StateIdle,
-		Spinner:   s,
-		Message:   "SYSTEM READY via URP Protocol...",
-		MaxTokens: maxTokens,
+		State:      StateIdle,
+		Spinner:    s,
+		Message:    "READY - Enter prompt to start",
+		MaxTokens:  maxTokens,
+		UsedTokens: 0, // Start at 0
 	}
 }
 

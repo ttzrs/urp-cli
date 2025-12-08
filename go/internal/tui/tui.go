@@ -151,9 +151,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		// Global keys
+		// Global keys - use Ctrl+key to avoid conflicts while typing
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			if m.view == ViewMain && !m.agentActive {
 				m.quitting = true
 				return m, tea.Quit
@@ -162,14 +162,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.view = ViewMain
 				return m, nil
 			}
-		case "?":
+		case "esc":
+			if m.view != ViewMain {
+				m.view = ViewMain
+				return m, nil
+			}
+			if m.view == ViewMain && !m.agentActive {
+				m.quitting = true
+				return m, tea.Quit
+			}
+		case "ctrl+h":
 			if m.view == ViewMain {
 				m.view = ViewHelp
 			} else {
 				m.view = ViewMain
 			}
 			return m, nil
-		case "s":
+		case "ctrl+s":
 			if m.view == ViewMain && !m.agentActive {
 				m.view = ViewSessions
 				return m, nil
@@ -205,12 +214,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.view == ViewSessions && m.selectedIdx < len(m.sessions)-1 {
 				m.selectedIdx++
 			}
-		case "esc":
-			if m.agentActive {
-				// TODO: cancel agent
-			}
-			m.view = ViewMain
-			m.input.Blur()
 		}
 
 	case tea.WindowSizeMsg:
@@ -332,7 +335,7 @@ func (m Model) viewMain() string {
 	if m.agentActive {
 		helpText = "esc: cancel │ scroll: view output"
 	} else {
-		helpText = "enter: send │ s: sessions │ ?: help │ q: quit"
+		helpText = "Enter: send │ Ctrl+S: sessions │ Ctrl+H: help │ Esc: quit"
 	}
 	b.WriteString(helpStyle.Render("  " + helpText))
 
@@ -375,19 +378,19 @@ func (m Model) viewHelp() string {
   ⚡ URP Interactive Agent - Help
 
   NAVIGATION
-    tab       Focus/unfocus input
-    s         View sessions
-    ?         Toggle help
-    q         Quit
+    Tab       Focus/unfocus input
+    Ctrl+S    View sessions
+    Ctrl+H    Toggle help
+    Esc       Quit / Back
 
   AGENT
-    enter     Send prompt to agent
-    esc       Cancel running agent
+    Enter     Send prompt to agent
+    Ctrl+C    Cancel running agent
 
   SESSIONS
     j/k       Navigate up/down
-    enter     Load session
-    esc       Back to main
+    Enter     Load session
+    Esc       Back to main
 
   COMMANDS
     urp status     Show infrastructure status
