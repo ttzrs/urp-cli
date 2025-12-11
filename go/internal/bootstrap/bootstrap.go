@@ -267,9 +267,13 @@ func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, 
 		provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
 		provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // OpenRouter uses OpenAI API key
 		provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
+		provider.WithAPIKey(os.Getenv("UNIFIED_API_KEY")), // Proxy API key
+		provider.WithAPIKey(os.Getenv("PROXY_API_KEY")), // Fallback proxy key
 		provider.WithBaseURL(os.Getenv("ANTHROPIC_BASE_URL")),
 		provider.WithBaseURL(os.Getenv("OPENAI_BASE_URL")),
 		provider.WithBaseURL(os.Getenv("DEEPSEEK_BASE_URL")),
+		provider.WithBaseURL(os.Getenv("UNIFIED_BASE_URL")), // Proxy base URL
+		provider.WithBaseURL(os.Getenv("PROXY_BASE_URL")), // Fallback proxy URL
 	)
 
 	if err != nil || prov == nil {
@@ -281,9 +285,13 @@ func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, 
 			provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
 			provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
 			provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
+			provider.WithAPIKey(os.Getenv("UNIFIED_API_KEY")), // Proxy API key
+			provider.WithAPIKey(os.Getenv("PROXY_API_KEY")), // Fallback proxy key
 			provider.WithBaseURL(os.Getenv("ANTHROPIC_BASE_URL")),
 			provider.WithBaseURL(os.Getenv("OPENAI_BASE_URL")),
 			provider.WithBaseURL(os.Getenv("DEEPSEEK_BASE_URL")),
+			provider.WithBaseURL(os.Getenv("UNIFIED_BASE_URL")), // Proxy base URL
+			provider.WithBaseURL(os.Getenv("PROXY_BASE_URL")), // Fallback proxy URL
 		)
 		if fallbackErr != nil || fallbackProv == nil {
 			return nil, "", fmt.Errorf("failed to initialize primary or fallback LLM provider: %v. Fallback error: %v", err, fallbackErr)
