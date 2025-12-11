@@ -34,7 +34,9 @@ func requireDBSimple() {
 // exitOnError logs error to audit and stderr, then exits.
 // Eliminates 30+ duplicate error handling patterns.
 func exitOnError(event *audit.AuditEvent, err error) {
-	auditLogger.LogError(event, err)
+	if auditLogger != nil {
+		auditLogger.LogError(event, err)
+	}
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	os.Exit(1)
 }

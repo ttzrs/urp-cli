@@ -50,6 +50,10 @@ func (g *GraphSearch) Info() domain.Tool {
 					"type":        "integer",
 					"description": "Max results (default 10)",
 				},
+				"root_path": map[string]any{
+					"type":        "string",
+					"description": "Filter results to this directory path",
+				},
 			},
 			"required": []string{"query"},
 		},
@@ -67,6 +71,8 @@ func (g *GraphSearch) Execute(ctx context.Context, args map[string]any) (*Result
 	}
 
 	nodeType, _ := args["type"].(string)
+	rootPath, _ := args["root_path"].(string)
+	
 	limit := 10
 	if l, ok := args["limit"].(float64); ok {
 		limit = int(l)
@@ -76,42 +82,56 @@ func (g *GraphSearch) Execute(ctx context.Context, args map[string]any) (*Result
 	params := map[string]any{
 		"pattern": "(?i).*" + query + ".*",
 		"limit":   limit,
+		"root":    rootPath,
+	}
+	
+	// Where clause for path filtering
+	wherePath := ""
+	if rootPath != "" {
+		wherePath = "AND file.path STARTS WITH $root"
 	}
 
 	switch nodeType {
 	case "function":
-		cypher = `
+		cypher = fmt.Sprintf(`
 			MATCH (f:Function)
 			WHERE f.name =~ $pattern
-			OPTIONAL MATCH (file:File)-[:CONTAINS]->(f)
+			MATCH (file:File)-[:CONTAINS]->(f)
+			WHERE 1=1 %s
 			RETURN f.name as name, 'function' as type, file.path as file, f.line as line
 			ORDER BY f.name LIMIT $limit
-		`
+		`, wherePath)
 	case "class":
-		cypher = `
+		cypher = fmt.Sprintf(`
 			MATCH (c:Class)
 			WHERE c.name =~ $pattern
-			OPTIONAL MATCH (file:File)-[:CONTAINS]->(c)
+			MATCH (file:File)-[:CONTAINS]->(c)
+			WHERE 1=1 %s
 			RETURN c.name as name, 'class' as type, file.path as file, c.line as line
 			ORDER BY c.name LIMIT $limit
-		`
+		`, wherePath)
 	case "file":
-		cypher = `
+		fileWhere := ""
+		if rootPath != "" {
+			fileWhere = "AND f.path STARTS WITH $root"
+		}
+		cypher = fmt.Sprintf(`
 			MATCH (f:File)
-			WHERE f.path =~ $pattern
+			WHERE f.path =~ $pattern %s
 			RETURN f.path as name, 'file' as type, f.path as file, 0 as line
 			ORDER BY f.path LIMIT $limit
-		`
+		`, fileWhere)
 	default:
-		cypher = `
+		cypher = fmt.Sprintf(`
 			MATCH (n) WHERE (n:File OR n:Function OR n:Class)
 			  AND (n.name =~ $pattern OR n.path =~ $pattern)
-			OPTIONAL MATCH (file:File)-[:CONTAINS]->(n)
+			MATCH (file:File)-[:CONTAINS]->(n)
+			WHERE 1=1 %s
 			RETURN COALESCE(n.name, n.path) as name,
 				CASE WHEN n:File THEN 'file' WHEN n:Function THEN 'function' WHEN n:Class THEN 'class' END as type,
 				COALESCE(file.path, n.path) as file, COALESCE(n.line, 0) as line
 			ORDER BY name LIMIT $limit
-		`
+		`, wherePath)
 	}
 
 	records, err := graphDB.Execute(ctx, cypher, params)
@@ -436,6 +456,10 @@ func (c *CodeDependencies) Info() domain.Tool {
 					"type":        "integer",
 					"description": "Levels to traverse 1-3 (default 1)",
 				},
+				"root_path": map[string]any{
+					"type":        "string",
+					"description": "Filter results to this directory path",
+				},
 			},
 			"required": []string{"target"},
 		},
@@ -456,6 +480,8 @@ func (c *CodeDependencies) Execute(ctx context.Context, args map[string]any) (*R
 	if direction == "" {
 		direction = "both"
 	}
+	
+	rootPath, _ := args["root_path"].(string)
 
 	depth := 1
 	if d, ok := args["depth"].(float64); ok && d >= 1 && d <= 3 {
@@ -463,17 +489,27 @@ func (c *CodeDependencies) Execute(ctx context.Context, args map[string]any) (*R
 	}
 
 	var sb strings.Builder
+	params := map[string]any{
+		"pattern": "(?i).*" + target + ".*",
+		"root":    rootPath,
+	}
+	
+	wherePath := ""
+	if rootPath != "" {
+		wherePath = "AND file.path STARTS WITH $root"
+	}
 
 	if direction == "callers" || direction == "both" {
 		cypher := fmt.Sprintf(`
 			MATCH (caller)-[:CALLS*1..%d]->(target)
 			WHERE target.name =~ $pattern OR target.path =~ $pattern
-			OPTIONAL MATCH (file:File)-[:CONTAINS]->(caller)
+			MATCH (file:File)-[:CONTAINS]->(caller)
+			WHERE 1=1 %s
 			RETURN DISTINCT caller.name as name, file.path as file, caller.line as line
 			LIMIT 20
-		`, depth)
+		`, depth, wherePath)
 
-		records, err := graphDB.Execute(ctx, cypher, map[string]any{"pattern": "(?i).*" + target + ".*"})
+		records, err := graphDB.Execute(ctx, cypher, params)
 		if err == nil && len(records) > 0 {
 			sb.WriteString("Called by:\n")
 			for _, r := range records {
@@ -493,12 +529,13 @@ func (c *CodeDependencies) Execute(ctx context.Context, args map[string]any) (*R
 		cypher := fmt.Sprintf(`
 			MATCH (source)-[:CALLS*1..%d]->(callee)
 			WHERE source.name =~ $pattern OR source.path =~ $pattern
-			OPTIONAL MATCH (file:File)-[:CONTAINS]->(callee)
+			MATCH (file:File)-[:CONTAINS]->(callee)
+			WHERE 1=1 %s
 			RETURN DISTINCT callee.name as name, file.path as file, callee.line as line
 			LIMIT 20
-		`, depth)
+		`, depth, wherePath)
 
-		records, err := graphDB.Execute(ctx, cypher, map[string]any{"pattern": "(?i).*" + target + ".*"})
+		records, err := graphDB.Execute(ctx, cypher, params)
 		if err == nil && len(records) > 0 {
 			if sb.Len() > 0 {
 				sb.WriteString("\n")
@@ -606,8 +643,13 @@ func (g *GraphStats) Info() domain.Tool {
 		Name:        "graph_stats",
 		Description: "Get codebase statistics: file count, function count, etc.",
 		Parameters: domain.JSONSchema{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"root_path": map[string]any{
+					"type":        "string",
+					"description": "Filter statistics to this directory path",
+				},
+			},
 		},
 	}
 }
@@ -616,15 +658,33 @@ func (g *GraphStats) Execute(ctx context.Context, args map[string]any) (*Result,
 	if graphDB == nil {
 		return &Result{Output: "Graph not connected."}, nil
 	}
+	
+	rootPath, _ := args["root_path"].(string)
+	
+	var query string
+	params := map[string]any{"root": rootPath}
+	
+	if rootPath != "" {
+		query = `
+			MATCH (n)
+			WHERE n.path STARTS WITH $root OR EXISTS {
+				MATCH (file:File)-[:CONTAINS]->(n)
+				WHERE file.path STARTS WITH $root
+			}
+			WITH labels(n)[0] as label
+			RETURN label, count(*) as count
+			ORDER BY count DESC
+		`
+	} else {
+		query = `
+			MATCH (n)
+			WITH labels(n)[0] as label
+			RETURN label, count(*) as count
+			ORDER BY count DESC
+		`
+	}
 
-	query := `
-		MATCH (n)
-		WITH labels(n)[0] as label
-		RETURN label, count(*) as count
-		ORDER BY count DESC
-	`
-
-	records, err := graphDB.Execute(ctx, query, nil)
+	records, err := graphDB.Execute(ctx, query, params)
 	if err != nil {
 		return &Result{Error: fmt.Errorf("stats query failed: %w", err)}, nil
 	}

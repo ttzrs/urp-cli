@@ -70,7 +70,7 @@ func Env() *URPEnv {
 			ContainerMode:    os.Getenv("URP_CONTAINER_MODE") == "1",
 			IsMaster:         os.Getenv("URP_MASTER") == "1",
 			WorkerID:         os.Getenv("URP_WORKER_ID"),
-			Model:            getEnvDefault("DEFAULT_MODEL", "claude-sonnet-4-20250514"),
+			Model:            getEnvDefault("DEFAULT_MODEL", "gpt-5.1-codex"),
 			AnthropicKey:     os.Getenv("ANTHROPIC_API_KEY"),
 			AnthropicBaseURL: os.Getenv("ANTHROPIC_BASE_URL"),
 			Neo4jURI:         getEnvDefault("NEO4J_URI", "bolt://localhost:7687"),

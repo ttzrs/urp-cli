@@ -21,6 +21,7 @@ func TestFactory_Create(t *testing.T) {
 		{"anthropic", ProviderAnthropic, []ConfigOption{WithAPIKey("test-key")}, "anthropic", false},
 		{"openai", ProviderOpenAI, []ConfigOption{WithAPIKey("test-key")}, "openai", false},
 		{"google", ProviderGoogle, []ConfigOption{WithAPIKey("test-key")}, "google", false},
+		{"deepseek", ProviderDeepSeek, []ConfigOption{WithAPIKey("test-key")}, "deepseek-direct", false},
 		{"unknown", ProviderType("unknown"), nil, "", true},
 	}
 
@@ -52,6 +53,9 @@ func TestFactory_CreateByID(t *testing.T) {
 		{"gpt", "openai", false},
 		{"google", "google", false},
 		{"gemini", "google", false},
+		{"deepseek", "deepseek-direct", false},
+		{"deepseek-chat", "deepseek-direct", false},
+		{"deepseek-coder", "deepseek-direct", false},
 		{"unknown", "", true},
 	}
 

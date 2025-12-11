@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,44 +12,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/oklog/ulid/v2"
 
-	"github.com/joss/urp/internal/config"
-	"github.com/joss/urp/internal/graph"
-	"github.com/joss/urp/internal/ingest"
+	"github.com/joss/urp/internal/bootstrap"
 	"github.com/joss/urp/internal/opencode/agent"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/graphstore"
-	"github.com/joss/urp/internal/opencode/provider"
-	"github.com/joss/urp/internal/opencode/tool"
-	"github.com/joss/urp/pkg/llm"
 )
 
-// warmupConnection pre-establishes connection to API endpoint
-func warmupConnection(prov llm.Provider) {
-	// Get base URL from provider if possible
-	baseURL := os.Getenv("OPENAI_BASE_URL")
-	if baseURL == "" {
-		baseURL = os.Getenv("ANTHROPIC_BASE_URL")
-	}
-	if baseURL == "" {
-		return
-	}
-
-	// Just do a HEAD request to establish TCP/TLS
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, "HEAD", baseURL, nil)
-	if err != nil {
-		return
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err == nil && resp != nil {
-		resp.Body.Close()
-	}
-}
-
-func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt string, program *tea.Program, shared *sharedState) tea.Cmd {
+// runAgent is the Tea command to execute the agent logic
+func runAgent(ag *agent.Agent, la *agent.LearningAgent, store *graphstore.Store, workDir string, prompt string, program *tea.Program, shared *sharedState) tea.Cmd {
 	return func() tea.Msg {
 		// Check if agent was initialized
 		if ag == nil {
@@ -79,12 +48,12 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 		now := time.Now()
 		sess := &domain.Session{
 			ID:        ulid.Make().String(),
-			ProjectID: filepath.Base(workDir),
-			Directory: workDir,
-			Title:     "interactive",
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
+				ProjectID: filepath.Base(workDir),
+				Directory: workDir,
+				Title:     "interactive",
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
 
 		// Persist session if store available (async to not block)
 		if store != nil {
@@ -95,8 +64,20 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 			})
 		}
 
+		// Start Learning Task
+		if la != nil {
+			la.StartTask(sess.ID, actualPrompt)
+		}
+
 		// Run agent
 		events, err := ag.Run(ctx, sess, nil, actualPrompt)
+		
+		// Finish Learning Task
+		if la != nil {
+			// Determine success based on error (partial heuristic)
+			la.PostTask(ctx, err == nil)
+		}
+
 		if err != nil {
 			return agentRunDoneMsg{err: err}
 		}
@@ -112,153 +93,30 @@ func runAgent(ag *agent.Agent, store *graphstore.Store, workDir string, prompt s
 	}
 }
 
-func initProvider() (llm.Provider, error) {
-	// Load .env from ~/.urp-go/.env if not already set
-	loadEnvFile()
-
-	// Try OpenAI-compatible first
-	if apiKey := os.Getenv("OPENAI_API_KEY"); apiKey != "" {
-		baseURL := os.Getenv("OPENAI_BASE_URL")
-		return provider.NewOpenAI(apiKey, baseURL), nil
-	}
-
-	// Try Anthropic
-	if apiKey := os.Getenv("ANTHROPIC_API_KEY"); apiKey != "" {
-		baseURL := os.Getenv("ANTHROPIC_BASE_URL")
-		return provider.NewAnthropic(apiKey, baseURL), nil
-	}
-
-	// Try Anthropic via proxy token
-	if authToken := os.Getenv("ANTHROPIC_AUTH_TOKEN"); authToken != "" {
-		baseURL := os.Getenv("ANTHROPIC_BASE_URL")
-		return provider.NewAnthropic(authToken, baseURL), nil
-	}
-
-	return nil, fmt.Errorf("no API key found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY")
-}
-
-// loadEnvFile loads environment variables from ~/.urp-go/.env
-func loadEnvFile() {
-	envPath := config.GetPaths().EnvFile
-	data, err := os.ReadFile(envPath)
-	if err != nil {
-		return
-	}
-
-	for _, line := range strings.Split(string(data), "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-		// Don't override existing env vars
-		if os.Getenv(key) == "" {
-			os.Setenv(key, value)
-		}
-	}
-}
-
-// autoIngest runs code and git ingestion if the graph is empty for this project.
-// Runs in background to not block TUI startup.
-func autoIngest(gdb graph.Driver, workDir string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-	defer cancel()
-
-	// Validate workDir exists
-	if _, err := os.Stat(workDir); err != nil {
-		return // Directory doesn't exist, skip silently
-	}
-
-	// Check if we already have data for this project
-	projectName := filepath.Base(workDir)
-	query := `MATCH (f:File) WHERE f.path STARTS WITH $prefix RETURN count(f) as count`
-	records, err := gdb.Execute(ctx, query, map[string]any{"prefix": projectName})
-	if err == nil && len(records) > 0 {
-		if count, ok := records[0]["count"].(int64); ok && count > 0 {
-			return // Already ingested
-		}
-	}
-
-	// Auto-ingest code
-	ingester := ingest.NewIngester(gdb)
-	if _, err := ingester.Ingest(ctx, workDir); err != nil {
-		// Silent fail - don't spam stderr in background
-	}
-
-	// Auto-ingest git (only if .git exists)
-	gitDir := filepath.Join(workDir, ".git")
-	if _, err := os.Stat(gitDir); err == nil {
-		gitLoader := ingest.NewGitLoader(gdb, workDir)
-		if _, err := gitLoader.LoadHistory(ctx, 500); err != nil {
-			// Silent fail - not all directories are git repos
-		}
-	}
-}
-
 // RunAgent starts the interactive agent TUI
 func RunAgent(workDir string) error {
-	// Initialize everything BEFORE starting the TUI
-	loadEnvFile()
-
-	// Connect to graph
-	graph.SetEnvLookup(os.LookupEnv)
-	var store *graphstore.Store
-	gdb, err := graph.Connect()
-	if err == nil && gdb != nil {
-		store = graphstore.New(gdb)
-		// Set graph for memory tools
-		tool.SetGraphDB(gdb)
-		// Auto-ingest in background
-		go autoIngest(gdb, workDir)
-	}
-
-	// Initialize provider
-	prov, err := initProvider()
+	ctx := context.Background()
+	
+	// Bootstrap the application
+	app, err := bootstrap.Initialize(ctx, bootstrap.InitializeOptions{
+		WorkDir: workDir,
+	})
 	if err != nil {
-		return fmt.Errorf("provider init failed: %w", err)
+		return err
 	}
-
-	// Warmup connection in background (reduces first-request latency)
-	go warmupConnection(prov)
-
-	// Create agent
-	tools := tool.DefaultRegistry(workDir)
-	agentConfig := agent.BuiltinAgents()["build"]
-
-	defaultModel := "claude-sonnet-4-5-20250929"
-	if model := os.Getenv("URP_MODEL"); model != "" {
-		defaultModel = model
-	}
-	agentConfig.Model = &domain.ModelConfig{ModelID: defaultModel}
-
-	ag := agent.New(agentConfig, prov, tools)
-	ag.SetWorkDir(workDir)
-	// ThinkingBudget disabled by default for speed. Set URP_THINKING=4000 to enable.
-	if tb := os.Getenv("URP_THINKING"); tb != "" {
-		var budget int
-		if _, err := fmt.Sscanf(tb, "%d", &budget); err == nil && budget > 0 {
-			ag.SetThinkingBudget(budget)
-		}
-	}
+	defer app.Close()
 
 	// Create model with shared state
-	model := NewAgentModel(workDir, ag, store, prov)
+	model := NewAgentModel(workDir, app.Agent, app.LearningAgent, app.Store, app.Provider)
 
-	// Create program with mouse support for scrolling
-	// Note: Mouse enables wheel scrolling but may interfere with text selection
-	// Hold Shift while selecting to copy text in most terminals
+	// Create program
 	p := tea.NewProgram(
 		model,
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),
 	)
 
-	// Store program reference in shared state (survives model copies)
+	// Store program reference
 	model.shared.program = p
 
 	_, err = p.Run()
@@ -289,61 +147,18 @@ func RunAgentDebug(workDir string) error {
 func RunAgentWithPrompt(workDir, prompt string) error {
 	ctx := context.Background()
 
-	// Load env
-	loadEnvFile()
-
-	fmt.Println("Loading environment...")
-
-	// Connect to graph - REQUIRED
-	graph.SetEnvLookup(os.LookupEnv)
-	gdb, err := graph.Connect()
+	fmt.Println("Bootstrapping URP...")
+	
+	// Bootstrap the application
+	app, err := bootstrap.Initialize(ctx, bootstrap.InitializeOptions{
+		WorkDir: workDir,
+	})
 	if err != nil {
-		return fmt.Errorf("memgraph required: %w (run: docker compose up -d memgraph)", err)
+		return fmt.Errorf("bootstrap failed: %w", err)
 	}
-	defer gdb.Close()
-	fmt.Println("✓ Memgraph connected")
-
-	// Set graph for memory tools
-	tool.SetGraphDB(gdb)
-
-	// Auto-ingest if needed (synchronous for non-interactive mode)
-	fmt.Println("Checking graph data...")
-	autoIngest(gdb, workDir)
-	fmt.Println("✓ Graph data ready")
-
-	store := graphstore.New(gdb)
-
-	// Initialize provider
-	fmt.Println("Initializing provider...")
-	prov, err := initProvider()
-	if err != nil {
-		return fmt.Errorf("provider init failed: %w", err)
-	}
-	fmt.Println("✓ Provider initialized")
-
-	// Create agent
-	fmt.Println("Creating agent...")
-	tools := tool.DefaultRegistry(workDir)
-	agentConfig := agent.BuiltinAgents()["build"]
-
-	defaultModel := "claude-sonnet-4-5-20250929"
-	if model := os.Getenv("URP_MODEL"); model != "" {
-		defaultModel = model
-	}
-	fmt.Printf("Model: %s\n", defaultModel)
-	agentConfig.Model = &domain.ModelConfig{ModelID: defaultModel}
-
-	ag := agent.New(agentConfig, prov, tools)
-	ag.SetWorkDir(workDir)
-	// ThinkingBudget disabled by default for speed. Set URP_THINKING=4000 to enable.
-	if tb := os.Getenv("URP_THINKING"); tb != "" {
-		var budget int
-		if _, err := fmt.Sscanf(tb, "%d", &budget); err == nil && budget > 0 {
-			ag.SetThinkingBudget(budget)
-			fmt.Printf("Thinking budget: %d\n", budget)
-		}
-	}
-	fmt.Println("✓ Agent created")
+	defer app.Close()
+	
+	fmt.Println("✓ Application initialized")
 
 	// Create session
 	now := time.Now()
@@ -356,18 +171,34 @@ func RunAgentWithPrompt(workDir, prompt string) error {
 		UpdatedAt: now,
 	}
 
-	if store != nil {
-		store.CreateSession(ctx, sess)
-		ag.OnMessage(func(ctx context.Context, msg *domain.Message) error {
-			return store.CreateMessage(ctx, msg)
+	if app.Store != nil {
+		app.Store.CreateSession(ctx, sess)
+		app.Agent.OnMessage(func(ctx context.Context, msg *domain.Message) error {
+			return app.Store.CreateMessage(ctx, msg)
 		})
 	}
 
 	fmt.Printf("\nRunning agent with prompt: %s\n", prompt)
 	fmt.Println("---")
 
+	// Start Learning
+	if app.LearningAgent != nil {
+		app.LearningAgent.StartTask(sess.ID, prompt)
+	}
+
 	// Run agent
-	events, err := ag.Run(ctx, sess, nil, prompt)
+	events, err := app.Agent.Run(ctx, sess, nil, prompt)
+	
+	// Finish Learning
+	if app.LearningAgent != nil {
+		errLearn := app.LearningAgent.PostTask(ctx, err == nil)
+		if errLearn != nil {
+			fmt.Printf("\n[Learning Error: %v]\n", errLearn)
+		} else {
+			fmt.Println("\n[Cycle Learned]")
+		}
+	}
+
 	if err != nil {
 		return fmt.Errorf("agent run failed: %w", err)
 	}
@@ -392,7 +223,7 @@ func RunAgentWithPrompt(workDir, prompt string) error {
 				}
 			}
 		case domain.StreamEventPermissionAsk:
-			// Auto-approve in non-interactive mode (workers run with full permissions)
+			// Auto-approve in non-interactive mode
 			if event.PermissionResp != nil {
 				event.PermissionResp <- true
 			}

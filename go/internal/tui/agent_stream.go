@@ -121,12 +121,29 @@ func (m *AgentModel) handleUsageEvent(event domain.StreamEvent) {
 		m.inputTokens = event.Usage.InputTokens
 		m.outputTokens = event.Usage.OutputTokens
 
+		// Get model name
+		model := "unknown"
+		if m.ag != nil {
+			model = m.ag.Model()
+		}
+
+		// Add LLM call to tool calls summary
+		llmCall := toolCallInfo{
+			name:      "🤖 LLM Call",
+			isLLMCall: true,
+			model:     model,
+			prompt:    fmt.Sprintf("Input: %d tokens | Output: %d tokens", event.Usage.InputTokens, event.Usage.OutputTokens),
+			output: fmt.Sprintf("Cache Read: %d | Cache Write: %d\nCost: $%.4f",
+				event.Usage.CacheRead,
+				event.Usage.CacheWrite,
+				event.Usage.TotalCost),
+			collapsed: true, // Start collapsed
+			done:      true,
+		}
+		*m.shared.toolCalls = append(*m.shared.toolCalls, llmCall)
+
 		// Debug: Log LLM usage (this is critical!)
 		if m.debug != nil && m.debug.IsEnabled() {
-			model := "unknown"
-			if m.ag != nil {
-				model = m.ag.Model()
-			}
 			m.debug.AddEvent(DebugEvent{
 				Type:  DebugEventAPI,
 				Title: fmt.Sprintf("LLM Call: %s", model),

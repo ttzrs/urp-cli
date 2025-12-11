@@ -28,41 +28,24 @@ func (m AgentModel) View() string {
 	}
 	b.WriteString(header + "\n")
 
-	// BrainMonitor - cognitive state + token progress bar
+	// BrainMonitor - cognitive state + token progress bar (CTX bars)
 	b.WriteString(m.brain.View() + "\n\n")
 
-	// Calculate available height for content
-	headerHeight := 2
-	brainHeight := 3
-	statusHeight := 1
-	inputHeight := 5
-	debugHeight := 0
+	// Tool calls area - FIXED 1/3 height with scrollable viewport
+	if len(*m.shared.toolCalls) > 0 {
+		// Update tools viewport content
+		m.toolsViewport.SetContent(m.renderToolCallsSummary())
+		b.WriteString(m.toolsViewport.View() + "\n")
+	}
 
-	// Debug panel (if enabled, takes bottom portion)
+	// Debug panel (if enabled, shown above output)
 	if m.debug != nil && m.debug.IsEnabled() {
-		debugHeight = 12 // Fixed height for debug panel
+		b.WriteString(m.debug.View(12) + "\n")
 	}
 
-	// Main viewport (reduced if debug is on)
-	vpHeight := m.height - headerHeight - brainHeight - statusHeight - inputHeight - debugHeight
-	if vpHeight < 5 {
-		vpHeight = 5
-	}
-	// Temporarily adjust viewport height
-	oldHeight := m.viewport.Height
-	if m.viewport.Height != vpHeight {
-		// Note: we can't modify viewport here as View() is immutable
-		// The resize happens in Update on WindowSizeMsg
-	}
-	_ = oldHeight // suppress unused warning
-
+	// Main viewport (output area)
 	b.WriteString(m.viewport.View())
 	b.WriteString("\n")
-
-	// Debug panel (between viewport and status)
-	if m.debug != nil && m.debug.IsEnabled() {
-		b.WriteString(m.debug.View(debugHeight) + "\n")
-	}
 
 	// Status bar
 	status := m.renderStatus()
@@ -190,36 +173,43 @@ func (m AgentModel) renderStatus() string {
 func (m AgentModel) renderOutput() string {
 	var b strings.Builder
 
-	// Render text output first
+	// Render text output only
 	textContent := m.shared.output.String()
 	b.WriteString(textContent)
 
-	// Render tool calls summary if any
-	if len(*m.shared.toolCalls) > 0 {
-		// Count completed/running tools
-		completed := 0
-		running := 0
-		for _, tc := range *m.shared.toolCalls {
-			if tc.done {
-				completed++
-			} else {
-				running++
-			}
-		}
+	content := b.String()
+	if m.width > 4 {
+		content = urpstrings.WordWrap(content, m.width-4)
+	}
+	return content
+}
 
-		// Tool summary header
-		b.WriteString("\n")
-		summary := fmt.Sprintf("─── Tools: %d completed", completed)
-		if running > 0 {
-			summary += fmt.Sprintf(", %d running", running)
-		}
-		summary += " (Ctrl+T to expand) ───"
-		b.WriteString(thinkingStyle.Render(summary) + "\n")
+// renderToolCallsSummary renders the tool calls summary section for the top
+func (m AgentModel) renderToolCallsSummary() string {
+	var b strings.Builder
 
-		// Render each tool call
-		for i, tc := range *m.shared.toolCalls {
-			b.WriteString(m.renderToolCall(i, tc))
+	// Count completed/running tools
+	completed := 0
+	running := 0
+	for _, tc := range *m.shared.toolCalls {
+		if tc.done {
+			completed++
+		} else {
+			running++
 		}
+	}
+
+	// Tool summary header
+	summary := fmt.Sprintf("─── Tools: %d completed", completed)
+	if running > 0 {
+		summary += fmt.Sprintf(", %d running", running)
+	}
+	summary += " (Ctrl+T to expand/collapse) ───"
+	b.WriteString(thinkingStyle.Render(summary) + "\n")
+
+	// Render each tool call
+	for i, tc := range *m.shared.toolCalls {
+		b.WriteString(m.renderToolCall(i, tc))
 	}
 
 	content := b.String()
@@ -253,15 +243,25 @@ func (m AgentModel) renderToolCall(index int, tc toolCallInfo) string {
 		statusStyle = successStyle
 	}
 
-	// Header line: ▶ tool_name ✓
+	// Header line: ▶ tool_name ✓ [model for LLM calls]
 	header := fmt.Sprintf("%s %s %s", icon, toolStyle.Render(tc.name), statusStyle.Render(statusIcon))
+	if tc.isLLMCall && tc.model != "" {
+		header += " " + lipgloss.NewStyle().Foreground(lipgloss.Color("99")).Render("("+tc.model+")")
+	}
 	b.WriteString(header + "\n")
 
 	// Expanded content
 	if !tc.collapsed {
-		// Args
-		if tc.args != "" {
-			b.WriteString(toolOutputStyle.Render("  Args: "+tc.args) + "\n")
+		// For LLM calls, show prompt info
+		if tc.isLLMCall {
+			if tc.prompt != "" {
+				b.WriteString(toolOutputStyle.Render("  "+tc.prompt) + "\n")
+			}
+		} else {
+			// For regular tool calls, show Args
+			if tc.args != "" {
+				b.WriteString(toolOutputStyle.Render("  Args: "+tc.args) + "\n")
+			}
 		}
 
 		// Output (truncated for display)
@@ -271,7 +271,9 @@ func (m AgentModel) renderToolCall(index int, tc toolCallInfo) string {
 				out = out[:497] + "..."
 			}
 			lines := strings.Split(out, "\n")
-			b.WriteString(toolOutputStyle.Render("  Output:") + "\n")
+			if !tc.isLLMCall {
+				b.WriteString(toolOutputStyle.Render("  Output:") + "\n")
+			}
 			for _, line := range lines {
 				if len(line) > m.width-8 {
 					line = line[:m.width-11] + "..."

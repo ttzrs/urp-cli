@@ -97,6 +97,7 @@ type AgentModel struct {
 
 	// Agent state
 	ag          *agent.Agent
+	la          *agent.LearningAgent // Optional learning wrapper
 	sess        *domain.Session
 	store       *graphstore.Store
 	prov        llm.Provider
@@ -119,13 +120,15 @@ type AgentModel struct {
 	sessionThink  int
 
 	// UI components
-	viewport   viewport.Model
-	input      textarea.Model
-	spinner    spinner.Model
-	filePicker *FilePicker
-	inputMode  inputMode
-	width      int
-	height     int
+	viewport      viewport.Model
+	toolsViewport viewport.Model // Separate viewport for tools
+	input         textarea.Model
+	spinner       spinner.Model
+	filePicker    *FilePicker
+	inputMode     inputMode
+	width         int
+	height        int
+	mouseY        int // Track mouse Y position
 
 	// Pending prompt from slash commands
 	pendingPrompt string
@@ -156,6 +159,10 @@ type toolCallInfo struct {
 	err       string
 	collapsed bool
 	done      bool
+	// LLM-specific fields
+	isLLMCall bool
+	model     string
+	prompt    string // The text/prompt sent to LLM
 }
 
 // Messages (prefixed to avoid conflict with tui.go)
@@ -166,7 +173,7 @@ type (
 )
 
 // NewAgentModel creates a new agent TUI with pre-initialized components
-func NewAgentModel(workDir string, ag *agent.Agent, store *graphstore.Store, prov llm.Provider) AgentModel {
+func NewAgentModel(workDir string, ag *agent.Agent, la *agent.LearningAgent, store *graphstore.Store, prov llm.Provider) AgentModel {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
@@ -188,6 +195,7 @@ func NewAgentModel(workDir string, ag *agent.Agent, store *graphstore.Store, pro
 	return AgentModel{
 		workDir:       workDir,
 		ag:            ag,
+		la:            la,
 		store:         store,
 		prov:          prov,
 		initialized:   true,
@@ -225,9 +233,27 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleKeyMsg(msg)
 
 	case tea.MouseMsg:
-		// Handle mouse wheel scrolling
+		// Track mouse position
+		m.mouseY = msg.Y
+		
+		// Calculate tools area position (after header, brain, and before main viewport)
+		headerHeight := 2
+		brainHeight := 3
+		toolsStartY := headerHeight + brainHeight
+		
+		// Tools area is 1/3 of total height
+		toolsHeight := m.height / 3
+		toolsEndY := toolsStartY + toolsHeight
+		
+		// Handle mouse wheel scrolling based on position
 		var cmd tea.Cmd
-		m.viewport, cmd = m.viewport.Update(msg)
+		if msg.Y >= toolsStartY && msg.Y < toolsEndY && len(*m.shared.toolCalls) > 0 {
+			// Mouse is over tools area - scroll the tools viewport
+			m.toolsViewport, cmd = m.toolsViewport.Update(msg)
+		} else {
+			// Mouse is over main output area - scroll the main viewport
+			m.viewport, cmd = m.viewport.Update(msg)
+		}
 		return m, cmd
 
 	case tea.WindowSizeMsg:
@@ -495,7 +521,7 @@ func (m AgentModel) handleEnterKey() (tea.Model, tea.Cmd) {
 		m.inputTokens = 0
 		m.outputTokens = 0
 		m.thinkTokens = 0
-		return m, tea.Batch(m.spinner.Tick, runAgent(m.ag, m.store, m.workDir, prompt, m.shared.program, m.shared))
+		return m, tea.Batch(m.spinner.Tick, runAgent(m.ag, m.la, m.store, m.workDir, prompt, m.shared.program, m.shared))
 	}
 	// If empty, let textarea handle it (newline)
 	if !m.agentActive && strings.TrimSpace(m.input.Value()) == "" {
@@ -510,20 +536,41 @@ func (m AgentModel) handleWindowSize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd)
 	m.width = msg.Width
 	m.height = msg.Height
 
-	// Calculate viewport size (header + brain monitor + status bar + input area)
+	// Calculate viewport sizes with fixed 1/3 height for tools area
 	headerHeight := 2
-	brainHeight := 3 // BrainMonitor takes ~3 lines
+	brainHeight := 3
 	statusHeight := 1
 	inputHeight := 5
+	debugPanelHeight := 0
+
+	// Debug panel height (if enabled)
+	if m.debug != nil && m.debug.IsEnabled() {
+		debugPanelHeight = 12 // Fixed height for debug panel
+	}
+
+	// Tools area is FIXED at 1/3 of total height
+	toolsHeight := msg.Height / 3
+
+	// Main viewport gets the remaining space
 	vpWidth := msg.Width
-	vpHeight := msg.Height - headerHeight - brainHeight - statusHeight - inputHeight
+	vpHeight := msg.Height - headerHeight - brainHeight - statusHeight - inputHeight - debugPanelHeight - toolsHeight
+	if vpHeight < 5 {
+		vpHeight = 5 // Minimum height
+	}
 
 	if !m.ready {
-		// First time: create viewport
+		// First time: create viewports
 		m.viewport = viewport.New(vpWidth, vpHeight)
 		// Disable default key bindings (q, etc) - we handle navigation ourselves
 		m.viewport.KeyMap = viewport.KeyMap{} // Empty keymap disables all default bindings
 		m.viewport.SetContent(m.renderOutput())
+		
+		// Create tools viewport with fixed 1/3 height
+		m.toolsViewport = viewport.New(vpWidth, toolsHeight)
+		m.toolsViewport.KeyMap = viewport.KeyMap{} // Disable default keys
+		m.toolsViewport.MouseWheelEnabled = true    // Enable mouse wheel scrolling
+		m.toolsViewport.SetContent(m.renderToolCallsSummary())
+		
 		m.ready = true
 	} else {
 		// Resize: adjust dimensions and re-wrap content
@@ -531,6 +578,11 @@ func (m AgentModel) handleWindowSize(msg tea.WindowSizeMsg) (tea.Model, tea.Cmd)
 		m.viewport.Height = vpHeight
 		// Force re-render with new width
 		m.viewport.SetContent(m.renderOutput())
+		
+		// Also resize tools viewport
+		m.toolsViewport.Width = vpWidth
+		m.toolsViewport.Height = toolsHeight
+		m.toolsViewport.SetContent(m.renderToolCallsSummary())
 	}
 
 	// Adjust input width
@@ -595,7 +647,7 @@ func (m AgentModel) handleSpinnerTick(msg spinner.TickMsg) (tea.Model, tea.Cmd) 
 		m.inputTokens = 0
 		m.outputTokens = 0
 		m.thinkTokens = 0
-		cmds = append(cmds, runAgent(m.ag, m.store, m.workDir, prompt, m.shared.program, m.shared))
+		cmds = append(cmds, runAgent(m.ag, m.la, m.store, m.workDir, prompt, m.shared.program, m.shared))
 	}
 
 	return m, tea.Batch(cmds...)

@@ -47,7 +47,7 @@ func TestEnvDefaults(t *testing.T) {
 	env := Env()
 
 	// Check defaults
-	assert.Equal(t, "claude-sonnet-4-20250514", env.Model)
+	assert.Equal(t, "gpt-5.1-codex", env.Model)
 	assert.Equal(t, "bolt://localhost:7687", env.Neo4jURI)
 }
 

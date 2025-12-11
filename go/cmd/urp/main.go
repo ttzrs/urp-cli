@@ -53,6 +53,7 @@ Use 'urp help' for full command list.`,
 				"doctor":  true,
 				"version": true,
 				"help":    true,
+				"models":  true,
 			}
 			if skipDB[cmd.Name()] {
 				return
@@ -162,6 +163,7 @@ Use 'urp help' for full command list.`,
 	rootCmd.AddCommand(statusCmd())
 	rootCmd.AddCommand(tuiCmd())
 	rootCmd.AddCommand(serveCmd())
+	rootCmd.AddCommand(compileCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -216,6 +218,8 @@ func registerCognitiveCommands(root *cobra.Command) {
 		skillsCmd(),
 		backupCmd(),
 		specCmd(),
+		routerCmd(),
+		modelsCmd(),
 	}
 	for _, c := range cmds {
 		c.GroupID = "cognitive"

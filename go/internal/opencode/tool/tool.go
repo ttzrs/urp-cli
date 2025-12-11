@@ -83,6 +83,7 @@ func DefaultRegistry(workDir string) *Registry {
 	r.Register(NewComputer())
 	r.Register(NewBrowser())
 	r.Register(NewDiagnostics(workDir))
+	r.Register(NewSandboxTool(workDir))
 
 	// FASE 1 tools
 	r.Register(NewTask(workDir))

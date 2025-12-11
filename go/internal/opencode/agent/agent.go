@@ -7,10 +7,12 @@ import (
 	"time"
 
 	"github.com/oklog/ulid/v2"
+	"github.com/joss/urp/internal/compiler"
 	"github.com/joss/urp/internal/opencode/cognitive"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/hook"
 	"github.com/joss/urp/internal/opencode/permission"
+	"github.com/joss/urp/internal/opencode/ratelimit"
 	"github.com/joss/urp/internal/opencode/tool"
 	"github.com/joss/urp/pkg/llm"
 )
@@ -19,7 +21,8 @@ import (
 // Delegates to: MessageStore, Autocorrector, PromptBuilder
 type Agent struct {
 	config         domain.Agent
-	provider       llm.Provider
+	provider       llm.Provider       // Primary provider (proxy)
+	deepseek       llm.Provider       // DeepSeek direct provider (optional)
 	tools          tool.ToolRegistry
 	executor       *ToolExecutor
 	hooks          *hook.Registry
@@ -32,11 +35,22 @@ type Agent struct {
 	promptBuilder *PromptBuilder
 	cognitive     *cognitive.Engine
 
+	// Model routing (intelligent model selection)
+	router          *ModelRouter
+	classifier      *TaskClassifier
+	routingMu       sync.Mutex
+	lastSelection   *ModelSelection // Last model selection for this session
+	currentModelID  string          // Currently selected model for this turn
+	currentProvider string          // Currently selected provider for this turn ("proxy" or "deepseek-direct")
+
 	// Task tracking (maintains focus across turns)
 	taskContext *TaskContext
 
 	// Structured logging
 	logger *AgentLogger
+
+	// Rate limit management
+	rateLimitManager *ratelimit.ProviderManager
 }
 
 // AgentOption configures Agent via functional options (DIP).
@@ -72,6 +86,31 @@ func WithAgentHooks(h *hook.Registry) AgentOption {
 	return func(a *Agent) { a.hooks = h }
 }
 
+// WithModelRouter injects a model router for intelligent model selection.
+func WithModelRouter(r *ModelRouter) AgentOption {
+	return func(a *Agent) { a.router = r }
+}
+
+// WithTaskClassifier injects a task classifier.
+func WithTaskClassifier(c *TaskClassifier) AgentOption {
+	return func(a *Agent) { a.classifier = c }
+}
+
+// WithDeepSeekProvider injects a DeepSeek direct provider for cost-optimized routing.
+func WithDeepSeekProvider(p llm.Provider) AgentOption {
+	return func(a *Agent) { a.deepseek = p }
+}
+
+// WithRateLimitManager injects a rate limit manager for provider switching.
+func WithRateLimitManager(m *ratelimit.ProviderManager) AgentOption {
+	return func(a *Agent) { a.rateLimitManager = m }
+}
+
+// WithContextCompiler injects the ContextCompiler for V2 architecture.
+func WithContextCompiler(c *compiler.ContextCompiler) AgentOption {
+	return func(a *Agent) { a.promptBuilder.SetCompiler(c) }
+}
+
 // New creates an Agent with its dependencies (DIP via functional options).
 func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry, opts ...AgentOption) *Agent {
 	a := &Agent{
@@ -89,6 +128,11 @@ func New(config domain.Agent, provider llm.Provider, tools tool.ToolRegistry, op
 	// Apply options (DIP - allows injection)
 	for _, opt := range opts {
 		opt(a)
+	}
+
+	// Initialize rate limit manager if not set and alternative provider available
+	if a.rateLimitManager == nil && a.deepseek != nil {
+		a.rateLimitManager = ratelimit.NewProviderManager(a.provider, a.deepseek)
 	}
 
 	// Set custom prompt from config
@@ -168,14 +212,34 @@ func (a *Agent) SetMessages(msgs []domain.Message) {
 	a.messages.SetMessages(msgs)
 }
 
-// Model returns the current model ID
+// Model returns the configured model ID (may be overridden by routing)
 func (a *Agent) Model() string {
+	return a.config.Model.ModelID
+}
+
+// EffectiveModel returns the currently active model ID (from routing or config)
+func (a *Agent) EffectiveModel() string {
+	if a.currentModelID != "" {
+		return a.currentModelID
+	}
 	return a.config.Model.ModelID
 }
 
 // SetModel changes the model for subsequent requests
 func (a *Agent) SetModel(modelID string) {
 	a.config.Model.ModelID = modelID
+}
+
+// LastModelSelection returns the last routing selection (for debugging/logging)
+func (a *Agent) LastModelSelection() *ModelSelection {
+	a.routingMu.Lock()
+	defer a.routingMu.Unlock()
+	return a.lastSelection
+}
+
+// Router returns the model router (may be nil)
+func (a *Agent) Router() *ModelRouter {
+	return a.router
 }
 
 // persistMessage delegates to MessageStore
@@ -263,23 +327,82 @@ func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*do
 		}
 	}
 
+	// Select model via routing (if router configured)
+	modelID := a.config.Model.ModelID
+	providerType := "proxy" // Default provider
+	if a.router != nil && a.router.IsEnabled() {
+		a.routingMu.Lock()
+		// Classify task
+		classifier := a.classifier
+		if classifier == nil {
+			classifier = DefaultTaskClassifier
+		}
+		classification := classifier.Classify(input, a.taskContext)
+
+		// Select optimal model
+		selection := a.router.SelectModel(ctx, classification)
+		if selection != nil && selection.ModelID != "" {
+			modelID = selection.ModelID
+			a.lastSelection = selection
+			// Determine provider for this model
+			providerType = a.router.GetModelProvider(modelID)
+			if a.logger != nil {
+				a.logger.Debug(ctx, "model_routing", map[string]any{
+					"selected":   selection.ModelID,
+					"provider":   providerType,
+					"reason":     selection.Reason,
+					"confidence": selection.Confidence,
+					"task_type":  classification.TaskType,
+					"complexity": classification.Complexity,
+				})
+			}
+		}
+		a.routingMu.Unlock()
+	}
+	// Store for continuation calls
+	a.currentModelID = modelID
+	a.currentProvider = providerType
+
 	// Build request
 	req := &llm.ChatRequest{
-		Model:          a.config.Model.ModelID,
+		Model:          modelID,
 		Messages:       allMessages,
 		Tools:          enabledTools,
-		SystemPrompt:   a.promptBuilder.Build(session),
+		SystemPrompt:   a.promptBuilder.Build(ctx, session),
 		MaxTokens:      16384,
 		ThinkingBudget: a.thinkingBudget,
 	}
 
-	if a.provider == nil {
+	// Select provider based on model routing and rate limit management
+	var activeProvider llm.Provider
+	if a.rateLimitManager != nil {
+		activeProvider = a.rateLimitManager.GetProvider()
+	} else {
+		activeProvider = a.provider
+		if providerType == "deepseek-direct" && a.deepseek != nil {
+			activeProvider = a.deepseek
+		}
+	}
+	if activeProvider == nil {
 		return nil, fmt.Errorf("provider is nil")
 	}
 
 	// Start streaming
-	providerEvents, err := a.provider.Chat(ctx, req)
-	if err != nil {
+	providerEvents, err := activeProvider.Chat(ctx, req)
+	if err != nil && a.rateLimitManager != nil {
+		// Check if this is a rate limit error and handle accordingly
+		checkedProvider, isRateLimit := a.rateLimitManager.CheckAndHandleError(err)
+		if isRateLimit {
+			// Retry with the new provider
+			providerEvents, err = checkedProvider.Chat(ctx, req)
+			if err != nil {
+				return nil, fmt.Errorf("chat after rate limit switch: %w", err)
+			}
+		} else {
+			// Not a rate limit error
+			return nil, fmt.Errorf("chat: %w", err)
+		}
+	} else if err != nil {
 		return nil, fmt.Errorf("chat: %w", err)
 	}
 
@@ -412,22 +535,57 @@ func (a *Agent) processEventsLoop(
 				newMessages := append(messages, assistantMsg, toolMsg)
 
 				req := &llm.ChatRequest{
-					Model:          a.config.Model.ModelID,
+					Model:          a.EffectiveModel(), // Use routed model for continuation
 					Messages:       newMessages,
 					Tools:          tools,
-					SystemPrompt:   a.promptBuilder.Build(session),
+					SystemPrompt:   a.promptBuilder.Build(ctx, session),
 					MaxTokens:      16384,
 					ThinkingBudget: a.thinkingBudget,
 				}
 
-				// Continue loop for tool results
-				nextEvents, err := a.provider.Chat(ctx, req)
-				if err != nil {
-					events <- domain.StreamEvent{
-						Type:  domain.StreamEventError,
-						Error: err,
+				// Select provider based on routing decision and rate limit management
+				var activeProvider llm.Provider
+				if a.rateLimitManager != nil {
+					activeProvider = a.rateLimitManager.GetProvider()
+				} else {
+					activeProvider = a.provider
+					if a.currentProvider == "deepseek-direct" && a.deepseek != nil {
+						activeProvider = a.deepseek
 					}
-					return
+				}
+
+				// Continue loop for tool results
+				nextEvents, err := activeProvider.Chat(ctx, req)
+				if err != nil {
+					// Check if this is a rate limit error and handle accordingly
+					if a.rateLimitManager != nil {
+						checkedProvider, isRateLimit := a.rateLimitManager.CheckAndHandleError(err)
+						if isRateLimit {
+							// Retry with the new provider
+							nextEvents, err = checkedProvider.Chat(ctx, req)
+							if err != nil {
+								events <- domain.StreamEvent{
+									Type:  domain.StreamEventError,
+									Error: err,
+								}
+								return
+							}
+						} else {
+							// Not a rate limit error, send the original error
+							events <- domain.StreamEvent{
+								Type:  domain.StreamEventError,
+								Error: err,
+							}
+							return
+						}
+					} else {
+						// No rate limit manager, send the error as is
+						events <- domain.StreamEvent{
+							Type:  domain.StreamEventError,
+							Error: err,
+						}
+						return
+					}
 				}
 
 				// Process next round (recursive but doesn't close channel)
@@ -620,6 +778,7 @@ func BuiltinAgents() map[string]domain.Agent {
 				"patch":          true,
 				"web_fetch":      true,
 				"web_search":     true,
+				"sandbox":        true,
 			},
 			Permissions: domain.AgentPermissions{
 				Edit:        domain.PermissionAllow,
@@ -667,6 +826,13 @@ func BuiltinAgents() map[string]domain.Agent {
 				Edit: domain.PermissionDeny,
 			},
 		},
+	}
+}
+
+// Close closes the agent and any resources it manages
+func (a *Agent) Close() {
+	if a.rateLimitManager != nil {
+		a.rateLimitManager.Close()
 	}
 }
 

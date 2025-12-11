@@ -1,8 +1,10 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/joss/urp/internal/compiler"
 	"github.com/joss/urp/internal/opencode/domain"
 )
 
@@ -10,6 +12,7 @@ import (
 type PromptBuilder struct {
 	customPrompt string
 	taskContext  *TaskContext
+	compiler     *compiler.ContextCompiler
 }
 
 // NewPromptBuilder creates a new prompt builder
@@ -27,8 +30,42 @@ func (p *PromptBuilder) SetTaskContext(tc *TaskContext) {
 	p.taskContext = tc
 }
 
+// SetCompiler injects the ContextCompiler
+func (p *PromptBuilder) SetCompiler(c *compiler.ContextCompiler) {
+	p.compiler = c
+}
+
 // Build constructs the full system prompt for a session
-func (p *PromptBuilder) Build(session *domain.Session) string {
+func (p *PromptBuilder) Build(ctx context.Context, session *domain.Session) string {
+	// 1. Try to use Context Compiler (Architecture V2)
+	if p.compiler != nil {
+		goal := "Perform engineering task"
+		if p.taskContext != nil {
+			// Extract goal from task context (Objective is usually the first input)
+			// For now, we use a generic goal if not available, or the session title
+			if session.Title != "" {
+				goal = session.Title
+			}
+		}
+
+		// Compile the context (logs are empty for now as we don't have a structured log store yet)
+		// We use session.ID as the session ID
+		compiled, err := p.compiler.Compile(ctx, session.ID, goal, "", session.Directory)
+		if err == nil {
+			// Success! Return the compiled view.
+			// We append the custom prompt and task context as before, 
+			// although the Compiler should ideally handle this.
+			// For transition, we'll append custom prompt if set.
+			if p.customPrompt != "" {
+				compiled += "\n" + p.customPrompt
+			}
+			return compiled
+		}
+		// Fallback to V1 on error
+		fmt.Printf("Context Compiler failed, falling back to V1: %v\n", err)
+	}
+
+	// 2. Fallback to V1 (Legacy)
 	basePrompt := `You are an AI coding assistant. You help users with software engineering tasks.
 
 Working directory: %s

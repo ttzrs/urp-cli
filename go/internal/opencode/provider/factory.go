@@ -7,6 +7,8 @@ import (
 	"os"
 	"sync"
 
+	"github.com/joss/urp/internal/opencode/model"
+	"github.com/joss/urp/internal/opencode/modelservice"
 	"github.com/joss/urp/pkg/llm"
 )
 
@@ -17,7 +19,27 @@ const (
 	ProviderAnthropic ProviderType = "anthropic"
 	ProviderOpenAI    ProviderType = "openai"
 	ProviderGoogle    ProviderType = "google"
+	ProviderDeepSeek  ProviderType = "deepseek"
+	ProviderUnified   ProviderType = "unified"
 )
+
+// providerTypeFromSource maps modelservice.Source to ProviderType.
+func providerTypeFromSource(source modelservice.Source) ProviderType {
+	switch source {
+	case modelservice.SourceProxy:
+		return ProviderUnified
+	case modelservice.SourceOpenAI:
+		return ProviderOpenAI
+	case modelservice.SourceAnthropic:
+		return ProviderAnthropic
+	case modelservice.SourceGoogle:
+		return ProviderGoogle
+	case modelservice.SourceDeepSeek:
+		return ProviderDeepSeek
+	default:
+		return ProviderUnified // fallback
+	}
+}
 
 // Config holds provider configuration.
 type Config struct {
@@ -74,6 +96,12 @@ func (f *Factory) RegisterDefaults() {
 	})
 	f.Register(ProviderGoogle, func(cfg Config) llm.Provider {
 		return NewGoogleWithClient(cfg.APIKey, cfg.HTTPClient)
+	})
+	f.Register(ProviderDeepSeek, func(cfg Config) llm.Provider {
+		return NewDeepSeekProvider()
+	})
+	f.Register(ProviderUnified, func(cfg Config) llm.Provider {
+		return NewUnifiedProvider(cfg.APIKey, cfg.BaseURL, model.DefaultModelRegistry)
 	})
 }
 
@@ -137,9 +165,34 @@ func (f *Factory) CreateByID(id string, opts ...ConfigOption) (llm.Provider, err
 		return f.Create(ProviderOpenAI, opts...)
 	case "google", "gemini":
 		return f.Create(ProviderGoogle, opts...)
+	case "deepseek", "deepseek-chat", "deepseek-coder":
+		return f.Create(ProviderDeepSeek, opts...)
+	case "unified", "proxy":
+		return f.Create(ProviderUnified, opts...)
 	default:
 		return nil, fmt.Errorf("unknown provider: %s", id)
 	}
+}
+
+// CreateForModel creates a provider appropriate for the given model ID or shortcode.
+// Returns the provider, the resolved model ID, and any error.
+func (f *Factory) CreateForModel(modelIDOrShortcode string, opts ...ConfigOption) (llm.Provider, string, error) {
+	svc := modelservice.DefaultService
+	// Try shortcode first
+	modelWithSource, ok := svc.ResolveShortCode(modelIDOrShortcode)
+	if !ok {
+		// Try as model ID
+		modelWithSource, ok = svc.FindModel(modelIDOrShortcode)
+	}
+	if !ok {
+		return nil, "", fmt.Errorf("model not found: %s", modelIDOrShortcode)
+	}
+	providerType := providerTypeFromSource(modelWithSource.Source)
+	provider, err := f.Create(providerType, opts...)
+	if err != nil {
+		return nil, "", err
+	}
+	return provider, modelWithSource.ID, nil
 }
 
 // Clear removes cached providers.
@@ -164,6 +217,13 @@ func envKey(pt ProviderType) string {
 			return k
 		}
 		return os.Getenv("GEMINI_API_KEY")
+	case ProviderDeepSeek:
+		return os.Getenv("DEEPSEEK_API_KEY")
+	case ProviderUnified:
+		if k := os.Getenv("UNIFIED_API_KEY"); k != "" {
+			return k
+		}
+		return os.Getenv("PROXY_API_KEY")
 	}
 	return ""
 }
@@ -175,6 +235,13 @@ func envBaseURL(pt ProviderType) string {
 		return os.Getenv("ANTHROPIC_BASE_URL")
 	case ProviderOpenAI:
 		return os.Getenv("OPENAI_BASE_URL")
+	case ProviderDeepSeek:
+		return os.Getenv("DEEPSEEK_BASE_URL")
+	case ProviderUnified:
+		if u := os.Getenv("UNIFIED_BASE_URL"); u != "" {
+			return u
+		}
+		return os.Getenv("PROXY_BASE_URL")
 	}
 	return ""
 }

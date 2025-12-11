@@ -198,9 +198,14 @@ func (o *OpenAI) Chat(ctx context.Context, req *llm.ChatRequest) (<-chan domain.
 					})
 				} else {
 					// Tool result - needs separate message
+					// Ensure content is not empty for tool messages
+					content := part.Result
+					if content == "" {
+						content = "No result returned from tool call."
+					}
 					msgs = append(msgs, openaiMessage{
 						Role:       "tool",
-						Content:    part.Result,
+						Content:    content,
 						ToolCallID: part.ToolID,
 					})
 					continue

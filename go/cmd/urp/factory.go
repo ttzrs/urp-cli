@@ -79,14 +79,19 @@ func newSimpleCommand(cfg CommandConfig) *cobra.Command {
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			event := auditLogger.Start(cfg.Category, cfg.Action)
+			var event *audit.AuditEvent
+			if auditLogger != nil {
+				event = auditLogger.Start(cfg.Category, cfg.Action)
+			}
 
 			if err := cfg.RunFunc(cmd, args); err != nil {
 				exitOnError(event, err)
 				return
 			}
 
-			auditLogger.LogSuccess(event)
+			if auditLogger != nil && event != nil {
+				auditLogger.LogSuccess(event)
+			}
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			if cfg.PostRun != nil {
