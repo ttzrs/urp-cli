@@ -13,7 +13,6 @@ import (
 	"github.com/joss/urp/internal/config"
 	"github.com/joss/urp/internal/gate"
 	"github.com/joss/urp/internal/graph"
-	"github.com/joss/urp/internal/ingest"
 	"github.com/joss/urp/internal/opencode/agent"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/graphstore"
@@ -56,17 +55,34 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 	// 3. Setup Stores & Ingestion
 	store := graphstore.New(gdb)
 	tool.SetGraphDB(gdb)
-	
-	// Auto-ingest in background (non-blocking)
-	go autoIngest(gdb, opts.WorkDir)
 
-	// 4. Initialize LLM Provider
-	prov, err := initProvider()
+	// 4. Initialize LLM Provider (Master Agent)
+	masterConfig := config.GetMasterModelConfig()
+
+	// Check both URP_MASTER_MODEL_ID and URP_DEFAULT_MASTER_MODEL to debug override issue
+	actualMasterModel := os.Getenv("URP_MASTER_MODEL_ID")
+	actualDefaultModel := os.Getenv("URP_DEFAULT_MASTER_MODEL")
+	fmt.Printf("[DEBUG] Initialize: URP_MASTER_MODEL_ID='%s', URP_DEFAULT_MASTER_MODEL='%s'\n", actualMasterModel, actualDefaultModel)
+	fmt.Printf("[DEBUG] Initialize: masterModelID='%s', fallbacks='%v'\n", masterConfig.ModelID, masterConfig.Fallbacks)
+
+	// Use the new fallback system
+	prov, resolvedMasterModelID, err := config.GetModelWithFallback(
+		masterConfig.ModelID,
+		masterConfig.Fallbacks,
+		provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
+		provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // OpenRouter uses OpenAI API key
+		provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
+		provider.WithBaseURL(os.Getenv("ANTHROPIC_BASE_URL")),
+		provider.WithBaseURL(os.Getenv("OPENAI_BASE_URL")),
+		provider.WithBaseURL(os.Getenv("DEEPSEEK_BASE_URL")),
+	)
 	if err != nil {
 		gdb.Close()
 		return nil, fmt.Errorf("provider init failed: %w", err)
 	}
 	go warmupConnection(prov)
+
+	fmt.Printf("[DEBUG] Initialize: Provider initialized with resolved model ID '%s' (Provider: %s)\n", resolvedMasterModelID, prov.Name())
 
 	// 5. Initialize Context Compiler (V2 Architecture)
 	var ctxCompiler *compiler.ContextCompiler
@@ -83,9 +99,15 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 
 	if gdb != nil {
 		compStore := compiler.NewStore(gdb)
-		gateClient := gate.NewOpenAIClient("MODEL_GATE")
+		// Use URP_GATE_MODEL_ID for gateClient, with fallback to resolvedMasterModelID or default
+		gateModel := config.GetEnvOrDefault("URP_GATE_MODEL_ID", "")
+		if gateModel == "" {
+			// Use the same model as the master agent if no specific gate model is set
+			gateModel = resolvedMasterModelID
+		}
+		gateClient := gate.NewOpenAIClient(gateModel)
 		ctxCompiler = compiler.NewContextCompiler(compStore, gateClient)
-		
+
 		// Connect Retrieval (End of Cycle)
 		if embedStore != nil {
 			ctxCompiler.SetStrategyRetriever(&retrievalAdapter{store: embedStore})
@@ -128,12 +150,10 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 
 	agentConfig := agent.BuiltinAgents()["build"]
 
-	// Config overrides
-	defaultModel := "claude-sonnet-4-5-20250929"
-	if model := os.Getenv("URP_MODEL"); model != "" {
-		defaultModel = model
-	}
-	agentConfig.Model = &domain.ModelConfig{ModelID: defaultModel}
+	// Set the resolved master model ID
+	agentConfig.Model = &domain.ModelConfig{ModelID: resolvedMasterModelID}
+	// Debugging: write the resolved model ID to a file in the container
+	os.WriteFile("/tmp/agent_model.log", []byte(resolvedMasterModelID), 0644)
 
 	// DeepSeek Provider (Optional)
 	var deepseekProv llm.Provider
@@ -238,20 +258,41 @@ func loadEnvFile() {
 	}
 }
 
-func initProvider() (llm.Provider, error) {
-	if apiKey := os.Getenv("OPENAI_API_KEY"); apiKey != "" {
-		baseURL := os.Getenv("OPENAI_BASE_URL")
-		return provider.NewOpenAI(apiKey, baseURL), nil
+// initProvider initializes the LLM provider based on a primary and fallback model ID.
+func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, error) {
+	fmt.Printf("[DEBUG] initProvider: Attempting primary model '%s'\n", masterModelID)
+
+	// Try to create provider for the primary model
+	prov, resolvedModelID, err := provider.Default.CreateForModel(masterModelID,
+		provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
+		provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // OpenRouter uses OpenAI API key
+		provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
+		provider.WithBaseURL(os.Getenv("ANTHROPIC_BASE_URL")),
+		provider.WithBaseURL(os.Getenv("OPENAI_BASE_URL")),
+		provider.WithBaseURL(os.Getenv("DEEPSEEK_BASE_URL")),
+	)
+
+	if err != nil || prov == nil {
+		fmt.Printf("[DEBUG] initProvider: Warning: Failed to initialize primary URP_MASTER_MODEL '%s': %v\n", masterModelID, err)
+		// Attempt fallback
+		fmt.Printf("[DEBUG] initProvider: Attempting to use fallback model: '%s'\n", fallbackModelID)
+
+		fallbackProv, resolvedFallbackModelID, fallbackErr := provider.Default.CreateForModel(fallbackModelID,
+			provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
+			provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+			provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
+			provider.WithBaseURL(os.Getenv("ANTHROPIC_BASE_URL")),
+			provider.WithBaseURL(os.Getenv("OPENAI_BASE_URL")),
+			provider.WithBaseURL(os.Getenv("DEEPSEEK_BASE_URL")),
+		)
+		if fallbackErr != nil || fallbackProv == nil {
+			return nil, "", fmt.Errorf("failed to initialize primary or fallback LLM provider: %v. Fallback error: %v", err, fallbackErr)
+		}
+		fmt.Printf("[DEBUG] initProvider: Successfully initialized fallback model: %s (Provider: %s)\n", resolvedFallbackModelID, fallbackProv.Name())
+		return fallbackProv, resolvedFallbackModelID, nil
 	}
-	if apiKey := os.Getenv("ANTHROPIC_API_KEY"); apiKey != "" {
-		baseURL := os.Getenv("ANTHROPIC_BASE_URL")
-		return provider.NewAnthropic(apiKey, baseURL), nil
-	}
-	if authToken := os.Getenv("ANTHROPIC_AUTH_TOKEN"); authToken != "" {
-		baseURL := os.Getenv("ANTHROPIC_BASE_URL")
-		return provider.NewAnthropic(authToken, baseURL), nil
-	}
-	return nil, fmt.Errorf("no API key found")
+	fmt.Printf("[DEBUG] initProvider: Successfully initialized primary URP_MASTER_MODEL: %s (Provider: %s)\n", resolvedModelID, prov.Name())
+	return prov, resolvedModelID, nil
 }
 
 func warmupConnection(prov llm.Provider) {
@@ -271,30 +312,5 @@ func warmupConnection(prov llm.Provider) {
 	resp, err := http.DefaultClient.Do(req)
 	if err == nil && resp != nil {
 		resp.Body.Close()
-	}
-}
-
-func autoIngest(gdb graph.Driver, workDir string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-	defer cancel()
-	if _, err := os.Stat(workDir); err != nil {
-		return
-	}
-	// Check if already ingested
-	projectName := filepath.Base(workDir)
-	query := `MATCH (f:File) WHERE f.path STARTS WITH $prefix RETURN count(f) as count`
-	records, err := gdb.Execute(ctx, query, map[string]any{"prefix": projectName})
-	if err == nil && len(records) > 0 {
-		if count, ok := records[0]["count"].(int64); ok && count > 0 {
-			return 
-		}
-	}
-	ingester := ingest.NewIngester(gdb)
-	ingester.Ingest(ctx, workDir)
-	
-	gitDir := filepath.Join(workDir, ".git")
-	if _, err := os.Stat(gitDir); err == nil {
-		gitLoader := ingest.NewGitLoader(gdb, workDir)
-		gitLoader.LoadHistory(ctx, 500)
 	}
 }

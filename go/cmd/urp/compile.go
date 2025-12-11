@@ -52,7 +52,7 @@ func compileCmd() *cobra.Command {
 			
 			// 1. Setup Dependencies
 			store := compiler.NewStore(db) // db is global from main.go
-			gateClient := gate.NewOpenAIClient("MODEL_GATE")
+			gateClient := gate.NewOpenAIClient("") // Will use URP_GATE_MODEL_ID as default
 			comp := compiler.NewContextCompiler(store, gateClient)
 			
 			// Setup Vector Store (LanceDB)

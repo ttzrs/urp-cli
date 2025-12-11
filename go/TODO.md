@@ -29,13 +29,27 @@
 
 ---
 
+## Pending - LLM Configuration & Reliability
+
+- [ ] **Fix `URP_MASTER_MODEL` override:** Ensure the `URP_MASTER_MODEL` environment variable correctly overrides the default model for the Master agent. Debug why the system defaults to `claude-sonnet-4-5-20250929` despite `URP_MASTER_MODEL` being set. (Related to `initProvider` and `provider.Default.CreateForModel` functions).
+- [ ] **Fix `gateClient` initialization:** Update the `gateClient` in `bootstrap.go` to dynamically select the provider based on `URP_GATE_MODEL` (or its default), similar to the Master agent's setup.
+- [ ] **E2E Test Failure Debugging:** Resolve the `docker exec` permission denied error when trying to run `urp ask` inside `urp-opencode-master` container, likely due to SELinux. (SELinux `:z` label applied, re-testing needed).
+
+## Pending - Dockerfile Minimization
+
+- [ ] **Complete Dockerfile Minimization:** Apply the proposed new Dockerfile structure:
+    - Introduce `base-agent` target with only core agent dependencies.
+    - Build `master` and `worker` targets on `base-agent`, adding only their specific requirements.
+    - Create a separate `dev-full` target (replacing the old `full`) for developer convenience tools.
+    - Remove unnecessary CLI tools (e.g., `zsh`, `bat`, `fzf`, `delta`, `zoxide`) from core agent images.
+
 ## Pending - Orchestration System
 
 ### P2: `urp launch` - Master Container
 - [x] Create master container with project:ro mount
 - [x] Auto-ingest: `urp code ingest && urp git ingest`
 - [x] Open Claude CLI (interactive)
-- [ ] SELinux :z labels for volumes (optional)
+- [ ] SELinux :z labels for volumes (optional) -- *Note: Applied to /var/run/docker.sock, need to confirm if 'optional' is still true for other volumes.*
 
 ### P2: `urp spawn` - Ephemeral Workers
 - [x] Spawn worker containers (docker --rm)
@@ -105,5 +119,5 @@
 
 ---
 
-**Last updated:** 2025-12-06
-**Verified:** Build ✅ | Tests ✅
+**Last updated:** 2025-12-11
+**Verified:** Build ✅ | Tests ❌ (LLM config E2E tests are failing)

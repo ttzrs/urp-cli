@@ -133,7 +133,7 @@ func IsSELinuxEnforcing() bool {
 // NeedsSELinuxWorkaround returns true if we need special handling for docker socket.
 // With Docker and --security-opt label=disable, no workaround is needed.
 func (m *Manager) NeedsSELinuxWorkaround() bool {
-	return false
+	return detectSELinux() == "enforcing"
 }
 
 // WorkerHealth represents the health status of a worker container

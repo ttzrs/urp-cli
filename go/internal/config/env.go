@@ -58,6 +58,15 @@ var (
 	envOnce sync.Once
 )
 
+// GetEnvOrDefault returns the value of the environment variable named by the key.
+// If the variable is not present, it returns the fallback value.
+func GetEnvOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 // Env returns the singleton environment configuration.
 // Thread-safe, loads once on first call.
 func Env() *URPEnv {
@@ -70,10 +79,10 @@ func Env() *URPEnv {
 			ContainerMode:    os.Getenv("URP_CONTAINER_MODE") == "1",
 			IsMaster:         os.Getenv("URP_MASTER") == "1",
 			WorkerID:         os.Getenv("URP_WORKER_ID"),
-			Model:            getEnvDefault("DEFAULT_MODEL", "gpt-5.1-codex"),
+			Model:            GetEnvOrDefault("DEFAULT_MODEL", "gpt-5.1-codex"),
 			AnthropicKey:     os.Getenv("ANTHROPIC_API_KEY"),
 			AnthropicBaseURL: os.Getenv("ANTHROPIC_BASE_URL"),
-			Neo4jURI:         getEnvDefault("NEO4J_URI", "bolt://localhost:7687"),
+			Neo4jURI:         GetEnvOrDefault("NEO4J_URI", "bolt://localhost:7687"),
 			Neo4jUser:        os.Getenv("NEO4J_USER"),
 			Neo4jPassword:    os.Getenv("NEO4J_PASSWORD"),
 			OpenAIKey:        os.Getenv("OPENAI_API_KEY"),
@@ -83,18 +92,6 @@ func Env() *URPEnv {
 }
 
 // ResetEnv resets the cached environment (for testing).
-func ResetEnv() {
-	envOnce = sync.Once{}
-	env = nil
-}
-
-func getEnvDefault(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
-}
-
 // Paths holds standard URP directory paths.
 type Paths struct {
 	// Home is the URP home directory (~/.urp-go)

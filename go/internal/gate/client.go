@@ -10,6 +10,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/joss/urp/internal/config"
 )
 
 // OpenAIClient is a generic client for OpenAI-compatible APIs (Cerebras, Groq, Proxies, etc.)
@@ -25,23 +27,31 @@ type OpenAIClient struct {
 func NewOpenAIClient(modelEnvVar string) *OpenAIClient {
 	model := os.Getenv(modelEnvVar)
 	if model == "" {
-		model = os.Getenv("MODEL_GATE") // Default fallback
+		model = os.Getenv("URP_GATE_MODEL_ID") // Use URP_GATE_MODEL_ID env var
 	}
 	if model == "" {
-		model = "gpt-4o-mini" // Ultimate fallback
+		model = config.GetEnvOrDefault("URP_DEFAULT_GATE_MODEL", "gpt-4o-mini") // Use config for default
 	}
 
-	apiKey := os.Getenv("API_KEY")
+	// Check if specific gate model API key is provided, otherwise use general keys
+	apiKey := os.Getenv("URP_GATE_MODEL_API_KEY")
+	if apiKey == "" {
+		apiKey = os.Getenv("API_KEY")
+	}
 	if apiKey == "" {
 		apiKey = os.Getenv("OPENAI_API_KEY")
 	}
 
-	baseURL := os.Getenv("BASE_URL")
+	// Check if specific gate model URL is provided, otherwise use general URLs
+	baseURL := os.Getenv("URP_GATE_MODEL_URL")
+	if baseURL == "" {
+		baseURL = os.Getenv("BASE_URL")
+	}
 	if baseURL == "" {
 		baseURL = os.Getenv("OPENAI_BASE_URL")
 	}
 	if baseURL == "" {
-		baseURL = "https://api.openai.com/v1"
+		baseURL = config.GetEnvOrDefault("URP_DEFAULT_OPENAI_BASE_URL", "https://api.openai.com/v1") // Use config for default
 	}
 
 	return &OpenAIClient{
