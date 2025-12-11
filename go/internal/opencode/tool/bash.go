@@ -1,9 +1,7 @@
 package tool
 
 import (
-	"bytes"
 	"context"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -11,22 +9,36 @@ import (
 )
 
 type Bash struct {
-	workDir string
-	timeout time.Duration
+	workDir  string
+	timeout  time.Duration
+	executor CommandExecutor
 }
 
 func NewBash(workDir string) *Bash {
 	return &Bash{
-		workDir: workDir,
-		timeout: 2 * time.Minute,
+		workDir:  workDir,
+		timeout:  2 * time.Minute,
+		executor: &LocalExecutor{},
 	}
 }
 
+// SetExecutor sets the command executor (e.g. for remote execution)
+func (b *Bash) SetExecutor(exec CommandExecutor) {
+	b.executor = exec
+}
+
 func (b *Bash) Info() domain.Tool {
+	desc := "Execute bash commands in a persistent shell."
+	if b.executor.IsRemote() {
+		desc += " (Runs in ISOLATED WORKER container)"
+	} else {
+		desc += " (Runs LOCALLY on host)"
+	}
+	
 	return domain.Tool{
 		ID:          "bash",
 		Name:        "bash",
-		Description: "Execute bash commands in a persistent shell. Use for git, npm, docker, and other CLI operations. DO NOT use for file operations - use dedicated tools instead.",
+		Description: desc + " Use for git, npm, docker, and other CLI operations. DO NOT use for file operations - use dedicated tools instead.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
 			"properties": map[string]any{
@@ -61,22 +73,7 @@ func (b *Bash) Execute(ctx context.Context, args map[string]any) (*Result, error
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "bash", "-c", command)
-	cmd.Dir = b.workDir
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	err := cmd.Run()
-
-	output := stdout.String()
-	if stderr.Len() > 0 {
-		if output != "" {
-			output += "\n"
-		}
-		output += stderr.String()
-	}
+	output, err := b.executor.Execute(ctx, b.workDir, command)
 
 	// Truncate if too long
 	if len(output) > 30000 {
@@ -88,7 +85,7 @@ func (b *Bash) Execute(ctx context.Context, args map[string]any) (*Result, error
 		Output: output,
 		Metadata: map[string]any{
 			"command":  command,
-			"exitCode": cmd.ProcessState.ExitCode(),
+			// "exitCode": cmd.ProcessState.ExitCode(), // Not available in interface yet
 		},
 	}
 

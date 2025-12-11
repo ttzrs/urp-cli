@@ -19,6 +19,7 @@ import (
 	"github.com/joss/urp/internal/opencode/graphstore"
 	"github.com/joss/urp/internal/opencode/provider"
 	"github.com/joss/urp/internal/opencode/tool"
+	"github.com/joss/urp/internal/orchestrator"
 	"github.com/joss/urp/pkg/llm"
 )
 
@@ -30,6 +31,7 @@ type App struct {
 	Provider      llm.Provider
 	GraphDB       graph.Driver
 	WorkDir       string
+	Orchestrator  *orchestrator.Orchestrator
 }
 
 // InitializeOptions configures the bootstrap process.
@@ -90,8 +92,40 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 		}
 	}
 
-	// 6. Create Agent
+	// 6. Create Agent & Tools
 	tools := tool.DefaultRegistry(opts.WorkDir)
+	
+	// Setup Orchestrator if not in container (Master Mode)
+	// This enables Master-Worker isolation for dangerous tools
+	var orch *orchestrator.Orchestrator
+	if !config.InContainer() {
+		orch = orchestrator.New()
+		workerID := "urp-worker-" + filepath.Base(opts.WorkDir)
+		
+		// Spawn worker in background
+		go func() {
+			// We mount the workdir to /workspace in the worker
+			if err := orch.SpawnWorkerContainer(context.Background(), workerID, opts.WorkDir); err != nil {
+				// Log error? For now silent, tools will fail/fallback if worker dies
+				// fmt.Fprintf(os.Stderr, "Worker spawn failed: %v\n", err)
+			}
+		}()
+		
+		// Configure tools to use remote executor
+		remoteExec := NewRemoteExecutor(orch, workerID)
+		
+		if t, ok := tools.Get("bash"); ok {
+			if bash, ok := t.(*tool.Bash); ok {
+				bash.SetExecutor(remoteExec)
+			}
+		}
+		if t, ok := tools.Get("sandbox"); ok {
+			if sandbox, ok := t.(*tool.SandboxTool); ok {
+				sandbox.SetExecutor(remoteExec)
+			}
+		}
+	}
+
 	agentConfig := agent.BuiltinAgents()["build"]
 
 	// Config overrides
@@ -133,11 +167,15 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 		Provider:      prov,
 		GraphDB:       gdb,
 		WorkDir:       opts.WorkDir,
+		Orchestrator:  orch,
 	}, nil
 }
 
 // Close releases resources.
 func (app *App) Close() {
+	if app.Orchestrator != nil {
+		app.Orchestrator.Shutdown()
+	}
 	if app.GraphDB != nil {
 		app.GraphDB.Close()
 	}
@@ -146,7 +184,7 @@ func (app *App) Close() {
 	}
 }
 
-// --- Internal Helpers (Extracted from agent_run.go) ---
+// --- Internal Helpers ---
 
 
 type retrievalAdapter struct {
@@ -244,7 +282,7 @@ func autoIngest(gdb graph.Driver, workDir string) {
 	}
 	// Check if already ingested
 	projectName := filepath.Base(workDir)
-	query := "MATCH (f:File) WHERE f.path STARTS WITH $prefix RETURN count(f) as count"
+	query := `MATCH (f:File) WHERE f.path STARTS WITH $prefix RETURN count(f) as count`
 	records, err := gdb.Execute(ctx, query, map[string]any{"prefix": projectName})
 	if err == nil && len(records) > 0 {
 		if count, ok := records[0]["count"].(int64); ok && count > 0 {

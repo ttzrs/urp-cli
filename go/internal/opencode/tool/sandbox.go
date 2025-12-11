@@ -44,14 +44,21 @@ type SandboxResult struct {
 
 // Sandbox provides isolated code execution
 type Sandbox struct {
-	config SandboxConfig
+	config   SandboxConfig
+	executor CommandExecutor
 }
 
 // NewSandbox creates a new sandbox with default config
 func NewSandbox() *Sandbox {
 	return &Sandbox{
-		config: DefaultSandboxConfig(),
+		config:   DefaultSandboxConfig(),
+		executor: &LocalExecutor{},
 	}
+}
+
+// SetExecutor sets the command executor
+func (s *Sandbox) SetExecutor(exec CommandExecutor) {
+	s.executor = exec
 }
 
 // WithConfig sets the sandbox configuration
@@ -60,13 +67,27 @@ func (s *Sandbox) WithConfig(config SandboxConfig) *Sandbox {
 	return s
 }
 
+// getTempDir creates a temp dir that is potentially shared with worker
+func (s *Sandbox) getTempDir() (string, error) {
+	// If remote, we must use a path inside WorkDir so it's mounted
+	if s.executor.IsRemote() && s.config.WorkDir != "" {
+		base := filepath.Join(s.config.WorkDir, ".urp", "sandbox")
+		if err := os.MkdirAll(base, 0755); err != nil {
+			return "", err
+		}
+		return os.MkdirTemp(base, "run-")
+	}
+	// Local: use system temp
+	return os.MkdirTemp("", "urp-sandbox-*")
+}
+
 // Execute runs Python code in an isolated subprocess
 // Input is passed via stdin as JSON, output is read from stdout as JSON
 func (s *Sandbox) Execute(ctx context.Context, code string, input any) (*SandboxResult, error) {
 	startTime := time.Now()
 
-	// Create temporary directory for isolation
-	tempDir, err := os.MkdirTemp("", "urp-sandbox-*")
+	// Create temporary directory
+	tempDir, err := s.getTempDir()
 	if err != nil {
 		return nil, fmt.Errorf("create temp dir: %w", err)
 	}
@@ -91,26 +112,43 @@ func (s *Sandbox) Execute(ctx context.Context, code string, input any) (*Sandbox
 	defer cancel()
 
 	// Execute Python
-	cmd := exec.CommandContext(ctx, "python3", scriptPath)
-	cmd.Dir = tempDir
-	cmd.Env = []string{
-		"PYTHONHASHSEED=0", // Deterministic
-		"PYTHONDONTWRITEBYTECODE=1",
-		"HOME=" + tempDir,  // Isolate home
-		"PATH=" + os.Getenv("PATH"),
+	// Escape input for echo? No, better to write input to file too if possible.
+	// But CommandExecutor interface takes command string.
+	// We can write input.json to tempDir.
+	inputPath := filepath.Join(tempDir, "input.json")
+	if err := os.WriteFile(inputPath, []byte(inputJSON), 0644); err != nil {
+		return nil, fmt.Errorf("write input: %w", err)
 	}
 
-	var stdout, stderr bytes.Buffer
-	cmd.Stdin = bytes.NewReader(inputJSON)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	// Determine execution path relative to workspace if remote
+	execScriptPath := scriptPath
+	execInputPath := inputPath
+	
+	if s.executor.IsRemote() {
+		// Convert host path to container path (/workspace/...)
+		// Assuming WorkDir maps to /workspace
+		rel, err := filepath.Rel(s.config.WorkDir, scriptPath)
+		if err == nil {
+			execScriptPath = filepath.Join("/workspace", rel)
+		}
+		rel, err = filepath.Rel(s.config.WorkDir, inputPath)
+		if err == nil {
+			execInputPath = filepath.Join("/workspace", rel)
+		}
+	}
 
-	err = cmd.Run()
+	// Command: python3 script.py < input.json
+	cmdStr := fmt.Sprintf("python3 %s < %s", execScriptPath, execInputPath)
+	
+	// Execute via executor
+	// We use tempDir as execution dir (locally). Remotely it might be different but cmdStr uses full paths.
+	output, err := s.executor.Execute(ctx, tempDir, cmdStr)
+	
 	runtime := time.Since(startTime)
 
 	result := &SandboxResult{
 		Runtime: runtime,
-		Stderr:  stderr.String(),
+		Stderr:  "", // Combined output
 	}
 
 	// Check for timeout
@@ -120,13 +158,26 @@ func (s *Sandbox) Execute(ctx context.Context, code string, input any) (*Sandbox
 		return result, nil
 	}
 
-	// Check for execution error
-	if err != nil {
+	// Parse output (stdout mixed with stderr if executor combines them)
+	// We need to separate JSON from other noise if possible.
+	// Attempt to find JSON in the output.
+	// ... (Existing logic assumed clean stdout)
+	
+	// For now, assume output contains JSON at the end or use heuristics
+	lines := strings.Split(output, "\n")
+	var jsonLine string
+	for i := len(lines) - 1; i >= 0; i-- {
+		if strings.HasPrefix(lines[i], "{") && strings.HasSuffix(lines[i], "}") {
+			jsonLine = lines[i]
+			break
+		}
+	}
+	
+	if jsonLine == "" {
 		result.Success = false
-		if stderr.Len() > 0 {
-			result.Error = truncateSandboxOutput(stderr.String(), 1000)
-		} else {
-			result.Error = err.Error()
+		result.Error = fmt.Sprintf("no json output: %s", truncateSandboxOutput(output, 200))
+		if err != nil {
+			result.Error += fmt.Sprintf(" (err: %v)", err)
 		}
 		return result, nil
 	}
@@ -138,9 +189,9 @@ func (s *Sandbox) Execute(ctx context.Context, code string, input any) (*Sandbox
 		Error  string          `json:"error,omitempty"`
 	}
 
-	if err := json.Unmarshal(stdout.Bytes(), &payload); err != nil {
+	if err := json.Unmarshal([]byte(jsonLine), &payload); err != nil {
 		result.Success = false
-		result.Error = fmt.Sprintf("bad-json: %v (output: %s)", err, truncateSandboxOutput(stdout.String(), 200))
+		result.Error = fmt.Sprintf("bad-json: %v", err)
 		return result, nil
 	}
 
@@ -343,10 +394,17 @@ type SandboxTool struct {
 
 // NewSandboxTool creates a new sandbox tool
 func NewSandboxTool(workDir string) *SandboxTool {
+	s := NewSandbox()
+	s.config.WorkDir = workDir
 	return &SandboxTool{
-		sandbox: NewSandbox(),
+		sandbox: s,
 		workDir: workDir,
 	}
+}
+
+// SetExecutor sets the executor for the sandbox (e.g. remote)
+func (t *SandboxTool) SetExecutor(exec CommandExecutor) {
+	t.sandbox.SetExecutor(exec)
 }
 
 // WithConfig sets the sandbox configuration
