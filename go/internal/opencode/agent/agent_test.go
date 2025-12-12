@@ -103,7 +103,7 @@ func TestAgentSystemPrompt(t *testing.T) {
 	builder := NewPromptBuilder()
 	builder.SetCustomPrompt("Custom agent prompt")
 	session := testutil.TestSession("", "/custom/dir")
-	prompt := builder.Build(session)
+	prompt := builder.Build(context.Background(), session)
 
 	assert.Contains(t, prompt, "/custom/dir")
 	assert.Contains(t, prompt, "Custom agent prompt")
