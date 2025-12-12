@@ -114,6 +114,7 @@ func (s *Service) ResolveShortCode(shortCode string) (ModelWithSource, bool) {
 }
 
 // FindModel finds a model by ID across all sources
+// Prioritizes sources: Anthropic → OpenAI → Google → DeepSeek → Proxy (fallback)
 func (s *Service) FindModel(modelID string) (ModelWithSource, bool) {
 	s.mu.RLock()
 	// Check if cache is empty and refresh if needed
@@ -127,12 +128,46 @@ func (s *Service) FindModel(modelID string) (ModelWithSource, bool) {
 
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+
+	// Collect all matches
+	var matches []ModelWithSource
 	for _, m := range s.shortCodeMap {
 		if m.ID == modelID {
-			return m, true
+			matches = append(matches, m)
 		}
 	}
-	return ModelWithSource{}, false
+
+	if len(matches) == 0 {
+		return ModelWithSource{}, false
+	}
+
+	// If only one match, return it
+	if len(matches) == 1 {
+		return matches[0], true
+	}
+
+	// Multiple matches: prioritize native sources over proxy
+	// Priority order: Anthropic, OpenAI, Google, DeepSeek, then Proxy
+	sourcePriority := map[Source]int{
+		SourceAnthropic: 5,
+		SourceOpenAI:    4,
+		SourceGoogle:    3,
+		SourceDeepSeek:  2,
+		SourceProxy:     1, // Lowest priority
+	}
+
+	bestMatch := matches[0]
+	bestPriority := sourcePriority[bestMatch.Source]
+
+	for _, m := range matches[1:] {
+		priority := sourcePriority[m.Source]
+		if priority > bestPriority {
+			bestMatch = m
+			bestPriority = priority
+		}
+	}
+
+	return bestMatch, true
 }
 
 // GetProviderForModel returns the provider ID for a given model ID
