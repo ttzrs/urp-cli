@@ -427,7 +427,6 @@ func (t *SandboxTool) Info() domain.Tool {
 					"description": "Python code to execute. Should define a transform(input) function.",
 				},
 				"input": map[string]any{
-					"type":        "any",
 					"description": "Input data to pass to the code (as JSON)",
 				},
 				"language": map[string]any{
