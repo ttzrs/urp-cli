@@ -522,6 +522,81 @@ Features:
 
 ---
 
+## Advanced Features
+
+### `urp compile`
+
+Generate dynamic prompts from graph state (V2 Context Compiler).
+
+```bash
+urp compile --goal "describe the authentication system"
+urp compile --mode full          # Full context (all available)
+urp compile --mode focused       # Focused context (relevant code)
+urp compile --mode minimal       # Minimal context (just essentials)
+urp compile --mode delta         # Delta context (recent changes only)
+urp compile --mode memory        # Memory-optimized context
+```
+
+Dynamically generates prompts based on:
+- Current project state (graph database)
+- Recent commits and changes
+- Learned strategies from vector store
+- Context window budget
+
+### `urp router`
+
+Select and verify LLM model configuration.
+
+```bash
+urp router                       # Show current routing
+urp router --set anthropic       # Set to Anthropic
+urp router --set openai          # Set to OpenAI-compatible
+urp router --test                # Test current provider
+urp router --models              # List available models
+```
+
+Features:
+- Multi-provider support (Anthropic, OpenAI, DeepSeek, Google)
+- Automatic fallback routing
+- Model availability detection
+- Gateway/proxy handling
+
+### `urp serve`
+
+Start URP as background server (experimental).
+
+```bash
+urp serve                        # Start on default port (8080)
+urp serve --port 3000           # Custom port
+urp serve --bind 0.0.0.0        # Listen on all interfaces
+```
+
+Background server mode for:
+- Integration with external tools
+- Headless operation
+- Remote agent execution
+- Webhook handling
+
+### `urp models`
+
+List available LLM models across configured providers.
+
+```bash
+urp models                       # All available models
+urp models --provider anthropic  # Models from specific provider
+urp models --available           # Models that are accessible
+urp models --test                # Test all models
+```
+
+Shows:
+- Model IDs and names
+- Provider and cost
+- Context window sizes
+- Availability status
+- Performance metrics
+
+---
+
 ## Utility Commands
 
 ### `urp version`

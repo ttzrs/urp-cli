@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-- Go 1.21+
+- Go 1.24.0+
 - Docker or Podman
-- API key (Anthropic or OpenRouter)
+- API key for at least one LLM provider (see Configuration below)
 
 ## Installation
 
@@ -22,20 +22,64 @@ sudo ln -s $(pwd)/urp /usr/local/bin/urp
 
 ## Configuration
 
-Create `~/.urp-go/.env`:
+Create `~/.urp-go/.env` with your API keys. URP supports multiple LLM providers:
 
+### Supported Providers
+
+| Provider | API Key Environment | Base URL Environment | Models |
+|----------|-------------------|----------------------|--------|
+| **Anthropic** | `ANTHROPIC_API_KEY` | (none) | claude-opus, claude-sonnet, claude-haiku |
+| **OpenAI Direct** | `OPENAI_API_KEY` | (none) | gpt-4o, gpt-4-turbo, gpt-3.5-turbo |
+| **OpenRouter** | `OPENAI_API_KEY` | `OPENAI_BASE_URL=https://openrouter.ai/api/v1` | All OpenRouter models |
+| **DeepSeek** | `DEEPSEEK_API_KEY` | (none) | deepseek-chat, deepseek-coder |
+| **Google Gemini** | `GOOGLE_API_KEY` | (none) | gemini-2.0-flash, gemini-1.5-pro |
+
+### Setup Examples
+
+**Option 1: Anthropic (Recommended)**
 ```bash
 mkdir -p ~/.urp-go
+echo "ANTHROPIC_API_KEY=sk-ant-v0-..." > ~/.urp-go/.env
+```
 
-# Option 1: Anthropic direct
-echo "ANTHROPIC_API_KEY=sk-ant-..." > ~/.urp-go/.env
-
-# Option 2: OpenRouter
+**Option 2: OpenRouter (Multi-model)**
+```bash
+mkdir -p ~/.urp-go
 cat > ~/.urp-go/.env << 'EOF'
 OPENAI_API_KEY=sk-or-v1-...
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
-URP_MODEL=anthropic/claude-sonnet-4
 EOF
+```
+
+**Option 3: Multiple Providers (Fallback)**
+```bash
+mkdir -p ~/.urp-go
+cat > ~/.urp-go/.env << 'EOF'
+# Primary: Anthropic
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Fallback: OpenAI
+OPENAI_API_KEY=sk-...
+
+# Optional: DeepSeek
+DEEPSEEK_API_KEY=sk-...
+EOF
+```
+
+### Model Selection
+
+Set default model (optional):
+```bash
+# Add to ~/.urp-go/.env
+URP_MODEL=claude-opus-4  # Anthropic
+# OR
+URP_MODEL=gpt-4o         # OpenAI (requires OPENAI_API_KEY)
+```
+
+List available models:
+```bash
+urp models
+urp models --provider anthropic
 ```
 
 ## First Run

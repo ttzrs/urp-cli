@@ -296,87 +296,155 @@ go/
 │   └── ... (other commands)
 │
 ├── internal/
+│   ├── alerts/              # Alert & event monitoring
+│   │   └── alerting.go      # Alert lifecycle management
+│   │
+│   ├── audit/               # Audit logging & events
+│   │   ├── logger.go        # Structured audit logs
+│   │   └── store.go         # Persistent audit store
+│   │
+│   ├── backup/              # Knowledge base persistence
+│   │   └── backup.go        # Export/import functionality
+│   │
 │   ├── bootstrap/           # Dependency injection & initialization
 │   │   └── bootstrap.go     # Wire dependencies (SRP)
 │   │
-│   ├── compiler/            # Context Compiler (V2 feature)
-│   │   └── compiler.go      # Dynamic prompt generation from graph state
-│   │
-│   ├── gate/                # Noise Filter LLM
-│   │   └── gate.go          # Fast model for filtering/routing
-│   │
-│   ├── graph/               # Graph database (Memgraph)
-│   │   ├── driver.go        # Memgraph connection interface
-│   │   ├── memgraph.go      # Concrete Memgraph driver
-│   │   ├── cache.go         # Graph query caching
-│   │   └── *_test.go        # Tests (86+ test files)
-│   │
-│   ├── vector/              # Vector store (LanceDB)
-│   │   ├── store.go         # Vector store interface
-│   │   └── embedder.go      # Embedding generation
-│   │
-│   ├── opencode/            # AI agent system
-│   │   ├── agent/           # Agent executor & learning loop
-│   │   ├── provider/        # LLM providers
-│   │   │   ├── anthropic.go # Claude API
-│   │   │   ├── openai.go    # OpenAI-compatible APIs
-│   │   │   └── factory.go   # Provider routing
-│   │   ├── tool/            # Agent tools
-│   │   │   ├── bash.go      # Shell execution
-│   │   │   ├── read.go      # File reading
-│   │   │   ├── write.go     # File writing
-│   │   │   └── ...
-│   │   ├── model/           # Domain models for agents
-│   │   └── session/         # OpenCode session management
-│   │
-│   ├── memory/              # Multi-tier memory
-│   │   ├── session.go       # Ephemeral session memory
-│   │   ├── knowledge.go     # Persistent knowledge base
-│   │   ├── context.go       # Context window management
-│   │   ├── cache.go         # Memory caching
-│   │   └── *_test.go        # AGR, temporal, autolearn tests
-│   │
-│   ├── cognitive/           # Cognitive skills
+│   ├── cognitive/           # Cognitive skills (Wisdom, Learn, Novelty)
 │   │   ├── wisdom.go        # Find similar solutions (vector search)
 │   │   ├── novelty.go       # Detect unusual patterns
 │   │   ├── learn.go         # Store learned strategies
 │   │   ├── evaluator.go     # Quality evaluation
 │   │   └── validation_test.go # Validation tests
 │   │
-│   ├── ingest/              # Code parsing & ingestion
-│   │   ├── parser.go        # AST parsing for code analysis
-│   │   └── parser_test.go
-│   │
-│   ├── container/           # Container orchestration
-│   │   ├── manager.go       # Docker/Podman abstraction
-│   │   ├── health.go        # Container health checks
-│   │   └── volume.go        # Volume management
-│   │
-│   ├── orchestrator/        # Master/Worker logic
-│   │   └── orchestrator.go
-│   │
-│   ├── audit/               # Audit logging & events
-│   │   ├── logger.go        # Structured audit logs
-│   │   └── store.go         # Persistent audit store
+│   ├── compiler/            # Context Compiler (V2 feature)
+│   │   └── compiler.go      # Dynamic prompt generation from graph state
 │   │
 │   ├── config/              # Configuration management
 │   │   └── models.go        # Config structs
 │   │
-│   ├── domain/              # Domain types
+│   ├── container/           # Container orchestration (Docker/Podman)
+│   │   ├── manager.go       # Docker/Podman abstraction
+│   │   ├── health.go        # Container health checks
+│   │   └── volume.go        # Volume management
+│   │
+│   ├── domain/              # Domain types & interfaces
 │   │   ├── entity.go        # Core domain entities
 │   │   └── event.go         # Event types
 │   │
+│   ├── exec/                # Command execution
+│   │   └── executor.go      # Process execution & management
+│   │
+│   ├── gate/                # Noise Filter LLM
+│   │   ├── client.go        # Gate client for filtering/routing
+│   │   └── gate.go          # Fast model for pattern classification
+│   │
+│   ├── graph/               # Graph database (Memgraph)
+│   │   ├── driver.go        # Memgraph connection interface
+│   │   ├── memgraph.go      # Concrete Memgraph driver
+│   │   ├── cache.go         # Graph query caching
+│   │   ├── record.go        # Result record handling
+│   │   └── *_test.go        # Tests (86+ test files)
+│   │
+│   ├── harness/             # Testing harness
+│   │   └── test.go          # Test infrastructure
+│   │
+│   ├── ingest/              # Code parsing & ingestion
+│   │   ├── parser.go        # AST parsing for code analysis
+│   │   └── parser_test.go   # Parser tests
+│   │
+│   ├── logging/             # Utilities & recovery
+│   │   ├── recovery.go      # Panic recovery & error handling
+│   │   └── recovery_test.go # Recovery test cases
+│   │
+│   ├── memory/              # Multi-tier memory system
+│   │   ├── session.go       # Ephemeral session memory
+│   │   ├── knowledge.go     # Persistent knowledge base
+│   │   ├── context.go       # Context window management
+│   │   ├── cache.go         # Memory caching
+│   │   └── *_test.go        # Multi-tier memory tests
+│   │
+│   ├── metrics/             # Metrics collection & reporting
+│   │   └── metrics.go       # Performance metrics
+│   │
+│   ├── opencode/            # AI agent system (Claude integration)
+│   │   ├── agent/           # Agent executor & learning loop
+│   │   │   ├── agent.go
+│   │   │   ├── autocorrect.go
+│   │   │   ├── message_store.go
+│   │   │   ├── prompt.go
+│   │   │   └── *_test.go
+│   │   ├── provider/        # LLM providers (multi-model support)
+│   │   │   ├── anthropic.go # Claude API
+│   │   │   ├── openai.go    # OpenAI-compatible APIs
+│   │   │   ├── deepseek.go  # DeepSeek models
+│   │   │   ├── google.go    # Google Gemini (minimal)
+│   │   │   └── factory.go   # Provider routing & selection
+│   │   ├── tool/            # Agent tools (file, code, bash ops)
+│   │   │   ├── bash.go
+│   │   │   ├── read.go
+│   │   │   ├── write.go
+│   │   │   ├── multiedit.go
+│   │   │   ├── codesearch.go
+│   │   │   ├── file_grep.go
+│   │   │   ├── batch.go
+│   │   │   ├── todo.go
+│   │   │   └── ...
+│   │   ├── model/           # Domain models for agents
+│   │   │   └── registry_test.go
+│   │   └── session/         # OpenCode session management
+│   │
+│   ├── orchestrator/        # Master/Worker orchestration
+│   │   └── orchestrator.go  # Distributed agent coordination
+│   │
+│   ├── planning/            # Task planning & decomposition
+│   │   └── planner.go       # Plan generation from goals
+│   │
+│   ├── protocol/            # Protocol definitions (JSON-lines envelope)
+│   │   └── protocol.go      # Message protocol handling
+│   │
+│   ├── query/               # Query utilities
+│   │   └── query.go         # Query building & optimization
+│   │
+│   ├── render/              # Output rendering & formatting
+│   │   └── render.go        # Terminal output formatting
+│   │
+│   ├── runner/              # Task execution runner
+│   │   └── runner.go        # Execute tasks with lifecycle
+│   │
+│   ├── selftest/            # Self-testing & validation
+│   │   └── selftest.go      # System self-checks
+│   │
+│   ├── server/              # Background server mode
+│   │   └── server.go        # HTTP/gRPC server
+│   │
+│   ├── session/             # Session management
+│   │   └── session.go       # Session tracking & lifecycle
+│   │
+│   ├── skills/              # Extensible skills system
+│   │   ├── skills.go        # Skill loader & manager
+│   │   └── categories.go    # Skill categories
+│   │
+│   ├── specs/               # Spec-driven execution
+│   │   └── spec.go          # Specification parsing & execution
+│   │
+│   ├── store/               # Data persistence layer
+│   │   └── store.go         # Generic store interface
+│   │
+│   ├── strings/             # String utilities
+│   │   └── strings.go       # Text processing helpers
+│   │
 │   ├── tui/                 # Terminal UI (Bubble Tea)
+│   │   ├── agent.go         # Agent TUI
+│   │   ├── agent_stream.go  # Streaming output handler
 │   │   └── tui.go           # Interactive UI
 │   │
-│   ├── logging/             # Utilities
-│   │   ├── recovery.go      # Panic recovery
-│   │   └── recovery_test.go # 6+ recovery test cases
+│   ├── vector/              # Vector store for embeddings
+│   │   ├── store.go         # Vector store interface
+│   │   ├── embedder.go      # Embedding generation
+│   │   └── lancedb.go       # LanceDB concrete implementation
 │   │
-│   ├── runtime/             # Runtime utilities
-│   ├── query/               # Query utilities
-│   ├── render/              # Output rendering
-│   └── ... (other utilities)
+│   └── runtime/             # Runtime utilities
+│       └── runtime.go       # Runtime environment checks
 │
 └── docs/                    # Documentation
     ├── ARCHITECTURE.md      # Detailed architecture
@@ -661,10 +729,10 @@ NEO4J_URI=bolt://urp-memgraph:7687
 |-----------|-----------|----------|---------|
 | CLI Framework | Cobra | `go/cmd/urp/main.go` | Command routing and argument parsing |
 | Graph DB | Memgraph (Neo4j API) | `internal/graph/` | Persistent code structure & history |
-| Vector Store | LanceDB | `internal/vector/` | Semantic embeddings for similarity search |
+| Vector Store | Embeddings via Memgraph (LanceDB planned) | `internal/vector/` | Semantic similarity search |
 | Container Runtime | Docker/Podman | `internal/container/` | Master/Worker isolation |
 | TUI | Bubble Tea (Charmbracelet) | `internal/tui/` | Interactive terminal interface |
-| LLM Providers | OpenAI, Anthropic, DeepSeek | `internal/opencode/provider/` | Multi-provider support |
+| LLM Providers | Anthropic Claude, OpenAI, DeepSeek, Google | `internal/opencode/provider/` | Multi-provider model support |
 | Go Version | 1.24.0 | `go/go.mod` | Target runtime |
 
 ## Important Gotchas & Notes
