@@ -34,8 +34,9 @@ func (i *Invalid) Info() domain.Tool {
 					"description": "The error message from the failed call",
 				},
 				"attempted_args": map[string]any{
-					"type":        "object",
-					"description": "The arguments that were passed",
+					"type":                 "object",
+					"description":          "The arguments that were passed",
+					"additionalProperties": true,
 				},
 			},
 			"required": []string{"tool", "error"},
