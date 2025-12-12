@@ -176,6 +176,12 @@ func (f *Factory) CreateByID(id string, opts ...ConfigOption) (llm.Provider, err
 
 // CreateForModel creates a provider appropriate for the given model ID or shortcode.
 // Returns the provider, the resolved model ID, and any error.
+//
+// Logic:
+// 1. If proxy credentials (PROXY_BASE_URL + PROXY_API_KEY) are set:
+//    - For Anthropic models: Use AnthropicProvider with proxy URL
+//    - For other models: Use UnifiedProvider (OpenAI-compatible proxy)
+// 2. Otherwise: Use the model's registered source provider
 func (f *Factory) CreateForModel(modelIDOrShortcode string, opts ...ConfigOption) (llm.Provider, string, error) {
 	fmt.Printf("[DEBUG] CreateForModel called for model: %s\n", modelIDOrShortcode)
 	svc := modelservice.DefaultService
@@ -195,43 +201,79 @@ func (f *Factory) CreateForModel(modelIDOrShortcode string, opts ...ConfigOption
 	for _, opt := range opts {
 		opt(&cfg)
 	}
-	fmt.Printf("[DEBUG] Config for model %s: APIKey='%s', BaseURL='%s'\n", modelWithSource.ID, cfg.APIKey, cfg.BaseURL)
 
-	// SPECIAL CASE: If model is zai-glm-4.6 AND we have unified credentials configured,
-	// force using the unified provider (proxy)
-	if modelWithSource.ID == "zai-glm-4.6" && cfg.APIKey != "" && cfg.BaseURL != "" {
-		fmt.Printf("[DEBUG] Trying unified provider for %s with API key: %s and Base URL: %s\n", modelWithSource.ID, cfg.APIKey, cfg.BaseURL)
-		unifiedProvider, err := f.Create(ProviderUnified, opts...)
-		if err == nil {
-			// Success: use unified provider for zai-glm-4.6
-			fmt.Printf("[DEBUG] Successfully created unified provider for %s\n", modelWithSource.ID)
-			return unifiedProvider, modelWithSource.ID, nil
+	// Load proxy credentials from environment if not provided
+	proxyAPIKey := cfg.APIKey
+	proxyBaseURL := cfg.BaseURL
+	if proxyAPIKey == "" {
+		proxyAPIKey = os.Getenv("PROXY_API_KEY")
+		if proxyAPIKey == "" {
+			proxyAPIKey = os.Getenv("UNIFIED_API_KEY")
 		}
-		fmt.Printf("[DEBUG] Failed to create unified provider for %s: %v\n", modelWithSource.ID, err)
-		// If unified provider fails, continue with original approach
+	}
+	if proxyBaseURL == "" {
+		proxyBaseURL = os.Getenv("PROXY_BASE_URL")
+		if proxyBaseURL == "" {
+			proxyBaseURL = os.Getenv("UNIFIED_BASE_URL")
+		}
 	}
 
-	// For all other models or if unified provider failed, continue with existing logic
-	// Try unified provider first if API key and Base URL are provided (indicating proxy config)
-	if cfg.APIKey != "" && cfg.BaseURL != "" {
-		// Check if this looks like a unified/proxy configuration by trying to create unified provider first
-		unifiedProvider, err := f.Create(ProviderUnified, opts...)
-		if err == nil {
-			// Success: use unified provider regardless of registered source
-			return unifiedProvider, modelWithSource.ID, nil
+	fmt.Printf("[DEBUG] Config for model %s: APIKey='%s', BaseURL='%s', ProxyKey='%s', ProxyURL='%s'\n",
+		modelWithSource.ID, cfg.APIKey, cfg.BaseURL, proxyAPIKey, proxyBaseURL)
+
+	// LOGIC: If proxy is configured, check model source
+	if proxyBaseURL != "" && proxyAPIKey != "" {
+		// Proxy is configured
+		switch modelWithSource.Source {
+		case modelservice.SourceAnthropic:
+			// Use Anthropic provider but with proxy URL
+			fmt.Printf("[DEBUG] Using Anthropic provider with proxy URL for model: %s\n", modelWithSource.ID)
+			proxyOpts := []ConfigOption{
+				WithAPIKey(proxyAPIKey),
+				WithBaseURL(proxyBaseURL),
+			}
+			provider, err := f.Create(ProviderAnthropic, proxyOpts...)
+			if err != nil {
+				fmt.Printf("[DEBUG] Failed to create Anthropic provider with proxy: %v\n", err)
+				return nil, "", err
+			}
+			return provider, modelWithSource.ID, nil
+
+		case modelservice.SourceOpenAI:
+			// Use OpenAI provider but with proxy URL
+			fmt.Printf("[DEBUG] Using OpenAI provider with proxy URL for model: %s\n", modelWithSource.ID)
+			proxyOpts := []ConfigOption{
+				WithAPIKey(proxyAPIKey),
+				WithBaseURL(proxyBaseURL),
+			}
+			provider, err := f.Create(ProviderOpenAI, proxyOpts...)
+			if err != nil {
+				fmt.Printf("[DEBUG] Failed to create OpenAI provider with proxy: %v\n", err)
+				return nil, "", err
+			}
+			return provider, modelWithSource.ID, nil
+
+		default:
+			// For other models (DeepSeek, Google, etc.), use unified/proxy provider
+			fmt.Printf("[DEBUG] Using unified provider for model: %s\n", modelWithSource.ID)
+			proxyOpts := []ConfigOption{
+				WithAPIKey(proxyAPIKey),
+				WithBaseURL(proxyBaseURL),
+			}
+			provider, err := f.Create(ProviderUnified, proxyOpts...)
+			if err != nil {
+				fmt.Printf("[DEBUG] Failed to create unified provider: %v\n", err)
+				return nil, "", err
+			}
+			return provider, modelWithSource.ID, nil
 		}
-		// If unified provider fails but credentials are provided, continue to original provider as fallback
 	}
 
-	// If no unified credentials or unified provider failed, use original source provider
+	// No proxy configured - use original source provider
+	fmt.Printf("[DEBUG] No proxy configured, using original source provider: %s\n", modelWithSource.Source)
 	providerType := providerTypeFromSource(modelWithSource.Source)
 	provider, err := f.Create(providerType, opts...)
 	if err != nil {
-		// Final fallback: if registered source fails and unified credentials were provided, try unified again
-		if cfg.APIKey != "" && cfg.BaseURL != "" {
-			provider, err := f.Create(ProviderUnified, opts...)
-			return provider, modelWithSource.ID, err
-		}
 		return nil, "", err
 	}
 	return provider, modelWithSource.ID, nil
