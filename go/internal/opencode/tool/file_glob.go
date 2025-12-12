@@ -23,6 +23,7 @@ func (g *Glob) Info() domain.Tool {
 		Description: "Find files matching a glob pattern. Use **/*.go for recursive search.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"pattern": map[string]any{
 					"type":        "string",

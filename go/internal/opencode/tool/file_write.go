@@ -19,6 +19,7 @@ func (w *Write) Info() domain.Tool {
 		Description: "Write content to a file. Creates parent directories if needed. Overwrites existing files.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"file_path": map[string]any{
 					"type":        "string",

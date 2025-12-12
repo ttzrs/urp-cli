@@ -29,6 +29,7 @@ func (c *CodeSearch) Info() domain.Tool {
 		Description: "Search code semantically using vector embeddings",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"query": map[string]any{
 					"type":        "string",

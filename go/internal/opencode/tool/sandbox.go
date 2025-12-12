@@ -420,6 +420,7 @@ func (t *SandboxTool) Info() domain.Tool {
 		Description: "Execute Python code safely in an isolated sandbox with timeout",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"code": map[string]any{
 					"type":        "string",

@@ -28,6 +28,7 @@ func (p *Patch) Info() domain.Tool {
 		Description: "Apply a unified diff patch to a file",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"file_path": map[string]any{
 					"type":        "string",

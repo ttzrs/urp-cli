@@ -26,6 +26,7 @@ func (m *MultiEdit) Info() domain.Tool {
 		Description: "Apply multiple edits to a single file atomically. All edits succeed or none do.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"file_path": map[string]any{
 					"type":        "string",

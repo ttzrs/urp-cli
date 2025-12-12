@@ -37,6 +37,7 @@ Detects language from files and runs appropriate checker:
 - Rust: cargo check`,
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"path": map[string]any{
 					"type":        "string",

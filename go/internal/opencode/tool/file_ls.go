@@ -23,6 +23,7 @@ func (l *LS) Info() domain.Tool {
 		Description: "List directory contents with file metadata.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"path": map[string]any{
 					"type":        "string",

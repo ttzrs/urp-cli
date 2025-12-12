@@ -18,6 +18,7 @@ func (e *Edit) Info() domain.Tool {
 		Description: "Edit a file by replacing exact string matches. Use old_string and new_string for precise edits.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"file_path": map[string]any{
 					"type":        "string",

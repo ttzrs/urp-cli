@@ -69,6 +69,7 @@ func (t *Task) Info() domain.Tool {
 		Description: "Launch a subagent to handle a complex task autonomously",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"description": map[string]any{
 					"type":        "string",

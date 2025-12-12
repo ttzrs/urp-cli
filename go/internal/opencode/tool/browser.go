@@ -50,6 +50,7 @@ Selectors: Use CSS selectors. For text matching, prefix with "text="
 Example: "text=Submit" finds element containing "Submit"`,
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"action": map[string]any{
 					"type": "string",

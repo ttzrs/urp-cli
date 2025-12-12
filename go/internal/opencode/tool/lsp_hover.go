@@ -30,6 +30,7 @@ func (h *LSPHover) Info() domain.Tool {
 		Description: "Get type and documentation info at a position (via LSP)",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"file_path": map[string]any{
 					"type":        "string",

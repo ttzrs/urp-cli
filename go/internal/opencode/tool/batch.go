@@ -25,6 +25,7 @@ func (b *Batch) Info() domain.Tool {
 		Description: "Execute multiple tool operations (sequentially or in parallel)",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"operations": map[string]any{
 					"type":        "array",

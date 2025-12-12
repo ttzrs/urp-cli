@@ -28,6 +28,7 @@ Dangerous actions (REQUIRE confirmation): click, type, key, move, drag, scroll
 Use this tool to automate GUI interactions when command-line tools are insufficient.`,
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"action": map[string]any{
 					"type": "string",

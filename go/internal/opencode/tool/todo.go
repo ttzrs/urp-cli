@@ -72,6 +72,7 @@ func (t *TodoWrite) Info() domain.Tool {
 		Description: "Update the todo list to track tasks and progress",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"todos": map[string]any{
 					"type":        "array",

@@ -26,6 +26,7 @@ func (s *ScreenCapture) Info() domain.Tool {
 		Description: "Capture the screen or a specific region. Returns the image for visual analysis.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"region": map[string]any{
 					"type":        "string",

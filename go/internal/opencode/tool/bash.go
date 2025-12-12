@@ -41,6 +41,7 @@ func (b *Bash) Info() domain.Tool {
 		Description: desc + " Use for git, npm, docker, and other CLI operations. DO NOT use for file operations - use dedicated tools instead.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"command": map[string]any{
 					"type":        "string",

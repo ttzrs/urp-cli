@@ -480,6 +480,7 @@ func (t *MultiExpertTask) Info() domain.Tool {
 		Description: "Launch multiple experts in parallel to solve a complex task, then vote on best solution",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"description": map[string]any{
 					"type":        "string",

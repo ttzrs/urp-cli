@@ -18,6 +18,7 @@ func (r *Read) Info() domain.Tool {
 		Description: "Read file contents. Supports text files, images, PDFs, and Jupyter notebooks.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"file_path": map[string]any{
 					"type":        "string",

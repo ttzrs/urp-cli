@@ -37,6 +37,7 @@ func (g *GraphSearch) Info() domain.Tool {
 		Description: "Search the codebase graph for files, functions, classes, and their relationships. Use this BEFORE reading files to find what's relevant.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"query": map[string]any{
 					"type":        "string",
@@ -175,6 +176,7 @@ func (m *MemoryRecall) Info() domain.Tool {
 		Description: "Search session memories for previous notes, decisions, and observations.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"query": map[string]any{
 					"type":        "string",
@@ -241,6 +243,7 @@ func (w *Wisdom) Info() domain.Tool {
 		Description: "Search for similar past errors and their solutions. Use this when you encounter an error.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"error": map[string]any{
 					"type":        "string",
@@ -310,6 +313,7 @@ func (c *ContextSearch) Info() domain.Tool {
 		Description: "Find relevant code using semantic search. Use this to find where to start on a task.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"prompt": map[string]any{
 					"type":        "string",
@@ -377,6 +381,7 @@ func (k *KnowledgeQuery) Info() domain.Tool {
 		Description: "Search the knowledge base for rules, patterns, fixes, and insights from past sessions.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"query": map[string]any{
 					"type":        "string",
@@ -443,6 +448,7 @@ func (c *CodeDependencies) Info() domain.Tool {
 		Description: "Find dependencies: what calls a function and what it calls.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"target": map[string]any{
 					"type":        "string",
@@ -576,6 +582,7 @@ func (m *MemoryAdd) Info() domain.Tool {
 		Description: "Store a note, decision, or observation for later recall.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"text": map[string]any{
 					"type":        "string",
@@ -644,6 +651,7 @@ func (g *GraphStats) Info() domain.Tool {
 		Description: "Get codebase statistics: file count, function count, etc.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"root_path": map[string]any{
 					"type":        "string",

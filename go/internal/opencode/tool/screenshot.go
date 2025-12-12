@@ -24,6 +24,7 @@ func (s *Screenshot) Info() domain.Tool {
 		Description: "Read an image file and return it for visual analysis. Supports PNG, JPEG, GIF, WebP.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"path": map[string]any{
 					"type":        "string",

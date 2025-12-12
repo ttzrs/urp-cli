@@ -34,6 +34,7 @@ func (w *WebFetch) Info() domain.Tool {
 		Description: "Fetch content from a URL. Returns the page content as text.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"url": map[string]any{
 					"type":        "string",
@@ -147,6 +148,7 @@ func (w *WebSearch) Info() domain.Tool {
 		Description: "Search the web using DuckDuckGo. Returns search results.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
+			"additionalProperties": true,
 			"properties": map[string]any{
 				"query": map[string]any{
 					"type":        "string",
