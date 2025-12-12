@@ -118,8 +118,20 @@ func (a *Autocorrector) Attempts() []ScoredAttempt {
 	return a.attempts
 }
 
+// toolsWithFailureDetection lists tools whose output should be checked for failures.
+// Read-only tools (ls, read, grep, glob, graph_search, etc.) are excluded since
+// their output may naturally contain "error" or "failed" in code/docs content.
+var toolsWithFailureDetection = map[string]bool{
+	"bash":        true,
+	"diagnostics": true,
+	"sandbox":     true,
+	"test":        true,
+}
+
 // DetectFailure checks if any tool result contains failure patterns
 // Returns (failed, reason)
+// Only checks output from execution tools (bash, sandbox, diagnostics, test),
+// NOT from read-only tools whose content may naturally contain error-like words.
 func (a *Autocorrector) DetectFailure(parts []domain.Part) (bool, string) {
 	if !a.config.Enabled {
 		return false, ""
@@ -128,6 +140,11 @@ func (a *Autocorrector) DetectFailure(parts []domain.Part) (bool, string) {
 	for _, part := range parts {
 		tc, ok := part.(domain.ToolCallPart)
 		if !ok {
+			continue
+		}
+
+		// Only check execution tools, not read-only tools
+		if !toolsWithFailureDetection[tc.Name] {
 			continue
 		}
 

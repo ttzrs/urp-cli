@@ -36,6 +36,7 @@ func (b *Batch) Info() domain.Tool {
 							"tool": map[string]any{"type": "string"},
 							"args": map[string]any{"type": "object"},
 						},
+						"additionalProperties": false,
 					},
 				},
 				"parallel": map[string]any{

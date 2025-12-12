@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/joss/urp/internal/opencode/model"
@@ -226,6 +227,33 @@ func (f *Factory) CreateForModel(modelIDOrShortcode string, opts ...ConfigOption
 		// Proxy is configured
 		switch modelWithSource.Source {
 		case modelservice.SourceAnthropic:
+			// Check if proxy URL already has /v1/chat or /chat pattern
+			// If not, assume it's OpenAI-compatible and add /v1/chat/completions
+			hasOpenAIPattern := strings.Contains(proxyBaseURL, "/v1/chat") ||
+				strings.Contains(proxyBaseURL, "/chat/completions")
+
+			if !hasOpenAIPattern {
+				// Proxy is likely OpenAI-compatible base URL
+				// Add OpenAI-compatible endpoint
+				openaiProxyURL := proxyBaseURL
+				if openaiProxyURL[len(openaiProxyURL)-1] == '/' {
+					openaiProxyURL = openaiProxyURL[:len(openaiProxyURL)-1]
+				}
+				openaiProxyURL = openaiProxyURL + "/v1/chat/completions"
+
+				fmt.Printf("[DEBUG] Detected OpenAI-compatible proxy for Anthropic model: %s, using OpenAI provider with URL: %s\n", modelWithSource.ID, openaiProxyURL)
+				proxyOpts := []ConfigOption{
+					WithAPIKey(proxyAPIKey),
+					WithBaseURL(openaiProxyURL),
+				}
+				provider, err := f.Create(ProviderOpenAI, proxyOpts...)
+				if err != nil {
+					fmt.Printf("[DEBUG] Failed to create OpenAI provider for Anthropic model: %v\n", err)
+					return nil, "", err
+				}
+				return provider, modelWithSource.ID, nil
+			}
+
 			// Use Anthropic provider but with proxy URL
 			fmt.Printf("[DEBUG] Using Anthropic provider with proxy URL for model: %s\n", modelWithSource.ID)
 			proxyOpts := []ConfigOption{

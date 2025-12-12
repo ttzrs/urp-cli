@@ -92,6 +92,16 @@ func Env() *URPEnv {
 }
 
 // ResetEnv resets the cached environment (for testing).
+func ResetEnv() {
+	envOnce = sync.Once{}
+	env = nil
+}
+
+// getEnvDefault is an alias for GetEnvOrDefault (used in tests)
+func getEnvDefault(key, fallback string) string {
+	return GetEnvOrDefault(key, fallback)
+}
+
 // Paths holds standard URP directory paths.
 type Paths struct {
 	// Home is the URP home directory (~/.urp-go)

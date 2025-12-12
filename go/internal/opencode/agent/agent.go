@@ -9,6 +9,7 @@ import (
 
 	"github.com/oklog/ulid/v2"
 	"github.com/joss/urp/internal/compiler"
+	"github.com/joss/urp/internal/gate"
 	"github.com/joss/urp/internal/opencode/cognitive"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/hook"
@@ -248,8 +249,23 @@ func (a *Agent) persistMessage(ctx context.Context, msg *domain.Message) {
 	a.messages.Persist(ctx, msg)
 }
 
+// MaxContextTokens is the maximum tokens before auto-truncation
+const MaxContextTokens = 80000 // ~80k tokens, leaves room for response
+const MinMessagesToKeep = 4    // Always keep at least 4 messages
+
 // Run processes a message and streams the response
 func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*domain.Message, input string) (<-chan domain.StreamEvent, error) {
+	// Auto-truncate if context is too large
+	if a.messages.TruncateIfNeeded(MaxContextTokens, MinMessagesToKeep) {
+		if a.logger != nil {
+			a.logger.Debug(ctx, "context_truncated", map[string]any{
+				"reason":     "exceeded max tokens",
+				"max_tokens": MaxContextTokens,
+				"remaining":  a.messages.Count(),
+			})
+		}
+	}
+
 	// If no messages passed, use internal store (maintains conversation history)
 	if len(messages) == 0 {
 		stored := a.messages.Messages()
@@ -364,12 +380,14 @@ func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*do
 	a.currentModelID = modelID
 	a.currentProvider = providerType
 
-	// Build request
+	// Build request with context compilation
+	buildResult := a.promptBuilder.BuildWithMetadata(ctx, session)
+
 	req := &llm.ChatRequest{
 		Model:          modelID,
 		Messages:       allMessages,
 		Tools:          enabledTools,
-		SystemPrompt:   a.promptBuilder.Build(ctx, session),
+		SystemPrompt:   buildResult.Prompt,
 		MaxTokens:      16384,
 		ThinkingBudget: a.thinkingBudget,
 	}
@@ -409,7 +427,7 @@ func (a *Agent) Run(ctx context.Context, session *domain.Session, messages []*do
 
 	// Process events and handle tool calls
 	events := make(chan domain.StreamEvent, 100)
-	go a.processEvents(ctx, session, allMessages, enabledTools, providerEvents, events)
+	go a.processEvents(ctx, session, allMessages, enabledTools, providerEvents, events, buildResult.GateResult)
 
 	return events, nil
 }
@@ -421,7 +439,21 @@ func (a *Agent) processEvents(
 	tools []domain.Tool,
 	providerEvents <-chan domain.StreamEvent,
 	events chan<- domain.StreamEvent,
+	initialGateResult *gate.GateResult,
 ) {
+	// Emit initial Gate event if Gate was called during prompt building
+	if initialGateResult != nil {
+		events <- domain.StreamEvent{
+			Type: domain.StreamEventGateCall,
+			GateInfo: &domain.GateCallInfo{
+				Model:        initialGateResult.Model,
+				InputTokens:  initialGateResult.InputTokens,
+				OutputTokens: initialGateResult.OutputTokens,
+				Filtered:     initialGateResult.Filtered,
+			},
+		}
+	}
+
 	a.processEventsLoop(ctx, session, messages, tools, providerEvents, events)
 	close(events)
 }
@@ -535,11 +567,27 @@ func (a *Agent) processEventsLoop(
 				// Continue conversation with tool results
 				newMessages := append(messages, assistantMsg, toolMsg)
 
+				// Build prompt with context compilation (including Gate filtering of tool logs)
+				buildResult := a.promptBuilder.BuildWithMetadata(ctx, session)
+
+				// Emit Gate event if Gate was called
+				if buildResult.GateResult != nil {
+					events <- domain.StreamEvent{
+						Type: domain.StreamEventGateCall,
+						GateInfo: &domain.GateCallInfo{
+							Model:        buildResult.GateResult.Model,
+							InputTokens:  buildResult.GateResult.InputTokens,
+							OutputTokens: buildResult.GateResult.OutputTokens,
+							Filtered:     buildResult.GateResult.Filtered,
+						},
+					}
+				}
+
 				req := &llm.ChatRequest{
 					Model:          a.EffectiveModel(), // Use routed model for continuation
 					Messages:       newMessages,
 					Tools:          tools,
-					SystemPrompt:   a.promptBuilder.Build(ctx, session),
+					SystemPrompt:   buildResult.Prompt,
 					MaxTokens:      16384,
 					ThinkingBudget: a.thinkingBudget,
 				}
@@ -648,6 +696,8 @@ func (a *Agent) executeToolsParallel(
 		result := a.executor.Execute(ctx, toolCalls[0], startTime, events)
 		// Track in task context
 		a.trackToolCall(toolCalls[0], result)
+		// Add tool log for Gate filtering
+		a.promptBuilder.AddToolLog(toolCalls[0].Name, result.Part.Result, result.Part.Error)
 		parts := []domain.Part{result.Part}
 		// Add images as separate parts for vision
 		for _, img := range result.Images {
@@ -680,9 +730,12 @@ func (a *Agent) executeToolsParallel(
 	wg.Wait()
 
 	// Build parts array: tool results followed by their images
+	// Also add tool logs for Gate filtering
 	var parts []domain.Part
 	for _, r := range results {
 		parts = append(parts, r.Part)
+		// Add tool log for Gate filtering
+		a.promptBuilder.AddToolLog(r.Part.Name, r.Part.Result, r.Part.Error)
 		for _, img := range r.Images {
 			parts = append(parts, img)
 		}

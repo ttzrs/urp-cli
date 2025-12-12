@@ -59,6 +59,9 @@ func (m *AgentModel) handleStreamEvent(event domain.StreamEvent) {
 				"asking...",
 			)
 		}
+
+	case domain.StreamEventGateCall:
+		m.handleGateCall(event)
 	}
 }
 
@@ -114,6 +117,51 @@ func (m *AgentModel) handleToolDone(event domain.StreamEvent) {
 			// Don't write to output buffer - tools are rendered separately
 		}
 	}
+}
+
+func (m *AgentModel) handleGateCall(event domain.StreamEvent) {
+	if event.GateInfo == nil {
+		return
+	}
+
+	gi := event.GateInfo
+	filteredStatus := "NO_SIGNAL (noise filtered)"
+	if gi.Filtered {
+		filteredStatus = "SIGNAL (relevant logs extracted)"
+	}
+
+	// Add Gate call to tool calls summary (displayed like LLM calls)
+	gateCall := toolCallInfo{
+		name:      "🚪 Gate Filter",
+		isLLMCall: true, // Display like LLM call
+		model:     gi.Model,
+		prompt:    fmt.Sprintf("Input: %d tokens | Output: %d tokens", gi.InputTokens, gi.OutputTokens),
+		output:    fmt.Sprintf("Result: %s", filteredStatus),
+		collapsed: true, // Start collapsed
+		done:      true,
+	}
+	*m.shared.toolCalls = append(*m.shared.toolCalls, gateCall)
+
+	// Debug: Log Gate call
+	if m.debug != nil && m.debug.IsEnabled() {
+		m.debug.AddEvent(DebugEvent{
+			Type:  DebugEventAPI,
+			Title: fmt.Sprintf("Gate Filter: %s", gi.Model),
+			Content: fmt.Sprintf("Input: %d tokens\nOutput: %d tokens\nFiltered: %v",
+				gi.InputTokens,
+				gi.OutputTokens,
+				gi.Filtered),
+			Metadata: map[string]string{
+				"model":         gi.Model,
+				"input_tokens":  fmt.Sprintf("%d", gi.InputTokens),
+				"output_tokens": fmt.Sprintf("%d", gi.OutputTokens),
+				"filtered":      fmt.Sprintf("%v", gi.Filtered),
+			},
+		})
+	}
+
+	// Brain: Show Gate activity
+	m.brain, _ = m.brain.Update(BrainFocusMsg{Task: "Filtering context..."})
 }
 
 func (m *AgentModel) handleUsageEvent(event domain.StreamEvent) {

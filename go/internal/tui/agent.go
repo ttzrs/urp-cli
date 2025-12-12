@@ -4,6 +4,7 @@ package tui
 import (
 	"context"
 	"fmt"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -236,6 +237,11 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Track mouse position
 		m.mouseY = msg.Y
 		
+		// Handle middle click to copy viewport content to clipboard
+		if msg.Button == tea.MouseButtonMiddle && msg.Action == tea.MouseActionRelease {
+			return m.handleMiddleClick()
+		}
+		
 		// Calculate tools area position (after header, brain, and before main viewport)
 		headerHeight := 2
 		brainHeight := 3
@@ -277,6 +283,17 @@ func (m AgentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var brainCmd tea.Cmd
 		m.brain, brainCmd = m.brain.Update(msg)
 		cmds = append(cmds, brainCmd)
+
+	case clipboardCopiedMsg:
+		// Show feedback in output
+		if msg.success {
+			m.shared.output.WriteString("\n" + successStyle.Render("📋 Copied to clipboard") + "\n")
+		} else {
+			m.shared.output.WriteString("\n" + agentErrorStyle.Render("📋 Failed to copy: "+msg.err.Error()) + "\n")
+		}
+		m.viewport.SetContent(m.renderOutput())
+		m.viewport.GotoBottom()
+		return m, nil
 	}
 
 	// Update textarea if not running
@@ -487,6 +504,59 @@ func (m AgentModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// handleMiddleClick copies the current viewport content to clipboard
+func (m AgentModel) handleMiddleClick() (tea.Model, tea.Cmd) {
+	// Get the current output content
+	content := m.shared.output.String()
+	if content == "" {
+		return m, nil
+	}
+	
+	// Copy to clipboard using xclip or xsel (Linux) or pbcopy (macOS)
+	// We use a background command to avoid blocking
+	return m, copyToClipboard(content)
+}
+
+// copyToClipboard returns a tea.Cmd that copies text to the system clipboard
+func copyToClipboard(text string) tea.Cmd {
+	return func() tea.Msg {
+		// Try xclip first (most common on Linux)
+		if err := copyWithCmd("xclip", []string{"-selection", "clipboard"}, text); err == nil {
+			return clipboardCopiedMsg{success: true}
+		}
+		
+		// Try xsel as fallback
+		if err := copyWithCmd("xsel", []string{"--clipboard", "--input"}, text); err == nil {
+			return clipboardCopiedMsg{success: true}
+		}
+		
+		// Try wl-copy for Wayland
+		if err := copyWithCmd("wl-copy", nil, text); err == nil {
+			return clipboardCopiedMsg{success: true}
+		}
+		
+		// Try pbcopy for macOS
+		if err := copyWithCmd("pbcopy", nil, text); err == nil {
+			return clipboardCopiedMsg{success: true}
+		}
+		
+		return clipboardCopiedMsg{success: false, err: fmt.Errorf("no clipboard tool available")}
+	}
+}
+
+// copyWithCmd executes a clipboard command with the given text as stdin
+func copyWithCmd(cmd string, args []string, text string) error {
+	c := exec.Command(cmd, args...)
+	c.Stdin = strings.NewReader(text)
+	return c.Run()
+}
+
+// clipboardCopiedMsg is sent after clipboard copy attempt
+type clipboardCopiedMsg struct {
+	success bool
+	err     error
 }
 
 func (m AgentModel) handleEnterKey() (tea.Model, tea.Cmd) {

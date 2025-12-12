@@ -15,15 +15,15 @@ func TestNewModelRegistry(t *testing.T) {
 
 func TestModelRegistry_LoadBuiltinDefaults(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	// Should have multiple models
 	if registry.Count() < 10 {
 		t.Errorf("expected at least 10 builtin models, got %d", registry.Count())
 	}
 
-	// Check specific models exist
-	models := []string{"claude-sonnet-4-20250514", "deepseek-chat", "gpt-4o", "gemini-1.5-flash"}
+	// Check specific models exist (use aliases which are more stable)
+	models := []string{"sonnet", "deepseek", "gpt-4o", "flash"}
 	for _, id := range models {
 		if model := registry.Get(id); model == nil {
 			t.Errorf("expected model %s to exist", id)
@@ -33,11 +33,11 @@ func TestModelRegistry_LoadBuiltinDefaults(t *testing.T) {
 
 func TestModelRegistry_Get_ByID(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
-	model := registry.Get("claude-sonnet-4-20250514")
+	model := registry.Get("sonnet")
 	if model == nil {
-		t.Fatal("expected to find claude-sonnet-4-20250514")
+		t.Fatal("expected to find sonnet alias")
 	}
 	if model.QualityTier != 2 {
 		t.Errorf("QualityTier = %d, want 2", model.QualityTier)
@@ -46,17 +46,17 @@ func TestModelRegistry_Get_ByID(t *testing.T) {
 
 func TestModelRegistry_Get_ByAlias(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	tests := []struct {
 		alias    string
 		wantID   string
 	}{
-		{"sonnet", "claude-sonnet-4-20250514"},
+		{"sonnet", "claude-sonnet-4-5-20250929"},
 		{"deepseek", "deepseek-chat"},
-		{"haiku", "claude-3-5-haiku-20241022"},
+		{"haiku", "claude-haiku-4-5-20251001"},
 		{"flash", "gemini-1.5-flash"},
-		{"opus", "claude-opus-4-20250514"},
+		{"opus", "claude-opus-4-5-20251101"},
 	}
 
 	for _, tt := range tests {
@@ -73,7 +73,7 @@ func TestModelRegistry_Get_ByAlias(t *testing.T) {
 
 func TestModelRegistry_Get_NotFound(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	model := registry.Get("nonexistent-model")
 	if model != nil {
@@ -83,7 +83,7 @@ func TestModelRegistry_Get_NotFound(t *testing.T) {
 
 func TestModelRegistry_ListByTier(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	// Tier 3 (premium)
 	tier3 := registry.ListByTier(3)
@@ -105,7 +105,7 @@ func TestModelRegistry_ListByTier(t *testing.T) {
 
 func TestModelRegistry_ListEnabled(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	enabled := registry.ListEnabled()
 	if len(enabled) == 0 {
@@ -121,7 +121,7 @@ func TestModelRegistry_ListEnabled(t *testing.T) {
 
 func TestModelRegistry_CheapestWithCap(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	// Cheapest with tool_use capability
 	cheapest := registry.CheapestWithCap("tool_use", 1)
@@ -153,7 +153,7 @@ func TestModelRegistry_CheapestWithCap(t *testing.T) {
 
 func TestModelRegistry_CheapestForContext(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	// Small context - should get cheap model
 	small := registry.CheapestForContext(10000, 1)
@@ -316,7 +316,7 @@ func TestDefaultModelRegistry(t *testing.T) {
 
 func TestModelRegistry_Tiers(t *testing.T) {
 	registry := NewModelRegistry()
-	registry.loadBuiltinDefaults()
+	registry.LoadBuiltinDefaults()
 
 	// Verify tier distribution
 	tier1 := registry.ListByTier(1)

@@ -69,3 +69,76 @@ func (s *MessageStore) Clear() {
 	defer s.mu.Unlock()
 	s.messages = nil
 }
+
+// EstimateTokens returns a rough estimate of tokens in all messages.
+// Uses ~4 chars per token heuristic.
+func (s *MessageStore) EstimateTokens() int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	
+	total := 0
+	for _, msg := range s.messages {
+		for _, part := range msg.Parts {
+			switch p := part.(type) {
+			case domain.TextPart:
+				total += len(p.Text) / 4
+			case domain.ToolCallPart:
+				total += len(p.Result) / 4
+				// Args can also be large
+				for _, v := range p.Args {
+					if str, ok := v.(string); ok {
+						total += len(str) / 4
+					}
+				}
+			}
+		}
+	}
+	return total
+}
+
+// TruncateIfNeeded removes oldest messages if tokens exceed maxTokens.
+// Keeps at least minMessages messages. Returns true if truncation occurred.
+func (s *MessageStore) TruncateIfNeeded(maxTokens int, minMessages int) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	
+	if len(s.messages) <= minMessages {
+		return false
+	}
+	
+	// Calculate current tokens
+	total := 0
+	for _, msg := range s.messages {
+		for _, part := range msg.Parts {
+			switch p := part.(type) {
+			case domain.TextPart:
+				total += len(p.Text) / 4
+			case domain.ToolCallPart:
+				total += len(p.Result) / 4
+			}
+		}
+	}
+	
+	if total <= maxTokens {
+		return false
+	}
+	
+	// Remove oldest messages until under limit (keep minMessages)
+	for total > maxTokens && len(s.messages) > minMessages {
+		// Remove first message
+		removed := s.messages[0]
+		s.messages = s.messages[1:]
+		
+		// Subtract removed tokens
+		for _, part := range removed.Parts {
+			switch p := part.(type) {
+			case domain.TextPart:
+				total -= len(p.Text) / 4
+			case domain.ToolCallPart:
+				total -= len(p.Result) / 4
+			}
+		}
+	}
+	
+	return true
+}

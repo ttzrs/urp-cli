@@ -45,17 +45,22 @@ func NewAnthropicWithClient(apiKey string, baseURLOverride string, client HTTPCl
 		if baseURL[len(baseURL)-1] == '/' {
 			baseURL = baseURL[:len(baseURL)-1]
 		}
-		// SMART DETECTION: Check if this is an OpenAI-compatible proxy
-		// A proxy is one that has /v1/chat or /chat/completions patterns (complete proxy paths)
-		// NOT just /v1 alone (which might be a base path that needs /messages added)
-		isOpenAIProxy := strings.Contains(baseURL, "/v1/chat") || strings.Contains(baseURL, "/chat/completions")
+		// Check for explicit ANTHROPIC_ENDPOINT_URL override (complete path)
+		explicitEndpoint := os.Getenv("ANTHROPIC_ENDPOINT_URL")
+		if explicitEndpoint != "" {
+			baseURL = explicitEndpoint
+		} else {
+			// SMART DETECTION: Check if this is a complete endpoint (contains /v1/ or /messages or /chat)
+			// These are complete paths that should NOT be modified
+			hasCompleteEndpoint := strings.Contains(baseURL, "/v1/") ||
+				strings.HasSuffix(baseURL, "/messages") ||
+				strings.Contains(baseURL, "/chat")
 
-		if isOpenAIProxy {
-			// This is an OpenAI-compatible proxy - leave it as-is
-			fmt.Fprintf(os.Stderr, "[DEBUG] Anthropic provider: detected OpenAI-compatible proxy at %s\n", baseURL)
-		} else if !strings.HasSuffix(baseURL, "/messages") {
-			// Direct Anthropic API or partial path - add /messages endpoint
-			baseURL = baseURL + "/messages"
+			if !hasCompleteEndpoint {
+				// This is just a base URL like http://tizz.win:8317
+				// Default to OpenAI-compatible /v1/chat/completions (most common proxy)
+				baseURL = baseURL + "/v1/chat/completions"
+			}
 		}
 	}
 	return &Anthropic{

@@ -84,6 +84,7 @@ func (t *TodoWrite) Info() domain.Tool {
 							"status":     map[string]any{"type": "string", "enum": []string{"pending", "in_progress", "completed"}},
 							"activeForm": map[string]any{"type": "string"},
 						},
+						"additionalProperties": false,
 					},
 				},
 			},

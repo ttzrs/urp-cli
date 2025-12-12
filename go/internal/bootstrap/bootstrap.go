@@ -143,13 +143,15 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 
 	if gdb != nil {
 		compStore := compiler.NewStore(gdb)
-		// Use URP_GATE_MODEL_ID for gateClient, with fallback to resolvedMasterModelID or default
-		gateModel := config.GetEnvOrDefault("URP_GATE_MODEL_ID", "")
-		if gateModel == "" {
-			// Use the same model as the master agent if no specific gate model is set
-			gateModel = resolvedMasterModelID
+		// Create Gate client - it will use env vars for configuration
+		// If URP_GATE_MODEL_ID is not set, it defaults to gpt-4o-mini
+		// The Gate is optional - if no API key is configured, it returns empty results
+		gateClient := gate.NewOpenAIClient("")
+		if gateClient.IsConfigured() {
+			fmt.Printf("[DEBUG] Gate configured: model=%s, url=%s\n", gateClient.Model(), gateClient.BaseURL)
+		} else {
+			fmt.Printf("[DEBUG] Gate not configured (no API key), context filtering disabled\n")
 		}
-		gateClient := gate.NewOpenAIClient(gateModel)
 		ctxCompiler = compiler.NewContextCompiler(compStore, gateClient)
 
 		// Connect Retrieval (End of Cycle)

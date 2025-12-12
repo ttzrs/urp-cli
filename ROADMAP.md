@@ -1,135 +1,92 @@
 # URP Roadmap
 
 ```
-SOLID Score: 93/100 (2025-12-08)
-Build: passing | Tests: 446+ | LOC: ~43k
+SOLID Score: 93/100
+Build: ✅ passing | Tests: 446+ | LOC: ~50k
 ```
 
 ---
 
-## Backlog
+## Estado Actual ✅
 
-### P1 - Provider Factory
-- [ ] Create `internal/opencode/provider/factory.go`
-- [ ] Unify provider creation logic (Anthropic, OpenAI, OpenRouter)
+Todo lo planificado para las fases P0-P5 está **completado**:
 
-### P2 - God Objects (optional)
-- [ ] Split `tui/agent.go` if >700 LOC
-- [ ] Further split `orchestrator.go` if needed
+- ✅ Provider Factory unificado
+- ✅ Dockerfile multi-target (minimal, base-agent, master, worker, dev-full, gpu)
+- ✅ Browser Worker con go-rod
+- ✅ Protocol envelope JSON-lines
+- ✅ Orchestrator con DIP
+- ✅ Multi-worker parallel spawn
+- ✅ 40+ comandos CLI
+- ✅ TUI con Bubble Tea
+- ✅ Sistema de Skills
+- ✅ Vector Store
+- ✅ Cognitive Engine
 
 ---
 
-## Improvements
+## Mejoras Futuras (Nice to Have)
 
 ### TUI
-- [ ] Smooth scroll in viewport
-- [ ] Customizable colors via config
-- [ ] Real-time container status panel (CPU/RAM)
-- [ ] Session list preview
+- [ ] Smooth scroll en viewport
+- [ ] Colores personalizables via config
+- [ ] Panel de status de containers (CPU/RAM)
 
-### OpenCode Agent
-- [ ] Multiple parallel workers
-- [ ] Active workers dashboard
-- [ ] Automatic retries with exponential backoff
-- [ ] Token usage metrics per session/project
+### Agent
+- [ ] Retries automáticos con exponential backoff
+- [ ] Métricas de tokens por sesión/proyecto
+- [ ] Dashboard de workers activos
 
 ### Vector Store
-- [ ] Code embeddings for semantic search
-- [ ] Auto-index new files
-- [ ] Hybrid search (keyword + semantic)
-- [ ] Embedding cache
-
-### Memory
-- [ ] Auto-learn successful patterns
-- [ ] Proactive suggestions based on context
-- [ ] Export/import memory between projects
-- [ ] Auto-cleanup obsolete memories
-
----
-
-## Nice to Have
+- [ ] Code embeddings para búsqueda semántica
+- [ ] Auto-index de archivos nuevos
+- [ ] Búsqueda híbrida (keyword + semántica)
 
 ### CLI/UX
 - [ ] bash/zsh autocompletion
-- [ ] Progress bars for long operations
-- [ ] Desktop notifications when workers finish
-- [ ] Verbose mode (`-v`, `-vv`, `-vvv`)
-
-### Security
-- [ ] Additional sandboxing (gVisor, Kata)
-- [ ] Encrypted audit logs
-- [ ] Secret management (Vault)
-- [ ] LLM API rate limiting
+- [ ] Barras de progreso para operaciones largas
+- [ ] Notificaciones desktop cuando workers terminan
+- [ ] Modo verbose (`-v`, `-vv`, `-vvv`)
 
 ### Testing
 - [ ] E2E integration tests
 - [ ] Performance benchmarks
-- [ ] Load tests for multi-worker
-- [ ] Fuzzing for code parsers
 - [ ] Coverage > 80%
 
-### Observability
-- [ ] Prometheus/Grafana integration
-- [ ] Distributed tracing (OpenTelemetry)
-- [ ] Worker failure alerts
-- [ ] Web monitoring dashboard
-
----
-
-## Infrastructure
-
-### Builds
-- [ ] Multi-arch (amd64, arm64)
-- [ ] Truly portable static binaries
-- [ ] Reduce binary size (~25MB currently)
-
-### Distribution
+### Infrastructure
 - [ ] Homebrew formula
 - [ ] APT/YUM repositories
-- [ ] Docker Hub automated builds
+- [ ] Multi-arch builds (amd64, arm64)
 
-### CI/CD
-- [ ] Auto tests on PRs
-- [ ] Security scanning (Snyk, Trivy)
-- [ ] Dependabot
-- [ ] Auto release notes
-
----
-
-## Experimental
-
-### AI/ML
-- [ ] Local LLM support (Ollama, llama.cpp)
-- [ ] Local embeddings for privacy
-- [ ] Model fine-tuning for URP
-
-### Extensibility
-- [ ] Plugin system (Go plugins or WASM)
-- [ ] Custom LLM providers
-- [ ] Custom agent tools
+### Experimental
+- [ ] Soporte LLM local (Ollama)
+- [ ] Sistema de plugins (Go plugins o WASM)
 - [ ] Event webhooks
 
 ---
 
-## Completed (archive)
+## Archivo (Completado)
 
 <details>
-<summary>Phase 1-12 SOLID Refactoring (2025-12)</summary>
+<summary>Fases P0-P5 SOLID Refactoring</summary>
 
-- Graph record helpers centralized
-- Truncate centralized
-- Error handling consolidated
-- God objects split (agent, healer, planning)
-- DIP applied (HTTPClient, ImmuneSystem, specs.Engine)
-- OCP type switches eliminated
-- ISP applied (GraphReader/Writer, VectorSearcher/Writer)
+- Graph record helpers centralizados
+- Truncate centralizado
+- Error handling consolidado
+- God objects divididos (agent, healer, planning)
+- DIP aplicado (HTTPClient, ImmuneSystem, specs.Engine)
+- OCP type switches eliminados
+- ISP aplicado (GraphReader/Writer, VectorSearcher/Writer)
 - Store interface compliance (Ping/Close)
 - Orchestrator DIP (MasterProtocol)
 - Container service layer
 - OpenCode Phases 1-6 (tools, commands, sessions, agents)
+- Provider Factory
+- Browser Worker go-rod
+- Dockerfile minimization
 
 </details>
 
 ---
 
-*Last updated: 2025-12-08*
+*Última actualización: Auto-generado*

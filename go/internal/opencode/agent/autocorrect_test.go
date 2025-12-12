@@ -98,39 +98,60 @@ func TestAutocorrector_DetectFailure(t *testing.T) {
 		wantFailed bool
 	}{
 		{
-			name: "success - no failure patterns",
+			name: "success - no failure patterns in bash",
 			parts: []domain.Part{
-				domain.ToolCallPart{Result: "ok\nPASS\nall tests passed"},
+				domain.ToolCallPart{Name: "bash", Result: "ok\nPASS\nall tests passed"},
 			},
 			wantFailed: false,
 		},
 		{
-			name: "failure - FAIL pattern",
+			name: "failure - FAIL pattern in bash",
 			parts: []domain.Part{
-				domain.ToolCallPart{Result: "--- FAIL: TestFoo"},
+				domain.ToolCallPart{Name: "bash", Result: "--- FAIL: TestFoo"},
 			},
 			wantFailed: true,
 		},
 		{
-			name: "failure - error pattern",
+			name: "failure - error pattern in diagnostics",
 			parts: []domain.Part{
-				domain.ToolCallPart{Result: "error: something went wrong"},
+				domain.ToolCallPart{Name: "diagnostics", Result: "error: something went wrong"},
 			},
 			wantFailed: true,
 		},
 		{
-			name: "failure - panic pattern",
+			name: "failure - panic pattern in sandbox",
 			parts: []domain.Part{
-				domain.ToolCallPart{Result: "panic: runtime error"},
+				domain.ToolCallPart{Name: "sandbox", Result: "panic: runtime error"},
 			},
 			wantFailed: true,
 		},
 		{
-			name: "failure in error field",
+			name: "failure in error field for bash",
 			parts: []domain.Part{
-				domain.ToolCallPart{Result: "ok", Error: "exit status 1 FAIL"},
+				domain.ToolCallPart{Name: "bash", Result: "ok", Error: "exit status 1 FAIL"},
 			},
 			wantFailed: true,
+		},
+		{
+			name: "no failure for read tool with error in content",
+			parts: []domain.Part{
+				domain.ToolCallPart{Name: "read", Result: "func handleError() { return error }"},
+			},
+			wantFailed: false,
+		},
+		{
+			name: "no failure for ls tool with failed in filename",
+			parts: []domain.Part{
+				domain.ToolCallPart{Name: "ls", Result: "failed_tests.go\nerror_handler.go"},
+			},
+			wantFailed: false,
+		},
+		{
+			name: "no failure for grep tool with error patterns in code",
+			parts: []domain.Part{
+				domain.ToolCallPart{Name: "grep", Result: "error: \"error: something went wrong\""},
+			},
+			wantFailed: false,
 		},
 	}
 

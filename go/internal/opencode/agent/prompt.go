@@ -3,8 +3,10 @@ package agent
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/joss/urp/internal/compiler"
+	"github.com/joss/urp/internal/gate"
 	"github.com/joss/urp/internal/opencode/domain"
 )
 
@@ -13,11 +15,22 @@ type PromptBuilder struct {
 	customPrompt string
 	taskContext  *TaskContext
 	compiler     *compiler.ContextCompiler
+
+	// Accumulated tool logs for gate filtering
+	toolLogs strings.Builder
+
+	// Last compilation metadata
+	lastGateResult *gate.GateResult
+
+	// Max tool logs size before forcing clear (prevents unbounded growth)
+	maxToolLogsSize int
 }
 
 // NewPromptBuilder creates a new prompt builder
 func NewPromptBuilder() *PromptBuilder {
-	return &PromptBuilder{}
+	return &PromptBuilder{
+		maxToolLogsSize: 50000, // ~50KB max, ~12k tokens
+	}
 }
 
 // SetCustomPrompt sets additional custom instructions
@@ -35,37 +48,116 @@ func (p *PromptBuilder) SetCompiler(c *compiler.ContextCompiler) {
 	p.compiler = c
 }
 
+// SetMaxToolLogsSize sets the maximum size for accumulated tool logs.
+func (p *PromptBuilder) SetMaxToolLogsSize(size int) {
+	p.maxToolLogsSize = size
+}
+
+// AddToolLog adds a tool execution result to the logs buffer.
+// These logs will be passed to the Gate for filtering on next Build().
+// Automatically truncates if logs exceed max size.
+func (p *PromptBuilder) AddToolLog(toolName string, result string, errMsg string) {
+	// Check if we're at capacity - if so, clear oldest logs
+	if p.toolLogs.Len() > p.maxToolLogsSize {
+		// Keep only the last 25% of logs (most recent)
+		current := p.toolLogs.String()
+		keepFrom := len(current) * 3 / 4
+		p.toolLogs.Reset()
+		p.toolLogs.WriteString("... (older logs truncated)\n")
+		p.toolLogs.WriteString(current[keepFrom:])
+	}
+
+	if errMsg != "" {
+		p.toolLogs.WriteString(fmt.Sprintf("[%s] ERROR: %s\n", toolName, truncateLog(errMsg, 1000)))
+	} else if result != "" {
+		p.toolLogs.WriteString(fmt.Sprintf("[%s] %s\n", toolName, truncateLog(result, 1000)))
+	}
+}
+
+// truncateLog truncates a log entry to maxLen characters
+func truncateLog(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "... (truncated)"
+}
+
+// ClearToolLogs clears the accumulated tool logs.
+func (p *PromptBuilder) ClearToolLogs() {
+	p.toolLogs.Reset()
+}
+
+// ToolLogsSize returns the current size of accumulated tool logs.
+func (p *PromptBuilder) ToolLogsSize() int {
+	return p.toolLogs.Len()
+}
+
+// LastGateResult returns the result of the last gate call (for UI display).
+func (p *PromptBuilder) LastGateResult() *gate.GateResult {
+	return p.lastGateResult
+}
+
+// GateModel returns the configured gate model name.
+func (p *PromptBuilder) GateModel() string {
+	if p.compiler != nil {
+		return p.compiler.GateModel()
+	}
+	return ""
+}
+
+// BuildResult contains the built prompt and metadata.
+type BuildResult struct {
+	Prompt     string
+	GateResult *gate.GateResult
+}
+
 // Build constructs the full system prompt for a session
 func (p *PromptBuilder) Build(ctx context.Context, session *domain.Session) string {
+	result := p.BuildWithMetadata(ctx, session)
+	return result.Prompt
+}
+
+// BuildWithMetadata constructs the prompt and returns metadata about compilation.
+func (p *PromptBuilder) BuildWithMetadata(ctx context.Context, session *domain.Session) *BuildResult {
+	result := &BuildResult{}
+	p.lastGateResult = nil
+
 	// 1. Try to use Context Compiler (Architecture V2)
 	if p.compiler != nil {
 		goal := "Perform engineering task"
 		if p.taskContext != nil {
-			// Extract goal from task context (Objective is usually the first input)
-			// For now, we use a generic goal if not available, or the session title
 			if session.Title != "" {
 				goal = session.Title
 			}
 		}
 
-		// Compile the context (logs are empty for now as we don't have a structured log store yet)
-		// We use session.ID as the session ID
-		compiled, err := p.compiler.Compile(ctx, session.ID, goal, "", session.Directory)
+		// Get accumulated tool logs
+		rawLogs := p.toolLogs.String()
+
+		// Compile the context with logs
+		compileResult, err := p.compiler.CompileWithMetadata(ctx, session.ID, goal, rawLogs, session.Directory)
 		if err == nil {
-			// Success! Return the compiled view.
-			// We append the custom prompt and task context as before, 
-			// although the Compiler should ideally handle this.
-			// For transition, we'll append custom prompt if set.
+			// Success! Store gate result for UI
+			result.GateResult = compileResult.GateResult
+			p.lastGateResult = compileResult.GateResult
+
+			// ALWAYS clear logs after compilation attempt (success or filtered)
+			p.toolLogs.Reset()
+
+			// Append custom prompt if set
+			compiled := compileResult.Prompt
 			if p.customPrompt != "" {
 				compiled += "\n" + p.customPrompt
 			}
-			return compiled
+			result.Prompt = compiled
+			return result
 		}
-		// Fallback to V1 on error
+		// Fallback to V1 on error - still clear logs to prevent unbounded growth
 		fmt.Printf("Context Compiler failed, falling back to V1: %v\n", err)
+		p.toolLogs.Reset()
 	}
 
-	// 2. Fallback to V1 (Legacy)
+	// 2. Fallback to V1 (Legacy) - No gate, logs are cleared above
 	basePrompt := `You are an AI coding assistant. You help users with software engineering tasks.
 
 Working directory: %s
@@ -114,5 +206,6 @@ This ensures context survives session compaction.
 		prompt += "\n\n" + p.taskContext.BuildReminder()
 	}
 
-	return prompt
+	result.Prompt = prompt
+	return result
 }

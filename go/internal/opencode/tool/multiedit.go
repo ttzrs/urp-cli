@@ -41,6 +41,7 @@ func (m *MultiEdit) Info() domain.Tool {
 							"old_string": map[string]any{"type": "string"},
 							"new_string": map[string]any{"type": "string"},
 						},
+						"additionalProperties": false,
 					},
 				},
 			},

@@ -41,8 +41,8 @@ func (c *CodeSearch) Info() domain.Tool {
 				},
 				"kind": map[string]any{
 					"type":        "string",
-					"description": "Filter by kind: code, error, solution, knowledge",
-					"enum":        []string{"code", "error", "solution", "knowledge", ""},
+					"description": "Filter by kind: code, error, solution, knowledge (optional)",
+					"enum":        []string{"code", "error", "solution", "knowledge"},
 				},
 			},
 			"required": []string{"query"},

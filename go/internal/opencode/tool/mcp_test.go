@@ -21,6 +21,7 @@ func TestMCPToolInfo(t *testing.T) {
 			"properties": map[string]any{
 				"message": map[string]any{"type": "string"},
 			},
+			"additionalProperties": false,
 		},
 	}
 
@@ -112,6 +113,7 @@ func TestMCPToolIntegrationWithRegistry(t *testing.T) {
 			"properties": map[string]any{
 				"name": map[string]any{"type": "string"},
 			},
+			"additionalProperties": false,
 		},
 	}
 	registry.Register(NewMCPTool(manager, mcpTool))

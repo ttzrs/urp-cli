@@ -25,7 +25,6 @@ func (g *Grep) Info() domain.Tool {
 		Description: "Search file contents using ripgrep. Supports regex, output modes, context lines, and pagination.",
 		Parameters: domain.JSONSchema{
 			"type": "object",
-			"additionalProperties": true,
 			"properties": map[string]any{
 				"pattern": map[string]any{
 					"type":        "string",
@@ -78,6 +77,7 @@ func (g *Grep) Info() domain.Tool {
 				},
 			},
 			"required": []string{"pattern"},
+			"additionalProperties": false,
 		},
 	}
 }
