@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -622,6 +623,24 @@ func (a *Agent) executeToolsParallel(
 ) []domain.Part {
 	if len(toolCalls) == 0 {
 		return nil
+	}
+
+	// FIX #2: Validate all tool calls before execution
+	// This catches streaming failures where args are empty or nil
+	for i, tc := range toolCalls {
+		if tc.Args == nil || len(tc.Args) == 0 {
+			fmt.Fprintf(os.Stderr,
+				"[WARN] Tool call #%d (%s) has no arguments. Check provider streaming.\n",
+				i, tc.Name)
+		}
+		if tc.Name == "" {
+			fmt.Fprintf(os.Stderr,
+				"[ERROR] Tool call #%d has no name! This indicates a provider failure.\n", i)
+		}
+		if tc.ToolID == "" {
+			fmt.Fprintf(os.Stderr,
+				"[WARN] Tool call #%d has no ToolID. Provider may not have streamed ID.\n", i)
+		}
 	}
 
 	// Single tool - no need for parallelization overhead

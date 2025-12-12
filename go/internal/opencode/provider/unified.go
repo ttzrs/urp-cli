@@ -53,6 +53,8 @@ func NewUnifiedProvider(apiKey, baseURL string, registry *model.ModelRegistry) *
 				baseURL = baseURL + "/v1/chat/completions"
 			}
 		}
+		// FIX #4: Log the actual endpoint being used (for debugging tool failures)
+		fmt.Fprintf(os.Stderr, "[DEBUG] unified provider: endpoint=%s\n", baseURL)
 	}
 
 	if registry == nil {
@@ -406,10 +408,21 @@ func (u *UnifiedProvider) streamResponse(ctx context.Context, resp *http.Respons
 
 			// Finish reason
 			if choice.FinishReason != "" {
-				// Emit accumulated tool calls
+				// Emit accumulated tool calls with proper error handling
 				for _, tc := range toolCallAccumulators {
 					var args map[string]any
-					json.Unmarshal([]byte(tc.Function.Arguments), &args)
+
+					// FIX #1: Error handling on JSON parse (was silently failing)
+					if err := json.Unmarshal([]byte(tc.Function.Arguments), &args); err != nil {
+						// Log the actual parsing error for debugging
+						fmt.Fprintf(os.Stderr, "[ERROR] unified: Failed to parse tool arguments for '%s': %v\nRaw JSON: %s\n",
+							tc.Function.Name, err, tc.Function.Arguments)
+						// Don't pass nil args - executor will fail silently
+						args = map[string]any{
+							"_parse_error": fmt.Sprintf("JSON unmarshal failed: %v", err),
+							"_raw_json":    tc.Function.Arguments,
+						}
+					}
 
 					events <- domain.StreamEvent{
 						Type: domain.StreamEventToolCall,

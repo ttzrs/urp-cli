@@ -16,6 +16,7 @@ import (
 	"github.com/joss/urp/internal/opencode/agent"
 	"github.com/joss/urp/internal/opencode/domain"
 	"github.com/joss/urp/internal/opencode/graphstore"
+	"github.com/joss/urp/internal/opencode/model"
 	"github.com/joss/urp/internal/opencode/provider"
 	"github.com/joss/urp/internal/opencode/tool"
 	"github.com/joss/urp/internal/orchestrator"
@@ -65,16 +66,59 @@ func Initialize(ctx context.Context, opts InitializeOptions) (*App, error) {
 	fmt.Printf("[DEBUG] Initialize: URP_MASTER_MODEL_ID='%s', URP_DEFAULT_MASTER_MODEL='%s'\n", actualMasterModel, actualDefaultModel)
 	fmt.Printf("[DEBUG] Initialize: masterModelID='%s', fallbacks='%v'\n", masterConfig.ModelID, masterConfig.Fallbacks)
 
+	// FIX #3: Build provider options with proper precedence
+	// Priority: Proxy > DeepSeek > OpenAI > Anthropic
+	// (Last option wins in current factory implementation)
+	// We pass them in reverse priority so proxy overrides others
+	providerOpts := []provider.ConfigOption{}
+
+	// Lowest priority: Anthropic
+	if key := os.Getenv("ANTHROPIC_API_KEY"); key != "" {
+		providerOpts = append(providerOpts, provider.WithAPIKey(key))
+	}
+	if url := os.Getenv("ANTHROPIC_BASE_URL"); url != "" {
+		providerOpts = append(providerOpts, provider.WithBaseURL(url))
+	}
+
+	// OpenAI/OpenRouter (medium priority)
+	if key := os.Getenv("OPENAI_API_KEY"); key != "" {
+		providerOpts = append(providerOpts, provider.WithAPIKey(key))
+	}
+	if url := os.Getenv("OPENAI_BASE_URL"); url != "" {
+		providerOpts = append(providerOpts, provider.WithBaseURL(url))
+	}
+
+	// DeepSeek (higher priority)
+	if key := os.Getenv("DEEPSEEK_API_KEY"); key != "" {
+		providerOpts = append(providerOpts, provider.WithAPIKey(key))
+	}
+	if url := os.Getenv("DEEPSEEK_BASE_URL"); url != "" {
+		providerOpts = append(providerOpts, provider.WithBaseURL(url))
+	}
+
+	// Proxy (HIGHEST priority - overrides everything if set)
+	if key := os.Getenv("PROXY_API_KEY"); key != "" {
+		providerOpts = append(providerOpts, provider.WithAPIKey(key))
+		fmt.Printf("[DEBUG] Bootstrap: Using PROXY_API_KEY for authentication\n")
+	}
+	if key := os.Getenv("UNIFIED_API_KEY"); key != "" {
+		providerOpts = append(providerOpts, provider.WithAPIKey(key))
+		fmt.Printf("[DEBUG] Bootstrap: Using UNIFIED_API_KEY for authentication\n")
+	}
+	if url := os.Getenv("PROXY_BASE_URL"); url != "" {
+		providerOpts = append(providerOpts, provider.WithBaseURL(url))
+		fmt.Printf("[DEBUG] Bootstrap: Using PROXY_BASE_URL endpoint\n")
+	}
+	if url := os.Getenv("UNIFIED_BASE_URL"); url != "" {
+		providerOpts = append(providerOpts, provider.WithBaseURL(url))
+		fmt.Printf("[DEBUG] Bootstrap: Using UNIFIED_BASE_URL endpoint\n")
+	}
+
 	// Use the new fallback system
 	prov, resolvedMasterModelID, err := config.GetModelWithFallback(
 		masterConfig.ModelID,
 		masterConfig.Fallbacks,
-		provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
-		provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // OpenRouter uses OpenAI API key
-		provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
-		provider.WithBaseURL(os.Getenv("ANTHROPIC_BASE_URL")),
-		provider.WithBaseURL(os.Getenv("OPENAI_BASE_URL")),
-		provider.WithBaseURL(os.Getenv("DEEPSEEK_BASE_URL")),
+		providerOpts...,
 	)
 	if err != nil {
 		gdb.Close()
@@ -260,10 +304,35 @@ func loadEnvFile() {
 
 // initProvider initializes the LLM provider based on a primary and fallback model ID.
 func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, error) {
+	fmt.Printf("[DEBUG] initProvider: Entering function with masterModelID='%s', fallbackModelID='%s'\n", masterModelID, fallbackModelID)
 	fmt.Printf("[DEBUG] initProvider: Attempting primary model '%s'\n", masterModelID)
 
-	// Try to create provider for the primary model
-	prov, resolvedModelID, err := provider.Default.CreateForModel(masterModelID,
+	// SPECIAL CASE: If master model is zai-glm-4.6, create unified provider directly with proxy settings
+	if masterModelID == "zai-glm-4.6" {
+		// Get proxy configuration directly from environment
+		apiKey := getProxyAPIKey()
+		baseURL := getProxyBaseURL()
+
+		if apiKey != "" && baseURL != "" {
+			fmt.Printf("[DEBUG] initProvider: Detected zai-glm-4.6, creating unified provider with proxy: %s\n", baseURL)
+			unifiedProvider := provider.NewUnifiedProvider(apiKey, baseURL, model.DefaultModelRegistry)
+
+			// Test the provider by attempting to validate it can handle the model
+			// At minimum, we know the provider created successfully
+			fmt.Printf("[DEBUG] initProvider: Successfully created unified provider for zai-glm-4.6\n")
+			return unifiedProvider, masterModelID, nil
+		} else {
+			fmt.Println("[DEBUG] initProvider: Warning: zai-glm-4.6 specified but proxy credentials not configured")
+		}
+	}
+
+	// For other models or if proxy not available, use original logic
+	var prov llm.Provider
+	var resolvedModelID string
+	var err error
+
+	// Try to create provider for the primary model using original logic
+	prov, resolvedModelID, err = provider.Default.CreateForModel(masterModelID,
 		provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
 		provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // OpenRouter uses OpenAI API key
 		provider.WithAPIKey(os.Getenv("DEEPSEEK_API_KEY")),
@@ -281,6 +350,24 @@ func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, 
 		// Attempt fallback
 		fmt.Printf("[DEBUG] initProvider: Attempting to use fallback model: '%s'\n", fallbackModelID)
 
+		// Special handling for fallback if it's also zai-glm-4.6
+		if fallbackModelID == "zai-glm-4.6" {
+			// Create unified provider for fallback zai-glm-4.6
+			apiKey := getProxyAPIKey()
+			baseURL := getProxyBaseURL()
+
+			if apiKey != "" && baseURL != "" {
+				fmt.Printf("[DEBUG] initProvider: Detected fallback zai-glm-4.6, creating unified provider with proxy: %s\n", baseURL)
+				unifiedProvider := provider.NewUnifiedProvider(apiKey, baseURL, model.DefaultModelRegistry)
+
+				fmt.Printf("[DEBUG] initProvider: Successfully created unified provider for fallback zai-glm-4.6\n")
+				return unifiedProvider, fallbackModelID, nil
+			} else {
+				fmt.Println("[DEBUG] initProvider: Warning: fallback zai-glm-4.6 but proxy credentials not configured")
+			}
+		}
+
+		// Original fallback logic if unified provider not applicable
 		fallbackProv, resolvedFallbackModelID, fallbackErr := provider.Default.CreateForModel(fallbackModelID,
 			provider.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
 			provider.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
@@ -293,6 +380,7 @@ func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, 
 			provider.WithBaseURL(os.Getenv("UNIFIED_BASE_URL")), // Proxy base URL
 			provider.WithBaseURL(os.Getenv("PROXY_BASE_URL")), // Fallback proxy URL
 		)
+
 		if fallbackErr != nil || fallbackProv == nil {
 			return nil, "", fmt.Errorf("failed to initialize primary or fallback LLM provider: %v. Fallback error: %v", err, fallbackErr)
 		}
@@ -301,6 +389,57 @@ func initProvider(masterModelID, fallbackModelID string) (llm.Provider, string, 
 	}
 	fmt.Printf("[DEBUG] initProvider: Successfully initialized primary URP_MASTER_MODEL: %s (Provider: %s)\n", resolvedModelID, prov.Name())
 	return prov, resolvedModelID, nil
+}
+
+// getProxyAPIKey gets the proxy API key from environment
+func getProxyAPIKey() string {
+	apiKey := os.Getenv("UNIFIED_API_KEY")
+	if apiKey == "" {
+		apiKey = os.Getenv("PROXY_API_KEY")
+	}
+	if apiKey == "" {
+		apiKey = "sk-urp-proxy-key"  // Default if none provided
+	}
+	return apiKey
+}
+
+// getProxyBaseURL gets the proxy base URL from environment
+func getProxyBaseURL() string {
+	baseURL := os.Getenv("UNIFIED_BASE_URL")
+	if baseURL == "" {
+		baseURL = os.Getenv("PROXY_BASE_URL")
+	}
+	if baseURL == "" {
+		baseURL = "http://tizz.win:8317/v1"  // Default proxy URL
+	}
+	return baseURL
+}
+
+func createUnifiedProviderForProxy() (llm.Provider, error) {
+	fmt.Println("[DEBUG] Creating unified provider for proxy...")
+	// Get proxy configuration from environment
+	apiKey := os.Getenv("UNIFIED_API_KEY")
+	if apiKey == "" {
+		apiKey = os.Getenv("PROXY_API_KEY")
+	}
+	if apiKey == "" {
+		apiKey = "sk-urp-proxy-key" // Default if none provided
+	}
+
+	baseURL := os.Getenv("UNIFIED_BASE_URL")
+	if baseURL == "" {
+		baseURL = os.Getenv("PROXY_BASE_URL")
+	}
+	if baseURL == "" {
+		baseURL = "http://tizz.win:8317/v1" // Default proxy URL
+	}
+
+	fmt.Printf("[DEBUG] Creating unified provider with API key: %s and Base URL: %s\n", apiKey, baseURL)
+
+	// Create unified provider with proxy settings
+	// Use the model registry from internal/opencode/model package
+	prov := provider.NewUnifiedProvider(apiKey, baseURL, model.DefaultModelRegistry)
+	return prov, nil
 }
 
 func warmupConnection(prov llm.Provider) {
