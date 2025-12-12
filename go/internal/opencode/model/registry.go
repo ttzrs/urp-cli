@@ -136,26 +136,37 @@ func (r *ModelRegistry) LoadFromDefault() error {
 	}
 
 	// Fall back to builtin defaults
-	r.loadBuiltinDefaults()
+	r.LoadBuiltinDefaults()
 	return nil
 }
 
-// loadBuiltinDefaults sets up default models
-func (r *ModelRegistry) loadBuiltinDefaults() {
+// LoadBuiltinDefaults sets up default models
+func (r *ModelRegistry) LoadBuiltinDefaults() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	defaults := []ModelInfo{
 		// Tier 3: Premium
 		{
-			ID:           "claude-opus-4-20250514",
-			Alias:        []string{"opus", "claude-opus"},
+			ID:           "claude-opus-4-5-20251101",
+			Alias:        []string{"opus", "claude-opus", "claude-opus-4-5"},
 			QualityTier:  3,
 			SpeedTier:    1,
 			InputCost:    15,
 			OutputCost:   75,
 			ContextSize:  200000,
 			Capabilities: []string{"tool_use", "code", "reasoning", "vision"},
+			Enabled:      true,
+		},
+		{
+			ID:           "claude-opus-4-5-thinking",
+			Alias:        []string{"opus-thinking", "thinking"},
+			QualityTier:  3,
+			SpeedTier:    1,
+			InputCost:    15,
+			OutputCost:   75,
+			ContextSize:  200000,
+			Capabilities: []string{"code", "reasoning"},
 			Enabled:      true,
 		},
 		{
@@ -169,15 +180,37 @@ func (r *ModelRegistry) loadBuiltinDefaults() {
 			Capabilities: []string{"code", "reasoning"},
 			Enabled:      true,
 		},
+		{
+			ID:           "gpt-5.1",
+			Alias:        []string{"gpt51", "5.1"},
+			QualityTier:  3,
+			SpeedTier:    2,
+			InputCost:    5,
+			OutputCost:   20,
+			ContextSize:  200000,
+			Capabilities: []string{"tool_use", "code", "reasoning", "vision"},
+			Enabled:      true,
+		},
 
 		// Tier 2: Balanced
 		{
-			ID:           "claude-sonnet-4-20250514",
-			Alias:        []string{"sonnet", "claude-sonnet"},
+			ID:           "claude-sonnet-4-5-20250929",
+			Alias:        []string{"sonnet", "claude-sonnet", "sonnet-4-5"},
 			QualityTier:  2,
 			SpeedTier:    2,
 			InputCost:    3,
 			OutputCost:   15,
+			ContextSize:  200000,
+			Capabilities: []string{"tool_use", "code", "reasoning", "vision"},
+			Enabled:      true,
+		},
+		{
+			ID:           "gpt-5",
+			Alias:        []string{"gpt5", "5"},
+			QualityTier:  2,
+			SpeedTier:    2,
+			InputCost:    5,
+			OutputCost:   20,
 			ContextSize:  200000,
 			Capabilities: []string{"tool_use", "code", "reasoning", "vision"},
 			Enabled:      true,
@@ -229,8 +262,8 @@ func (r *ModelRegistry) loadBuiltinDefaults() {
 
 		// Tier 1: Fast/Cheap
 		{
-			ID:           "claude-3-5-haiku-20241022",
-			Alias:        []string{"haiku", "claude-haiku"},
+			ID:           "claude-haiku-4-5-20251001",
+			Alias:        []string{"haiku", "claude-haiku", "haiku-4-5"},
 			QualityTier:  1,
 			SpeedTier:    3,
 			InputCost:    0.8,
@@ -247,6 +280,17 @@ func (r *ModelRegistry) loadBuiltinDefaults() {
 			InputCost:    0.15,
 			OutputCost:   0.6,
 			ContextSize:  128000,
+			Capabilities: []string{"tool_use", "code"},
+			Enabled:      true,
+		},
+		{
+			ID:           "claude-3-5-haiku-20241022",
+			Alias:        []string{"haiku-old", "claude-haiku-old"},
+			QualityTier:  1,
+			SpeedTier:    3,
+			InputCost:    0.8,
+			OutputCost:   4,
+			ContextSize:  200000,
 			Capabilities: []string{"tool_use", "code"},
 			Enabled:      true,
 		},
