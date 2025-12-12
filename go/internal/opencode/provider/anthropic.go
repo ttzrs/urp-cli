@@ -45,8 +45,16 @@ func NewAnthropicWithClient(apiKey string, baseURLOverride string, client HTTPCl
 		if baseURL[len(baseURL)-1] == '/' {
 			baseURL = baseURL[:len(baseURL)-1]
 		}
-		// Ensure it ends with /messages (Anthropic API, not /v1 like OpenAI)
-		if !strings.HasSuffix(baseURL, "/messages") {
+		// SMART DETECTION: Check if this is an OpenAI-compatible proxy
+		// A proxy is one that has /v1/chat or /chat/completions patterns (complete proxy paths)
+		// NOT just /v1 alone (which might be a base path that needs /messages added)
+		isOpenAIProxy := strings.Contains(baseURL, "/v1/chat") || strings.Contains(baseURL, "/chat/completions")
+
+		if isOpenAIProxy {
+			// This is an OpenAI-compatible proxy - leave it as-is
+			fmt.Fprintf(os.Stderr, "[DEBUG] Anthropic provider: detected OpenAI-compatible proxy at %s\n", baseURL)
+		} else if !strings.HasSuffix(baseURL, "/messages") {
+			// Direct Anthropic API or partial path - add /messages endpoint
 			baseURL = baseURL + "/messages"
 		}
 	}
@@ -260,15 +268,26 @@ func (a *Anthropic) Chat(ctx context.Context, req *llm.ChatRequest) (<-chan doma
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("x-api-key", a.apiKey)
-	httpReq.Header.Set("anthropic-version", anthropicVersion)
 
-	// Beta features: prompt caching and extended thinking
-	betaFeatures := "prompt-caching-2024-07-31"
-	if req.ThinkingBudget > 0 {
-		betaFeatures += ",extended-thinking-2025-04-11"
+	// SMART AUTH: Detect if we're using a proxy or direct API
+	// If proxy (has /v1/chat or /chat/completions), use OpenAI-compatible auth headers
+	// Otherwise use Anthropic-specific headers
+	isOpenAIProxy := strings.Contains(a.baseURL, "/v1/chat") || strings.Contains(a.baseURL, "/chat/completions")
+	if isOpenAIProxy {
+		// OpenAI-compatible proxy - use Bearer token
+		httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.apiKey))
+	} else {
+		// Direct Anthropic API - use x-api-key
+		httpReq.Header.Set("x-api-key", a.apiKey)
+		httpReq.Header.Set("anthropic-version", anthropicVersion)
+
+		// Beta features: prompt caching and extended thinking
+		betaFeatures := "prompt-caching-2024-07-31"
+		if req.ThinkingBudget > 0 {
+			betaFeatures += ",extended-thinking-2025-04-11"
+		}
+		httpReq.Header.Set("anthropic-beta", betaFeatures)
 	}
-	httpReq.Header.Set("anthropic-beta", betaFeatures)
 
 	resp, err := a.client.Do(httpReq)
 	if err != nil {
