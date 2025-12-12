@@ -1,0 +1,125 @@
+package llm
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+)
+
+// OpenAIClient is a generic client for OpenAI-compatible APIs (Cerebras, Groq, Proxies, etc.)
+type OpenAIClient struct {
+	ApiKey  string
+	BaseURL string
+	Model   string
+	Client  *http.Client
+}
+
+// NewOpenAIClient creates a client with the specified model.
+// If model is empty, it attempts to load from env or defaults.
+func NewOpenAIClient(modelEnvVar string) *OpenAIClient {
+	model := os.Getenv(modelEnvVar)
+	if model == "" {
+		model = os.Getenv("MODEL_GATE") // Default fallback
+	}
+
+	return &OpenAIClient{
+		ApiKey:  os.Getenv("API_KEY"),
+		BaseURL: os.Getenv("BASE_URL"),
+		Model:   model,
+		Client:  &http.Client{Timeout: 30 * time.Second},
+	}
+}
+
+// Request/Response structs for OpenAI-compatible API
+type chatRequest struct {
+	Model    string    `json:"model"`
+	Messages []message `json:"messages"`
+	Stream   bool      `json:"stream"`
+}
+
+type message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type chatResponse struct {
+	Choices []struct {
+		Message message `json:"message"`
+	} `json:"choices"`
+}
+
+// FilterNoise implements the GateClient interface.
+// It uses the configured model (e.g., qwen3-coder-flash) to filter logs.
+func (c *OpenAIClient) FilterNoise(ctx context.Context, goal string, rawInput string) (string, error) {
+	// 1. Construct the Gating Prompt
+	systemPrompt := `
+You are a CONTEXT COMPILER. Your goal is to filter noise from logs/data.
+Input: Raw Logs/Text.
+Instruction: 
+1. Identify if this input contains specific errors, warnings, or data CRITICAL to the user's Goal.
+2. If YES: Extract ONLY the relevant lines exactly. Do not summarize.
+3. If NO (it's just info/debug noise): Return the string "NO_SIGNAL".
+`
+	userPrompt := fmt.Sprintf("GOAL: %s\n\nRAW INPUT:\n%s", goal, rawInput)
+
+	// 2. Prepare Request
+	reqBody := chatRequest{
+		Model: c.Model,
+		Messages: []message{
+			{Role: "system", Content: systemPrompt},
+			{Role: "user", Content: userPrompt},
+		},
+		Stream: false,
+	}
+
+	jsonBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("marshalling request: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/chat/completions", strings.TrimRight(c.BaseURL, "/"))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return "", fmt.Errorf("creating request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.ApiKey))
+
+	// 3. Execute
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("api request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("api error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	// 4. Parse Response
+	var result chatResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", fmt.Errorf("decoding response: %w", err)
+	}
+
+	if len(result.Choices) == 0 {
+		return "", nil
+	}
+
+	content := strings.TrimSpace(result.Choices[0].Message.Content)
+
+	// 5. Apply Sparsity Logic
+	if content == "NO_SIGNAL" {
+		return "", nil // Sparsity: Return empty string
+	}
+
+	return content, nil
+}

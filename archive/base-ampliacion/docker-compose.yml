@@ -1,0 +1,18 @@
+services:
+  memgraph:
+    image: memgraph/memgraph-platform:latest
+    container_name: urp-memgraph
+    ports:
+      - "7687:7687" # Bolt port
+      - "7444:7444" # Log port
+      - "3030:3000" # Lab UI
+    environment:
+      - MEMGRAPH_USER=urp
+      - MEMGRAPH_PASSWORD=urp_secret
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+      - memgraph_log:/var/log/memgraph
+
+volumes:
+  memgraph_data:
+  memgraph_log:

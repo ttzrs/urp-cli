@@ -177,6 +177,7 @@ func (f *Factory) CreateByID(id string, opts ...ConfigOption) (llm.Provider, err
 // CreateForModel creates a provider appropriate for the given model ID or shortcode.
 // Returns the provider, the resolved model ID, and any error.
 func (f *Factory) CreateForModel(modelIDOrShortcode string, opts ...ConfigOption) (llm.Provider, string, error) {
+	fmt.Printf("[DEBUG] CreateForModel called for model: %s\n", modelIDOrShortcode)
 	svc := modelservice.DefaultService
 	// Try shortcode first
 	modelWithSource, ok := svc.ResolveShortCode(modelIDOrShortcode)
@@ -187,9 +188,50 @@ func (f *Factory) CreateForModel(modelIDOrShortcode string, opts ...ConfigOption
 	if !ok {
 		return nil, "", fmt.Errorf("model not found: %s", modelIDOrShortcode)
 	}
+	fmt.Printf("[DEBUG] Model found: %s, Source: %s\n", modelWithSource.ID, modelWithSource.Source)
+
+	// Apply all options to get the final configuration
+	cfg := Config{}
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+	fmt.Printf("[DEBUG] Config for model %s: APIKey='%s', BaseURL='%s'\n", modelWithSource.ID, cfg.APIKey, cfg.BaseURL)
+
+	// SPECIAL CASE: If model is zai-glm-4.6 AND we have unified credentials configured,
+	// force using the unified provider (proxy)
+	if modelWithSource.ID == "zai-glm-4.6" && cfg.APIKey != "" && cfg.BaseURL != "" {
+		fmt.Printf("[DEBUG] Trying unified provider for %s with API key: %s and Base URL: %s\n", modelWithSource.ID, cfg.APIKey, cfg.BaseURL)
+		unifiedProvider, err := f.Create(ProviderUnified, opts...)
+		if err == nil {
+			// Success: use unified provider for zai-glm-4.6
+			fmt.Printf("[DEBUG] Successfully created unified provider for %s\n", modelWithSource.ID)
+			return unifiedProvider, modelWithSource.ID, nil
+		}
+		fmt.Printf("[DEBUG] Failed to create unified provider for %s: %v\n", modelWithSource.ID, err)
+		// If unified provider fails, continue with original approach
+	}
+
+	// For all other models or if unified provider failed, continue with existing logic
+	// Try unified provider first if API key and Base URL are provided (indicating proxy config)
+	if cfg.APIKey != "" && cfg.BaseURL != "" {
+		// Check if this looks like a unified/proxy configuration by trying to create unified provider first
+		unifiedProvider, err := f.Create(ProviderUnified, opts...)
+		if err == nil {
+			// Success: use unified provider regardless of registered source
+			return unifiedProvider, modelWithSource.ID, nil
+		}
+		// If unified provider fails but credentials are provided, continue to original provider as fallback
+	}
+
+	// If no unified credentials or unified provider failed, use original source provider
 	providerType := providerTypeFromSource(modelWithSource.Source)
 	provider, err := f.Create(providerType, opts...)
 	if err != nil {
+		// Final fallback: if registered source fails and unified credentials were provided, try unified again
+		if cfg.APIKey != "" && cfg.BaseURL != "" {
+			provider, err := f.Create(ProviderUnified, opts...)
+			return provider, modelWithSource.ID, err
+		}
 		return nil, "", err
 	}
 	return provider, modelWithSource.ID, nil

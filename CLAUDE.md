@@ -1,8 +1,83 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
 # URP: Embodied Agent Protocol
 
 ```
 AXIOM: context_window ⊂ memory_total
        memory_total = context ∪ graph_db ∪ vector_store
+```
+
+## Development Commands
+
+### Build & Test
+
+```bash
+# Build URP CLI
+cd go && go build -o urp ./cmd/urp
+
+# Run all tests
+go test ./...
+
+# Run specific test package
+go test ./internal/logging/...
+
+# Run single test
+go test -run TestRecoveryHandler_WrapPanic ./internal/logging/
+
+# Run with verbose output
+go test -v ./...
+
+# Run with coverage
+go test -cover ./...
+
+# Generate coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+```
+
+### Linting & Code Quality
+
+```bash
+# Format code
+cd go && go fmt ./...
+
+# Vet (static analysis)
+go vet ./...
+
+# Run tests in verbose mode with coverage
+go test -v -cover ./internal/<package>/
+```
+
+### Infrastructure
+
+```bash
+# Start infrastructure services
+docker compose up -d memgraph
+
+# Check service health
+docker compose ps
+docker logs urp-memgraph
+
+# Stop infrastructure
+docker compose down
+```
+
+### Development Workflow
+
+```bash
+# Quick pre-commit check
+go vet ./... && go test ./... && go build -o urp ./cmd/urp
+
+# Clean build artifacts
+go clean
+rm -f urp
+
+# Verify environment
+urp doctor
 ```
 
 ## Primitives (PRU)
@@ -197,6 +272,179 @@ DEBUG:     urp events errors       # causal trace
 -[:PARENT_OF]-> -[:AUTHORED]-> -[:TOUCHED]->
 -[:EXECUTED]->  -[:RESOLVES]-> -[:REJECTED]->
 ```
+
+## Architecture: Code Organization
+
+### Package Structure
+
+```
+go/
+├── cmd/urp/                 # CLI entry point (Cobra commands)
+│   ├── main.go              # App bootstrap, root command, db connection
+│   ├── router.go            # LLM model selection and routing
+│   ├── compile.go           # Context Compiler (V2 dynamic prompt generation)
+│   ├── cognitive.go         # Wisdom, novelty, learning commands
+│   ├── code.go              # Code analysis (ingest, deps, stats, hotspots)
+│   ├── git.go               # Git history analysis
+│   ├── memory.go            # Session memory management
+│   ├── opencode.go          # AI agent execution
+│   ├── system.go            # Infrastructure commands (infra, doctor, status)
+│   ├── container.go         # Container management (spawn, kill, workers)
+│   ├── orchestrate.go       # Master/Worker orchestration
+│   ├── audit.go             # Audit logging
+│   ├── spec.go              # Spec-driven execution
+│   └── ... (other commands)
+│
+├── internal/
+│   ├── bootstrap/           # Dependency injection & initialization
+│   │   └── bootstrap.go     # Wire dependencies (SRP)
+│   │
+│   ├── compiler/            # Context Compiler (V2 feature)
+│   │   └── compiler.go      # Dynamic prompt generation from graph state
+│   │
+│   ├── gate/                # Noise Filter LLM
+│   │   └── gate.go          # Fast model for filtering/routing
+│   │
+│   ├── graph/               # Graph database (Memgraph)
+│   │   ├── driver.go        # Memgraph connection interface
+│   │   ├── memgraph.go      # Concrete Memgraph driver
+│   │   ├── cache.go         # Graph query caching
+│   │   └── *_test.go        # Tests (86+ test files)
+│   │
+│   ├── vector/              # Vector store (LanceDB)
+│   │   ├── store.go         # Vector store interface
+│   │   └── embedder.go      # Embedding generation
+│   │
+│   ├── opencode/            # AI agent system
+│   │   ├── agent/           # Agent executor & learning loop
+│   │   ├── provider/        # LLM providers
+│   │   │   ├── anthropic.go # Claude API
+│   │   │   ├── openai.go    # OpenAI-compatible APIs
+│   │   │   └── factory.go   # Provider routing
+│   │   ├── tool/            # Agent tools
+│   │   │   ├── bash.go      # Shell execution
+│   │   │   ├── read.go      # File reading
+│   │   │   ├── write.go     # File writing
+│   │   │   └── ...
+│   │   ├── model/           # Domain models for agents
+│   │   └── session/         # OpenCode session management
+│   │
+│   ├── memory/              # Multi-tier memory
+│   │   ├── session.go       # Ephemeral session memory
+│   │   ├── knowledge.go     # Persistent knowledge base
+│   │   ├── context.go       # Context window management
+│   │   ├── cache.go         # Memory caching
+│   │   └── *_test.go        # AGR, temporal, autolearn tests
+│   │
+│   ├── cognitive/           # Cognitive skills
+│   │   ├── wisdom.go        # Find similar solutions (vector search)
+│   │   ├── novelty.go       # Detect unusual patterns
+│   │   ├── learn.go         # Store learned strategies
+│   │   ├── evaluator.go     # Quality evaluation
+│   │   └── validation_test.go # Validation tests
+│   │
+│   ├── ingest/              # Code parsing & ingestion
+│   │   ├── parser.go        # AST parsing for code analysis
+│   │   └── parser_test.go
+│   │
+│   ├── container/           # Container orchestration
+│   │   ├── manager.go       # Docker/Podman abstraction
+│   │   ├── health.go        # Container health checks
+│   │   └── volume.go        # Volume management
+│   │
+│   ├── orchestrator/        # Master/Worker logic
+│   │   └── orchestrator.go
+│   │
+│   ├── audit/               # Audit logging & events
+│   │   ├── logger.go        # Structured audit logs
+│   │   └── store.go         # Persistent audit store
+│   │
+│   ├── config/              # Configuration management
+│   │   └── models.go        # Config structs
+│   │
+│   ├── domain/              # Domain types
+│   │   ├── entity.go        # Core domain entities
+│   │   └── event.go         # Event types
+│   │
+│   ├── tui/                 # Terminal UI (Bubble Tea)
+│   │   └── tui.go           # Interactive UI
+│   │
+│   ├── logging/             # Utilities
+│   │   ├── recovery.go      # Panic recovery
+│   │   └── recovery_test.go # 6+ recovery test cases
+│   │
+│   ├── runtime/             # Runtime utilities
+│   ├── query/               # Query utilities
+│   ├── render/              # Output rendering
+│   └── ... (other utilities)
+│
+└── docs/                    # Documentation
+    ├── ARCHITECTURE.md      # Detailed architecture
+    ├── COMMANDS.md          # Command reference
+    ├── QUICKSTART.md        # Getting started
+    └── progress.md          # Session learnings
+```
+
+### Key Architectural Patterns
+
+**V2 Context Compiler:**
+- `compiler.go` dynamically generates prompts from graph state
+- Adaptive context modes: Full, Focused, Minimal, Delta, Memory
+- Automatic token budget management
+
+**Dual-LLM Pipeline:**
+- Gate LLM: Fast noise filtering (Qwen/GLM)
+- Master LLM: Reasoning and planning (Claude/DeepSeek)
+- Provider routing in `opencode/provider/factory.go`
+
+**Master/Worker Architecture:**
+- Master: Read-only, orchestrates from `internal/orchestrator/`
+- Workers: Ephemeral containers with write access
+- Communication: `urp ask` sends instructions to worker's Claude CLI
+
+**Learning Loop (Empiricist):**
+- Pre-task: `cognitive/wisdom.go` retrieves similar strategies
+- Post-task: Extract and store learnings in vector store
+- Used by agents for adaptive behavior
+
+**Graph-Based Perception (PRU):**
+- 7 primitives: D (Domain), τ (Temporal), Φ (Morphism), ⊆ (Inclusion), ⊥ (Orthogonal), P (Projective), T (Tensor)
+- Cypher queries for code structure, git history, solutions
+- Stored in Memgraph (`internal/graph/`)
+
+**Multi-Tier Memory:**
+- Context Window: Current conversation (~200k tokens)
+- Session Memory: Ephemeral (`internal/memory/session.go`)
+- Knowledge Base: Persistent (`internal/memory/knowledge.go`)
+- Graph DB: Code structure & history
+- Vector Store: Semantic similarity
+
+### Common Development Patterns
+
+**Adding New Commands:**
+1. Create file `go/cmd/urp/<feature>.go` with command definition
+2. Add to root command in `main.go` via `rootCmd.AddCommand()`
+3. Leverage existing services: `db` (Memgraph), `auditLogger`, `store`
+
+**Adding Provider Support:**
+1. Implement `opencode/provider.Provider` interface in `opencode/provider/<name>.go`
+2. Register in `opencode/provider/factory.go`
+3. Environment variable: `URP_<NAME>_API_KEY` and `URP_<NAME>_BASE_URL`
+
+**Extending Agent Tools:**
+1. Implement `opencode/tool.Tool` interface
+2. Register in agent's tool registry (`opencode/agent/executor.go`)
+3. Tools have automatic error recovery and containerization for dangerous operations
+
+**Queries on Graph:**
+- Use Cypher queries via `graph.Driver.Query()`
+- Common patterns in `internal/graph/memgraph.go`
+- Cache frequently-used queries via `graph.Cache`
+
+**Memory Operations:**
+- Session: `memory.SessionStore.Add/Recall`
+- Knowledge: `memory.KnowledgeBase.Store/Query`
+- Both scoped by project/branch/environment
 
 ## Build
 
@@ -404,3 +652,66 @@ ANTHROPIC_API_KEY=<key>
 ANTHROPIC_BASE_URL=http://100.105.212.98:8317/
 NEO4J_URI=bolt://urp-memgraph:7687
 ```
+
+---
+
+## Key Dependencies & Technologies
+
+| Component | Technology | Location | Purpose |
+|-----------|-----------|----------|---------|
+| CLI Framework | Cobra | `go/cmd/urp/main.go` | Command routing and argument parsing |
+| Graph DB | Memgraph (Neo4j API) | `internal/graph/` | Persistent code structure & history |
+| Vector Store | LanceDB | `internal/vector/` | Semantic embeddings for similarity search |
+| Container Runtime | Docker/Podman | `internal/container/` | Master/Worker isolation |
+| TUI | Bubble Tea (Charmbracelet) | `internal/tui/` | Interactive terminal interface |
+| LLM Providers | OpenAI, Anthropic, DeepSeek | `internal/opencode/provider/` | Multi-provider support |
+| Go Version | 1.24.0 | `go/go.mod` | Target runtime |
+
+## Important Gotchas & Notes
+
+### Memgraph Connection
+- Required for most commands (except: `doctor`, `infra`, `version`, `help`, `models`)
+- Connection established in `main.go` PersistentPreRun
+- Health check: `urp doctor` or `docker logs urp-memgraph`
+- If "cannot connect" error: start with `docker compose up -d memgraph`
+
+### Master/Worker Protocol
+- Master NEVER writes files directly (read-only mount: `/workspace:ro`)
+- All mutations happen through worker containers with write access
+- Communication via `urp ask <worker> "<prompt>"` in worker's Claude CLI
+- Cleanup critical: `urp kill <worker>` to avoid orphaned containers
+
+### Context Compiler (V2)
+- Dynamically generates prompts from graph state, gated logs, and learned strategies
+- 5 modes balance detail vs. token cost
+- Check output with: `urp compile --goal "description"`
+
+### LLM Provider Routing
+- Multiple providers can be configured simultaneously
+- Factory pattern in `opencode/provider/factory.go` auto-selects based on env vars
+- Gate LLM (fast, noise filtering) separate from Master LLM (reasoning)
+- If model not found: verify API key and `URP_<PROVIDER>_MODEL` env vars
+
+### Test Coverage
+- 86+ test files across codebase
+- Panic recovery tests in `internal/logging/recovery_test.go` (note: intentional panics for testing)
+- Run single test: `go test -run TestName ./path/to/package/`
+- Coverage reports: `go test -coverprofile=coverage.out ./...` then `go tool cover -html=coverage.out`
+
+### Graph Queries
+- Cypher syntax (Neo4j-style)
+- Results returned as Record objects in `internal/graph/record.go`
+- Cache queries with TTL to avoid repeated network calls
+- Common patterns: file lookups, dependency graphs, commit history
+
+### Audit Logging
+- All operations logged to Memgraph via `internal/audit/`
+- Session-scoped: shared SessionID across Logger and Store
+- Queryable via graph for debugging and compliance
+
+### Bootstrapping Services
+- Dependency injection via `internal/bootstrap/bootstrap.go`
+- Ensures all services initialized in correct order: db → cache → memory → providers
+- Add new services here, not scattered in commands
+
+---

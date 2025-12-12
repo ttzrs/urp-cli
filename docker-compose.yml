@@ -51,7 +51,7 @@ services:
   # Text Embeddings Inference (Sovereign Embeddings)
   # ═══════════════════════════════════════════════════════════════
   tei:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    image: ghcr.io/huggingface/text-embeddings-inference:latest # Use latest tag for updates
     container_name: urp-tei
     restart: unless-stopped
     networks:
@@ -59,12 +59,11 @@ services:
     ports:
       - "8080:80" # Expose for debugging/local testing
     volumes:
-      - urp-vectors:/data # Cache models here
+      - urp-vectors:/data # Cache models here (remove :z)
     environment:
       - PORT=80
-      # BAAI/bge-small-en-v1.5: 384 dims, no auth required, fast
-      # Alternative: sentence-transformers/all-MiniLM-L6-v2 (384 dims)
       - MODEL_ID=${TEI_MODEL:-BAAI/bge-small-en-v1.5}
+      - HF_TOKEN=${HF_TOKEN:-} # Pass HF_TOKEN explicitly
     command: --model-id ${TEI_MODEL:-BAAI/bge-small-en-v1.5} --port 80 --huggingface-hub-cache /data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
@@ -78,7 +77,7 @@ services:
   # ═══════════════════════════════════════════════════════════════
   master:
     build:
-      context: .
+      context: ./go
       target: master
     image: urp:master
     container_name: urp-master
@@ -115,7 +114,7 @@ services:
   # ═══════════════════════════════════════════════════════════════
   worker:
     build:
-      context: .
+      context: ./go
       target: worker
     image: urp:worker
     networks:
@@ -141,7 +140,7 @@ services:
   # ═══════════════════════════════════════════════════════════════
   opencode-master:
     build:
-      context: .
+      context: ./go
       target: master
     image: urp:master
     container_name: urp-opencode-master
@@ -155,18 +154,23 @@ services:
       - urp-vectors:/var/lib/urp/vector
       - ${HOME}/.config/claude:/home/urp/.config/claude:ro
       - ${HOME}/.gitconfig:/home/urp/.gitconfig:ro
+      - ${HOME}/.urp-go/.env:/etc/urp/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock:z # Mount Docker socket for orchestration, with SELinux shared label
     environment:
       - NEO4J_URI=bolt://urp-memgraph:7687
       - URP_PROJECT=${URP_PROJECT:-unknown}
       - URP_MODE=opencode
+      # LLM Configuration for Master and Gate roles
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-NOHACEFALTA-NOHACEFALTA}
-      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://100.105.212.98:8317}
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-} # Allow empty for default
       - OPENAI_API_KEY=${OPENAI_API_KEY:-NOHACEFALTA-NOHACEFALTA}
-      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-http://100.105.212.98:8317/v1}
-      # Sovereign Embeddings: use local TEI service
-      - URP_EMBEDDING_PROVIDER=tei
-      - TEI_URL=http://urp-tei:80
-      - GH_TOKEN=${GH_TOKEN:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-} # Allow empty for default
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-} # Allow empty for default
+
+      - URP_MASTER_MODEL=${URP_MASTER_MODEL:-}
+      - URP_GATE_MODEL=${URP_GATE_MODEL:-}
+      - URP_DEFAULT_MASTER_MODEL=${URP_DEFAULT_MASTER_MODEL:-}
+      - URP_DEFAULT_GATE_MODEL=${URP_DEFAULT_GATE_MODEL:-}
       - GITHUB_TOKEN=${GH_TOKEN:-}
     stdin_open: true
     tty: true
@@ -176,7 +180,7 @@ services:
   # ═══════════════════════════════════════════════════════════════
   opencode-worker:
     build:
-      context: .
+      context: ./go
       target: worker
     image: urp:worker
     container_name: urp-opencode-worker
@@ -204,7 +208,7 @@ services:
   # ═══════════════════════════════════════════════════════════════
   dev:
     build:
-      context: .
+      context: ./go
       target: full
     image: urp:full
     networks:
@@ -228,7 +232,7 @@ services:
   # ═══════════════════════════════════════════════════════════════
   cli:
     build:
-      context: .
+      context: ./go
       target: minimal
     image: urp:minimal
     networks:

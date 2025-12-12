@@ -3,7 +3,10 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/joss/urp/internal/opencode/model"
 	"github.com/joss/urp/internal/opencode/provider"
 	"github.com/joss/urp/pkg/llm"
 )
@@ -18,7 +21,28 @@ type ModelConfig struct {
 
 // GetModelWithFallback attempts to get a working model with fallback options
 func GetModelWithFallback(modelID string, fallbackModels []string, configOptions ...provider.ConfigOption) (llm.Provider, string, error) {
-	// First try the primary model
+
+	// SPECIAL CASE: If model is zai-glm-4.6 and we have proxy credentials, use unified provider directly
+	if modelID == "zai-glm-4.6" {
+		// Check for proxy credentials in the environment directly
+		apiKey := os.Getenv("UNIFIED_API_KEY")
+		if apiKey == "" {
+			apiKey = os.Getenv("PROXY_API_KEY")
+		}
+		baseURL := os.Getenv("UNIFIED_BASE_URL")
+		if baseURL == "" {
+			baseURL = os.Getenv("PROXY_BASE_URL")
+		}
+
+		if apiKey != "" && baseURL != "" && strings.Contains(baseURL, "tizz.win") {
+			fmt.Printf("[DEBUG] GetModelWithFallback: Detected zai-glm-4.6 with proxy config, creating unified provider\n")
+			// Create unified provider directly for zai-glm-4.6 with proxy settings
+			prov := provider.NewUnifiedProvider(apiKey, baseURL, model.DefaultModelRegistry)
+			return prov, modelID, nil
+		}
+	}
+
+	// First try the primary model with default provider
 	if modelID != "" {
 		prov, resolvedModelID, err := provider.Default.CreateForModel(modelID, configOptions...)
 		if err == nil && prov != nil {
@@ -27,8 +51,27 @@ func GetModelWithFallback(modelID string, fallbackModels []string, configOptions
 		// If primary model fails, continue to try fallbacks
 	}
 
-	// Try each fallback model in order
+	// SPECIAL CASE for fallback: If fallback is zai-glm-4.6 and proxy credentials available
 	for _, fallbackModel := range fallbackModels {
+		if fallbackModel == "zai-glm-4.6" {
+			// Check for proxy credentials in the environment directly
+			apiKey := os.Getenv("UNIFIED_API_KEY")
+			if apiKey == "" {
+				apiKey = os.Getenv("PROXY_API_KEY")
+			}
+			baseURL := os.Getenv("UNIFIED_BASE_URL")
+			if baseURL == "" {
+				baseURL = os.Getenv("PROXY_BASE_URL")
+			}
+
+			if apiKey != "" && baseURL != "" && strings.Contains(baseURL, "tizz.win") {
+				fmt.Printf("[DEBUG] GetModelWithFallback: Detected fallback zai-glm-4.6 with proxy config, creating unified provider\n")
+				// Create unified provider directly for fallback zai-glm-4.6 with proxy settings
+				prov := provider.NewUnifiedProvider(apiKey, baseURL, model.DefaultModelRegistry)
+				return prov, fallbackModel, nil
+			}
+		}
+
 		if fallbackModel == "" {
 			continue
 		}

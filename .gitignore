@@ -61,3 +61,44 @@ go/cmd/desktop/frontend/node_modules/
 go/cmd/desktop/frontend/dist/
 go/cmd/desktop/build/
 packages/*/node_modules/
+
+# Build artifacts & binaries
+*.out
+*.exe
+*.dll
+*.dylib
+
+# Test logs & artifacts
+/tmp/
+test-results/
+coverage.out
+*.prof
+
+# Generated files
+dist/
+build/
+out/
+
+# Node/npm
+node_modules/
+package-lock.json
+yarn.lock
+
+# Temporary test files
+test_*.log
+urp_interactive_test_*.log
+*.tmp
+
+# LLM experiment artifacts (cleaned up)
+# Keeping comment for reference - these are removed
+# QWEN*.md, llm_*.sh, model_verification_report.sh, etc.
+
+# Memory & session files
+.memgraph/
+*.db
+*.sqlite
+*.sqlite3
+
+# Archive/backup (keep structure, ignore contents)
+archive/**/*.log
+archive/**/*.tmp

@@ -78,10 +78,10 @@ func DefaultRegistry(workDir string) *Registry {
 	r.Register(NewLS(workDir))
 	r.Register(NewWebFetch())
 	r.Register(NewWebSearch())
-	r.Register(NewScreenshot())
-	r.Register(NewScreenCapture())
+	// r.Register(NewScreenshot()) // Browser-related tool, commented out for minimization
+	// r.Register(NewScreenCapture()) // Browser-related tool, commented out for minimization
 	r.Register(NewComputer())
-	r.Register(NewBrowser())
+	// r.Register(NewBrowser()) // Browser-related tool, commented out for minimization
 	r.Register(NewDiagnostics(workDir))
 	r.Register(NewSandboxTool(workDir))
 
