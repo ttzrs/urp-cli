@@ -116,6 +116,16 @@ func (s *Service) ResolveShortCode(shortCode string) (ModelWithSource, bool) {
 // FindModel finds a model by ID across all sources
 func (s *Service) FindModel(modelID string) (ModelWithSource, bool) {
 	s.mu.RLock()
+	// Check if cache is empty and refresh if needed
+	isEmpty := len(s.shortCodeMap) == 0 && len(s.fetchers) > 0
+	s.mu.RUnlock()
+
+	if isEmpty {
+		// Cache is empty, try to refresh
+		_ = s.Refresh(context.Background())
+	}
+
+	s.mu.RLock()
 	defer s.mu.RUnlock()
 	for _, m := range s.shortCodeMap {
 		if m.ID == modelID {

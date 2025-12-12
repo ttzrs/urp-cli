@@ -19,6 +19,8 @@ func init() {
 func registerStaticFetchers() {
 	// OpenAI static models (from provider/openai.go)
 	openaiModels := []domain.Model{
+		{ID: "gpt-5.1", Name: "GPT-5.1", ShortCode: "51", ContextSize: 200000, InputCost: 5, OutputCost: 20},
+		{ID: "gpt-5", Name: "GPT-5", ShortCode: "5", ContextSize: 200000, InputCost: 5, OutputCost: 20},
 		{ID: "gpt-4o", Name: "GPT-4o", ShortCode: "4o", ContextSize: 128000, InputCost: 2.5, OutputCost: 10},
 		{ID: "gpt-4o-mini", Name: "GPT-4o Mini", ShortCode: "4om", ContextSize: 128000, InputCost: 0.15, OutputCost: 0.6},
 		{ID: "gpt-4-turbo", Name: "GPT-4 Turbo", ShortCode: "4tb", ContextSize: 128000, InputCost: 10, OutputCost: 30},
@@ -29,6 +31,10 @@ func registerStaticFetchers() {
 
 	// Anthropic static models (from provider/anthropic.go)
 	anthropicModels := []domain.Model{
+		{ID: "claude-opus-4-5-20251101", Name: "Claude Opus 4.5", ShortCode: "op45", ContextSize: 200000, InputCost: 15, OutputCost: 75},
+		{ID: "claude-opus-4-5-thinking", Name: "Claude Opus 4.5 Thinking", ShortCode: "op5t", ContextSize: 200000, InputCost: 15, OutputCost: 75},
+		{ID: "claude-haiku-4-5-20251001", Name: "Claude Haiku 4.5", ShortCode: "h45", ContextSize: 200000, InputCost: 0.8, OutputCost: 4},
+		{ID: "claude-sonnet-4-5-20250929", Name: "Claude Sonnet 4.5", ShortCode: "sn45", ContextSize: 200000, InputCost: 3, OutputCost: 15},
 		{ID: "claude-sonnet-4-20250514", Name: "Claude Sonnet 4", ShortCode: "sn4", ContextSize: 200000, InputCost: 3, OutputCost: 15},
 		{ID: "claude-opus-4-20250514", Name: "Claude Opus 4", ShortCode: "op4", ContextSize: 200000, InputCost: 15, OutputCost: 75},
 		{ID: "claude-3-5-sonnet-20241022", Name: "Claude 3.5 Sonnet", ShortCode: "s35", ContextSize: 200000, InputCost: 3, OutputCost: 15},
