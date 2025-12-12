@@ -158,41 +158,157 @@ urp spec run my-feature
 
 ## Common Workflows
 
+### Master/Worker Architecture
+
+URP uses a **master/worker pattern** for task execution:
+
+- **Master**: Reads code, analyzes, plans (read-only mount)
+- **Worker**: Implements changes, runs tests, commits (read-write mount)
+- **Communication**: Master sends instructions to worker via `urp ask`
+
+```
+┌──────────────────┐
+│   Master (RO)    │
+│ - Analyzes code  │
+│ - Plans tasks    │
+│ - Claude CLI     │
+└────────┬─────────┘
+         │ urp ask
+         ▼
+┌──────────────────┐
+│  Worker (RW)     │
+│ - Implements     │
+│ - Tests          │
+│ - Commits        │
+└──────────────────┘
+```
+
 ### Bug Fix
 
-```bash
-# 1. Launch master
-urp launch .
+Complete workflow for fixing a bug:
 
-# 2. Inside master, spawn worker
+```bash
+# 1. Launch master in read-only mode
+urp launch /path/to/project
+
+# Master outputs:
+# ✓ Master container: urp-proj-m1
+# ✓ Code ingested: 523 files, 42k LOC
+# ✓ Git history: 187 commits
+
+# 2. Inside master shell, spawn worker
 urp spawn
 
-# 3. Send task to worker
-urp ask urp-proj-w1 "fix the null pointer in auth.go line 42"
+# Worker created: urp-proj-w1 (read-write access)
 
-# 4. Review and cleanup
+# 3. Analyze before fixing
+urp code hotspots
+urp think wisdom "null pointer exception in auth.go"
+
+# 4. Send task to worker
+urp ask urp-proj-w1 "fix the null pointer in auth.go line 42. run tests. commit."
+
+# Worker execution steps:
+# - Claude analyzes the bug
+# - Creates feature branch
+# - Applies fix
+# - Runs `go test ./internal/auth/`
+# - Commits and reports status
+
+# 5. Review output from worker
+
+# 6. Clean up
 urp kill urp-proj-w1
+urp workers   # Verify worker is gone
+```
+
+### Multi-Task Feature Development
+
+Spawn multiple workers for parallel development:
+
+```bash
+# 1. Master mode
+urp launch .
+
+# 2. Spawn 3 parallel workers
+urp spawn 3
+
+# Creates: urp-proj-w1, urp-proj-w2, urp-proj-w3
+
+# 3. Assign tasks in parallel
+urp ask urp-proj-w1 "implement authentication module. run tests."
+urp ask urp-proj-w2 "implement API routes. run tests."
+urp ask urp-proj-w3 "implement database models. run tests."
+
+# All 3 workers execute in parallel!
+
+# 4. Monitor workers
+urp workers
+
+# 5. When done, clean up
+urp kill urp-proj-w1 urp-proj-w2 urp-proj-w3
 ```
 
 ### Code Review
 
 ```bash
-# Check code quality
+# Check code quality before fixing
 urp code ingest .
 urp code cycles      # Circular dependencies
 urp code dead        # Unused code
 urp code hotspots    # High churn files
+
+# Example: Find files to refactor
+urp code stats       # Overall metrics
+urp code deps        # Dependency graph
 ```
 
 ### Learning from Errors
 
 ```bash
-# After solving a problem
-urp think learn "Fixed CORS by adding AllowOrigins header"
+# After solving a problem, capture the solution
+urp think learn "Fixed CORS by adding AllowOrigins header to middleware"
 
 # Later, when similar error occurs
 urp think wisdom "CORS policy blocked"
-# Returns the previous solution
+
+# Output: Previous solution with context
+```
+
+### Spec-Driven Development
+
+Define requirements, let Claude implement:
+
+```bash
+# 1. Create specification
+mkdir -p specs/auth
+cat > specs/auth/spec.md << 'EOF'
+# OAuth 2.0 Integration
+
+## Requirements
+1. Support Google OAuth
+2. Store user tokens securely
+3. Refresh expired tokens
+4. Add /auth/callback endpoint
+
+## Tests Required
+- TestOAuth_GoogleFlow
+- TestOAuth_TokenRefresh
+- TestOAuth_InvalidToken
+EOF
+
+# 2. Spawn worker and execute spec
+urp spawn
+urp ask urp-proj-w1 "implement the spec in specs/auth/spec.md. run tests."
+
+# Worker:
+# 1. Reads spec.md
+# 2. Generates code based on requirements
+# 3. Runs tests
+# 4. Reports compliance
+
+# 3. Review and merge
+urp kill urp-proj-w1
 ```
 
 ## Troubleshooting
