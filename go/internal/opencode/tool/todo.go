@@ -191,6 +191,7 @@ func (t *TodoRead) Info() domain.Tool {
 		Parameters: domain.JSONSchema{
 			"type":       "object",
 			"properties": map[string]any{},
+			"additionalProperties": false,
 		},
 	}
 }

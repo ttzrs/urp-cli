@@ -24,7 +24,6 @@ func (i *Invalid) Info() domain.Tool {
 		Description: "Handles malformed tool calls (internal use)",
 		Parameters: domain.JSONSchema{
 			"type": "object",
-			"additionalProperties": true,
 			"properties": map[string]any{
 				"tool": map[string]any{
 					"type":        "string",
@@ -35,12 +34,14 @@ func (i *Invalid) Info() domain.Tool {
 					"description": "The error message from the failed call",
 				},
 				"attempted_args": map[string]any{
-					"type":                 "object",
-					"description":          "The arguments that were passed",
+					"type":        "object",
+					"description": "The arguments that were passed",
+					"properties": map[string]any{},
 					"additionalProperties": true,
 				},
 			},
 			"required": []string{"tool", "error"},
+			"additionalProperties": false,
 		},
 	}
 }
