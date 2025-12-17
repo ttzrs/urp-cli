@@ -1,11 +1,15 @@
 # URP: Universal Robotic Programmer (V2)
 
+
 **Cognitive infrastructure for AI coding agents.** Graph memory + vector search + container orchestration + adaptive learning.
 
 ```
 AXIOM: context_window ⊂ memory_total
        memory_total = context ∪ graph_db ∪ vector_store ∪ learned_strategies
 ```
+## ADAN: MIRA EL DISCORD
+- Jose se me ha cerrado el WhatsApp y no se por donde contactar contigo jajaja🤣
+
 
 ## What is URP?
 
